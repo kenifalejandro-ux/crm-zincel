@@ -1,0 +1,120 @@
+/**client/src/types/prospecto.types.ts*/
+
+/**client/src/types/prospecto.types.ts*/
+
+export type EstadoLead =
+  | "interesado"
+  | "no_interesado"
+  | "no_contesta"
+  | "volver_a_llamar"
+  | "buzon_de_voz"
+  | "fuera_de_servicio"
+  | "numero_equivocado"
+  | "ya_tiene_proveedor";
+
+export type CanalContacto = "llamada" | "whatsapp" | "correo" | "linkedin" | "instagram" | "facebook";
+export type FuenteLead = "facebook" | "instagram" | "tiktok" | "linkedin" | "referido" | "web" | "llamada_fria" | "otro";
+export type TamanoEmpresa = "1_10" | "11_50" | "51_200" | "201_500" | "mas_500";
+export type Prioridad = "alta" | "media" | "baja";
+export type ClasificacionLead = "gestionado" | "por_gestionar" | "cerrado" | "descartado";
+export type EstadoVenta = "si" | "no" | "en_proceso";
+export type ModalidadReunion = "presencial" | "virtual" | "google_meet" | "zoom";
+export type EstadoReunion = "agendada" | "en_proceso" | "cerrada" | "descartada";
+
+export interface Llamada {
+  id?:               string;
+  prospecto_id?:     string;
+  fecha?:            string;
+  canal?:            CanalContacto;
+  contestada?:       boolean;
+  duracion_minutos?: number;
+  resultado?:        string;
+  notas?:            string;
+  devolvio_llamada?: boolean;
+  intentos?:         number;
+  primer_contacto?:  string;
+}
+
+export interface Brochure {
+  id?:          string;
+  prospecto_id?: string;
+  canal?:       CanalContacto;
+  fecha_envio?: string;
+  enviado?:     boolean;
+  notas?:       string;
+}
+
+export interface Reunion {
+  id?:          string;
+  prospecto_id?: string;
+  titulo?:      string;
+  fecha_hora?:  string;
+  modalidad?:   ModalidadReunion;
+  estado?:      EstadoReunion;
+  enlace?:      string;
+  notas?:       string;
+  ingreso?:     boolean;
+}
+
+export interface Propuesta {
+  id:              string;
+  prospecto_id:    string;
+  servicio:        string;
+  descripcion:     string;
+  monto_propuesto: number;
+  monto_cerrado?:  number | null;
+  moneda:          string;
+  tipo_cambio:     number;
+  estado:          string;
+  fecha_propuesta: string;
+  fecha_cierre?:   string | null;
+  notas?:          string;
+  creado_en:       string;
+  actualizado_en:  string;
+}
+
+export interface Prospecto {
+  id:               string;
+  empresa:          string;
+  rubro?:           string;
+  tamano_empresa?:  TamanoEmpresa;
+  pagina_web?:      string;
+  web_activa?:      boolean;
+  proveedor_web?:   string;
+  nombre_contacto?: string;
+  cargo?:           string;
+  telefono?:        string;
+  email_contacto?:  string;
+  ciudad?:          string;
+  region?:          string;
+  pais:             string;
+  prioridad:        Prioridad;
+  fuente?:          FuenteLead;
+  estado_lead:      EstadoLead;
+  clasificacion:    ClasificacionLead;
+  estado_venta:     EstadoVenta;
+  notas?:           string;
+  creado_en:        string;
+  actualizado_en:   string;
+  llamadas?:        Llamada[];
+  reuniones?:       Reunion[];
+  brochures?:       Brochure[];
+  propuestas?:      Propuesta[];
+}
+
+export interface FiltrosProspecto {
+  estado_lead?:   string;
+  clasificacion?: string;
+  prioridad?:     string;
+  fuente?:        string;
+  busqueda?:      string;
+  pagina?:        number;
+  limite?:        number;
+}
+
+export interface PaginacionProspecto {
+  data:   Prospecto[];
+  total:  number;
+  pagina: number;
+  limite: number;
+}

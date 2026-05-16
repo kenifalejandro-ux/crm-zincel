@@ -1,0 +1,191 @@
+/** client/src/components/propuestas/ModalEditarPropuesta.tsx */
+
+import type { Propuesta, FormPropuesta, EstadoPropuesta, ServicioPropuesta } from "../../types/propuesta.types";
+import { LABEL_SERVICIO, LABEL_ESTADO } from "../../types/propuesta.types";
+
+const SERVICIOS = Object.keys(LABEL_SERVICIO) as ServicioPropuesta[];
+const ESTADOS   = Object.keys(LABEL_ESTADO)   as EstadoPropuesta[];
+
+interface Props {
+  propuesta:    Propuesta;
+  form:         FormPropuesta;
+  cargando:     boolean;
+  onFormChange: (form: FormPropuesta) => void;
+  onGuardar:    () => void;
+  onCerrar:     () => void;
+}
+
+export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, onGuardar, onCerrar }: Props) {
+  const set = (campo: Partial<FormPropuesta>) => onFormChange({ ...form, ...campo });
+
+  const esCerrada = form.estado === "cerrada_ganada" || form.estado === "cerrada_perdida";
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+        <h2 className="text-base font-semibold text-zinc-800">Editar propuesta</h2>
+
+        {/* Alerta auto-ingreso */}
+        {form.estado === "cerrada_ganada" && propuesta.estado !== "cerrada_ganada" && (
+          <div className="flex items-start gap-2 bg-green-50 border border-green-100 rounded-xl p-3">
+            <span className="text-lg">✅</span>
+            <p className="text-xs text-green-700">
+              Al guardar se creará automáticamente un ingreso en Finanzas con el monto cerrado.
+            </p>
+          </div>
+        )}
+
+        {/* Servicio */}
+        <div>
+          <label className="text-xs font-medium text-gray-500 mb-1 block">Tipo de servicio</label>
+          <select
+            value={form.servicio}
+            onChange={(e) => set({ servicio: e.target.value as ServicioPropuesta })}
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {SERVICIOS.map((s) => (
+              <option key={s} value={s}>{LABEL_SERVICIO[s]}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Descripción */}
+        <div>
+          <label className="text-xs font-medium text-gray-500 mb-1 block">Descripción</label>
+          <input
+            type="text"
+            value={form.descripcion}
+            onChange={(e) => set({ descripcion: e.target.value })}
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Moneda + Monto propuesto */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs font-medium text-gray-500 mb-1 block">Moneda</label>
+            <select
+              value={form.moneda}
+              onChange={(e) => set({ moneda: e.target.value as "PEN" | "USD" })}
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="PEN">S/ Soles (PEN)</option>
+              <option value="USD">$ Dólares (USD)</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500 mb-1 block">Monto propuesto</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.monto_propuesto}
+              onChange={(e) => set({ monto_propuesto: e.target.value })}
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        {/* Monto cerrado (solo si estado cerrado) */}
+        {esCerrada && (
+          <div>
+            <label className="text-xs font-medium text-gray-500 mb-1 block">
+              Monto cerrado
+              <span className="ml-1 text-zinc-400 font-normal">(lo que realmente se cobró)</span>
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.monto_cerrado}
+              onChange={(e) => set({ monto_cerrado: e.target.value })}
+              placeholder="0.00"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        )}
+
+        {/* Tipo de cambio */}
+        {form.moneda === "USD" && (
+          <div>
+            <label className="text-xs font-medium text-gray-500 mb-1 block">Tipo de cambio</label>
+            <input
+              type="number"
+              min="1"
+              step="0.001"
+              value={form.tipo_cambio}
+              onChange={(e) => set({ tipo_cambio: e.target.value })}
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        )}
+
+        {/* Estado */}
+        <div>
+          <label className="text-xs font-medium text-gray-500 mb-1 block">Estado</label>
+          <select
+            value={form.estado}
+            onChange={(e) => set({ estado: e.target.value as EstadoPropuesta })}
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {ESTADOS.map((e) => (
+              <option key={e} value={e}>{LABEL_ESTADO[e]}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Fechas */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha propuesta</label>
+            <input
+              type="date"
+              value={form.fecha_propuesta}
+              onChange={(e) => set({ fecha_propuesta: e.target.value })}
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          {esCerrada && (
+            <div>
+              <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha cierre</label>
+              <input
+                type="date"
+                value={form.fecha_cierre}
+                onChange={(e) => set({ fecha_cierre: e.target.value })}
+                className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Notas */}
+        <div>
+          <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
+          <textarea
+            rows={2}
+            value={form.notas}
+            onChange={(e) => set({ notas: e.target.value })}
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          />
+        </div>
+
+        {/* Botones */}
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={onCerrar}
+            className="flex-1 px-4 py-2 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={onGuardar}
+            disabled={cargando}
+            className="flex-1 px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition"
+          >
+            {cargando ? "Guardando..." : "Guardar cambios"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
