@@ -1,7 +1,8 @@
 /** client/src/pages/BrochuresPage.tsx */
 
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, FileDown } from "lucide-react";
+import * as XLSX from "xlsx";
 
 // ✅ Import correcto: brochure.api (singular, sin "s")
 import { getBrochures, crearBrochure, getResumenBrochures, actualizarBrochure, eliminarBrochuresMasivo } from "../services/brochures.api";
@@ -89,6 +90,20 @@ export default function BrochuresPage() {
   };
   
 
+  const exportarExcel = () => {
+    const rows = brochures.map((b: any) => ({
+      "Empresa":   b.empresa          ?? "",
+      "Contacto":  b.nombre_contacto  ?? "",
+      "Canal":     b.canal,
+      "Notas":     b.notas            ?? "",
+      "Fecha":     b.fecha ? new Date(b.fecha).toLocaleDateString("es-PE") : "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Brochures");
+    XLSX.writeFile(wb, `brochures_${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
+
   const totalBrochures    = resumen.reduce((a, r) => a + parseInt(r.total || 0), 0);
   const todosSeleccionados = brochures.length > 0 && seleccionados.length === brochures.length;
 
@@ -102,6 +117,14 @@ export default function BrochuresPage() {
         </div>
         <div className="flex gap-2">
           <TableBulkActions count={seleccionados.length} onDelete={eliminarSeleccionados} />
+          {brochures.length > 0 && (
+            <button
+              onClick={exportarExcel}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
+            >
+              <FileDown size={15} /> Exportar Excel
+            </button>
+          )}
           <button
             onClick={() => setModalAbierto(true)}
             className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"

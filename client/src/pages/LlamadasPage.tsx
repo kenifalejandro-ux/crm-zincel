@@ -1,7 +1,8 @@
 /** client/src/pages/LlamadasPage.tsx */
 
 import { useEffect, useState, useMemo } from "react";
-import { Plus } from "lucide-react";
+import { Plus, FileDown } from "lucide-react";
+import * as XLSX from "xlsx";
 import {
   getResumenLlamadas,
   getAllLlamadas,
@@ -141,6 +142,24 @@ export default function LlamadasPage() {
     }
   };
 
+  // ── Exportar Excel ──────────────────────────────────────
+  const exportarExcel = () => {
+    const rows = llamadas.map((l: any) => ({
+      "Empresa":         l.empresa         ?? "",
+      "Contacto":        l.nombre_contacto ?? "",
+      "Canal":           l.canal,
+      "Contestada":      l.contestada ? "Sí" : "No",
+      "Duración (min)":  l.duracion_minutos ?? 0,
+      "Resultado":       l.resultado ?? "",
+      "Notas":           l.notas     ?? "",
+      "Fecha":           l.fecha ? new Date(l.fecha).toLocaleDateString("es-PE") : "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Llamadas");
+    XLSX.writeFile(wb, `llamadas_${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
+
   // ── KPIs ────────────────────────────────────────────────
   const totalLlamadas     = resumen.reduce((acc, r) => acc + parseInt(r.por_canal || 0), 0);
   const totalContestadas  = resumen.reduce((acc, r) => acc + parseInt(r.contestadas || 0), 0);
@@ -178,12 +197,22 @@ export default function LlamadasPage() {
           <h1 className="text-xl font-semibold text-zinc-800">Llamadas</h1>
           <p className="text-xs text-zinc-400 mt-0.5">Registro de contactos realizados</p>
         </div>
-        <button
-          onClick={() => setModalAbierto(true)}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
-        >
-          <Plus size={15} /> Registrar llamada
-        </button>
+        <div className="flex gap-2">
+          {llamadas.length > 0 && (
+            <button
+              onClick={exportarExcel}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
+            >
+              <FileDown size={15} /> Exportar Excel
+            </button>
+          )}
+          <button
+            onClick={() => setModalAbierto(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+          >
+            <Plus size={15} /> Registrar llamada
+          </button>
+        </div>
       </div>
 
       {/* Filtros de fecha */}

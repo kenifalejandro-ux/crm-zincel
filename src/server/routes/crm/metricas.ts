@@ -20,8 +20,8 @@ metricasRouter.use(authMiddleware);
 
 metricasRouter.get("/", async (req, res) => {
   try {
-    const { empresa, plataforma, sub_plataforma } = req.query as Record<string, string>;
-    const data = await listarMetricasService({ empresa, plataforma, sub_plataforma });
+    const { empresa, plataforma, sub_plataforma, desde, hasta } = req.query as Record<string, string>;
+    const data = await listarMetricasService({ empresa, plataforma, sub_plataforma, desde, hasta });
     res.status(200).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

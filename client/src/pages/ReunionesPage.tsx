@@ -1,7 +1,8 @@
 /** client/src/pages/ReunionesPage.tsx */
 
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, FileDown } from "lucide-react";
+import * as XLSX from "xlsx";
 import { getReuniones, crearReunion, actualizarReunion, eliminarReunionesMasivoService } from "../services/reuniones.api";
 import { getProspectos } from "../services/prospectos.api";
 import type { Reunion } from "../types/reunion.types";
@@ -113,6 +114,25 @@ export default function ReunionesPage() {
     finally { setCargando(false); }
   };
 
+  // ── Exportar Excel ──────────────────────────────────────
+  const exportarExcel = () => {
+    const rows = reuniones.map((r) => ({
+      "Título":          r.titulo,
+      "Empresa":         r.empresa          ?? "",
+      "Contacto":        r.nombre_contacto  ?? "",
+      "Email":           r.email_contacto   ?? "",
+      "Fecha y hora":    new Date(r.fecha_hora).toLocaleString("es-PE"),
+      "Modalidad":       r.modalidad,
+      "Estado":          r.estado,
+      "Enlace":          r.enlace ?? "",
+      "Notas":           r.notas  ?? "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Reuniones");
+    XLSX.writeFile(wb, `reuniones_${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
+
   // ── Cambiar estado ──────────────────────────────────────
   const cambiarEstado = async (id: string, estado: string) => {
     try {
@@ -151,6 +171,14 @@ export default function ReunionesPage() {
             ))}
           </select>
 
+          {reuniones.length > 0 && (
+            <button
+              onClick={exportarExcel}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
+            >
+              <FileDown size={15} /> Exportar Excel
+            </button>
+          )}
           <button
             onClick={() => setModalAbierto(true)}
             className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"

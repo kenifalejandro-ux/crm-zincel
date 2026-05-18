@@ -29,9 +29,10 @@ export const MetricaSchema = z.object({
   // Resultados
   conversiones:       z.number().default(0),
   leads:              z.number().default(0),
-  mensajes:           z.number().default(0), // ← nuevo
+  mensajes:           z.number().default(0),
   roas:               z.number().default(0),
   roi:                z.number().default(0),
+  costo_por_lead:     z.number().default(0),
 
   // Comunidad
   seguidores_ganados: z.number().default(0),
@@ -39,12 +40,13 @@ export const MetricaSchema = z.object({
   frecuencia:         z.number().default(0), // ← nuevo
 
   // Engagement
+  interacciones:      z.number().default(0),
   me_gusta:           z.number().default(0),
   comentarios:        z.number().default(0),
   compartidos:        z.number().default(0),
   guardados:          z.number().default(0),
   tasa_engagement:    z.number().default(0),
-  costo_por_mensaje:  z.number().default(0), // ← nuevo
+  costo_por_mensaje:  z.number().default(0),
 
   // Video
   reproducciones:     z.number().default(0),

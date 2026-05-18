@@ -1,18 +1,21 @@
 /** src/components/metricas/detalle/ModalDetalleMetrica.tsx */
 
-import { useState, useMemo } from "react";
-import { X }                 from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { X, RefreshCw }                from "lucide-react";
 import { Metrica }           from "../../../types/metricas.types";
 import { calcularMetricas }  from "../../../utils/metricas.calc";
 import { TabsDetalle, Tab }  from "./TabsDetalle";
 import { ResumenDetalle }    from "./ResumenDetalle";
 import { FunnelDetalle }     from "./FunnelDetalle";
-import { AnalisisDetalle } from "./AnalisisDetalle.tsx";
+import { AnalisisDetalle }   from "./AnalisisDetalle.tsx";
 import { ProyeccionDetalle } from "./ProyeccionDetalle";
+import { ModalSincronizarMeta } from "../ModalSincronizarMeta";
+import { getMetaEmpresa }       from "../../../services/metaAds.api";
 
 interface Props {
-  metrica: Metrica;
-  onCerrar: () => void;
+  metrica:         Metrica;
+  onCerrar:        () => void;
+  onSincronizado?: () => void;
 }
 
 const BADGE_PLATAFORMA: Record<string, string> = {
@@ -33,10 +36,20 @@ const LABEL_SUB: Record<string, string> = {
   audience_network: "Audience Network",
 };
 
-export const ModalDetalleMetrica = ({ metrica, onCerrar }: Props) => {
-  const [tab, setTab] = useState<Tab>("resumen");
+export const ModalDetalleMetrica = ({ metrica, onCerrar, onSincronizado }: Props) => {
+  const [tab, setTab]               = useState<Tab>("resumen");
+  const [modalSync, setModalSync]   = useState(false);
+  const [esPropia, setEsPropia]     = useState(false);
 
   const calculado = useMemo(() => calcularMetricas(metrica), [metrica]);
+
+  useEffect(() => {
+    if (metrica.plataforma !== "meta") return;
+    getMetaEmpresa().then(empresaMeta => {
+      if (!empresaMeta) { setEsPropia(true); return; }
+      setEsPropia(metrica.empresa.trim().toLowerCase() === empresaMeta.trim().toLowerCase());
+    }).catch(() => setEsPropia(false));
+  }, [metrica.empresa, metrica.plataforma]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -61,12 +74,24 @@ export const ModalDetalleMetrica = ({ metrica, onCerrar }: Props) => {
                 {metrica.empresa} · {new Date(metrica.periodo_inicio).toLocaleDateString("es-PE")} → {new Date(metrica.periodo_fin).toLocaleDateString("es-PE")}
               </p>
             </div>
-            <button
-              onClick={onCerrar}
-              className="text-zinc-400 hover:text-zinc-600 transition"
-            >
-              <X size={18} />
-            </button>
+            <div className="flex items-center gap-2">
+              {metrica.plataforma === "meta" && esPropia && (
+                <button
+                  onClick={() => setModalSync(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition"
+                  title="Sincronizar desde Meta Ads"
+                >
+                  <RefreshCw size={13} />
+                  Actualizar desde Meta
+                </button>
+              )}
+              <button
+                onClick={onCerrar}
+                className="text-zinc-400 hover:text-zinc-600 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Tabs */}
@@ -84,6 +109,14 @@ export const ModalDetalleMetrica = ({ metrica, onCerrar }: Props) => {
         </div>
 
       </div>
+
+      {modalSync && (
+        <ModalSincronizarMeta
+          empresaPrefill={metrica.empresa}
+          onCerrar={() => setModalSync(false)}
+          onSincronizado={() => { setModalSync(false); onSincronizado?.(); }}
+        />
+      )}
     </div>
   );
 };

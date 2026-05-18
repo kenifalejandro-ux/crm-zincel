@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useProspectos } from "../hooks/useProspectos";
-import { Plus, Upload, AlertTriangle } from "lucide-react";
+import { Plus, Upload, AlertTriangle, FileDown } from "lucide-react";
 import * as XLSX from "xlsx";
 import api from "../services/api";
 
@@ -77,6 +77,32 @@ const eliminarSeleccionados = async () => {
   setSeleccionados([]);
   cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE });
 };
+
+  // ── Exportar Excel ──────────────────────────────────────
+  const exportarExcel = () => {
+    const rows = prospectos.map((p) => ({
+      "Empresa":         p.empresa,
+      "Rubro":           p.rubro              ?? "",
+      "Contacto":        p.nombre_contacto    ?? "",
+      "Cargo":           p.cargo              ?? "",
+      "Teléfono":        p.telefono           ?? "",
+      "Email":           p.email_contacto     ?? "",
+      "Ciudad":          p.ciudad             ?? "",
+      "País":            p.pais,
+      "Estado lead":     p.estado_lead,
+      "Clasificación":   p.clasificacion,
+      "Estado venta":    p.estado_venta,
+      "Prioridad":       p.prioridad,
+      "Fuente":          p.fuente             ?? "",
+      "Página web":      p.pagina_web         ?? "",
+      "Notas":           p.notas              ?? "",
+      "Creado":          new Date(p.creado_en).toLocaleDateString("es-PE"),
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Prospectos");
+    XLSX.writeFile(wb, `prospectos_${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
 
   // ── Leer Excel ──────────────────────────────────────────
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,6 +207,14 @@ const eliminarSeleccionados = async () => {
             <Upload size={15} /> Importar Excel
             <input type="file" accept=".xlsx,.xls" onChange={handleFile} className="hidden" />
           </label>
+          {prospectos.length > 0 && (
+            <button
+              onClick={exportarExcel}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition"
+            >
+              <FileDown size={15} /> Exportar Excel
+            </button>
+          )}
           <button
             onClick={() => setMostrarNuevo(true)}
             className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"

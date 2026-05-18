@@ -50,6 +50,7 @@ const CAMPOS_COMUNIDAD = [
 ] as const;
 
 const CAMPOS_ENGAGEMENT = [
+  { key: "interacciones",      label: "Interacciones",       calculado: false },
   { key: "me_gusta",           label: "Me gusta",            calculado: false },
   { key: "comentarios",        label: "Comentarios",         calculado: false },
   { key: "compartidos",        label: "Compartidos",         calculado: false },

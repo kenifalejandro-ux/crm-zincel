@@ -1,7 +1,7 @@
 /** src/pages/MetricasPage.tsx */
 
 import { useEffect, useState, useMemo } from "react";
-import { Plus, Upload }                 from "lucide-react";
+import { Plus, Upload, Zap, FileDown }  from "lucide-react";
 
 import { useMetricas }            from "../hooks/useMetricas";
 import { useEditar }              from "../hooks/useEditar";
@@ -15,9 +15,12 @@ import { MetricasBarChart }       from "../components/metricas/MetricasBarChart"
 import { ModalRegistroMetrica }   from "../components/metricas/ModalRegistroMetrica";
 import { ModalEditarMetrica }     from "../components/metricas/ModalEditarMetrica";
 import { ImportarCSVMetrica }     from "../components/metricas/ImportarCSVMetrica";
+import { ModalImportarAPI }      from "../components/metricas/ModalImportarAPI";
+
 import { TableBulkActions }       from "../components/ui/TableBulkActions";
 
 import { deleteMetricasMasivo, updateMetrica } from "../services/metricas.api";
+import { exportarReportePDF }                  from "../utils/exportarPDF";
 
 import {
   FiltrosMetrica,
@@ -67,6 +70,7 @@ const FORM_INICIAL: FormMetrica = {
   frecuencia:         "0",
 
   // Engagement
+  interacciones:      "0",
   me_gusta:           "0",
   comentarios:        "0",
   compartidos:        "0",
@@ -86,7 +90,7 @@ type TabPlataforma = Plataforma | "todas";
 // ─── Page ──────────────────────────────────────────────────────────────────────
 export default function MetricasPage() {
   const {
-    metricas, resumen, cargando,
+    metricas, resumen,
     cargarMetricas, cargarResumen,
     agregarMetrica, borrarMetrica,
   } = useMetricas();
@@ -96,6 +100,7 @@ export default function MetricasPage() {
   const [tabPlataforma,  setTabPlataforma]  = useState<TabPlataforma>("todas");
   const [modal,          setModal]          = useState(false);
   const [modalCSV,       setModalCSV]       = useState(false);
+  const [modalAPI,       setModalAPI]       = useState(false);
   const [form,           setForm]           = useState<FormMetrica>(FORM_INICIAL);
   const [guardando,      setGuardando]      = useState(false);
   const [seleccionados,  setSeleccionados]  = useState<string[]>([]);
@@ -167,7 +172,7 @@ export default function MetricasPage() {
 
   // ── Guardar registro manual ──────────────────────────────────────────────────
   const handleGuardar = async () => {
-    if (!form.empresa || !form.campana_nombre || !form.gasto) return;
+    if (!form.empresa || !form.campana_nombre) return;
     setGuardando(true);
     try {
       await agregarMetrica(form);
@@ -207,6 +212,32 @@ export default function MetricasPage() {
             count={seleccionados.length}
             onDelete={eliminarSeleccionados}
           />
+
+          {/* Exportar PDF */}
+          {metricasFiltradas.length > 0 && (
+            <button
+              onClick={() => {
+                const paraExportar = seleccionados.length > 0
+                  ? metricasFiltradas.filter(m => seleccionados.includes(m.id))
+                  : metricasFiltradas;
+                exportarReportePDF(paraExportar, filtros.empresa ?? "");
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
+              title={seleccionados.length > 0 ? `Exportar ${seleccionados.length} campaña(s) seleccionada(s)` : "Exportar todas las campañas"}
+            >
+              <FileDown size={15} />
+              {seleccionados.length > 0 ? `Exportar (${seleccionados.length})` : "Exportar PDF"}
+            </button>
+          )}
+
+          {/* Importar desde API */}
+          <button
+            onClick={() => setModalAPI(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition"
+          >
+            <Zap size={15} />
+            Importar desde API
+          </button>
 
           {/* Importar CSV */}
           <button
@@ -289,6 +320,18 @@ export default function MetricasPage() {
           error={editar.error}
           onGuardar={handleGuardarEdicion}
           onCerrar={editar.cerrar}
+        />
+      )}
+
+      {/* ── Modal importar desde API ── */}
+      {modalAPI && (
+        <ModalImportarAPI
+          onCerrar={() => setModalAPI(false)}
+          onSincronizado={() => {
+            setModalAPI(false);
+            cargarMetricas(filtros);
+            if (filtros.empresa) cargarResumen(filtros.empresa);
+          }}
         />
       )}
 

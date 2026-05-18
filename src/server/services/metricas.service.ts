@@ -10,6 +10,7 @@ export async function crearMetricaService(input: MetricaInput) {
       gasto, cpc, cpm, cpa,
       conversiones, leads, mensajes, roas, roi, costo_por_lead,
       seguidores_ganados, perfil_visitas,
+      interacciones,
       me_gusta, comentarios, compartidos, guardados, tasa_engagement,
       costo_por_mensaje,
       reproducciones, tasa_reproduccion,
@@ -17,18 +18,19 @@ export async function crearMetricaService(input: MetricaInput) {
     ) VALUES (
       $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
       $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
-      $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31
+      $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32
     ) RETURNING *`,
     [
       input.empresa, input.campana_nombre, input.plataforma, input.sub_plataforma ?? null,
       input.periodo_inicio, input.periodo_fin,
       input.impresiones, input.alcance, input.clics, input.ctr,
       input.gasto, input.cpc, input.cpm, input.cpa,
-      input.conversiones, input.leads, (input as any).mensajes ?? 0,
-      input.roas, input.roi, (input as any).costo_por_lead ?? 0,
+      input.conversiones, input.leads, input.mensajes,
+      input.roas, input.roi, input.costo_por_lead,
       input.seguidores_ganados, input.perfil_visitas,
+      input.interacciones,
       input.me_gusta, input.comentarios, input.compartidos, input.guardados, input.tasa_engagement,
-      (input as any).costo_por_mensaje ?? 0,
+      input.costo_por_mensaje,
       input.reproducciones, input.tasa_reproduccion,
       input.notas ?? null,
     ]
@@ -40,6 +42,8 @@ export async function listarMetricasService(filtros?: {
   empresa?: string;
   plataforma?: string;
   sub_plataforma?: string;
+  desde?: string;
+  hasta?: string;
 }) {
   const condiciones: string[] = [];
   const valores: any[] = [];
@@ -56,6 +60,14 @@ export async function listarMetricasService(filtros?: {
   if (filtros?.sub_plataforma) {
     condiciones.push(`sub_plataforma = $${i++}`);
     valores.push(filtros.sub_plataforma);
+  }
+  if (filtros?.desde) {
+    condiciones.push(`periodo_fin >= $${i++}`);
+    valores.push(filtros.desde);
+  }
+  if (filtros?.hasta) {
+    condiciones.push(`periodo_inicio <= $${i++}`);
+    valores.push(filtros.hasta);
   }
 
   const where = condiciones.length ? `WHERE ${condiciones.join(" AND ")}` : "";

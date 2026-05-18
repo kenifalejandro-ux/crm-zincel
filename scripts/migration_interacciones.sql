@@ -1,0 +1,2 @@
+ALTER TABLE campana_metricas
+  ADD COLUMN IF NOT EXISTS interacciones NUMERIC DEFAULT 0;

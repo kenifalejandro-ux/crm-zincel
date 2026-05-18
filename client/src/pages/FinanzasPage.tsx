@@ -1,7 +1,8 @@
 /** client/src/pages/FinanzasPage.tsx */
 
 import { useEffect, useState, useMemo } from "react";
-import { DollarSign, TrendingDown, TrendingUp, AlertCircle, Plus } from "lucide-react";
+import { DollarSign, TrendingDown, TrendingUp, AlertCircle, Plus, FileDown } from "lucide-react";
+import * as XLSX from "xlsx";
 
 import { useFinanzas }            from "../hooks/useFinanzas";
 import { useEditar }              from "../hooks/useEditar";
@@ -248,6 +249,63 @@ export default function FinanzasPage() {
     });
   };
 
+  // ── Exportar Excel ────────────────────────────────────────
+  const exportarExcel = () => {
+    const wb = XLSX.utils.book_new();
+
+    if (ingresos.length) {
+      const ws = XLSX.utils.json_to_sheet(ingresos.map((i: any) => ({
+        "Empresa":          i.empresa,
+        "Descripción":      i.descripcion,
+        "Servicio":         i.tipo_servicio,
+        "Monto total":      i.monto_total,
+        "Adelanto":         i.adelanto,
+        "Saldo pendiente":  i.saldo_pendiente,
+        "Moneda":           i.moneda,
+        "Estado":           i.estado,
+        "Fecha":            i.fecha ? new Date(i.fecha).toLocaleDateString("es-PE") : "",
+        "Vencimiento":      i.fecha_vencimiento ? new Date(i.fecha_vencimiento).toLocaleDateString("es-PE") : "",
+        "Notas":            i.notas ?? "",
+      })));
+      XLSX.utils.book_append_sheet(wb, ws, "Ingresos");
+    }
+
+    if (egresos.length) {
+      const ws = XLSX.utils.json_to_sheet(egresos.map((e: any) => ({
+        "Categoría":    e.categoria,
+        "Descripción":  e.descripcion,
+        "Proveedor":    e.proveedor ?? "",
+        "Monto":        e.monto,
+        "Moneda":       e.moneda,
+        "Frecuencia":   e.frecuencia,
+        "Estado":       e.estado,
+        "Fecha":        e.fecha ? new Date(e.fecha).toLocaleDateString("es-PE") : "",
+        "Vencimiento":  e.fecha_vencimiento ? new Date(e.fecha_vencimiento).toLocaleDateString("es-PE") : "",
+        "Notas":        e.notas ?? "",
+      })));
+      XLSX.utils.book_append_sheet(wb, ws, "Egresos");
+    }
+
+    if (prestamos.length) {
+      const ws = XLSX.utils.json_to_sheet(prestamos.map((p: any) => ({
+        "Categoría":    p.categoria,
+        "Descripción":  p.descripcion,
+        "Prestamista":  p.prestamista ?? "",
+        "Monto":        p.monto,
+        "Moneda":       p.moneda,
+        "Estado":       p.estado,
+        "Fecha":        p.fecha ? new Date(p.fecha).toLocaleDateString("es-PE") : "",
+        "Vencimiento":  p.fecha_vencimiento ? new Date(p.fecha_vencimiento).toLocaleDateString("es-PE") : "",
+        "Fecha pago":   p.fecha_pago ? new Date(p.fecha_pago).toLocaleDateString("es-PE") : "",
+        "Notas":        p.notas ?? "",
+      })));
+      XLSX.utils.book_append_sheet(wb, ws, "Préstamos");
+    }
+
+    if (!wb.SheetNames.length) return;
+    XLSX.writeFile(wb, `finanzas_${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
+
   // ── Botón header dinámico ──────────────────────────────────
   const handleNuevo = () => {
     if (tab === "ingresos")  setModalIngreso(true);
@@ -304,6 +362,14 @@ export default function FinanzasPage() {
         </div>
 
         <div className="flex gap-2">
+          {(ingresos.length > 0 || egresos.length > 0 || prestamos.length > 0) && (
+            <button
+              onClick={exportarExcel}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
+            >
+              <FileDown size={15} /> Exportar Excel
+            </button>
+          )}
           {tab !== "resumen" && (
             <>
               <TableBulkActions count={seleccionados.length} onDelete={eliminarSeleccionados} />

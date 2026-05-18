@@ -11,6 +11,9 @@ import { dashboardRouter } from "./dashboard";
 import { metricasRouter }       from "./metricas";
 import { configuracionRouter }  from "./configuracion";
 import { propuestasRouter }     from "./propuestas";
+import { metaAdsRouter }           from "./metaAds";
+import { tiktokAdsRouter }         from "./tiktokAds";
+import { plataformaCuentasRouter } from "./plataformaCuentas";
 
 export function createCrmRouter(): Router {
   const router = Router();
@@ -25,6 +28,9 @@ export function createCrmRouter(): Router {
   router.use("/metricas",      metricasRouter);
   router.use("/configuracion", configuracionRouter);
   router.use("/propuestas",    propuestasRouter);
+  router.use("/meta-ads",          metaAdsRouter);
+  router.use("/tiktok-ads",        tiktokAdsRouter);
+  router.use("/plataforma-cuentas", plataformaCuentasRouter);
 
   return router;
 }

@@ -41,6 +41,7 @@ export interface Metrica {
   frecuencia:         number;
 
   // Engagement
+  interacciones:      number;
   me_gusta:           number;
   comentarios:        number;
   compartidos:        number;
@@ -74,6 +75,8 @@ export interface FiltrosMetrica {
   empresa?:        string;
   plataforma?:     Plataforma | "";
   sub_plataforma?: SubPlataforma | "";
+  desde?:          string;
+  hasta?:          string;
 }
 
 export type FormMetrica = {
@@ -114,6 +117,7 @@ export type FormMetrica = {
   frecuencia:         string;       // ← calculado
 
   // Engagement
+  interacciones:      string;
   me_gusta:           string;
   comentarios:        string;
   compartidos:        string;

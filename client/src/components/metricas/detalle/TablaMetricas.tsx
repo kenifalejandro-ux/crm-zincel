@@ -33,11 +33,12 @@ interface Props {
   onToggleTodos:      () => void;
   onEditar:           (m: Metrica) => void;
   onBorrar:           (id: string) => void;
+  onSincronizado?:    () => void;
 }
 
 export const TablaMetricas = ({
   metricas, seleccionados, todosSeleccionados,
-  onToggleUno, onToggleTodos, onEditar, onBorrar,
+  onToggleUno, onToggleTodos, onEditar, onBorrar, onSincronizado,
 }: Props) => {
 
   const [detalle, setDetalle] = useState<Metrica | null>(null);
@@ -172,6 +173,7 @@ export const TablaMetricas = ({
         <ModalDetalleMetrica
           metrica={detalle}
           onCerrar={() => setDetalle(null)}
+          onSincronizado={onSincronizado}
         />
       )}
     </>

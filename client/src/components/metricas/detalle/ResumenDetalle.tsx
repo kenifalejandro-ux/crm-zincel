@@ -97,6 +97,33 @@ export const ResumenDetalle = ({ metrica: m, calculado: c }: Props) => (
       </div>
     </div>
 
+    {/* Datos de alcance y engagement */}
+    {(m.impresiones > 0 || m.alcance > 0 || m.clics > 0 || m.seguidores_ganados > 0 ||
+      m.me_gusta > 0 || m.comentarios > 0 || m.compartidos > 0 || m.guardados > 0 ||
+      m.perfil_visitas > 0 || m.reproducciones > 0) && (
+      <div>
+        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide mb-2">
+          Datos de alcance y engagement
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {m.impresiones    > 0 && <KpiBox label="Impresiones"       valor={m.impresiones.toLocaleString("es-PE")}    sub="Veces mostrado"      />}
+          {m.alcance        > 0 && <KpiBox label="Alcance"           valor={m.alcance.toLocaleString("es-PE")}        sub="Personas únicas"     />}
+          {m.clics          > 0 && <KpiBox label="Clics"             valor={m.clics.toLocaleString("es-PE")}          sub="Total de clics"      />}
+          {m.leads          > 0 && <KpiBox label="Leads"             valor={m.leads.toLocaleString("es-PE")}          sub="Formularios"         />}
+          {m.mensajes       > 0 && <KpiBox label="Mensajes"          valor={m.mensajes.toLocaleString("es-PE")}       sub="Conversaciones"      />}
+          {m.conversiones   > 0 && <KpiBox label="Conversiones"      valor={m.conversiones.toLocaleString("es-PE")}   sub="Ventas / acciones"   />}
+          {m.seguidores_ganados > 0 && <KpiBox label="Seguidores"    valor={`+${m.seguidores_ganados.toLocaleString("es-PE")}`} sub="Ganados en el período" />}
+          {m.perfil_visitas > 0 && <KpiBox label="Visitas perfil"    valor={m.perfil_visitas.toLocaleString("es-PE")} sub="Visitas al perfil"   />}
+          {m.interacciones  > 0 && <KpiBox label="Interacciones"      valor={m.interacciones.toLocaleString("es-PE")}  sub="Total de contenido"  />}
+          {m.me_gusta       > 0 && <KpiBox label="Me gusta"          valor={m.me_gusta.toLocaleString("es-PE")}       sub="Reacciones"          />}
+          {m.comentarios    > 0 && <KpiBox label="Comentarios"       valor={m.comentarios.toLocaleString("es-PE")}    sub="En publicaciones"    />}
+          {m.compartidos    > 0 && <KpiBox label="Compartidos"       valor={m.compartidos.toLocaleString("es-PE")}    sub="Veces compartido"    />}
+          {m.guardados      > 0 && <KpiBox label="Guardados"         valor={m.guardados.toLocaleString("es-PE")}      sub="Publicaciones guardadas" />}
+          {m.reproducciones > 0 && <KpiBox label="Reproducciones"    valor={m.reproducciones.toLocaleString("es-PE")} sub="Views de video"      />}
+        </div>
+      </div>
+    )}
+
     {/* Semáforos */}
     <div>
       <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide mb-2">

@@ -25,6 +25,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !esLoginRoute) {
       localStorage.removeItem("crm_token");
       localStorage.removeItem("crm_usuario");
+      sessionStorage.setItem("crm_session_msg", "Tu sesión ha expirado. Inicia sesión nuevamente.");
       window.location.href = "/login";
     }
     return Promise.reject(error);

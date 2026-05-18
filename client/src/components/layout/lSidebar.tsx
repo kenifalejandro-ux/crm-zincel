@@ -3,18 +3,19 @@
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Users, Phone,
-  CalendarDays, DollarSign, FileText, User, BarChart2, X,
+  CalendarDays, DollarSign, FileText, User, BarChart2, X, Settings,
 } from "lucide-react";
 
 const navegacion = [
-  { label: "Dashboard",  to: "/",           icon: LayoutDashboard },
-  { label: "Prospectos", to: "/prospectos", icon: Users },
-  { label: "Llamadas",   to: "/llamadas",   icon: Phone },
-  { label: "Reuniones",  to: "/reuniones",  icon: CalendarDays },
-  { label: "Finanzas",   to: "/finanzas",   icon: DollarSign },
-  { label: "Brochures",  to: "/brochures",  icon: FileText },
-  { label: "Métricas",   to: "/metricas",   icon: BarChart2 },
-  { label: "Mi perfil",  to: "/perfil",     icon: User },
+  { label: "Dashboard",      to: "/",               icon: LayoutDashboard },
+  { label: "Prospectos",     to: "/prospectos",     icon: Users },
+  { label: "Llamadas",       to: "/llamadas",       icon: Phone },
+  { label: "Reuniones",      to: "/reuniones",      icon: CalendarDays },
+  { label: "Finanzas",       to: "/finanzas",       icon: DollarSign },
+  { label: "Brochures",      to: "/brochures",      icon: FileText },
+  { label: "Métricas",       to: "/metricas",       icon: BarChart2 },
+  { label: "Mi perfil",      to: "/perfil",         icon: User },
+  { label: "Configuración",  to: "/configuracion",  icon: Settings },
 ];
 
 interface Props {
