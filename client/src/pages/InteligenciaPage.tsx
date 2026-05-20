@@ -2,9 +2,12 @@
 
 import { useEffect, useState, useRef } from "react";
 import { TrendingUp, Phone, CalendarDays, FileText, Package, AlertTriangle, CheckCircle, Info, Lightbulb, ChevronDown, ChevronLeft, ChevronRight, Calendar, Pencil, X, Check } from "lucide-react";
-import { getFunnelPipeline, getAnalisisRegion, getMotivosPerdida } from "../services/prospectos.api";
+import { getFunnelPipeline, getAnalisisRegion, getMotivosPerdida, getProspecto } from "../services/prospectos.api";
 import { getHeatmapLlamadas }  from "../services/llamadas.api";
 import { getMetricasDashboard } from "../services/dashboard.api";
+import { ProspectoDetalle } from "../components/prospectos/ProspectoDetalle";
+import type { Prospecto } from "../types/prospecto.types";
+import { useNavigate } from "react-router-dom";
 import { getInsights, getLeadsEstancados, getPrioridadOperacional, getForecast, getObjetivos, actualizarObjetivos, getTendencias } from "../services/inteligencia.api";
 import type { Tendencias } from "../services/inteligencia.api";
 import { FunnelConversion }    from "../components/inteligencia/FunnelConversion";
@@ -101,94 +104,118 @@ function gravedadDias(dias: number | null): { label: string; cls: string } {
 }
 
 function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
-  const [abierto, setAbierto] = useState(false);
+  const navigate = useNavigate();
+  const [abierto,          setAbierto]          = useState(false);
+  const [prospectoDetalle, setProspectoDetalle] = useState<Prospecto | null>(null);
+  const [cargandoId,       setCargandoId]       = useState<string | null>(null);
+
   const criticos = leads.filter(l => {
     const d = l.ultima_actividad ? Math.round((Date.now() - new Date(l.ultima_actividad).getTime()) / 86400000) : 999;
     return d >= 30;
   }).length;
 
-  return (
-    <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
-      {/* Cabecera — siempre visible, click para toggle */}
-      <button
-        onClick={() => setAbierto(v => !v)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition text-left"
-      >
-        <div className="flex items-center gap-3">
-          <AlertTriangle size={14} className="text-amber-500 shrink-0" />
-          <div>
-            <p className="text-sm font-semibold text-zinc-800">
-              Leads sin actividad (+14 días)
-            </p>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              {leads.length} leads sin actividad reciente{criticos > 0 ? ` · ${criticos} críticos` : ""}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {criticos > 0 && (
-            <span className="text-xs bg-red-100 text-red-700 font-semibold px-2 py-0.5 rounded-full">
-              {criticos} críticos
-            </span>
-          )}
-          <span className="text-xs bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">
-            {leads.length}
-          </span>
-          <ChevronDown
-            size={15}
-            className={`text-zinc-400 transition-transform duration-200 ${abierto ? "rotate-180" : ""}`}
-          />
-        </div>
-      </button>
+  const abrirDetalle = async (id: string) => {
+    setCargandoId(id);
+    try {
+      const p = await getProspecto(id);
+      setProspectoDetalle(p);
+    } catch { /* silencioso */ }
+    finally { setCargandoId(null); }
+  };
 
-      {/* Contenido desplegable */}
-      {abierto && (
-        <div className="border-t border-gray-100 overflow-x-auto max-h-72 overflow-y-auto">
-          <table className="w-full text-xs">
-            <thead className="sticky top-0 bg-white z-10">
-              <tr className="border-b border-gray-100">
-                <th className="text-left py-2 px-5 text-zinc-400 font-medium">Empresa</th>
-                <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Etapa</th>
-                <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Riesgo</th>
-                <th className="text-left py-2 pr-5 text-zinc-400 font-medium">Sin actividad</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leads.map(lead => {
-                const dias = lead.ultima_actividad
-                  ? Math.round((Date.now() - new Date(lead.ultima_actividad).getTime()) / 86400000)
-                  : null;
-                const g = gravedadDias(dias);
-                return (
-                  <tr key={lead.id} className="border-b border-gray-50 hover:bg-gray-50 transition">
-                    <td className="py-2 px-5">
-                      <p className="font-medium text-zinc-800 truncate max-w-[160px]">{lead.empresa}</p>
-                      <p className="text-zinc-400 truncate max-w-[160px]">{lead.nombre_contacto}</p>
-                    </td>
-                    <td className="py-2 pr-4">
-                      <span className="px-2 py-0.5 rounded-full bg-gray-100 text-zinc-600 text-[10px]">
-                        {ETAPA_LABEL[lead.etapa_pipeline] ?? lead.etapa_pipeline}
-                      </span>
-                    </td>
-                    <td className="py-2 pr-4">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full ${g.cls}`}>
-                        {g.label}
-                      </span>
-                    </td>
-                    <td className="py-2 pr-5">
-                      {dias !== null
-                        ? <span className="text-[10px] text-zinc-500">{dias} días</span>
-                        : <span className="text-[10px] text-zinc-300">Sin actividad</span>
-                      }
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+  return (
+    <>
+      <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+        <button
+          onClick={() => setAbierto(v => !v)}
+          className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition text-left"
+        >
+          <div className="flex items-center gap-3">
+            <AlertTriangle size={14} className="text-amber-500 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-zinc-800">Leads sin actividad (+14 días)</p>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                {leads.length} leads sin actividad reciente{criticos > 0 ? ` · ${criticos} críticos` : ""} · clic para gestionar
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {criticos > 0 && (
+              <span className="text-xs bg-red-100 text-red-700 font-semibold px-2 py-0.5 rounded-full">
+                {criticos} críticos
+              </span>
+            )}
+            <span className="text-xs bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">
+              {leads.length}
+            </span>
+            <ChevronDown size={15} className={`text-zinc-400 transition-transform duration-200 ${abierto ? "rotate-180" : ""}`} />
+          </div>
+        </button>
+
+        {abierto && (
+          <div className="border-t border-gray-100 overflow-x-auto max-h-72 overflow-y-auto">
+            <table className="w-full text-xs">
+              <thead className="sticky top-0 bg-white z-10">
+                <tr className="border-b border-gray-100">
+                  <th className="text-left py-2 px-5 text-zinc-400 font-medium">Empresa</th>
+                  <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Etapa</th>
+                  <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Riesgo</th>
+                  <th className="text-left py-2 pr-5 text-zinc-400 font-medium">Sin actividad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leads.map(lead => {
+                  const dias = lead.ultima_actividad
+                    ? Math.round((Date.now() - new Date(lead.ultima_actividad).getTime()) / 86400000)
+                    : null;
+                  const g = gravedadDias(dias);
+                  const cargando = cargandoId === lead.id;
+                  return (
+                    <tr
+                      key={lead.id}
+                      onClick={() => abrirDetalle(lead.id)}
+                      className="border-b border-gray-50 hover:bg-blue-50 hover:cursor-pointer transition group"
+                    >
+                      <td className="py-2 px-5">
+                        <p className="font-medium text-zinc-800 truncate max-w-[160px] group-hover:text-blue-700">{lead.empresa}</p>
+                        <p className="text-zinc-400 truncate max-w-[160px]">{lead.nombre_contacto}</p>
+                      </td>
+                      <td className="py-2 pr-4">
+                        <span className="px-2 py-0.5 rounded-full bg-gray-100 text-zinc-600 text-[10px]">
+                          {ETAPA_LABEL[lead.etapa_pipeline] ?? lead.etapa_pipeline}
+                        </span>
+                      </td>
+                      <td className="py-2 pr-4">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full ${g.cls}`}>{g.label}</span>
+                      </td>
+                      <td className="py-2 pr-5">
+                        <div className="flex items-center gap-2">
+                          {dias !== null
+                            ? <span className="text-[10px] text-zinc-500">{dias} días</span>
+                            : <span className="text-[10px] text-zinc-300">Sin actividad</span>
+                          }
+                          {cargando && (
+                            <div className="w-3 h-3 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {prospectoDetalle && (
+        <ProspectoDetalle
+          prospecto={prospectoDetalle}
+          onCerrar={() => setProspectoDetalle(null)}
+          onEditar={() => { navigate("/prospectos"); setProspectoDetalle(null); }}
+        />
       )}
-    </div>
+    </>
   );
 }
 

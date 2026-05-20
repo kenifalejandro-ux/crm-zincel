@@ -286,6 +286,7 @@ export interface AccionPrioridad {
   descripcion: string;
   cantidad:    number;
   accion:      string;
+  tipo:        string;
 }
 
 export async function prioridadOperacionalService(): Promise<AccionPrioridad[]> {
@@ -326,43 +327,38 @@ export async function prioridadOperacionalService(): Promise<AccionPrioridad[]> 
   const acciones: AccionPrioridad[] = [];
 
   if (a.rows[0].n > 0) acciones.push({
-    nivel: "critica", icono: "🔥",
+    nivel: "critica", icono: "🔥", tipo: "sin_propuesta",
     titulo: "Enviar propuestas",
     descripcion: `${a.rows[0].n} leads en etapa Interesado/Negociación sin propuesta enviada. Son los más cercanos al cierre.`,
-    cantidad: a.rows[0].n,
-    accion: "Ver en Pipeline",
+    cantidad: a.rows[0].n, accion: "Ver leads",
   });
 
   if (b.rows[0].n > 0) acciones.push({
-    nivel: "critica", icono: "🚨",
+    nivel: "critica", icono: "🚨", tipo: "negociacion_inactiva",
     titulo: "Reactivar negociaciones",
     descripcion: `${b.rows[0].n} lead${b.rows[0].n > 1 ? "s" : ""} en Negociación sin actividad hace más de 7 días. Alta probabilidad de perderlos.`,
-    cantidad: b.rows[0].n,
-    accion: "Ver en Pipeline",
+    cantidad: b.rows[0].n, accion: "Ver leads",
   });
 
   if (c.rows[0].n > 0) acciones.push({
-    nivel: "urgente", icono: "📋",
+    nivel: "urgente", icono: "📋", tipo: "propuesta_sin_respuesta",
     titulo: "Seguimiento de propuestas",
     descripcion: `${c.rows[0].n} propuesta${c.rows[0].n > 1 ? "s" : ""} enviada${c.rows[0].n > 1 ? "s" : ""} sin respuesta en más de 7 días. Un seguimiento aumenta la probabilidad de cierre.`,
-    cantidad: c.rows[0].n,
-    accion: "Ver propuestas",
+    cantidad: c.rows[0].n, accion: "Ver leads",
   });
 
   if (d.rows[0].n > 0) acciones.push({
-    nivel: "urgente", icono: "📞",
+    nivel: "urgente", icono: "📞", tipo: "volver_llamar",
     titulo: "Volver a llamar",
     descripcion: `${d.rows[0].n} lead${d.rows[0].n > 1 ? "s solicitaron" : " solicitó"} ser contactado${d.rows[0].n > 1 ? "s" : ""} de nuevo. Están esperando tu llamada.`,
-    cantidad: d.rows[0].n,
-    accion: "Ver leads",
+    cantidad: d.rows[0].n, accion: "Ver leads",
   });
 
   if (e.rows[0].n > 0) acciones.push({
-    nivel: "pendiente", icono: "📬",
+    nivel: "pendiente", icono: "📬", tipo: "sin_contacto",
     titulo: "Leads sin primer contacto",
     descripcion: `${e.rows[0].n} leads nuevos que nunca han recibido una llamada ni reunión. Son oportunidades sin explorar.`,
-    cantidad: e.rows[0].n,
-    accion: "Ver en Prospectos",
+    cantidad: e.rows[0].n, accion: "Ver leads",
   });
 
   return acciones;
@@ -620,4 +616,68 @@ export async function forecastingService(): Promise<Forecast> {
     ciclo_promedio_dias:   cicloDias,
     contactos_necesarios:  contactosNecesarios,
   };
+}
+
+// ─── Leads detalle por tipo de acción prioritaria ─────────────────────────────
+
+export async function leadesPrioridadService(tipo: string) {
+  const SELECT_BASE = `
+    SELECT p.id, p.empresa, p.nombre_contacto, p.telefono,
+           p.etapa_pipeline, p.estado_lead, p.ciudad,
+           p.actualizado_en
+  `;
+
+  let query = "";
+
+  if (tipo === "sin_propuesta") {
+    query = `${SELECT_BASE}
+      FROM prospectos p
+      WHERE p.etapa_pipeline IN ('interesado','negociacion')
+        AND NOT EXISTS (SELECT 1 FROM propuestas WHERE prospecto_id = p.id)
+      ORDER BY p.etapa_pipeline DESC, p.actualizado_en ASC
+      LIMIT 100`;
+
+  } else if (tipo === "negociacion_inactiva") {
+    query = `${SELECT_BASE}
+      FROM prospectos p
+      WHERE p.etapa_pipeline = 'negociacion'
+        AND p.actualizado_en < CURRENT_TIMESTAMP - INTERVAL '7 days'
+      ORDER BY p.actualizado_en ASC
+      LIMIT 100`;
+
+  } else if (tipo === "propuesta_sin_respuesta") {
+    query = `
+      SELECT p.id, p.empresa, p.nombre_contacto, p.telefono,
+             p.etapa_pipeline, p.estado_lead, p.ciudad,
+             pr.fecha_propuesta AS actualizado_en
+      FROM propuestas pr
+      JOIN prospectos p ON p.id = pr.prospecto_id
+      WHERE pr.estado = 'enviada'
+        AND pr.fecha_propuesta <= CURRENT_DATE - INTERVAL '7 days'
+      ORDER BY pr.fecha_propuesta ASC
+      LIMIT 100`;
+
+  } else if (tipo === "volver_llamar") {
+    query = `${SELECT_BASE}
+      FROM prospectos p
+      WHERE p.estado_lead = 'volver_a_llamar'
+        AND p.etapa_pipeline NOT IN ('cerrado_ganado','perdido')
+      ORDER BY p.actualizado_en ASC
+      LIMIT 100`;
+
+  } else if (tipo === "sin_contacto") {
+    query = `${SELECT_BASE}
+      FROM prospectos p
+      WHERE p.etapa_pipeline = 'nuevo'
+        AND NOT EXISTS (SELECT 1 FROM llamadas WHERE prospecto_id = p.id)
+        AND NOT EXISTS (SELECT 1 FROM reuniones WHERE prospecto_id = p.id)
+      ORDER BY p.actualizado_en DESC
+      LIMIT 100`;
+
+  } else {
+    return [];
+  }
+
+  const result = await pool.query(query);
+  return result.rows;
 }

@@ -53,11 +53,28 @@ export interface AccionPrioridad {
   descripcion: string;
   cantidad:    number;
   accion:      string;
+  tipo:        string;
+}
+
+export interface LeadPrioridad {
+  id:              string;
+  empresa:         string;
+  nombre_contacto: string;
+  telefono:        string;
+  etapa_pipeline:  string;
+  estado_lead:     string;
+  ciudad:          string | null;
+  actualizado_en:  string;
 }
 
 export async function getPrioridadOperacional() {
   const { data } = await api.get("/inteligencia/prioridad");
   return data.data as AccionPrioridad[];
+}
+
+export async function getLeadsPrioridad(tipo: string) {
+  const { data } = await api.get("/inteligencia/prioridad-leads", { params: { tipo } });
+  return data.data as LeadPrioridad[];
 }
 
 export interface Forecast {

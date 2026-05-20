@@ -11,6 +11,7 @@ import {
   getObjetivosService,
   actualizarObjetivosService,
   tendenciasService,
+  leadesPrioridadService,
 } from "../../services/inteligencia.service";
 
 export const inteligenciaRouter = Router();
@@ -41,6 +42,18 @@ inteligenciaRouter.get("/insights", async (req, res) => {
 inteligenciaRouter.get("/prioridad", async (req, res) => {
   try {
     const data = await prioridadOperacionalService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/prioridad-leads?tipo=sin_propuesta
+inteligenciaRouter.get("/prioridad-leads", async (req, res) => {
+  try {
+    const tipo = req.query.tipo as string;
+    if (!tipo) return res.status(400).json({ ok: false, message: "tipo requerido" });
+    const data = await leadesPrioridadService(tipo);
     res.json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
