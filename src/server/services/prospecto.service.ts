@@ -49,34 +49,35 @@ export async function obtenerProspectosService(filtros: {
   const valores: any[] = [];
   let idx = 1;
 
-  if (filtros.estado_lead) {
-    condiciones.push(`estado_lead = $${idx++}`);
+  if (filtros.estado_lead === "contestada") {
+    condiciones.push(`EXISTS (SELECT 1 FROM llamadas ll2 WHERE ll2.prospecto_id = p.id AND ll2.contestada = true)`);
+  } else if (filtros.estado_lead) {
+    condiciones.push(`p.estado_lead = $${idx++}`);
     valores.push(filtros.estado_lead);
   }
   if (filtros.clasificacion) {
-    condiciones.push(`clasificacion = $${idx++}`);
+    condiciones.push(`p.clasificacion = $${idx++}`);
     valores.push(filtros.clasificacion);
   }
   if (filtros.prioridad) {
-    condiciones.push(`prioridad = $${idx++}`);
+    condiciones.push(`p.prioridad = $${idx++}`);
     valores.push(filtros.prioridad);
   }
   if (filtros.fuente) {
-    condiciones.push(`fuente = $${idx++}`);
+    condiciones.push(`p.fuente = $${idx++}`);
     valores.push(filtros.fuente);
   }
   if (filtros.busqueda) {
     condiciones.push(`(
-      empresa ILIKE $${idx} OR
-      nombre_contacto ILIKE $${idx} OR
-      telefono ILIKE $${idx} OR
-      email_contacto ILIKE $${idx}
+      p.empresa ILIKE $${idx} OR
+      p.nombre_contacto ILIKE $${idx} OR
+      p.telefono ILIKE $${idx} OR
+      p.email_contacto ILIKE $${idx}
     )`);
     valores.push(`%${filtros.busqueda}%`);
     idx++;
   }
 
-  {/**paginacion */}
   const where = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "";
   const limite = filtros.limite ?? 50;
   const offset = ((filtros.pagina ?? 1) - 1) * limite;
@@ -93,14 +94,14 @@ export async function obtenerProspectosService(filtros: {
        LEFT JOIN reuniones r ON r.prospecto_id = p.id
        LEFT JOIN brochures b ON b.prospecto_id = p.id
        LEFT JOIN propuestas pr ON pr.prospecto_id = p.id
-       ${where ? where.replace(/WHERE/g, 'WHERE p.') : ''}
+       ${where}
        GROUP BY p.id
        ORDER BY p.creado_en DESC
        LIMIT $${idx} OFFSET $${idx + 1}`,
       [...valores, limite, offset]
     ),
     pool.query(
-      `SELECT COUNT(*) FROM prospectos p ${where ? where.replace(/WHERE/g, 'WHERE p.') : ''}`,
+      `SELECT COUNT(*) FROM prospectos p ${where}`,
       valores
     ),
   ]);
@@ -156,6 +157,101 @@ export async function eliminarProspectoService(id: string) {
   if (result.rowCount === 0) throw new Error("Prospecto no encontrado");
   logger.info({ id }, "Prospecto eliminado");
   return { eliminado: true };
+}
+
+export async function getPipelineService() {
+  const result = await pool.query(`
+    SELECT
+      p.id, p.empresa, p.nombre_contacto, p.telefono, p.email_contacto,
+      p.estado_lead, p.prioridad, p.etapa_pipeline,
+      p.valor_estimado, p.ciudad, p.rubro, p.notas,
+      p.creado_en, p.actualizado_en
+    FROM prospectos p
+    WHERE p.etapa_pipeline != 'perdido' OR p.etapa_pipeline = 'perdido'
+    ORDER BY p.etapa_pipeline, p.creado_en DESC
+  `);
+
+  const etapas = ["nuevo","contactado","interesado","propuesta_enviada","negociacion","cerrado_ganado","perdido"];
+  const pipeline: Record<string, { prospectos: any[]; total: number; valor: number }> = {};
+  for (const e of etapas) {
+    pipeline[e] = { prospectos: [], total: 0, valor: 0 };
+  }
+  for (const row of result.rows) {
+    const etapa = row.etapa_pipeline ?? "nuevo";
+    if (!pipeline[etapa]) pipeline[etapa] = { prospectos: [], total: 0, valor: 0 };
+    pipeline[etapa].prospectos.push(row);
+    pipeline[etapa].total++;
+    pipeline[etapa].valor += Number(row.valor_estimado ?? 0);
+  }
+  return pipeline;
+}
+
+export async function actualizarEtapaPipelineService(id: string, etapa: string, valor_estimado?: number | null) {
+  const sets: string[] = ["etapa_pipeline = $2", "actualizado_en = now()"];
+  const vals: any[]    = [id, etapa];
+  if (valor_estimado !== undefined) {
+    sets.push(`valor_estimado = $${vals.length + 1}`);
+    vals.push(valor_estimado);
+  }
+  const result = await pool.query(
+    `UPDATE prospectos SET ${sets.join(", ")} WHERE id = $1 RETURNING *`,
+    vals
+  );
+  if (result.rowCount === 0) throw new Error("Prospecto no encontrado");
+  return result.rows[0];
+}
+
+export async function motivosPerdidaService() {
+  const result = await pool.query(`
+    SELECT motivo_perdida, COUNT(*)::int AS total
+    FROM prospectos
+    WHERE motivo_perdida IS NOT NULL
+    GROUP BY motivo_perdida
+    ORDER BY total DESC
+  `);
+  return result.rows;
+}
+
+const ORDEN_ETAPAS = ["nuevo","contactado","interesado","propuesta_enviada","negociacion","cerrado_ganado","perdido"];
+
+export async function funnelPipelineService() {
+  const result = await pool.query(`
+    SELECT etapa_pipeline,
+           COUNT(*)::int                          AS total,
+           COALESCE(SUM(valor_estimado),0)::float AS valor
+    FROM prospectos
+    GROUP BY etapa_pipeline
+  `);
+
+  const byEtapa: Record<string, { total: number; valor: number }> = {};
+  for (const row of result.rows) {
+    byEtapa[row.etapa_pipeline] = { total: row.total, valor: row.valor };
+  }
+
+  return ORDEN_ETAPAS.map((etapa, i) => {
+    const { total = 0, valor = 0 } = byEtapa[etapa] ?? {};
+    const prevTotal = i > 0 ? (byEtapa[ORDEN_ETAPAS[i - 1]]?.total ?? 0) : null;
+    const conversion = prevTotal && prevTotal > 0 && etapa !== "perdido"
+      ? Math.round((total / prevTotal) * 100)
+      : null;
+    return { etapa, total, valor, conversion };
+  });
+}
+
+export async function analisisRegionService() {
+  const result = await pool.query(`
+    SELECT
+      COALESCE(NULLIF(TRIM(region),''), NULLIF(TRIM(ciudad),''), 'Sin región') AS zona,
+      COUNT(*)::int                                                              AS total,
+      COUNT(*) FILTER (WHERE etapa_pipeline = 'cerrado_ganado')::int            AS cerrados,
+      COUNT(*) FILTER (WHERE etapa_pipeline NOT IN ('perdido','cerrado_ganado'))::int AS activos,
+      COALESCE(SUM(valor_estimado),0)::float                                    AS valor
+    FROM prospectos
+    GROUP BY zona
+    ORDER BY total DESC
+    LIMIT 20
+  `);
+  return result.rows;
 }
 
 export async function eliminarProspectosMasivoService(ids: string[]) {
@@ -301,4 +397,111 @@ export async function importarProspectosService(prospectos: any[], usuarioId: st
   } finally {
     client.release();
   }
+}
+
+// ─── Score de leads ───────────────────────────────────────────────────────────
+
+export interface ScoreLead {
+  id:     string;
+  score:  number;
+  nivel:  "caliente" | "activo" | "tibio" | "frio";
+}
+
+export async function scoreLeadsService(): Promise<ScoreLead[]> {
+  const result = await pool.query(`
+    WITH act7 AS (
+      SELECT prospecto_id, COUNT(*)::int AS cnt
+      FROM llamadas WHERE fecha >= CURRENT_DATE - INTERVAL '7 days'
+      GROUP BY prospecto_id
+    ),
+    act30 AS (
+      SELECT prospecto_id, COUNT(*)::int AS cnt
+      FROM llamadas WHERE fecha >= CURRENT_DATE - INTERVAL '30 days'
+      GROUP BY prospecto_id
+    ),
+    prop_data AS (
+      SELECT prospecto_id,
+        MAX(CASE WHEN estado = 'aceptada' THEN 2
+                 WHEN estado = 'enviada'  THEN 1
+                 ELSE 0 END)::int AS nivel
+      FROM propuestas GROUP BY prospecto_id
+    )
+    SELECT
+      p.id,
+      LEAST(100, GREATEST(0,
+        CASE p.etapa_pipeline
+          WHEN 'nuevo'             THEN 5
+          WHEN 'contactado'        THEN 15
+          WHEN 'interesado'        THEN 40
+          WHEN 'propuesta_enviada' THEN 60
+          WHEN 'negociacion'       THEN 75
+          WHEN 'cerrado_ganado'    THEN 100
+          WHEN 'perdido'           THEN 0
+          ELSE 5
+        END
+        + CASE p.estado_lead
+            WHEN 'interesado'      THEN 10
+            WHEN 'volver_a_llamar' THEN 5
+            WHEN 'no_contesta'     THEN -10
+            WHEN 'no_interesado'   THEN -20
+            ELSE 0
+          END
+        + CASE p.prioridad
+            WHEN 'alta'  THEN 10
+            WHEN 'media' THEN 5
+            ELSE 0
+          END
+        + LEAST(10, COALESCE(a7.cnt, 0) * 3)
+        - CASE WHEN COALESCE(a30.cnt, 0) = 0 THEN 15 ELSE 0 END
+        + COALESCE(CASE pr.nivel WHEN 2 THEN 15 WHEN 1 THEN 5 ELSE 0 END, 0)
+      ))::int AS score
+    FROM prospectos p
+    LEFT JOIN act7     ON act7.prospecto_id = p.id
+    LEFT JOIN act30    ON act30.prospecto_id = p.id
+    LEFT JOIN prop_data pr ON pr.prospecto_id = p.id
+    ORDER BY score DESC
+  `);
+
+  const leads = result.rows.map(r => ({
+    id:    r.id,
+    score: r.score,
+    nivel: (r.score >= 75 ? "caliente"
+          : r.score >= 50 ? "activo"
+          : r.score >= 25 ? "tibio"
+          : "frio") as "caliente" | "activo" | "tibio" | "frio",
+  }));
+
+  // Snapshot diario — upsert para no duplicar si se llama varias veces al día
+  if (leads.length > 0) {
+    const ids    = leads.map(l => l.id);
+    const scores = leads.map(l => l.score);
+    const niveles = leads.map(l => l.nivel);
+    await pool.query(
+      `INSERT INTO score_history (prospecto_id, score, nivel, registrado_en)
+       SELECT unnest($1::uuid[]), unnest($2::int[]), unnest($3::text[]), CURRENT_DATE
+       ON CONFLICT (prospecto_id, registrado_en)
+       DO UPDATE SET score = EXCLUDED.score, nivel = EXCLUDED.nivel`,
+      [ids, scores, niveles]
+    ).catch(() => {}); // tabla puede no existir aún — no rompe la respuesta
+  }
+
+  return leads;
+}
+
+export interface ScoreHistoryEntry {
+  score:         number;
+  nivel:         string;
+  registrado_en: string;
+}
+
+export async function getScoreHistoryService(prospectoId: string): Promise<ScoreHistoryEntry[]> {
+  const result = await pool.query(
+    `SELECT score, nivel, registrado_en::text
+     FROM score_history
+     WHERE prospecto_id = $1
+     ORDER BY registrado_en DESC
+     LIMIT 10`,
+    [prospectoId]
+  );
+  return result.rows;
 }

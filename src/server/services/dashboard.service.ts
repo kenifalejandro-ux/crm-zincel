@@ -18,8 +18,12 @@ export async function metricasDashboardService(
         return `${columna} >= CURRENT_DATE - INTERVAL '7 days'`;
       case "mes":
         return `${columna} >= CURRENT_DATE - INTERVAL '30 days'`;
+      case "trimestre":
+        return `${columna} >= CURRENT_DATE - INTERVAL '90 days'`;
       case "anio":
         return `${columna} >= CURRENT_DATE - INTERVAL '365 days'`;
+      case "todo":
+        return `1=1`;
       default:
         return `${columna} >= CURRENT_DATE - INTERVAL '30 days'`;
     }

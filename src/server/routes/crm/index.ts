@@ -14,6 +14,9 @@ import { propuestasRouter }     from "./propuestas";
 import { metaAdsRouter }           from "./metaAds";
 import { tiktokAdsRouter }         from "./tiktokAds";
 import { plataformaCuentasRouter } from "./plataformaCuentas";
+import { tareasRouter }            from "./tareas";
+import { plantillasRouter }        from "./plantillas";
+import { inteligenciaRouter }      from "./inteligencia";
 
 export function createCrmRouter(): Router {
   const router = Router();
@@ -31,6 +34,9 @@ export function createCrmRouter(): Router {
   router.use("/meta-ads",          metaAdsRouter);
   router.use("/tiktok-ads",        tiktokAdsRouter);
   router.use("/plataforma-cuentas", plataformaCuentasRouter);
+  router.use("/tareas",            tareasRouter);
+  router.use("/plantillas",        plantillasRouter);
+  router.use("/inteligencia",      inteligenciaRouter);
 
   return router;
 }

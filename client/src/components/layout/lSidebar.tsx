@@ -1,19 +1,26 @@
 // client/src/components/layout/lSidebar.tsx
 
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Users, Phone,
-  CalendarDays, DollarSign, FileText, User, BarChart2, X, Settings,
+  CalendarDays, DollarSign, FileText, User, BarChart2, X, Settings, CheckSquare, Kanban, MessageSquare, TrendingUp,
 } from "lucide-react";
+import { getResumenTareas } from "../../services/tareas.api";
+import { getScoresLeads } from "../../services/prospectos.api";
 
 const navegacion = [
   { label: "Dashboard",      to: "/",               icon: LayoutDashboard },
-  { label: "Prospectos",     to: "/prospectos",     icon: Users },
   { label: "Llamadas",       to: "/llamadas",       icon: Phone },
   { label: "Reuniones",      to: "/reuniones",      icon: CalendarDays },
   { label: "Finanzas",       to: "/finanzas",       icon: DollarSign },
   { label: "Brochures",      to: "/brochures",      icon: FileText },
   { label: "Métricas",       to: "/metricas",       icon: BarChart2 },
+  { label: "Inteligencia",   to: "/inteligencia",   icon: TrendingUp },
+  { label: "Plantillas",     to: "/plantillas",     icon: MessageSquare },
+];
+
+const navegacionFinal = [
   { label: "Mi perfil",      to: "/perfil",         icon: User },
   { label: "Configuración",  to: "/configuracion",  icon: Settings },
 ];
@@ -24,6 +31,49 @@ interface Props {
 }
 
 export function lSidebar({ abierto, onCerrar }: Props) {
+  const [tareasUrgentes, setTareasUrgentes] = useState(0);
+  const [leadsCalientes, setLeadsCalientes] = useState(0);
+
+  useEffect(() => {
+    getResumenTareas()
+      .then(r => setTareasUrgentes(r.vencidas + r.hoy))
+      .catch(() => {});
+    getScoresLeads()
+      .then(s => setLeadsCalientes(s.filter(l => l.nivel === "caliente").length))
+      .catch(() => {});
+  }, []);
+
+  function NavItem({ label, to, icon: Icon, badge, badgeColor = "bg-red-500" }: {
+    label: string; to: string; icon: any; badge?: number; badgeColor?: string;
+  }) {
+    return (
+      <NavLink
+        to={to}
+        end={to === "/"}
+        onClick={onCerrar}
+        className={({ isActive }) =>
+          `flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs transition-all duration-150 ${
+            isActive
+              ? "bg-indigo-100/15 text-zinc-100 font-medium border border-indigo-500/20"
+              : "text-slate-200 hover:bg-white/[0.09] hover:text-slate-100 border border-transparent"
+          }`
+        }
+      >
+        {({ isActive }) => (
+          <>
+            <Icon size={16} className={isActive ? "text-indigo-400" : ""} />
+            <span className="flex-1">{label}</span>
+            {badge != null && badge > 0 && (
+              <span className={`px-1.5 py-0.5 text-[10px] rounded-full ${badgeColor} text-white font-bold leading-none`}>
+                {badge > 99 ? "99+" : badge}
+              </span>
+            )}
+          </>
+        )}
+      </NavLink>
+    );
+  }
+
   return (
     <>
       {/* ── Overlay oscuro — solo en móvil/tablet cuando el drawer está abierto ── */}
@@ -65,27 +115,22 @@ export function lSidebar({ abierto, onCerrar }: Props) {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {navegacion.map(({ label, to, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === "/"}
-              onClick={onCerrar}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs transition-all duration-150 ${
-                  isActive
-                    ? "bg-indigo-100/15 text-zinc-100 font-medium border border-indigo-500/20"
-                    : "text-slate-200 hover:bg-white/[0.09] hover:text-slate-100 border border-transparent"
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <Icon size={16} className={isActive ? "text-indigo-400" : ""} />
-                  {label}
-                </>
-              )}
-            </NavLink>
+          {/* Prospectos + Pipeline con badge de leads calientes */}
+          <NavItem label="Prospectos" to="/prospectos" icon={Users}  badge={leadsCalientes} badgeColor="bg-orange-500" />
+          <NavItem label="Pipeline"   to="/pipeline"   icon={Kanban} badge={leadsCalientes} badgeColor="bg-orange-500" />
+
+          {navegacion.map(({ label, to, icon }) => (
+            <NavItem key={to} label={label} to={to} icon={icon} />
+          ))}
+
+          {/* Tareas con badge */}
+          <NavItem label="Tareas" to="/tareas" icon={CheckSquare} badge={tareasUrgentes} />
+
+          {/* Separador */}
+          <div className="my-2 border-t border-white/[0.05]" />
+
+          {navegacionFinal.map(({ label, to, icon }) => (
+            <NavItem key={to} label={label} to={to} icon={icon} />
           ))}
         </nav>
 

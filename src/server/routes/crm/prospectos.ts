@@ -12,11 +12,90 @@ import {
   eliminarProspectoService,
   importarProspectosService,
   eliminarProspectosMasivoService,
+  motivosPerdidaService,
+  getPipelineService,
+  actualizarEtapaPipelineService,
+  funnelPipelineService,
+  analisisRegionService,
+  scoreLeadsService,
+  getScoreHistoryService,
 } from "../../services/prospecto.service";
 
 export const prospectosRouter = Router();
 
 prospectosRouter.use(authMiddleware);
+
+// GET /api/crm/prospectos/scores
+prospectosRouter.get("/scores", async (req, res) => {
+  try {
+    const data = await scoreLeadsService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/prospectos/:id/score-history
+prospectosRouter.get("/:id/score-history", async (req, res) => {
+  try {
+    const data = await getScoreHistoryService(req.params.id);
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/prospectos/funnel
+prospectosRouter.get("/funnel", async (req, res) => {
+  try {
+    const data = await funnelPipelineService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/prospectos/por-region
+prospectosRouter.get("/por-region", async (req, res) => {
+  try {
+    const data = await analisisRegionService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/prospectos/motivos-perdida
+prospectosRouter.get("/motivos-perdida", async (req, res) => {
+  try {
+    const data = await motivosPerdidaService();
+    res.status(200).json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/prospectos/pipeline
+prospectosRouter.get("/pipeline", async (req, res) => {
+  try {
+    const data = await getPipelineService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// PATCH /api/crm/prospectos/:id/etapa
+prospectosRouter.patch("/:id/etapa", async (req, res) => {
+  try {
+    const { etapa, valor_estimado } = req.body;
+    if (!etapa) return res.status(400).json({ ok: false, message: "etapa requerida" });
+    const data = await actualizarEtapaPipelineService(req.params.id, etapa, valor_estimado);
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
 
 // GET /api/crm/prospectos
 prospectosRouter.get("/", async (req, res) => {

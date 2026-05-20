@@ -61,12 +61,25 @@ export function LlamadaHistorial({ prospectoId }: LlamadaHistorialProps) {
                   {LABELS[l.resultado] ?? l.resultado}
                 </Badge>
               )}
-              {l.duracion_minutos > 0 && (
-                <span className="flex items-center gap-1 text-xs text-zinc-800">
-                  <Clock size={11} /> {l.duracion_minutos} min
-                </span>
-              )}
+              <span className="flex items-center gap-1 text-xs text-zinc-500">
+                <Clock size={11} />
+                {new Date(l.fecha).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
+                {l.hora_fin && <> – {l.hora_fin.slice(0, 5)}</>}
+              </span>
             </div>
+            {l.motivo_no_interes && (
+              <p className="text-[11px] text-red-500 mt-0.5">
+                Motivo: {
+                  l.motivo_no_interes === "precio"             ? "💰 Precio muy alto"
+                  : l.motivo_no_interes === "sin_presupuesto"  ? "📅 Sin presupuesto"
+                  : l.motivo_no_interes === "ya_tiene_proveedor" ? "🔒 Ya tiene proveedor"
+                  : l.motivo_no_interes === "no_necesita"      ? "🚫 No necesita el servicio"
+                  : l.motivo_no_interes === "no_decide"        ? "👤 No es quien decide"
+                  : l.motivo_no_interes === "mala_experiencia" ? "😞 Mala experiencia previa"
+                  : "📝 Otro motivo"
+                }
+              </p>
+            )}
             {l.notas && <p className="text-xs text-zinc-800 mt-1 truncate">{l.notas}</p>}
           </div>
           <span className="text-xs text-zinc-800 shrink-0">

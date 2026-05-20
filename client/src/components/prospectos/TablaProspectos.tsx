@@ -2,6 +2,21 @@
 
 import { ESTADOS_LEAD, COLOR_ESTADO, COLOR_PRIORIDAD } from "../../utils/prospectos.mappers";
 import { TableCheckbox } from "../ui/TableCheckbox";
+import type { ScoreLead } from "../../services/prospectos.api";
+
+const SCORE_BADGE: Record<string, string> = {
+  caliente: "bg-red-50 text-red-600",
+  activo:   "bg-indigo-50 text-indigo-600",
+  tibio:    "bg-yellow-50 text-yellow-600",
+  frio:     "bg-gray-50 text-gray-400",
+};
+const SCORE_ICON: Record<string, string> = {
+  caliente: "🔥", activo: "⬆", tibio: "→", frio: "❄",
+};
+const ROW_TINT: Record<string, string> = {
+  caliente: "bg-red-50/40 hover:bg-red-50/60",
+  activo:   "bg-indigo-50/20 hover:bg-indigo-50/40",
+};
 
 interface Props {
   prospectos: any[];
@@ -19,6 +34,8 @@ interface Props {
   onToggleSeleccion: (id: string) => void;
   onToggleTodos: () => void;
   todosSeleccionados: boolean;
+  // Scores
+  scores?: Record<string, ScoreLead>;
 }
 
 export function TablaProspectos({
@@ -26,6 +43,7 @@ export function TablaProspectos({
   onVerDetalle, onEditar, onEliminar,
   onPaginaAnterior, onPaginaSiguiente,
   seleccionados, onToggleSeleccion, onToggleTodos, todosSeleccionados,
+  scores,
 }: Props) {
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-x-auto max-h-[700px] overflow-y-auto scrollbar-thin">
@@ -50,14 +68,18 @@ export function TablaProspectos({
               <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wide">Teléfono</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wide">Estado</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wide">Prioridad</th>
+              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wide">Score</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wide">Ciudad</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wide">Llamada</th>
               <th className="px-5 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {prospectos.map((p) => (
-              <tr key={p.id} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => onVerDetalle(p)}>
+            {prospectos.map((p) => {
+              const sc = scores?.[p.id];
+              const rowTint = sc ? (ROW_TINT[sc.nivel] ?? "hover:bg-gray-50") : "hover:bg-gray-50";
+              return (
+              <tr key={p.id} className={`transition-colors cursor-pointer ${rowTint}`} onClick={() => onVerDetalle(p)}>
                 <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
                   <TableCheckbox checked={seleccionados.includes(p.id)} onChange={() => onToggleSeleccion(p.id)} />
                 </td>
@@ -80,6 +102,15 @@ export function TablaProspectos({
                   <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${COLOR_PRIORIDAD[p.prioridad]}`}>
                     {p.prioridad}
                   </span>
+                </td>
+                <td className="px-5 py-3.5">
+                  {sc ? (
+                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${SCORE_BADGE[sc.nivel]}`}>
+                      {SCORE_ICON[sc.nivel]} {sc.score}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-gray-300">—</span>
+                  )}
                 </td>
                 <td className="px-5 py-3.5 text-zinc-500">{p.ciudad || "-"}</td>
                 <td className="px-3 py-2 text-zinc-500">
@@ -106,7 +137,8 @@ export function TablaProspectos({
                   </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       )}

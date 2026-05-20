@@ -10,16 +10,17 @@ export async function crearLlamadaService(input: CrearLlamadaInput, usuarioId: s
     await client.query("BEGIN");
 
     const llamada = await client.query(
-      `INSERT INTO llamadas (prospecto_id, fecha, canal, contestada, duracion_minutos, resultado, notas, creado_por)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      `INSERT INTO llamadas (prospecto_id, fecha, hora_fin, canal, contestada, resultado, motivo_no_interes, notas, creado_por)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
       [
         input.prospecto_id,
         input.fecha ?? new Date().toISOString(),
+        input.hora_fin ?? null,
         input.canal ?? "llamada",
         input.contestada ?? false,
-        input.duracion_minutos ?? 0,
-        input.resultado,
-        input.notas,
+        input.resultado ?? null,
+        input.motivo_no_interes ?? null,
+        input.notas ?? null,
         usuarioId,
       ]
     );
@@ -146,8 +147,27 @@ export async function estadisticasLlamadasPorPeriodoService(periodo: "dia" | "me
 }
 
 
+export async function heatmapLlamadasService(filters?: { fecha_inicio?: string; fecha_fin?: string }) {
+  const condiciones: string[] = [];
+  const valores: any[] = [];
+  let idx = 1;
+  if (filters?.fecha_inicio) { condiciones.push(`fecha >= $${idx++}`); valores.push(filters.fecha_inicio); }
+  if (filters?.fecha_fin)    { condiciones.push(`fecha < $${idx++}`);  valores.push(filters.fecha_fin); }
+  const where = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "";
+  const result = await pool.query(`
+    SELECT
+      EXTRACT(HOUR FROM fecha)::int                                                    AS hora,
+      COUNT(*)::int                                                                    AS total,
+      COUNT(*) FILTER (WHERE contestada = true)::int                                  AS contestadas,
+      ROUND(COUNT(*) FILTER (WHERE contestada = true) * 100.0 / NULLIF(COUNT(*),0))::int AS tasa
+    FROM llamadas ${where}
+    GROUP BY hora ORDER BY hora
+  `, valores);
+  return result.rows;
+}
+
 export async function actualizarLlamadaService(id: string, input: Record<string, any>) {
-  const PERMITIDOS = ["canal", "contestada", "duracion_minutos", "resultado", "notas"];
+  const PERMITIDOS = ["canal", "contestada", "fecha", "hora_fin", "resultado", "motivo_no_interes", "notas"];
   const campos = Object.keys(input).filter((k) => PERMITIDOS.includes(k));
   if (campos.length === 0) return null;
 

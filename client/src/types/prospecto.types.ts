@@ -18,6 +18,7 @@ export type TamanoEmpresa = "1_10" | "11_50" | "51_200" | "201_500" | "mas_500";
 export type Prioridad = "alta" | "media" | "baja";
 export type ClasificacionLead = "gestionado" | "por_gestionar" | "cerrado" | "descartado";
 export type EstadoVenta = "si" | "no" | "en_proceso";
+export type EtapaPipeline = "nuevo" | "contactado" | "interesado" | "propuesta_enviada" | "negociacion" | "cerrado_ganado" | "perdido";
 export type ModalidadReunion = "presencial" | "virtual" | "google_meet" | "zoom";
 export type EstadoReunion = "agendada" | "en_proceso" | "cerrada" | "descartada";
 
@@ -94,6 +95,8 @@ export interface Prospecto {
   clasificacion:    ClasificacionLead;
   estado_venta:     EstadoVenta;
   notas?:           string;
+  etapa_pipeline:   EtapaPipeline;
+  valor_estimado?:  number | null;
   creado_en:        string;
   actualizado_en:   string;
   llamadas?:        Llamada[];

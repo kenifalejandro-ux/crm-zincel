@@ -1,10 +1,12 @@
 /** client/src/pages/ProspectosPage.tsx */
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useProspectos } from "../hooks/useProspectos";
 import { Plus, Upload, AlertTriangle, FileDown } from "lucide-react";
 import * as XLSX from "xlsx";
 import api from "../services/api";
+import { getScoresLeads } from "../services/prospectos.api";
+import type { ScoreLead } from "../services/prospectos.api";
 
 import { ProspectoDetalle } from "../components/prospectos/ProspectoDetalle";
 import { ProspectoForm } from "../components/prospectos/ProspectoForm";
@@ -38,10 +40,22 @@ export default function ProspectosPage() {
   // ✅ Estado selección masiva
   const [seleccionados, setSeleccionados] = useState<string[]>([]);
 
+  // Scores — carga independiente, no bloquea la tabla
+  const [scores, setScores] = useState<Record<string, ScoreLead>>({});
+
   // ── Cargar al cambiar filtros ───────────────────────────
   useEffect(() => {
     cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE });
+    getScoresLeads()
+      .then(s => setScores(Object.fromEntries(s.map(sc => [sc.id, sc]))))
+      .catch(console.error);
   }, [busqueda, estadoFiltro, pagina]);
+
+  // Leads calientes primero
+  const prospectosOrdenados = useMemo(() => {
+    if (Object.keys(scores).length === 0) return prospectos;
+    return [...prospectos].sort((a, b) => (scores[b.id]?.score ?? 0) - (scores[a.id]?.score ?? 0));
+  }, [prospectos, scores]);
 
   // ── Handlers de filtros ─────────────────────────────────
   const handleBusqueda = (valor: string) => {
@@ -224,6 +238,22 @@ const eliminarSeleccionados = async () => {
         </div>
       </div>
 
+      {/* Alerta leads calientes */}
+      {Object.values(scores).filter(s => s.nivel === "caliente").length > 0 && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-red-50 to-orange-50 border border-orange-200 rounded-xl">
+          <span className="text-lg">🔥</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-orange-700">
+              {Object.values(scores).filter(s => s.nivel === "caliente").length} leads calientes listos para cierre
+            </p>
+            <p className="text-[11px] text-orange-500 mt-0.5">
+              Están en la parte superior de la lista — prioriza el contacto hoy
+            </p>
+          </div>
+          <span className="text-[10px] font-medium text-orange-400 shrink-0">Score 75+</span>
+        </div>
+      )}
+
       {/* Filtros */}
       <FiltrosProspectos
         busqueda={busqueda}
@@ -250,7 +280,7 @@ const eliminarSeleccionados = async () => {
 
       {/* Tabla de prospectos */}
       <TablaProspectos
-        prospectos={prospectos}
+        prospectos={prospectosOrdenados}
         total={total}
         cargando={cargando}
         pagina={pagina}
@@ -260,12 +290,11 @@ const eliminarSeleccionados = async () => {
         onEliminar={eliminar}
         onPaginaAnterior={() => setPagina((p) => Math.max(1, p - 1))}
         onPaginaSiguiente={() => setPagina((p) => p + 1)}
-
-     
         seleccionados={seleccionados}
         onToggleSeleccion={toggleSeleccion}
         onToggleTodos={toggleTodos}
         todosSeleccionados={seleccionados.length === prospectos.length && prospectos.length > 0}
+        scores={scores}
       />
 
     </div>

@@ -15,31 +15,27 @@ const RESULTADOS = [
 
 export interface FormLlamada {
   prospecto_id: string;
-  canal: string;
-  contestada: boolean;
-  duracion_minutos: number;
-  resultado: string;
-  notas: string;
+  fecha:        string;
+  hora_inicio:  string;
+  hora_fin:     string;
+  canal:        string;
+  contestada:   boolean;
+  resultado:    string;
+  notas:        string;
 }
 
 interface Props {
-  form: FormLlamada;
-  prospectos: any[];
-  cargando: boolean;
+  form:         FormLlamada;
+  prospectos:   any[];
+  cargando:     boolean;
   onFormChange: (form: FormLlamada) => void;
-  onGuardar: () => void;
-  onCerrar: () => void;
+  onGuardar:    () => void;
+  onCerrar:     () => void;
 }
 
-export function ModalRegistrarLlamada({
-  form,
-  prospectos,
-  cargando,
-  onFormChange,
-  onGuardar,
-  onCerrar,
-}: Props) {
+export function ModalRegistrarLlamada({ form, prospectos, cargando, onFormChange, onGuardar, onCerrar }: Props) {
   const set = (campo: Partial<FormLlamada>) => onFormChange({ ...form, ...campo });
+  const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500";
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
@@ -49,100 +45,69 @@ export function ModalRegistrarLlamada({
         {/* Prospecto */}
         <div>
           <label className="text-xs font-medium text-gray-500 mb-1 block">Prospecto</label>
-          <select
-            value={form.prospecto_id}
-            onChange={(e) => set({ prospecto_id: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
+          <select value={form.prospecto_id} onChange={(e) => set({ prospecto_id: e.target.value })} className={cls}>
             <option value="">Selecciona un prospecto</option>
             {prospectos.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.empresa} — {p.nombre_contacto || p.telefono}
-              </option>
+              <option key={p.id} value={p.id}>{p.empresa} — {p.nombre_contacto || p.telefono}</option>
             ))}
           </select>
         </div>
 
-        {/* Canal + Duración */}
+        {/* Fecha + Canal */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Canal</label>
-            <select
-              value={form.canal}
-              onChange={(e) => set({ canal: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {CANALES.map((c) => (
-                <option key={c} value={c} className="capitalize">{c}</option>
-              ))}
-            </select>
+            <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha</label>
+            <input type="date" value={form.fecha} onChange={(e) => set({ fecha: e.target.value })} className={cls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Duración (min)</label>
-            <input
-              type="number"
-              min={0}
-              value={form.duracion_minutos}
-              onChange={(e) => set({ duracion_minutos: parseInt(e.target.value) || 0 })}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <label className="text-xs font-medium text-gray-500 mb-1 block">Canal</label>
+            <select value={form.canal} onChange={(e) => set({ canal: e.target.value })} className={cls}>
+              {CANALES.map((c) => <option key={c} value={c} className="capitalize">{c}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {/* Hora inicio + Hora fin */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs font-medium text-gray-500 mb-1 block">Hora inicio</label>
+            <input type="time" value={form.hora_inicio} onChange={(e) => set({ hora_inicio: e.target.value })} className={cls} />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500 mb-1 block">Hora fin <span className="text-gray-400">(opcional)</span></label>
+            <input type="time" value={form.hora_fin} onChange={(e) => set({ hora_fin: e.target.value })} className={cls} />
           </div>
         </div>
 
         {/* Resultado */}
         <div>
           <label className="text-xs font-medium text-gray-500 mb-1 block">Resultado</label>
-          <select
-            value={form.resultado}
-            onChange={(e) => set({ resultado: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
+          <select value={form.resultado} onChange={(e) => set({ resultado: e.target.value })} className={cls}>
             <option value="">Sin resultado</option>
-            {RESULTADOS.map((r) => (
-              <option key={r.value} value={r.value}>{r.label}</option>
-            ))}
+            {RESULTADOS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
           </select>
         </div>
 
         {/* Contestada */}
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="contestada"
-            checked={form.contestada}
-            onChange={(e) => set({ contestada: e.target.checked })}
-            className="rounded"
-          />
-          <label htmlFor="contestada" className="text-xs text-gray-700">
-            ¿Fue contestada?
-          </label>
+          <input type="checkbox" id="contestada" checked={form.contestada}
+            onChange={(e) => set({ contestada: e.target.checked })} className="rounded" />
+          <label htmlFor="contestada" className="text-xs text-gray-700">¿Fue contestada?</label>
         </div>
 
         {/* Notas */}
         <div>
           <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
-          <textarea
-            value={form.notas}
-            onChange={(e) => set({ notas: e.target.value })}
-            rows={3}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            placeholder="Observaciones de la llamada..."
-          />
+          <textarea value={form.notas} onChange={(e) => set({ notas: e.target.value })} rows={3}
+            className={`${cls} resize-none`} placeholder="Observaciones de la llamada..." />
         </div>
 
-        {/* Botones */}
         <div className="flex gap-2 pt-1">
-          <button
-            onClick={onCerrar}
-            className="flex-1 px-4 py-2 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition"
-          >
+          <button onClick={onCerrar} className="flex-1 px-4 py-2 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition">
             Cancelar
           </button>
-          <button
-            onClick={onGuardar}
-            disabled={cargando || !form.prospecto_id}
-            className="flex-1 px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition"
-          >
+          <button onClick={onGuardar} disabled={cargando || !form.prospecto_id}
+            className="flex-1 px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition">
             {cargando ? "Guardando..." : "Guardar"}
           </button>
         </div>

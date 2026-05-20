@@ -1,9 +1,13 @@
 /**client/src/pages/DashboardPage.tsx */
 
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, CheckSquare, AlertCircle, Clock, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { getMetricasDashboard } from "../services/dashboard.api";
 import { getReuniones } from "../services/reuniones.api";
+import { getResumenTareas } from "../services/tareas.api";
+import { getScoresLeads } from "../services/prospectos.api";
+import type { ResumenTareas } from "../types/tarea.types";
 
 import { LlamadasChart }         from "../components/dashboard/LlamadasChart";
 import { LlamadasCanalChart }    from "../components/dashboard/LlamadasCanalChart";
@@ -81,10 +85,13 @@ export interface Metricas {
 }
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const [cargando, setCargando]   = useState(true);
   const [reuniones, setReuniones] = useState<any[]>([]);
   const [metricas, setMetricas]   = useState<Metricas | null>(null);
-  const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>("mes");
+  const [resumenTareas, setResumenTareas] = useState<ResumenTareas | null>(null);
+  const [scoreStats, setScoreStats] = useState<{ caliente: number; activo: number; tibio: number; frio: number } | null>(null);
+  const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>("anio");
   const [mesSeleccionado, setMesSeleccionado] = useState({
     mes:  new Date().getMonth(),
     anio: new Date().getFullYear(),
@@ -96,21 +103,31 @@ export default function DashboardPage() {
     async function cargar() {
       setCargando(true);
       try {
-        const [metricasData, reunionesData] = await Promise.all([
+        const [metricasData, reunionesData, resumenTar] = await Promise.all([
           getMetricasDashboard({
             periodo: filtroPeriodo,
             mes:  filtroPeriodo === "mes" ? mesSeleccionado.mes + 1 : undefined,
             anio: filtroPeriodo === "mes" ? mesSeleccionado.anio   : undefined,
           }),
           getReuniones({ estado: "programada", periodo: filtroPeriodo }),
+          getResumenTareas(),
         ]);
         setMetricas(metricasData);
         setReuniones(reunionesData.slice(0, 5));
+        setResumenTareas(resumenTar);
       } catch (err) {
         console.error("Error cargando métricas:", err);
       } finally {
         setCargando(false);
       }
+      // Scores — independiente, no bloquea el dashboard
+      getScoresLeads()
+        .then(scores => {
+          const stats = { caliente: 0, activo: 0, tibio: 0, frio: 0 };
+          scores.forEach(s => { stats[s.nivel]++; });
+          setScoreStats(stats);
+        })
+        .catch(console.error);
     }
     cargar();
   }, [filtroPeriodo, mesSeleccionado]);
@@ -203,6 +220,44 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Temperatura de Leads */}
+      {scoreStats && (
+        <div
+          className="bg-white border border-gray-100 rounded-2xl p-4 cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => navigate("/prospectos")}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-sm font-semibold text-zinc-800">Temperatura de Leads</p>
+              <p className="text-[11px] text-zinc-400 mt-0.5">Score automático — ordenados por prioridad de cierre</p>
+            </div>
+            <span className="text-xs text-blue-500 hover:underline">Ver prospectos →</span>
+          </div>
+          <div className="grid grid-cols-4 gap-3">
+            <div className="bg-red-50 rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-red-600">{scoreStats.caliente}</p>
+              <p className="text-[11px] text-red-400 mt-0.5 font-medium">🔥 Calientes</p>
+              <p className="text-[10px] text-red-300">Score 75+</p>
+            </div>
+            <div className="bg-indigo-50 rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-indigo-600">{scoreStats.activo}</p>
+              <p className="text-[11px] text-indigo-400 mt-0.5 font-medium">⬆ Activos</p>
+              <p className="text-[10px] text-indigo-300">Score 50–74</p>
+            </div>
+            <div className="bg-yellow-50 rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-yellow-600">{scoreStats.tibio}</p>
+              <p className="text-[11px] text-yellow-500 mt-0.5 font-medium">→ Tibios</p>
+              <p className="text-[10px] text-yellow-300">Score 25–49</p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-gray-400">{scoreStats.frio}</p>
+              <p className="text-[11px] text-gray-400 mt-0.5 font-medium">❄ Fríos</p>
+              <p className="text-[10px] text-gray-300">Score 0–24</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Fila 2 — Nuevos KPIs */}
       {metricas && (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
@@ -225,6 +280,43 @@ export default function DashboardPage() {
       {metricas && (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           <ActividadChart metricas={metricas} />
+        </div>
+      )}
+
+      {/* Widget tareas */}
+      {resumenTareas && (
+        <div
+          onClick={() => navigate("/tareas")}
+          className="bg-white border border-gray-100 rounded-2xl p-4 cursor-pointer hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <CheckSquare size={16} className="text-indigo-500" />
+              <p className="text-sm font-semibold text-zinc-800">Tareas pendientes</p>
+            </div>
+            {(resumenTareas.vencidas + resumenTareas.hoy) > 0 && (
+              <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-600 font-semibold">
+                {resumenTareas.vencidas + resumenTareas.hoy} urgentes
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center p-3 rounded-xl bg-red-50">
+              <AlertCircle size={14} className="mx-auto text-red-400 mb-1" />
+              <p className="text-lg font-bold text-red-600">{resumenTareas.vencidas}</p>
+              <p className="text-[10px] text-red-400 uppercase tracking-wide">Vencidas</p>
+            </div>
+            <div className="text-center p-3 rounded-xl bg-orange-50">
+              <Clock size={14} className="mx-auto text-orange-400 mb-1" />
+              <p className="text-lg font-bold text-orange-600">{resumenTareas.hoy}</p>
+              <p className="text-[10px] text-orange-400 uppercase tracking-wide">Hoy</p>
+            </div>
+            <div className="text-center p-3 rounded-xl bg-blue-50">
+              <Calendar size={14} className="mx-auto text-blue-400 mb-1" />
+              <p className="text-lg font-bold text-blue-600">{resumenTareas.proximas}</p>
+              <p className="text-[10px] text-blue-400 uppercase tracking-wide">Próximas</p>
+            </div>
+          </div>
         </div>
       )}
 

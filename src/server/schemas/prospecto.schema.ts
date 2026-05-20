@@ -22,6 +22,9 @@ export const crearProspectoSchema = z.object({
   clasificacion:    z.enum(["gestionado","por_gestionar","cerrado","descartado"]).default("por_gestionar"),
   estado_venta:     z.enum(["si","no","en_proceso"]).default("no"),
   notas:            z.string().optional(),
+  motivo_perdida:   z.enum(["precio_alto","ya_tiene_proveedor","sin_presupuesto","no_le_interesa","tiene_web","no_toma_decision","otro"]).optional().nullable(),
+  etapa_pipeline:   z.enum(["nuevo","contactado","interesado","propuesta_enviada","negociacion","cerrado_ganado","perdido"]).optional(),
+  valor_estimado:   z.number().min(0).nullable().optional(),
 });
 
 export const actualizarProspectoSchema = crearProspectoSchema.partial();

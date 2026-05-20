@@ -13,6 +13,10 @@ import { lLayout as Layout } from "../components/layout/lLayout";
 import PerfilPage from "../pages/PerfilPage";
 import MetricasPage      from "../pages/MetricasPage";
 import ConfiguracionPage from "../pages/ConfiguracionPage";
+import TareasPage        from "../pages/TareasPage";
+import PipelinePage      from "../pages/PipelinePage";
+import PlantillasPage    from "../pages/PlantillasPage";
+import InteligenciaPage  from "../pages/InteligenciaPage";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { estaAutenticado, cargando } = useAuth();
@@ -51,6 +55,10 @@ export function AppRouter() {
           <Route path="perfil" element={<PerfilPage />} />
           <Route path="/metricas"        element={<MetricasPage />} />
           <Route path="/configuracion"   element={<ConfiguracionPage />} />
+          <Route path="/tareas"          element={<TareasPage />} />
+          <Route path="/pipeline"        element={<PipelinePage />} />
+          <Route path="/plantillas"      element={<PlantillasPage />} />
+          <Route path="/inteligencia"    element={<InteligenciaPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

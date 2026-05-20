@@ -75,6 +75,16 @@ interface ProspectoFormProps {
   onGuardado?: () => void;
 }
 
+const ETAPAS_PIPELINE = [
+  { value: "nuevo",             label: "Nuevo" },
+  { value: "contactado",        label: "Contactado" },
+  { value: "interesado",        label: "Interesado" },
+  { value: "propuesta_enviada", label: "Propuesta enviada" },
+  { value: "negociacion",       label: "Negociación" },
+  { value: "cerrado_ganado",    label: "Cerrado — Ganado" },
+  { value: "perdido",           label: "Perdido" },
+];
+
 const INICIAL = {
   // Empresa
   empresa: "", rubro: "", pagina_web: "", tamano_empresa: "",
@@ -85,6 +95,7 @@ const INICIAL = {
   // CRM
   estado_lead: "no_contesta", clasificacion: "por_gestionar",
   prioridad: "media", fuente: "", estado_venta: "no", notas: "",
+  etapa_pipeline: "nuevo", valor_estimado: "",
   // Llamadas
   canal_llamada: "", contesto: "", devolvio_llamada: "", intentos: "",
   // Brochure
@@ -129,6 +140,8 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         fuente:           p.fuente          ?? "",
         estado_venta:     p.estado_venta    ?? "no",
         notas:            p.notas           ?? "",
+        etapa_pipeline:   p.etapa_pipeline  ?? "nuevo",
+        valor_estimado:   p.valor_estimado != null ? String(p.valor_estimado) : "",
         // Llamadas
         canal_llamada:    llamada?.canal    ?? "",
         contesto:         llamada?.contestada ? "true" : "",
@@ -174,6 +187,9 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         fuente:           form.fuente || undefined,
         estado_venta:     form.estado_venta,
         notas:            form.notas || undefined,
+        motivo_perdida:   (form as any).motivo_perdida || null,
+        etapa_pipeline:   (form as any).etapa_pipeline || "nuevo",
+        valor_estimado:   (form as any).valor_estimado ? parseFloat((form as any).valor_estimado) : null,
       };
 
       if (esEdicion && prospecto?.id) {
@@ -264,7 +280,7 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
             <div className="space-y-1">
               <label className="text-xs font-medium gray-100">Estado del lead</label>
               <select value={form.estado_lead} onChange={e => set("estado_lead", e.target.value)} className={selectClass}>
-                {ESTADOS_LEAD.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
+                {ESTADOS_LEAD.filter(e => e.value !== "contestada").map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
               </select>
             </div>
             <div className="space-y-1">
@@ -273,6 +289,22 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
                 {CLASIFICACIONES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
+            {/* Motivo de pérdida — aparece solo cuando el lead es perdido */}
+            {(form.estado_lead === "no_interesado" || form.estado_lead === "ya_tiene_proveedor") && (
+              <div className="space-y-1 col-span-2">
+                <label className="text-xs font-medium text-red-600">¿Por qué no cerró? (motivo de pérdida)</label>
+                <select value={(form as any).motivo_perdida ?? ""} onChange={e => set("motivo_perdida", e.target.value)} className={selectClass}>
+                  <option value="">Sin especificar</option>
+                  <option value="precio_alto">Precio alto</option>
+                  <option value="ya_tiene_proveedor">Ya tiene proveedor</option>
+                  <option value="sin_presupuesto">Sin presupuesto</option>
+                  <option value="no_le_interesa">No le interesa el servicio</option>
+                  <option value="tiene_web">Ya tiene web propia</option>
+                  <option value="no_toma_decision">No es quien decide</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+            )}
             <div className="space-y-1">
               <label className="text-xs font-medium gray-100">Prioridad</label>
               <select value={form.prioridad} onChange={e => set("prioridad", e.target.value)} className={selectClass}>
@@ -293,6 +325,22 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
                 <option value="en_proceso">En proceso</option>
                 <option value="si">Sí — Cerrada</option>
               </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium gray-100">Etapa Pipeline</label>
+              <select value={(form as any).etapa_pipeline ?? "nuevo"} onChange={e => set("etapa_pipeline", e.target.value)} className={selectClass}>
+                {ETAPAS_PIPELINE.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium gray-100">Valor estimado (S/)</label>
+              <input
+                type="number" min="0" step="100"
+                placeholder="Ej: 3500"
+                value={(form as any).valor_estimado ?? ""}
+                onChange={e => set("valor_estimado", e.target.value)}
+                className={selectClass}
+              />
             </div>
           </div>
         </div>

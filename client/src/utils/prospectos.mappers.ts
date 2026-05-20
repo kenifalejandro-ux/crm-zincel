@@ -3,16 +3,40 @@
 export const mapEstado = (valor: any) => {
   if (!valor) return "no_contesta";
   const map: Record<string, string> = {
-    interesado:           "interesado",
-    "no interesado":      "no_interesado",
-    "no contesta":        "no_contesta",
-    "volver a llamar":    "volver_a_llamar",
-    "buzon de voz":       "buzon_de_voz",
-    "fuera de servicio":  "fuera_de_servicio",
-    "numero equivocado":  "numero_equivocado",
-    "ya tiene proveedor": "ya_tiene_proveedor",
-    lead:                 "no_contesta",
-    "1":                  "interesado",
+    // Interesado
+    "interesado":            "interesado",
+    "solicita información":  "interesado",
+    "solicita informacion":  "interesado",
+    "plan estratégico":      "interesado",
+    "plan estrategico":      "interesado",
+    // No interesado
+    "no interesado":         "no_interesado",
+    "con página web":        "no_interesado",
+    "con pagina web":        "no_interesado",
+    "ya tiene proveedor":    "ya_tiene_proveedor",
+    // No contesta
+    "no contesta":           "no_contesta",
+    "no entra llamada":      "no_contesta",
+    "corto llamada":         "no_contesta",
+    "cortó llamada":         "no_contesta",
+    "apagado":               "no_contesta",
+    "envío brochure":        "no_contesta",
+    "envio brochure":        "no_contesta",
+    lead:                    "no_contesta",
+    // Volver a llamar
+    "volver a llamar":       "volver_a_llamar",
+    "ocupado":               "volver_a_llamar",
+    "lo van evaluar":        "volver_a_llamar",
+    "lo van a evaluar":      "volver_a_llamar",
+    // Buzón
+    "buzon de voz":          "buzon_de_voz",
+    "buzón de voz":          "buzon_de_voz",
+    // Fuera de servicio
+    "fuera de servicio":     "fuera_de_servicio",
+    // Equivocado
+    "numero equivocado":     "numero_equivocado",
+    "número equivocado":     "numero_equivocado",
+    "equivocado":            "numero_equivocado",
   };
   return map[String(valor).toLowerCase().trim()] || "no_contesta";
 };
@@ -21,9 +45,13 @@ export const mapClasificacion = (valor: any) => {
   if (!valor) return "por_gestionar";
   const map: Record<string, string> = {
     "por gestionar": "por_gestionar",
+    lead:            "por_gestionar",
+    prospecto:       "por_gestionar",
     gestionado:      "gestionado",
+    seguimiento:     "gestionado",
     cerrado:         "cerrado",
     descartado:      "descartado",
+    "no interesado": "descartado",
   };
   return map[String(valor).toLowerCase().trim()] || "por_gestionar";
 };
@@ -44,6 +72,7 @@ export const mapPrioridad = (valor: any) => {
   const text = String(valor).toLowerCase().trim();
   if (text.includes("alta")) return "alta";
   if (text.includes("baja")) return "baja";
+  if (text.includes("media")) return "media";
   return "media";
 };
 
@@ -190,7 +219,7 @@ export const mapearExcelACRM = (rows: any[]) => {
     const estadoLead = mapEstado(row["Resultado del contacto"] || row["Estado"] || "");
     const clasificacion = mapClasificacion(row["Clasificación"] || row["Clasificacion"] || "");
     const estadoVenta = mapEstadoVenta(row["Venta Cerrada"] || row["Venta cerrada"] || row["Venta"] || "");
-    const prioridad = mapPrioridad(row["Prioridad"] || row["Prioridad del prospecto"] || "");
+    const prioridad = mapPrioridad(row["Prioridad"] || row["Prioridad del prospecto"] || row["PRIORIDAD_WEB"] || "");
     const fuente = mapFuenteLead(row["Fuente"] || row["Canal"] || row["Origen"] || "");
     const notas = String(row["COMENTARIOS"] || row["Comentarios"] || "").trim();
 
@@ -250,7 +279,16 @@ export const mapearExcelACRM = (rows: any[]) => {
       reuniones:         [] as any[],
     };
 
-    if (llamadaRealizada || medio || estadoLead || mensaje || intentos || primerContacto) {
+    const fechasLlamada: string[] = [
+      parseExcelDate(row["Fecha Primera llamada"] || row["Fecha Primera Llamada"] || row["Fecha primera llamada"] || "", "09:00"),
+      parseExcelDate(row["Fecha segunda llamada"] || row["Fecha Segunda llamada"] || row["Segunda llamada"] || "", "09:00"),
+      parseExcelDate(row["Fecha tercera llamada"] || row["Fecha Tercera llamada"] || row["Tercera llamada"] || "", "09:00"),
+    ].filter((f): f is string => f !== null);
+
+    // Crear llamada SOLO si "Llamada realizada" está marcada explícitamente como Sí
+    const tieneDataLlamada = llamadaRealizada;
+
+    if (tieneDataLlamada) {
       const llamadaNotas = [
         mensaje && `Mensaje: ${mensaje}`,
         intentos && `Intentos: ${intentos}`,
@@ -258,13 +296,10 @@ export const mapearExcelACRM = (rows: any[]) => {
         ingresoReunion && `Ingreso reunión: ${ingresoReunion}`,
       ].filter(Boolean).join(" | ");
 
-      const fechasLlamada: string[] = [
-        parseExcelDate(row["Fecha Primera llamada"] || row["Fecha Primera Llamada"] || row["Fecha primera llamada"] || "", "09:00"),
-        parseExcelDate(row["Fecha segunda llamada"] || row["Fecha Segunda llamada"] || row["Segunda llamada"] || "", "09:00"),
-        parseExcelDate(row["Fecha tercera llamada"] || row["Fecha Tercera llamada"] || row["Tercera llamada"] || "", "09:00"),
-      ].filter((f): f is string => f !== null);
-
-      if (fechasLlamada.length === 0) fechasLlamada.push("2024-01-01T09:00:00.000Z");
+      // Si no hay fecha explícita pero sí hay otros datos, usar fecha de hoy
+      if (fechasLlamada.length === 0) {
+        fechasLlamada.push(new Date().toISOString());
+      }
 
       fechasLlamada.forEach((fechaLlamada, index) => {
         fila.llamadas.push({
@@ -320,6 +355,7 @@ export const mapearExcelACRM = (rows: any[]) => {
 
 export const ESTADOS_LEAD = [
   { value: "",                   label: "Todos los estados" },
+  { value: "contestada",         label: "Contestadas" },
   { value: "interesado",         label: "Interesado" },
   { value: "no_interesado",      label: "No interesado" },
   { value: "no_contesta",        label: "No contesta" },

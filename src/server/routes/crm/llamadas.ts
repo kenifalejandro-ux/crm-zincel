@@ -11,6 +11,7 @@ import {
   obtenerTodasLlamadasService,
   estadisticasLlamadasPorPeriodoService,
   actualizarLlamadaService,
+  heatmapLlamadasService,
 } from "../../services/llamada.service";
 
 export const llamadasRouter = Router();
@@ -35,6 +36,17 @@ llamadasRouter.get("/resumen", async (req, res) => {
     const fecha_inicio = req.query.fecha_inicio as string | undefined;
     const fecha_fin = req.query.fecha_fin as string | undefined;
     const data = await resumenLlamadasService({ fecha_inicio, fecha_fin });
+    res.status(200).json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/llamadas/heatmap
+llamadasRouter.get("/heatmap", async (req, res) => {
+  try {
+    const { fecha_inicio, fecha_fin } = req.query as Record<string, string>;
+    const data = await heatmapLlamadasService({ fecha_inicio, fecha_fin });
     res.status(200).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

@@ -32,3 +32,8 @@ export async function actualizarLlamada(id: string, payload: Partial<CrearLlamad
   const { data } = await api.put(`/llamadas/${id}`, payload);
   return data.data;
 }
+
+export async function getHeatmapLlamadas(filters?: { fecha_inicio?: string; fecha_fin?: string }) {
+  const { data } = await api.get("/llamadas/heatmap", { params: filters });
+  return data.data as Array<{ hora: number; total: number; contestadas: number; tasa: number }>;
+}

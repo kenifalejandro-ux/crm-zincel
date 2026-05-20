@@ -222,10 +222,10 @@ export default function MetricasPage() {
                   : metricasFiltradas;
                 exportarReportePDF(paraExportar, filtros.empresa ?? "");
               }}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
+              className="flex items-center gap-1.5 px-2 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
               title={seleccionados.length > 0 ? `Exportar ${seleccionados.length} campaña(s) seleccionada(s)` : "Exportar todas las campañas"}
             >
-              <FileDown size={15} />
+              <FileDown size={12} />
               {seleccionados.length > 0 ? `Exportar (${seleccionados.length})` : "Exportar PDF"}
             </button>
           )}
@@ -233,9 +233,9 @@ export default function MetricasPage() {
           {/* Importar desde API */}
           <button
             onClick={() => setModalAPI(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition"
+            className="flex items-center gap-1.5 px-2 py-1 text-xs bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition"
           >
-            <Zap size={15} />
+            <Zap size={12} />
             Importar desde API
           </button>
 
@@ -244,7 +244,7 @@ export default function MetricasPage() {
             onClick={() => setModalCSV(true)}
             className="flex items-center gap-1.5 px-3 py-2 text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg transition"
           >
-            <Upload size={15} />
+            <Upload size={12} />
             Importar CSV
           </button>
 
@@ -253,7 +253,7 @@ export default function MetricasPage() {
             onClick={() => setModal(true)}
             className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
           >
-            <Plus size={15} />
+            <Plus size={12} />
             Registrar métricas
           </button>
         </div>
