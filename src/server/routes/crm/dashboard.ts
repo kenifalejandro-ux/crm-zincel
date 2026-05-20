@@ -15,10 +15,10 @@ if (process.env.NODE_ENV === 'production') {
 dashboardRouter.get("/metricas", async (req, res) => {
   try {
     const periodo = (req.query.periodo as string) || "mes";
-    const mes = req.query.mes ? Number(req.query.mes) : undefined;
-    const anio = req.query.anio ? Number(req.query.anio) : undefined;
-    console.log("periodo:", periodo, "mes:", mes, "anio:", anio); // 👈 temporal
-    const data = await metricasDashboardService(periodo, mes, anio);
+    const mes   = req.query.mes   ? Number(req.query.mes)  : undefined;
+    const anio  = req.query.anio  ? Number(req.query.anio) : undefined;
+    const fecha = req.query.fecha as string | undefined;
+    const data = await metricasDashboardService(periodo, mes, anio, fecha);
     res.status(200).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

@@ -6,6 +6,7 @@ interface DashboardFiltros {
   periodo?: string;
   mes?: number;
   anio?: number;
+  fecha?: string;
 }
 // GET /api/crm/dashboard/metricas - Devuelve métricas para el dashboard CRM dasboard.ts
 

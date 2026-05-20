@@ -23,12 +23,25 @@ import { BrochuresChart }        from "../components/dashboard/BrochuresChart";
 import { TasaConversion }        from "../components/dashboard/TasaConversion";
 import { WebActivaChart }        from "../components/dashboard/WebActivaChart";
 
-const MESES_FULL = [
-  "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
-];
+const MESES_FULL  = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const MESES_CORTO = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const DIAS_SEMANA = ["Lu","Ma","Mi","Ju","Vi","Sá","Do"];
 
-type FiltroPeriodo = "hoy" | "semana" | "mes" | "anio";
+type FiltroPeriodo = "hoy" | "semana" | "mes" | "anio" | "dia";
+
+function generarCeldasMes(mes: number, anio: number): (number | null)[] {
+  const primerDia = new Date(anio, mes, 1).getDay(); // 0=Dom
+  const totalDias = new Date(anio, mes + 1, 0).getDate();
+  const ajuste    = (primerDia + 6) % 7; // lunes primero
+  const celdas: (number | null)[] = Array(ajuste).fill(null);
+  for (let d = 1; d <= totalDias; d++) celdas.push(d);
+  return celdas;
+}
+
+function formatDiaBtn(fecha: string) {
+  const [y, m, d] = fecha.split("-").map(Number);
+  return `${d} ${MESES_CORTO[m - 1]} ${y}`;
+}
 
 export interface Metricas {
   llamadas: {
@@ -86,28 +99,38 @@ export interface Metricas {
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const [cargando, setCargando]   = useState(true);
+  const [cargando,        setCargando]        = useState(true);
+  const [actualizando,    setActualizando]    = useState(false);
   const [reuniones, setReuniones] = useState<any[]>([]);
   const [metricas, setMetricas]   = useState<Metricas | null>(null);
   const [resumenTareas, setResumenTareas] = useState<ResumenTareas | null>(null);
   const [scoreStats, setScoreStats] = useState<{ caliente: number; activo: number; tibio: number; frio: number } | null>(null);
+  const hoy = new Date();
+  const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,"0")}-${String(hoy.getDate()).padStart(2,"0")}`;
+
   const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>("anio");
   const [mesSeleccionado, setMesSeleccionado] = useState({
-    mes:  new Date().getMonth(),
-    anio: new Date().getFullYear(),
+    mes:  hoy.getMonth(),
+    anio: hoy.getFullYear(),
   });
-  const [pickerAbierto, setPickerAbierto] = useState(false);
-  const [anioNavegando, setAnioNavegando] = useState(new Date().getFullYear());
+  const [diaSeleccionado, setDiaSeleccionado] = useState<string>(hoyStr);
+  const [pickerAbierto,   setPickerAbierto]   = useState(false);
+  const [calAbierto,      setCalAbierto]       = useState(false);
+  const [anioNavegando,   setAnioNavegando]    = useState(hoy.getFullYear());
+  const [calNav, setCalNav] = useState({ mes: hoy.getMonth(), anio: hoy.getFullYear() });
+
+  const esInicial = metricas === null;
 
   useEffect(() => {
     async function cargar() {
-      setCargando(true);
+      if (esInicial) setCargando(true); else setActualizando(true);
       try {
         const [metricasData, reunionesData, resumenTar] = await Promise.all([
           getMetricasDashboard({
             periodo: filtroPeriodo,
-            mes:  filtroPeriodo === "mes" ? mesSeleccionado.mes + 1 : undefined,
-            anio: filtroPeriodo === "mes" ? mesSeleccionado.anio   : undefined,
+            mes:   filtroPeriodo === "mes" ? mesSeleccionado.mes + 1 : undefined,
+            anio:  filtroPeriodo === "mes" ? mesSeleccionado.anio   : undefined,
+            fecha: filtroPeriodo === "dia" ? diaSeleccionado        : undefined,
           }),
           getReuniones({ estado: "programada", periodo: filtroPeriodo }),
           getResumenTareas(),
@@ -119,8 +142,8 @@ export default function DashboardPage() {
         console.error("Error cargando métricas:", err);
       } finally {
         setCargando(false);
+        setActualizando(false);
       }
-      // Scores — independiente, no bloquea el dashboard
       getScoresLeads()
         .then(scores => {
           const stats = { caliente: 0, activo: 0, tibio: 0, frio: 0 };
@@ -130,7 +153,7 @@ export default function DashboardPage() {
         .catch(console.error);
     }
     cargar();
-  }, [filtroPeriodo, mesSeleccionado]);
+  }, [filtroPeriodo, mesSeleccionado, diaSeleccionado]);
 
   if (cargando) return (
     <div className="flex items-center justify-center h-64">
@@ -144,70 +167,115 @@ export default function DashboardPage() {
       {/* Header + Filtros */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-lg sm:text-xl font-semibold text-zinc-800">Dashboard</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg sm:text-xl font-semibold text-zinc-800">Dashboard</h1>
+            {actualizando && (
+              <div className="w-3.5 h-3.5 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+            )}
+          </div>
           <p className="text-xs text-zinc-500 mt-0.5">Resumen de tu actividad comercial</p>
         </div>
 
         <div className="flex flex-wrap gap-2 items-center relative">
+
+          {/* Hoy / Semana */}
           {(["hoy", "semana"] as FiltroPeriodo[]).map(p => (
-            <button key={p} onClick={() => setFiltroPeriodo(p)}
-              className={`px-4 py-2 rounded-lg text-xs font-medium transition-all capitalize
+            <button key={p}
+              onClick={() => { setFiltroPeriodo(p); setPickerAbierto(false); setCalAbierto(false); }}
+              className={`px-4 py-2 rounded-lg text-xs font-medium transition-all
                 ${filtroPeriodo === p
-                  ? "bg-blue-600 text-zinc-100 shadow-sm"
-                  : "bg-white border border-gray-200 gray-100 hover:bg-gray-50"}`}>
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"}`}>
               {p === "hoy" ? "Hoy" : "Semana"}
             </button>
           ))}
 
+          {/* Año */}
+          <button onClick={() => { setFiltroPeriodo("anio"); setPickerAbierto(false); setCalAbierto(false); }}
+            className={`px-4 py-2 rounded-lg text-xs font-medium transition-all
+              ${filtroPeriodo === "anio"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"}`}>
+            Año
+          </button>
+
+          {/* Día — calendario */}
           <div className="relative">
             <button
-              onClick={() => { setFiltroPeriodo("mes"); setPickerAbierto(p => !p); }}
+              onClick={() => { setFiltroPeriodo("dia"); setCalAbierto(c => !c); setPickerAbierto(false); }}
               className={`flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-medium transition-all
-                ${filtroPeriodo === "mes"
-                  ? "bg-blue-600 text-zinc-100 shadow-sm"
-                  : "bg-white border border-gray-200 gray-100 hover:bg-gray-50"}`}>
-              {filtroPeriodo === "mes"
-                ? `${MESES_FULL[mesSeleccionado.mes]} ${mesSeleccionado.anio}`
-                : "Mes"}
+                ${filtroPeriodo === "dia"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"}`}>
+              <Calendar size={12} />
+              {filtroPeriodo === "dia" ? formatDiaBtn(diaSeleccionado) : "Día"}
               <ChevronDown size={12} />
             </button>
-            {pickerAbierto && (
-              <div className="absolute left-0 sm:left-auto sm:right-0 top-[calc(100%+8px)] z-50 bg-white border border-gray-200 rounded-xl shadow-lg p-4 w-64 sm:w-72">
+
+            {calAbierto && (
+              <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4 w-72">
+                {/* Nav mes/año */}
                 <div className="flex items-center justify-between mb-3">
-                  <button onClick={() => setAnioNavegando(a => Math.max(2020, a - 1))}
+                  <button
+                    onClick={() => setCalNav(n => {
+                      const d = new Date(n.anio, n.mes - 1, 1);
+                      return { mes: d.getMonth(), anio: d.getFullYear() };
+                    })}
                     className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50">
                     <ChevronLeft size={14} />
                   </button>
-                  <span className="text-sm font-medium text-zinc-100">{anioNavegando}</span>
-                  <button onClick={() => setAnioNavegando(a => Math.min(2030, a + 1))}
+                  <span className="text-xs font-semibold text-zinc-800">
+                    {MESES_FULL[calNav.mes]} {calNav.anio}
+                  </span>
+                  <button
+                    onClick={() => setCalNav(n => {
+                      const d = new Date(n.anio, n.mes + 1, 1);
+                      return { mes: d.getMonth(), anio: d.getFullYear() };
+                    })}
                     className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50">
                     <ChevronRight size={14} />
                   </button>
                 </div>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {MESES_FULL.map((mes, i) => {
-                    const isSelected = i === mesSeleccionado.mes && anioNavegando === mesSeleccionado.anio;
+
+                {/* Cabecera días */}
+                <div className="grid grid-cols-7 mb-1">
+                  {DIAS_SEMANA.map(d => (
+                    <div key={d} className="text-center text-[10px] font-semibold text-zinc-400 py-1">{d}</div>
+                  ))}
+                </div>
+
+                {/* Celdas */}
+                <div className="grid grid-cols-7 gap-y-0.5">
+                  {generarCeldasMes(calNav.mes, calNav.anio).map((dia, i) => {
+                    if (!dia) return <div key={i} />;
+                    const fechaStr = `${calNav.anio}-${String(calNav.mes + 1).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
+                    const esHoy      = fechaStr === hoyStr;
+                    const seleccionado = fechaStr === diaSeleccionado && filtroPeriodo === "dia";
                     return (
                       <button key={i}
-                        onClick={() => { setMesSeleccionado({ mes: i, anio: anioNavegando }); setPickerAbierto(false); }}
-                        className={`py-2 rounded-lg text-xs font-medium transition-all
-                          ${isSelected ? "bg-blue-600 text-zinc-100" : "border border-gray-100 gray-100 hover:bg-gray-50"}`}>
-                        {mes.slice(0, 3)}
+                        onClick={() => { setDiaSeleccionado(fechaStr); setCalAbierto(false); }}
+                        className={`
+                          w-full aspect-square flex items-center justify-center rounded-lg text-xs font-medium transition-all
+                          ${seleccionado ? "bg-blue-600 text-white" :
+                            esHoy        ? "border-2 border-blue-400 text-blue-600" :
+                                           "text-zinc-700 hover:bg-blue-50"}
+                        `}>
+                        {dia}
                       </button>
                     );
                   })}
                 </div>
+
+                {/* Atajo hoy */}
+                <button
+                  onClick={() => { setDiaSeleccionado(hoyStr); setCalAbierto(false); }}
+                  className="mt-3 w-full py-1.5 text-xs text-blue-600 border border-blue-100 rounded-lg hover:bg-blue-50 transition">
+                  Ir a hoy
+                </button>
               </div>
             )}
           </div>
 
-          <button onClick={() => { setFiltroPeriodo("anio"); setPickerAbierto(false); }}
-            className={`px-4 py-2 rounded-lg text-xs font-medium transition-all
-              ${filtroPeriodo === "anio"
-                ? "bg-blue-600 text-zinc-100 shadow-sm"
-                : "bg-white border border-gray-200 gray-100 hover:bg-gray-50"}`}>
-            Año
-          </button>
         </div>
       </div>
 

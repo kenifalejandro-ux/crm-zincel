@@ -110,40 +110,34 @@ export async function resumenLlamadasService(filters?: { fecha_inicio?: string; 
   `, valores);
   return result.rows;
 }
-export async function estadisticasLlamadasPorPeriodoService(periodo: "dia" | "mes" | "semana") {
-  let groupBy: string;
+export async function estadisticasLlamadasPorPeriodoService(
+  fecha_inicio?: string,
+  fecha_fin?: string,
+  granularidad: "dia" | "hora" = "dia"
+) {
+  const condiciones: string[] = [];
+  const valores: any[] = [];
+  let idx = 1;
 
-  switch (periodo) {
-    case "dia":
-      groupBy = "fecha::date";
-      break;
-    case "semana":
-      groupBy = "date_trunc('week', fecha)";
-      break;
-    case "mes":
-      groupBy = "date_trunc('month', fecha)";
-      break;
-  }
+  if (fecha_inicio) { condiciones.push(`fecha >= $${idx++}::timestamptz`); valores.push(fecha_inicio); }
+  if (fecha_fin)    { condiciones.push(`fecha <  $${idx++}::timestamptz`); valores.push(fecha_fin); }
+
+  const where    = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "WHERE fecha >= CURRENT_DATE - INTERVAL '90 days'";
+  const groupBy  = granularidad === "hora" ? "EXTRACT(HOUR FROM fecha)::int" : "fecha::date";
 
   const result = await pool.query(`
     SELECT
-      ${groupBy} as periodo,
-      COUNT(*) as total_llamadas,
-      COUNT(*) FILTER (WHERE contestada = true) as contestadas,
-      COUNT(*) FILTER (WHERE contestada = false) as no_contestadas
+      ${groupBy}                                                  AS periodo,
+      COUNT(*)::int                                               AS total,
+      COUNT(*) FILTER (WHERE contestada = true)::int             AS contestadas,
+      COUNT(*) FILTER (WHERE contestada = false)::int            AS no_contestadas
     FROM llamadas
-    WHERE fecha >= CURRENT_DATE - INTERVAL '1 year'
+    ${where}
     GROUP BY ${groupBy}
-    ORDER BY ${groupBy} DESC
-    LIMIT 50
-  `);
+    ORDER BY ${groupBy} ASC
+  `, valores);
 
-  return result.rows.map(row => ({
-    periodo: row.periodo,
-    total: parseInt(row.total_llamadas),
-    contestadas: parseInt(row.contestadas),
-    no_contestadas: parseInt(row.no_contestadas),
-  }));
+  return result.rows;
 }
 
 

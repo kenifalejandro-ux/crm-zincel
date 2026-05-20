@@ -23,8 +23,11 @@ export async function getAllLlamadas(filters?: { fecha_inicio?: string; fecha_fi
   return data.data;
 }
 
-export async function getEstadisticasLlamadas(periodo: "dia" | "mes" | "semana") {
-  const { data } = await api.get(`/llamadas/estadisticas/${periodo}`);
+export async function getEstadisticasLlamadas(
+  periodo: "dia" | "mes" | "semana",
+  filters?: { fecha_inicio?: string; fecha_fin?: string }
+) {
+  const { data } = await api.get(`/llamadas/estadisticas/${periodo}`, { params: filters });
   return data.data;
 }
 

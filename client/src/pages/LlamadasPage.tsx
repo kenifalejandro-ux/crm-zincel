@@ -67,6 +67,8 @@ const calcularRangoFecha = (fecha: string, periodo: "dia" | "semana" | "mes") =>
   return { fecha_inicio: ini.toISOString(), fecha_fin: fin.toISOString() };
 };
 
+const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function LlamadasPage() {
@@ -109,7 +111,7 @@ export default function LlamadasPage() {
       const [res, llam, stats, heat] = await Promise.all([
         getResumenLlamadas(rango),
         getAllLlamadas(rango),
-        getEstadisticasLlamadas(periodo),
+        getEstadisticasLlamadas(periodo, rango),
         getHeatmapLlamadas(rango),
       ]);
       setResumen(res);
@@ -180,14 +182,18 @@ export default function LlamadasPage() {
   const totalNoContestadas = resumen.reduce((acc, r) => acc + parseInt(r.no_contestadas || 0), 0);
 
   const estadisticasPorPeriodo = useMemo(() => estadisticas.map((stat) => {
-    const fecha = new Date(stat.periodo);
     let fechaLabel: string;
     if (filtroPeriodo === "dia") {
-      fechaLabel = fecha.toLocaleDateString("es-PE", { day: "numeric", month: "short", year: "numeric" });
-    } else if (filtroPeriodo === "semana") {
-      fechaLabel = `Semana del ${fecha.toLocaleDateString("es-PE", { day: "numeric", month: "short" })}`;
+      // stat.periodo is an integer hour (0–23)
+      const hora = typeof stat.periodo === "number" ? stat.periodo : parseInt(String(stat.periodo));
+      fechaLabel = `${String(hora).padStart(2, "0")}:00`;
     } else {
-      fechaLabel = fecha.toLocaleDateString("es-PE", { month: "long", year: "numeric" });
+      // stat.periodo is a date string "2026-01-15" (postgres DATE → string)
+      const dateStr = (stat.periodo instanceof Date)
+        ? stat.periodo.toISOString().split("T")[0]
+        : String(stat.periodo).split("T")[0];
+      const [, mo, dy] = dateStr.split("-").map(Number);
+      fechaLabel = `${dy} ${MESES[mo - 1]}`;
     }
     return { fecha: fechaLabel, total: stat.total, contestadas: stat.contestadas, no_contestadas: stat.no_contestadas };
   }), [estadisticas, filtroPeriodo]);

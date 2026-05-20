@@ -5,9 +5,13 @@ import { pool } from "../config/database";
 export async function metricasDashboardService(
   periodo: string = "mes",
   mes?: number,
-  anio?: number
+  anio?: number,
+  fecha?: string
 ) {
   const buildFiltro = (columna: string) => {
+    if (periodo === "dia" && fecha) {
+      return `${columna}::date = '${fecha}'`;
+    }
     if (periodo === 'mes' && mes && anio) {
       return `EXTRACT(MONTH FROM ${columna}) = ${mes} AND EXTRACT(YEAR FROM ${columna}) = ${anio}`;
     }
