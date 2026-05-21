@@ -8,12 +8,43 @@ import {
   resumenBrochuresService,
   actualizarBrochureService,
   eliminarBrochuresMasivoService,
+  estadisticasBrochuresPorPeriodoService,
+  resumenBrochuresFiltradoService,
 } from "../../services/brochure.service";
 import { invalidarCacheCRM } from "../../config/cache";
 
 export const brochuresRouter = Router();
 
 brochuresRouter.use(authMiddleware);
+
+// GET /api/crm/brochures/estadisticas
+brochuresRouter.get("/estadisticas", async (req, res) => {
+  try {
+    const { fecha_inicio, fecha_fin, granularidad } = req.query;
+    const data = await estadisticasBrochuresPorPeriodoService(
+      fecha_inicio as string | undefined,
+      fecha_fin    as string | undefined,
+      ((granularidad as string) === "hora" ? "hora" : (granularidad as string) === "mes" ? "mes" : "dia")
+    );
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/brochures/resumen-filtrado
+brochuresRouter.get("/resumen-filtrado", async (req, res) => {
+  try {
+    const { fecha_inicio, fecha_fin } = req.query;
+    const data = await resumenBrochuresFiltradoService({
+      fecha_inicio: fecha_inicio as string | undefined,
+      fecha_fin:    fecha_fin    as string | undefined,
+    });
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
 
 // GET /api/crm/brochures/resumen
 brochuresRouter.get("/resumen", async (_req, res) => {
@@ -28,7 +59,11 @@ brochuresRouter.get("/resumen", async (_req, res) => {
 // GET /api/crm/brochures
 brochuresRouter.get("/", async (req, res) => {
   try {
-    const data = await obtenerBrochuresService(req.query.prospecto_id as string);
+    const data = await obtenerBrochuresService({
+      prospecto_id: req.query.prospecto_id as string | undefined,
+      fecha_inicio: req.query.fecha_inicio as string | undefined,
+      fecha_fin:    req.query.fecha_fin    as string | undefined,
+    });
     res.status(200).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

@@ -167,6 +167,10 @@ export async function getPipelineService() {
       p.estado_lead, p.prioridad, p.etapa_pipeline,
       p.ciudad, p.rubro, p.notas,
       p.creado_en, p.actualizado_en,
+      (SELECT pr.servicio FROM propuestas pr
+       WHERE pr.prospecto_id = p.id
+         AND pr.estado NOT IN ('cerrada_perdida', 'vencida')
+       ORDER BY pr.creado_en DESC LIMIT 1) AS servicio_propuesta,
       COALESCE((
         SELECT SUM(
           CASE WHEN pr.moneda = 'USD'

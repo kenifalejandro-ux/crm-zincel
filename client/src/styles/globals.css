@@ -115,6 +115,14 @@ body {
   }
 }
 
+/* Hace que los cards blancos floten sobre el fondo gris */
+@layer base {
+  .bg-white.border.border-gray-100,
+  .bg-white.border.border-gray-200 {
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03);
+  }
+}
+
 @layer components {
   .b2b-eyebrow {
     @apply text-[11px] font-medium uppercase tracking-[0.22em] text-stone-500;

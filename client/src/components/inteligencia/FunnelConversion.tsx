@@ -15,7 +15,7 @@ const LABELS: Record<string, string> = {
 const COLORES: Record<string, string> = {
   nuevo:             "bg-slate-400",
   contactado:        "bg-blue-400",
-  interesado:        "bg-indigo-400",
+  interesado:        "bg-amber-400",
   propuesta_enviada: "bg-violet-400",
   negociacion:       "bg-amber-400",
   cerrado_ganado:    "bg-emerald-500",
@@ -74,7 +74,7 @@ export function FunnelConversion({ data }: Props) {
           {hayValor && (
             <div className="text-right">
               <p className="text-[10px] text-zinc-400">Valor pipeline activo</p>
-              <p className="text-lg font-bold text-indigo-600">{fmtSol(valorActivo)}</p>
+              <p className="text-lg font-bold text-amber-600">{fmtSol(valorActivo)}</p>
               {valorCerrado > 0 && (
                 <p className="text-[10px] text-emerald-600 font-medium">+ {fmtSol(valorCerrado)} cerrado</p>
               )}
@@ -89,9 +89,9 @@ export function FunnelConversion({ data }: Props) {
       </div>
 
       {!hayValor && (
-        <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2">
-          <span className="text-indigo-400 text-sm">💡</span>
-          <p className="text-xs text-indigo-600">
+        <div className="flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+          <span className="text-amber-400 text-sm">💡</span>
+          <p className="text-xs text-amber-600">
             Asigna un <strong>valor estimado</strong> a tus leads en el Pipeline para ver el potencial económico aquí.
           </p>
         </div>
@@ -130,7 +130,7 @@ export function FunnelConversion({ data }: Props) {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`text-[10px] ${d.valor > 0 ? "text-indigo-500 font-medium" : "text-zinc-300"}`}>
+                  <span className={`text-[10px] ${d.valor > 0 ? "text-amber-500 font-medium" : "text-zinc-300"}`}>
                     {d.valor > 0 ? fmtSol(d.valor) : "S/—"}
                   </span>
                   <span className="text-xs font-semibold text-zinc-700 w-8 text-right">{d.total}</span>
@@ -138,7 +138,7 @@ export function FunnelConversion({ data }: Props) {
               </div>
               <div className="w-full bg-gray-100 rounded-full h-2">
                 <div
-                  className={`h-2 rounded-full transition-all ${esCuello ? "bg-amber-400" : COLORES[d.etapa] ?? "bg-indigo-400"}`}
+                  className={`h-2 rounded-full transition-all ${esCuello ? "bg-amber-400" : COLORES[d.etapa] ?? "bg-amber-400"}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>

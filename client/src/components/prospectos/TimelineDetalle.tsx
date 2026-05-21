@@ -30,7 +30,7 @@ const TIPO_CONFIG: Record<TipoActividad, { icon: React.ReactNode; dot: string; b
   propuesta:     { icon: <ClipboardList size={13} />,dot: "bg-green-500",  bg: "bg-green-100",  color: "text-green-600"  },
   brochure:      { icon: <FileText size={13} />,     dot: "bg-amber-500",  bg: "bg-amber-100",  color: "text-amber-600"  },
   tarea:         { icon: <CheckSquare size={13} />,  dot: "bg-teal-500",   bg: "bg-teal-100",   color: "text-teal-600"   },
-  pipeline:      { icon: <GitBranch size={13} />,    dot: "bg-indigo-500", bg: "bg-indigo-100", color: "text-indigo-600" },
+  pipeline:      { icon: <GitBranch size={13} />,    dot: "bg-amber-500", bg: "bg-amber-100", color: "text-amber-600" },
   score:         { icon: <Zap size={13} />,          dot: "bg-yellow-500", bg: "bg-yellow-100", color: "text-yellow-600" },
   automatizacion:{ icon: <Zap size={13} />,          dot: "bg-rose-500",   bg: "bg-rose-100",   color: "text-rose-600"   },
   nota:          { icon: <StickyNote size={13} />,   dot: "bg-zinc-400",   bg: "bg-zinc-100",   color: "text-zinc-500"   },

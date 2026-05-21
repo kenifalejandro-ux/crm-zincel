@@ -11,6 +11,8 @@ import {
   marcarEmailEnviadoService,
   resumenReunionesService,
   eliminarReunionesMasivoService,
+  estadisticasReunionesPorPeriodoService,
+  kpisReunionesFiltradoService,
 } from "../../services/reuniones.service";
 import { invalidarCacheCRM } from "../../config/cache";
 
@@ -72,6 +74,35 @@ reunionesRouter.get("/resumen", async (_req, res) => {
   try {
     const data = await resumenReunionesService();
     res.status(200).json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/reuniones/estadisticas
+reunionesRouter.get("/estadisticas", async (req, res) => {
+  try {
+    const { fecha_inicio, fecha_fin, granularidad } = req.query;
+    const data = await estadisticasReunionesPorPeriodoService(
+      fecha_inicio as string | undefined,
+      fecha_fin    as string | undefined,
+      ((granularidad as string) === "hora" ? "hora" : (granularidad as string) === "mes" ? "mes" : "dia")
+    );
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/reuniones/kpis
+reunionesRouter.get("/kpis", async (req, res) => {
+  try {
+    const { fecha_inicio, fecha_fin } = req.query;
+    const data = await kpisReunionesFiltradoService({
+      fecha_inicio: fecha_inicio as string | undefined,
+      fecha_fin:    fecha_fin    as string | undefined,
+    });
+    res.json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
   }

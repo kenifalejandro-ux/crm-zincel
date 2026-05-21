@@ -5,7 +5,7 @@ const CANALES = ["correo", "whatsapp", "linkedin", "instagram", "facebook"];
 const COLOR_CANAL: Record<string, string> = {
   correo:    "bg-blue-100 text-blue-700",
   whatsapp:  "bg-green-100 text-green-700",
-  linkedin:  "bg-indigo-100 text-indigo-700",
+  linkedin:  "bg-amber-100 text-amber-700",
   instagram: "bg-pink-100 text-pink-700",
   facebook:  "bg-purple-100 text-purple-700",
 };

@@ -1,6 +1,8 @@
 /**client/src/components/pipeline/KanbanCard.tsx */
 
-import { Phone, User, DollarSign, GripVertical } from "lucide-react";
+import { useState, useRef } from "react";
+import { Phone, User, DollarSign, GripVertical, ChevronDown, ChevronUp, ExternalLink, Briefcase } from "lucide-react";
+import type { Prospecto } from "../../types/prospecto.types";
 
 function calcularProbabilidad(score: number): number {
   if (score >= 75) return Math.min(85, Math.round(60 + (score - 75) * 1.0));
@@ -8,7 +10,6 @@ function calcularProbabilidad(score: number): number {
   if (score >= 25) return Math.round(15 + (score - 25) * 0.8);
   return Math.max(3, Math.round(score * 0.6));
 }
-import type { Prospecto } from "../../types/prospecto.types";
 
 const COLOR_ESTADO: Record<string, string> = {
   interesado:         "bg-green-100 text-green-700",
@@ -40,9 +41,19 @@ const PRIORIDAD_DOT: Record<string, string> = {
 
 const SCORE_STYLE = {
   caliente: { dot: "bg-red-500",    text: "text-red-600",    label: "🔥" },
-  activo:   { dot: "bg-indigo-500", text: "text-indigo-600", label: "⬆" },
+  activo:   { dot: "bg-amber-500", text: "text-amber-600", label: "⬆" },
   tibio:    { dot: "bg-yellow-400", text: "text-yellow-600", label: "→" },
   frio:     { dot: "bg-gray-300",   text: "text-gray-400",   label: "❄" },
+};
+
+// Solo estas 4 etapas tienen color + desglose
+const ETAPAS_AVANZADAS = new Set(["propuesta_enviada", "negociacion", "cerrado_ganado", "perdido"]);
+
+const ETAPA_BORDER: Record<string, string> = {
+  propuesta_enviada: "border-l-amber-400",
+  negociacion:       "border-l-amber-400",
+  cerrado_ganado:    "border-l-green-500",
+  perdido:           "border-l-red-400",
 };
 
 interface Props {
@@ -54,71 +65,169 @@ interface Props {
 }
 
 export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }: Props) {
+  const [expandido, setExpandido] = useState(false);
+  const dragging = useRef(false);
+
+  const esAvanzada = ETAPAS_AVANZADAS.has(p.etapa_pipeline);
+
   const montoFmt = (p.valor_pipeline ?? 0) > 0
     ? `S/ ${Number(p.valor_pipeline).toLocaleString("es-PE", { minimumFractionDigits: 0 })}`
     : null;
 
   const ringClass = nivel === "caliente" ? "ring-2 ring-red-400 ring-offset-1"
-                  : nivel === "activo"   ? "ring-1 ring-indigo-300"
+                  : nivel === "activo"   ? "ring-1 ring-amber-300"
                   : "";
+
+  function handleDragStart(e: React.DragEvent) {
+    dragging.current = true;
+    onDragStart(e, p.id);
+  }
+
+  function handleDragEnd() {
+    setTimeout(() => { dragging.current = false; }, 100);
+  }
+
+  // ── Tarjeta simple (nuevo / contactado / interesado) ─────────────────────
+  if (!esAvanzada) {
+    return (
+      <div
+        draggable
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onClick={() => { if (!dragging.current) onClick(p); }}
+        className={`bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:shadow-md
+                   cursor-grab active:cursor-grabbing transition-shadow select-none group ${ringClass}`}
+      >
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <div className={`w-2 h-2 rounded-full shrink-0 ${PRIORIDAD_DOT[p.prioridad]}`} />
+            <p className="text-xs font-semibold text-zinc-800 truncate leading-tight">{p.empresa}</p>
+          </div>
+          <GripVertical size={13} className="text-gray-300 group-hover:text-gray-400 shrink-0 mt-0.5 transition-colors" />
+        </div>
+
+        {p.nombre_contacto && (
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <User size={11} className="text-zinc-400 shrink-0" />
+            <p className="text-[11px] text-zinc-500 truncate">{p.nombre_contacto}</p>
+          </div>
+        )}
+        {p.telefono && (
+          <div className="flex items-center gap-1.5 mb-2">
+            <Phone size={11} className="text-zinc-400 shrink-0" />
+            <p className="text-[11px] text-zinc-500">{p.telefono}</p>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-gray-50">
+          <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium truncate ${COLOR_ESTADO[p.estado_lead] ?? "bg-gray-100 text-gray-600"}`}>
+            {LABEL_ESTADO[p.estado_lead] ?? p.estado_lead}
+          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {score !== undefined && nivel && (() => {
+              const s = SCORE_STYLE[nivel];
+              const prob = calcularProbabilidad(score);
+              return (
+                <div className="flex flex-col items-end">
+                  <span className={`text-[10px] font-bold ${s.text}`}>{s.label} {score}</span>
+                  <span className="text-[9px] text-zinc-400">{prob}% cierre</span>
+                </div>
+              );
+            })()}
+            {montoFmt && (
+              <div className="flex items-center gap-0.5">
+                <DollarSign size={10} className="text-green-500" />
+                <span className="text-[10px] font-semibold text-green-600">{montoFmt}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Tarjeta con desglose (propuesta_enviada / negociacion / cerrado_ganado / perdido) ──
+  const borderColor = ETAPA_BORDER[p.etapa_pipeline];
 
   return (
     <div
       draggable
-      onDragStart={e => onDragStart(e, p.id)}
-      onClick={() => onClick(p)}
-      className={`bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:shadow-md
-                 cursor-grab active:cursor-grabbing transition-shadow select-none group ${ringClass}`}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onClick={() => { if (!dragging.current) setExpandido(v => !v); }}
+      className={`bg-white border border-gray-100 border-l-4 ${borderColor}  shadow-sm
+                 hover:shadow-md cursor-pointer transition-shadow select-none group ${ringClass}`}
     >
-      {/* Header: empresa + grip */}
-      <div className="flex items-start justify-between gap-2 mb-2">
+      {/* Header siempre visible */}
+      <div className="flex items-center justify-between gap-2 px-3 py-2.5">
         <div className="flex items-center gap-1.5 min-w-0">
           <div className={`w-2 h-2 rounded-full shrink-0 ${PRIORIDAD_DOT[p.prioridad]}`} />
           <p className="text-xs font-semibold text-zinc-800 truncate leading-tight">{p.empresa}</p>
         </div>
-        <GripVertical size={13} className="text-gray-300 group-hover:text-gray-400 shrink-0 mt-0.5 transition-colors" />
+        <div className="flex items-center gap-1 shrink-0">
+          {montoFmt && (
+            <span className="text-[10px] font-semibold text-green-600">{montoFmt}</span>
+          )}
+          <GripVertical size={12} className="text-gray-300 group-hover:text-gray-400 transition-colors cursor-grab active:cursor-grabbing" />
+          {expandido
+            ? <ChevronUp  size={12} className="text-gray-400" />
+            : <ChevronDown size={12} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
+          }
+        </div>
       </div>
 
-      {/* Contacto */}
-      {p.nombre_contacto && (
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <User size={11} className="text-zinc-400 shrink-0" />
-          <p className="text-[11px] text-zinc-500 truncate">{p.nombre_contacto}</p>
-        </div>
-      )}
-      {p.telefono && (
-        <div className="flex items-center gap-1.5 mb-2">
-          <Phone size={11} className="text-zinc-400 shrink-0" />
-          <p className="text-[11px] text-zinc-500">{p.telefono}</p>
-        </div>
-      )}
+      {/* Contenido expandido */}
+      {expandido && (
+        <div className="px-3 pb-3 border-t border-gray-50 pt-2 space-y-1.5">
 
-      {/* Footer: estado + score + valor */}
-      <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-gray-50">
-        <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium truncate ${COLOR_ESTADO[p.estado_lead] ?? "bg-gray-100 text-gray-600"}`}>
-          {LABEL_ESTADO[p.estado_lead] ?? p.estado_lead}
-        </span>
-        <div className="flex items-center gap-1.5 shrink-0">
-          {score !== undefined && nivel && (() => {
-            const s = SCORE_STYLE[nivel];
-            const prob = calcularProbabilidad(score);
-            return (
-              <div className="flex flex-col items-end">
-                <span className={`text-[10px] font-bold ${s.text}`}>
-                  {s.label} {score}
-                </span>
-                <span className="text-[9px] text-zinc-400">{prob}% cierre</span>
-              </div>
-            );
-          })()}
-          {montoFmt && (
-            <div className="flex items-center gap-0.5">
-              <DollarSign size={10} className="text-green-500" />
-              <span className="text-[10px] font-semibold text-green-600">{montoFmt}</span>
+          {p.servicio_propuesta && (
+            <div className="flex items-center gap-1.5 bg-amber-50 rounded-lg px-2 py-1.5">
+              <Briefcase size={11} className="text-amber-500 shrink-0" />
+              <p className="text-[11px] font-medium text-amber-700 truncate">{p.servicio_propuesta}</p>
             </div>
           )}
+
+          {p.nombre_contacto && (
+            <div className="flex items-center gap-1.5">
+              <User size={11} className="text-zinc-400 shrink-0" />
+              <p className="text-[11px] text-zinc-500 truncate">{p.nombre_contacto}</p>
+            </div>
+          )}
+          {p.telefono && (
+            <div className="flex items-center gap-1.5">
+              <Phone size={11} className="text-zinc-400 shrink-0" />
+              <p className="text-[11px] text-zinc-500">{p.telefono}</p>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-gray-50">
+            <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium truncate ${COLOR_ESTADO[p.estado_lead] ?? "bg-gray-100 text-gray-600"}`}>
+              {LABEL_ESTADO[p.estado_lead] ?? p.estado_lead}
+            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {score !== undefined && nivel && (() => {
+                const s = SCORE_STYLE[nivel];
+                const prob = calcularProbabilidad(score);
+                return (
+                  <div className="flex flex-col items-end">
+                    <span className={`text-[10px] font-bold ${s.text}`}>{s.label} {score}</span>
+                    <span className="text-[9px] text-zinc-400">{prob}% cierre</span>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+
+          <button
+            onClick={e => { e.stopPropagation(); onClick(p); }}
+            className="w-full mt-1 flex items-center justify-center gap-1.5 text-[11px] font-medium
+                       text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg py-1.5 transition-colors"
+          >
+            <ExternalLink size={11} />
+            Ver detalle completo
+          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }

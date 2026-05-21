@@ -100,7 +100,7 @@ export default function LoginPage() {
       {/* ── Izquierda: Formulario ──────────────────────────────────────────── */}
       <div className="w-full lg:w-7xl bg-zinc-950 flex items-center justify-center px-8 py-12 relative overflow-hidden">
 
-        <div className="absolute top-[-20%] left-[-10%] w-[400px] h-[400px] bg-indigo-600/[0.06] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-[-20%] left-[-10%] w-[400px] h-[400px] bg-amber-600/[0.06] rounded-full blur-3xl pointer-events-none" />
 
         <motion.div
           className="w-full max-w-sm relative z-10"
@@ -111,7 +111,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="mb-10">
             <motion.div
-              className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-500
+              className="w-10 h-10 bg-gradient-to-br from-amber-600 to-amber-500
                           flex items-center justify-center mb-6 rounded-lg
                           shadow-[0_0_30px_-5px_rgba(99,102,241,0.6)]"
               initial={{ scale: 0 }}
@@ -161,8 +161,8 @@ export default function LoginPage() {
                 placeholder="tu@email.com"
                 className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg
                            text-white text-sm placeholder:text-zinc-600
-                           focus:outline-none focus:border-indigo-500/60 focus:ring-1
-                           focus:ring-indigo-500/30 transition-all duration-200"
+                           focus:outline-none focus:border-amber-500/60 focus:ring-1
+                           focus:ring-amber-500/30 transition-all duration-200"
               />
             </div>
 
@@ -179,8 +179,8 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   className="w-full px-4 py-3 pr-11 bg-zinc-900 border border-zinc-800 rounded-lg
                              text-white text-sm placeholder:text-zinc-600
-                             focus:outline-none focus:border-indigo-500/60 focus:ring-1
-                             focus:ring-indigo-500/30 transition-all duration-200"
+                             focus:outline-none focus:border-amber-500/60 focus:ring-1
+                             focus:ring-amber-500/30 transition-all duration-200"
                 />
                 <button type="button" onClick={() => setVerPassword(v => !v)} tabIndex={-1}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition">
@@ -206,9 +206,9 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={cargando}
-              className="w-full py-3 mt-1 bg-indigo-600 hover:bg-indigo-500
+              className="w-full py-3 mt-1 bg-amber-600 hover:bg-amber-500
                          text-white font-semibold text-sm rounded-lg
-                         shadow-lg shadow-indigo-600/25
+                         shadow-lg shadow-amber-600/25
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-all duration-200 relative overflow-hidden"
             >
@@ -240,20 +240,20 @@ export default function LoginPage() {
           }}
         />
 
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/[0.07] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-600/[0.07] rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-violet-600/[0.05] rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 w-full max-w-lg">
 
           {/* Badge */}
           <motion.div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 mb-6"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 mb-6"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-            <span className="text-indigo-300 text-[11px] font-medium tracking-widest">CRM INTELIGENTE</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-amber-300 text-[11px] font-medium tracking-widest">CRM INTELIGENTE</span>
           </motion.div>
 
           {/* Headline */}
@@ -264,7 +264,7 @@ export default function LoginPage() {
             transition={{ delay: 0.5, duration: 0.5 }}
           >
             Convierte leads.<br />
-            <span className="text-indigo-400">Escala tu agencia.</span>
+            <span className="text-amber-400">Escala tu agencia.</span>
           </motion.h2>
 
           <motion.p
@@ -304,7 +304,7 @@ export default function LoginPage() {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { Icon: TrendingUp, label: "Conversiones", value: "+3.2x", color: "text-indigo-400"  },
+              { Icon: TrendingUp, label: "Conversiones", value: "+3.2x", color: "text-amber-400"  },
               { Icon: Users,      label: "Leads",        value: "+67%",  color: "text-violet-400" },
               { Icon: Target,     label: "ROI campañas", value: "+2.8x", color: "text-blue-400"   },
             ].map(({ Icon, label, value, color }, i) => (
@@ -334,7 +334,7 @@ export default function LoginPage() {
             transition={{ duration: 0.3 }}
           >
             <motion.div
-              className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-indigo-500
+              className="w-16 h-16 bg-gradient-to-br from-amber-600 to-amber-500
                           flex items-center justify-center rounded-xl
                           shadow-[0_0_70px_-5px_rgba(99,102,241,0.7)]"
               initial={{ scale: 0.5, opacity: 0 }}
@@ -368,7 +368,7 @@ export default function LoginPage() {
             </motion.p>
 
             <motion.div
-              className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-indigo-600 via-violet-500 to-indigo-400"
+              className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-amber-600 via-violet-500 to-amber-400"
               initial={{ width: "0%" }}
               animate={{ width: "100%" }}
               transition={{ delay: 0.2, duration: 1.65, ease: "easeInOut" }}

@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           </div>
           <button
             onClick={resetInactividad}
-            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition shrink-0"
+            className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition shrink-0"
           >
             Continuar
           </button>

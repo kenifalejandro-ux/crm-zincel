@@ -122,6 +122,74 @@ export async function resumenReunionesService() {
   `);
   return result.rows;
 }
+export async function estadisticasReunionesPorPeriodoService(
+  fecha_inicio?: string,
+  fecha_fin?: string,
+  granularidad: "dia" | "hora" | "mes" = "dia"
+) {
+  const condiciones: string[] = [];
+  const valores: any[] = [];
+  let idx = 1;
+
+  if (fecha_inicio) { condiciones.push(`fecha_hora >= $${idx++}::timestamptz`); valores.push(fecha_inicio); }
+  if (fecha_fin)    { condiciones.push(`fecha_hora <  $${idx++}::timestamptz`); valores.push(fecha_fin); }
+
+  const where   = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "WHERE fecha_hora >= CURRENT_DATE - INTERVAL '90 days'";
+  const groupBy = granularidad === "hora"
+    ? "EXTRACT(HOUR FROM fecha_hora)::int"
+    : granularidad === "mes"
+    ? "EXTRACT(MONTH FROM fecha_hora)::int"
+    : "fecha_hora::date";
+
+  const result = await pool.query(`
+    SELECT
+      ${groupBy}                                                      AS periodo,
+      COUNT(*)::int                                                   AS total,
+      COUNT(*) FILTER (WHERE estado = 'realizada')::int              AS realizadas,
+      COUNT(*) FILTER (WHERE estado = 'programada')::int             AS programadas,
+      COUNT(*) FILTER (WHERE estado = 'cancelada')::int              AS canceladas
+    FROM reuniones
+    ${where}
+    GROUP BY ${groupBy}
+    ORDER BY ${groupBy} ASC
+  `, valores);
+
+  return result.rows;
+}
+
+export async function kpisReunionesFiltradoService(filters?: { fecha_inicio?: string; fecha_fin?: string }) {
+  const condiciones: string[] = [];
+  const valores: any[] = [];
+  let idx = 1;
+
+  if (filters?.fecha_inicio) { condiciones.push(`fecha_hora >= $${idx++}`); valores.push(filters.fecha_inicio); }
+  if (filters?.fecha_fin)    { condiciones.push(`fecha_hora <  $${idx++}`); valores.push(filters.fecha_fin); }
+
+  const where = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "";
+
+  const [kpisResult, modalidadResult] = await Promise.all([
+    pool.query(`
+      SELECT
+        COUNT(*)::int                                                AS total,
+        COUNT(*) FILTER (WHERE estado = 'programada')::int          AS programadas,
+        COUNT(*) FILTER (WHERE estado = 'realizada')::int           AS realizadas,
+        COUNT(*) FILTER (WHERE estado = 'cancelada')::int           AS canceladas,
+        COUNT(*) FILTER (WHERE estado = 'reprogramada')::int        AS reprogramadas
+      FROM reuniones ${where}
+    `, valores),
+    pool.query(`
+      SELECT modalidad, COUNT(*)::int AS total
+      FROM reuniones ${where}
+      GROUP BY modalidad ORDER BY total DESC
+    `, valores),
+  ]);
+
+  return {
+    kpis:      kpisResult.rows[0] ?? { total: 0, programadas: 0, realizadas: 0, canceladas: 0, reprogramadas: 0 },
+    modalidad: modalidadResult.rows,
+  };
+}
+
 export async function eliminarReunionesMasivoService(ids: string[]) {
   if (!ids.length) return 0;
 

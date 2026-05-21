@@ -14,6 +14,11 @@ import { FunnelConversion }    from "../components/inteligencia/FunnelConversion
 import { RegionChart }         from "../components/inteligencia/RegionChart";
 import { PrioridadOperacional } from "../components/inteligencia/PrioridadOperacional";
 import { CicloVenta }          from "../components/inteligencia/CicloVenta";
+import { AbandonoPipelineChart }       from "../components/inteligencia/AbandonoPipeline";
+import { TiempoPrimeraRespuestaChart } from "../components/inteligencia/TiempoPrimeraRespuesta";
+import { ForecastIngresosChart }       from "../components/inteligencia/ForecastIngresos";
+import { ConversionFunnelChart }       from "../components/inteligencia/ConversionFunnel";
+import { RechazosDualesChart }         from "../components/inteligencia/RechazosDuales";
 import { HeatmapHoras }        from "../components/llamadas/HeatmapHoras";
 import { MotivosChart }        from "../components/llamadas/MotivosChart";
 import { ResumenEstadosPropuestas } from "../components/propuestas/ResumenEstadosPropuestas";
@@ -269,11 +274,11 @@ function ForecastPanel({ f }: { f: Forecast }) {
       </div>
 
       {/* Main projection */}
-      <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-4 flex items-center justify-between gap-4">
+      <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-4 flex items-center justify-between gap-4">
         <div>
-          <p className="text-xs text-indigo-500 font-medium">Cierres proyectados este mes</p>
-          <p className="text-3xl font-bold text-indigo-700 mt-1">{f.cierres_proyectados}</p>
-          <p className="text-xs text-indigo-400 mt-0.5">{f.cierres_mes_actual} ya cerrados · {f.ciclo_promedio_dias}d ciclo promedio</p>
+          <p className="text-xs text-amber-500 font-medium">Cierres proyectados este mes</p>
+          <p className="text-3xl font-bold text-amber-700 mt-1">{f.cierres_proyectados}</p>
+          <p className="text-xs text-amber-400 mt-0.5">{f.cierres_mes_actual} ya cerrados · {f.ciclo_promedio_dias}d ciclo promedio</p>
         </div>
         <div className="text-right shrink-0">
           <p className="text-xs text-zinc-400">Tasa de conversión</p>
@@ -373,7 +378,7 @@ function ObjetivosPanel({
     setEditando(false);
   };
 
-  const inputCls = "w-16 text-center px-2 py-1 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400";
+  const inputCls = "w-16 text-center px-2 py-1 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400";
 
   return (
     <div className="bg-white border border-gray-100 rounded-xl p-5">
@@ -387,7 +392,7 @@ function ObjetivosPanel({
         {!editando ? (
           <button
             onClick={() => setEditando(true)}
-            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-indigo-600 transition"
+            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-amber-600 transition"
           >
             <Pencil size={12} /> Editar metas
           </button>
@@ -402,7 +407,7 @@ function ObjetivosPanel({
             <button
               onClick={handleGuardar}
               disabled={guardando}
-              className="flex items-center gap-1 text-xs text-white bg-indigo-600 hover:bg-indigo-700 px-2.5 py-1 rounded-lg transition disabled:opacity-60"
+              className="flex items-center gap-1 text-xs text-white bg-amber-600 hover:bg-amber-700 px-2.5 py-1 rounded-lg transition disabled:opacity-60"
             >
               <Check size={12} /> {guardando ? "Guardando..." : "Guardar"}
             </button>
@@ -448,9 +453,9 @@ function ObjetivosPanel({
             real={obj.reuniones_hoy}
             meta={obj.reuniones_meta}
             icon={<CalendarDays size={13} />}
-            textCls="text-indigo-600"
-            fillCls="bg-indigo-600"
-            trackCls="bg-indigo-100"
+            textCls="text-amber-600"
+            fillCls="bg-amber-600"
+            trackCls="bg-amber-100"
           />
           <ObjetivoBar
             label="Brochures"
@@ -573,13 +578,13 @@ export default function InteligenciaPage() {
     : "S/ —";
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-6 max-w-9xl mx-auto space-y-6">
 
       {/* ── Header ── */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-lg font-semibold text-zinc-900 flex items-center gap-2">
-            <TrendingUp size={20} className="text-indigo-500" />
+            <TrendingUp size={20} className="text-amber-500" />
             Inteligencia comercial
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
@@ -610,8 +615,8 @@ export default function InteligenciaPage() {
               onClick={() => { setShowPicker(v => !v); setAnioPicker(mesAno.anio); }}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border transition ${
                 periodo === "mes"
-                  ? "bg-indigo-600 text-white border-indigo-600"
-                  : "bg-white text-zinc-600 border-gray-200 hover:border-indigo-300"
+                  ? "bg-amber-600 text-white border-amber-600"
+                  : "bg-white text-zinc-600 border-gray-200 hover:border-amber-300"
               }`}
             >
               <Calendar size={12} />
@@ -658,10 +663,10 @@ export default function InteligenciaPage() {
                         }}
                         className={`py-1.5 text-xs rounded-lg transition ${
                           esActual
-                            ? "bg-indigo-600 text-white font-semibold"
+                            ? "bg-amber-600 text-white font-semibold"
                             : esFuturo
                               ? "text-zinc-300 cursor-not-allowed"
-                              : "text-zinc-600 hover:bg-indigo-50 hover:text-indigo-700"
+                              : "text-zinc-600 hover:bg-amber-50 hover:text-amber-700"
                         }`}
                       >
                         {m}
@@ -672,7 +677,7 @@ export default function InteligenciaPage() {
 
                 {/* Label del mes seleccionado */}
                 {periodo === "mes" && mesAno.anio === anioPicker && (
-                  <p className="text-[10px] text-center text-indigo-500 mt-3 font-medium">
+                  <p className="text-[10px] text-center text-amber-500 mt-3 font-medium">
                     {MESES_FULL[mesAno.mes - 1]} {mesAno.anio}
                   </p>
                 )}
@@ -684,7 +689,7 @@ export default function InteligenciaPage() {
 
       {cargando ? (
         <div className="flex justify-center py-20">
-          <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-indigo-500" />
+          <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-amber-500" />
         </div>
       ) : (
 
@@ -703,7 +708,7 @@ export default function InteligenciaPage() {
                 }
               </p>
               {cargandoPeriodo && (
-                <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-indigo-400" />
+                <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-amber-400" />
               )}
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -720,11 +725,11 @@ export default function InteligenciaPage() {
                 trend={tendencias?.llamadas.pct ?? null}
               />
               <KpiCard
-                icon={<CalendarDays size={14} className="text-indigo-500" />}
+                icon={<CalendarDays size={14} className="text-amber-500" />}
                 label="Reuniones"
                 value={metricas?.reuniones?.total_reuniones ?? 0}
                 sub={`${metricas?.reuniones?.reuniones_realizadas ?? 0} realizadas · ${metricas?.reuniones?.reuniones_canceladas ?? 0} canceladas`}
-                color="text-indigo-600"
+                color="text-amber-600"
                 trend={tendencias?.reuniones.pct ?? null}
               />
               <KpiCard
@@ -750,7 +755,7 @@ export default function InteligenciaPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {[
               { label: "Total leads",       value: totalPipeline,                                           color: "text-zinc-800"    },
-              { label: "Valor en pipeline", value: fmtSolKpi(valorPipeline),                                color: "text-indigo-600"  },
+              { label: "Valor en pipeline", value: fmtSolKpi(valorPipeline),                                color: "text-amber-600"  },
               { label: "Cerrados",          value: cerrados,                                                 color: "text-emerald-600" },
               { label: "No contesta",       value: metricas?.prospectos?.prospectos_no_contesta ?? 0,       color: "text-red-500"     },
               { label: "Volver a llamar",   value: metricas?.prospectos?.prospectos_volver_llamar ?? 0,     color: "text-amber-600"   },
@@ -816,11 +821,31 @@ export default function InteligenciaPage() {
           {/* ── Región ── */}
           <RegionChart data={regiones} />
 
+          {/* ── Análisis avanzado ── */}
+          <div>
+            <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">
+              Análisis estratégico avanzado
+            </p>
+            <div className="space-y-4">
+              {/* Fila 1: conversión funnel + primera respuesta */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <ConversionFunnelChart />
+                <TiempoPrimeraRespuestaChart />
+              </div>
+              {/* Fila 2: forecast ingresos */}
+              <ForecastIngresosChart />
+              {/* Fila 3: rechazos duales primer contacto + propuestas */}
+              <RechazosDualesChart />
+              {/* Fila 4: abandono pipeline */}
+              <AbandonoPipelineChart />
+            </div>
+          </div>
+
           {/* ── Ciclo de venta ── */}
           <div className="bg-zinc-50 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-600"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               </div>
               <div>
                 <p className="text-sm font-semibold text-zinc-800">Ciclo de venta</p>

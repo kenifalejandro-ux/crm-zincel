@@ -1,6 +1,6 @@
 /**client/src/components/ui/Badge.tsx */
 
-type Color = "blue" | "green" | "red" | "yellow" | "orange" | "purple" | "pink" | "gray" | "indigo";
+type Color = "blue" | "green" | "red" | "yellow" | "orange" | "purple" | "pink" | "gray" | "amber";
 
 interface BadgeProps {
   color?: Color;
@@ -17,7 +17,7 @@ const colors: Record<Color, string> = {
   purple: "bg-purple-100 text-purple-700",
   pink:   "bg-pink-100 text-pink-700",
   gray:   "bg-gray-100 gray-100",
-  indigo: "bg-indigo-100 text-indigo-700",
+  amber: "bg-amber-100 text-amber-700",
 };
 
 export function Badge({ color = "gray", children, className = "" }: BadgeProps) {

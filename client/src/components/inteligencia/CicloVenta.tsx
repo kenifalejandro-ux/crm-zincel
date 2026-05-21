@@ -22,7 +22,7 @@ function BarRubroRow({ rubro, total, promedio_dias, max }: { rubro: string; tota
         <span className="text-zinc-400 shrink-0 ml-2">{promedio_dias}d · {total} cierre{total !== 1 ? "s" : ""}</span>
       </div>
       <div className="h-1.5 bg-zinc-100 rounded-full overflow-hidden">
-        <div className="h-full rounded-full bg-indigo-400" style={{ width: `${pct}%` }} />
+        <div className="h-full rounded-full bg-amber-400" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -40,7 +40,7 @@ function TendenciaChart({ data }: { data: CicloVentaTendencia[] }) {
         return (
           <div key={d.mes} className="flex-1 flex flex-col items-center gap-0.5 group relative">
             <div
-              className="w-full rounded-t bg-indigo-400 group-hover:bg-indigo-500 transition-colors cursor-default"
+              className="w-full rounded-t bg-amber-400 group-hover:bg-amber-500 transition-colors cursor-default"
               style={{ height: `${h}px` }}
             />
             <span className="text-[9px] text-zinc-400">{d.mes.slice(5)}</span>
@@ -95,7 +95,7 @@ export function CicloVenta() {
 
   if (cargando) return (
     <div className="flex justify-center items-center py-12">
-      <Loader2 size={20} className="animate-spin text-indigo-400" />
+      <Loader2 size={20} className="animate-spin text-amber-400" />
     </div>
   );
 
@@ -111,7 +111,7 @@ export function CicloVenta() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: "Ventas cerradas",   value: sinDatos ? "—" : String(kpis.total_cerrados), icon: <CheckCircle size={14} className="text-green-500" />, sub: "" },
-          { label: "Ciclo total prom.", value: kpis.promedio_dias != null ? `${kpis.promedio_dias}d` : "—", icon: <Clock size={14} className="text-indigo-500" />, sub: "contacto → cierre" },
+          { label: "Ciclo total prom.", value: kpis.promedio_dias != null ? `${kpis.promedio_dias}d` : "—", icon: <Clock size={14} className="text-amber-500" />, sub: "contacto → cierre" },
           { label: "Cierre más rápido", value: kpis.min_dias != null ? `${kpis.min_dias}d` : "—", icon: <TrendingUp size={14} className="text-teal-500" />, sub: "" },
           { label: "Cierre más largo",  value: kpis.max_dias != null ? `${kpis.max_dias}d` : "—", icon: <Clock size={14} className="text-amber-500" />, sub: "" },
         ].map(k => (
@@ -174,10 +174,10 @@ export function CicloVenta() {
       )}
 
       {sinDatos && (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-center">
-          <Clock size={24} className="mx-auto mb-2 text-indigo-300" />
-          <p className="text-xs text-indigo-500 font-medium">Aún no hay ventas cerradas</p>
-          <p className="text-[11px] text-indigo-400 mt-0.5">
+        <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-center">
+          <Clock size={24} className="mx-auto mb-2 text-amber-300" />
+          <p className="text-xs text-amber-500 font-medium">Aún no hay ventas cerradas</p>
+          <p className="text-[11px] text-amber-400 mt-0.5">
             El ciclo de venta se calculará automáticamente cuando muevas un lead a "Cerrado ganado"
           </p>
         </div>

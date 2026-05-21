@@ -23,7 +23,7 @@ import { ModalEditarLlamada }     from "../components/llamadas/ModalEditarLlamad
 import { HeatmapHoras }           from "../components/llamadas/HeatmapHoras";
 import { MotivosChart }           from "../components/llamadas/MotivosChart";
 import { useEditar }              from "../hooks/useEditar";
-import { fechaHoy }              from "../utils/date";
+import { fechaHoy, calcularRangoFecha } from "../utils/date";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -44,29 +44,6 @@ const getFormInicial = (): FormLlamada => ({
   resultado:    "",
   notas:        "",
 });
-
-const calcularRangoFecha = (fecha: string, periodo: "dia" | "semana" | "mes") => {
-  if (periodo === "mes") {
-    const [year, month] = fecha.split("-").map(Number);
-    if (!year || !month) return { fecha_inicio: undefined, fecha_fin: undefined };
-    const inicio = `${year}-${String(month).padStart(2, "0")}-01T00:00:00.000Z`;
-    const finMes = month === 12
-      ? `${year + 1}-01-01T00:00:00.000Z`
-      : `${year}-${String(month + 1).padStart(2, "0")}-01T00:00:00.000Z`;
-    return { fecha_inicio: inicio, fecha_fin: finMes };
-  }
-  if (!fecha) return { fecha_inicio: undefined, fecha_fin: undefined };
-  const [y, m, d] = fecha.split("-").map(Number);
-  if (periodo === "dia") {
-    const inicio = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}T00:00:00.000Z`;
-    return { fecha_inicio: inicio, fecha_fin: new Date(Date.UTC(y, m-1, d+1)).toISOString() };
-  }
-  const dia    = new Date(Date.UTC(y, m-1, d));
-  const ajuste = (dia.getUTCDay() + 6) % 7;
-  const ini    = new Date(Date.UTC(y, m-1, d - ajuste));
-  const fin    = new Date(Date.UTC(y, m-1, d - ajuste + 7));
-  return { fecha_inicio: ini.toISOString(), fecha_fin: fin.toISOString() };
-};
 
 const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
@@ -105,8 +82,11 @@ export default function LlamadasPage() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   });
 
+  const granularidadActual = (): "dia" | "mes" | "semana" | "anio" =>
+    filtroPeriodo as "dia" | "mes" | "semana" | "anio";
+
   // ── Carga de datos ──────────────────────────────────────
-  const cargarLlamadas = async (fecha: string, periodo: "dia" | "semana" | "mes") => {
+  const cargarLlamadas = async (fecha: string, periodo: "dia" | "semana" | "mes" | "anio") => {
     try {
       const rango = calcularRangoFecha(fecha, periodo);
       const [res, llam, stats, heat] = await Promise.all([
@@ -123,16 +103,21 @@ export default function LlamadasPage() {
   };
 
   useEffect(() => {
-    cargarLlamadas(filtroFecha, filtroPeriodo as "dia" | "mes" | "semana");
+    cargarLlamadas(filtroFecha, filtroPeriodo as "dia" | "mes" | "semana" | "anio");
     getProspectos({ limite: 200 }).then(p => setProspectos(p.data)).catch(console.error);
     getMotivosPerdida().then(setMotivos).catch(console.error);
   }, []);
 
   useEffect(() => {
-    if (filtroPeriodo === "mes" && filtroFecha.length > 7) {
-      setFiltroFecha((prev) => prev.slice(0, 7));
-    } else if (filtroPeriodo !== "mes" && filtroFecha.length === 7) {
-      setFiltroFecha((prev) => `${prev}-01`);
+    const now = new Date();
+    if (filtroPeriodo === "anio") {
+      if (filtroFecha.length !== 4) setFiltroFecha(String(now.getFullYear()));
+    } else if (filtroPeriodo === "mes") {
+      if (filtroFecha.length > 7) setFiltroFecha((prev) => prev.slice(0, 7));
+      else if (filtroFecha.length === 4) setFiltroFecha(`${filtroFecha}-${String(now.getMonth() + 1).padStart(2,"0")}`);
+    } else {
+      if (filtroFecha.length === 7) setFiltroFecha((prev) => `${prev}-01`);
+      else if (filtroFecha.length === 4) setFiltroFecha(`${filtroFecha}-${String(now.getMonth() + 1).padStart(2,"0")}-01`);
     }
   }, [filtroPeriodo]);
 
@@ -185,11 +170,12 @@ export default function LlamadasPage() {
   const estadisticasPorPeriodo = useMemo(() => estadisticas.map((stat) => {
     let fechaLabel: string;
     if (filtroPeriodo === "dia") {
-      // stat.periodo is an integer hour (0–23)
       const hora = typeof stat.periodo === "number" ? stat.periodo : parseInt(String(stat.periodo));
       fechaLabel = `${String(hora).padStart(2, "0")}:00`;
+    } else if (filtroPeriodo === "anio") {
+      const mes = typeof stat.periodo === "number" ? stat.periodo : parseInt(String(stat.periodo));
+      fechaLabel = MESES[mes - 1] ?? `Mes ${mes}`;
     } else {
-      // stat.periodo is a date string "2026-01-15" (postgres DATE → string)
       const dateStr = (stat.periodo instanceof Date)
         ? stat.periodo.toISOString().split("T")[0]
         : String(stat.periodo).split("T")[0];
@@ -228,7 +214,7 @@ export default function LlamadasPage() {
         filtroFecha={filtroFecha}
         onPeriodoChange={setFiltroPeriodo}
         onFechaChange={setFiltroFecha}
-        onAplicar={() => cargarLlamadas(filtroFecha, filtroPeriodo as "dia" | "mes" | "semana")}
+        onAplicar={() => cargarLlamadas(filtroFecha, filtroPeriodo as "dia" | "mes" | "semana" | "anio")}
       />
 
       {/* KPIs */}

@@ -12,7 +12,7 @@ import {
 } from "../../services/notificaciones.api";
 
 const ICONO: Record<string, React.ReactNode> = {
-  reunion_proxima:   <Calendar size={13} className="text-indigo-500 shrink-0 mt-0.5" />,
+  reunion_proxima:   <Calendar size={13} className="text-amber-500 shrink-0 mt-0.5" />,
   lead_sin_actividad: <AlertTriangle size={13} className="text-amber-500 shrink-0 mt-0.5" />,
 };
 
@@ -86,7 +86,7 @@ export function NotificacionBell() {
     <div className="relative" ref={panelRef}>
       <button
         onClick={handleAbrir}
-        className="relative p-2 text-slate-600 hover:text-indigo-500 hover:bg-indigo-50 rounded-full transition-all duration-200"
+        className="relative p-2 text-slate-600 hover:text-amber-500 hover:bg-amber-50 rounded-full transition-all duration-200"
         title="Notificaciones"
       >
         <Bell size={17} />
@@ -112,7 +112,7 @@ export function NotificacionBell() {
                   setItems(prev => prev.map(n => ({ ...n, leida: true })));
                   setNoLeidas(0);
                 }}
-                className="flex items-center gap-1 text-[10px] text-indigo-500 hover:text-indigo-700 transition"
+                className="flex items-center gap-1 text-[10px] text-amber-500 hover:text-amber-700 transition"
               >
                 <CheckCheck size={12} /> Marcar todo leído
               </button>
@@ -123,7 +123,7 @@ export function NotificacionBell() {
           <div className="max-h-80 overflow-y-auto divide-y divide-gray-50">
             {cargando && (
               <div className="flex justify-center py-6">
-                <div className="w-4 h-4 rounded-full border-2 border-indigo-400 border-t-transparent animate-spin" />
+                <div className="w-4 h-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
               </div>
             )}
             {!cargando && items.length === 0 && (
@@ -137,7 +137,7 @@ export function NotificacionBell() {
                 key={item.id}
                 onClick={() => handleClick(item)}
                 className={`w-full text-left px-4 py-3 flex gap-3 transition hover:bg-gray-50
-                  ${!item.leida ? "bg-indigo-50/50" : ""}`}
+                  ${!item.leida ? "bg-amber-50/50" : ""}`}
               >
                 {ICONO[item.tipo] ?? <Bell size={13} className="text-gray-400 shrink-0 mt-0.5" />}
                 <div className="flex-1 min-w-0">

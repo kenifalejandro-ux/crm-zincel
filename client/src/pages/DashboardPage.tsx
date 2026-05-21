@@ -24,6 +24,8 @@ import { TasaConversion }        from "../components/dashboard/TasaConversion";
 import { WebActivaChart }        from "../components/dashboard/WebActivaChart";
 import { ResumenEstadosPropuestas } from "../components/propuestas/ResumenEstadosPropuestas";
 import { FasesCicloVenta }         from "../components/dashboard/FasesCicloVenta";
+import { ActividadAnual }          from "../components/dashboard/ActividadAnual";
+import { ActividadMensualDiaria }  from "../components/dashboard/ActividadMensualDiaria";
 
 const MESES_FULL  = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const MESES_CORTO = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
@@ -310,10 +312,10 @@ export default function DashboardPage() {
               <p className="text-[11px] text-red-400 mt-0.5 font-medium">🔥 Calientes</p>
               <p className="text-[10px] text-red-300">Score 75+</p>
             </div>
-            <div className="bg-indigo-50 rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-indigo-600">{scoreStats.activo}</p>
-              <p className="text-[11px] text-indigo-400 mt-0.5 font-medium">⬆ Activos</p>
-              <p className="text-[10px] text-indigo-300">Score 50–74</p>
+            <div className="bg-amber-50 rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-amber-600">{scoreStats.activo}</p>
+              <p className="text-[11px] text-amber-400 mt-0.5 font-medium">⬆ Activos</p>
+              <p className="text-[10px] text-amber-300">Score 50–74</p>
             </div>
             <div className="bg-yellow-50 rounded-xl p-3 text-center">
               <p className="text-2xl font-bold text-yellow-600">{scoreStats.tibio}</p>
@@ -356,6 +358,12 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Comparativas históricas */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+        <ActividadAnual />
+        <ActividadMensualDiaria />
+      </div>
+
       {/* Widget tareas */}
       {resumenTareas && (
         <div
@@ -364,7 +372,7 @@ export default function DashboardPage() {
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <CheckSquare size={16} className="text-indigo-500" />
+              <CheckSquare size={16} className="text-amber-500" />
               <p className="text-sm font-semibold text-zinc-800">Tareas pendientes</p>
             </div>
             {(resumenTareas.vencidas + resumenTareas.hoy) > 0 && (

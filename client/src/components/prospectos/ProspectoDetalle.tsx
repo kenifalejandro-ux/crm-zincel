@@ -250,7 +250,7 @@ function calcularScore(p: Prospecto, llamadas: Llamada[], props: { estado?: stri
 const SCORE_CONFIG = {
   caliente: { label: "🔥 Caliente", cls: "bg-red-100 text-red-700",      border: "border-red-200",
     urgencia: "Alta probabilidad de cierre",     plazo: "Actuar esta semana — no dejar enfriar" },
-  activo:   { label: "⬆ Activo",   cls: "bg-indigo-100 text-indigo-700", border: "border-indigo-200",
+  activo:   { label: "⬆ Activo",   cls: "bg-amber-100 text-amber-700", border: "border-amber-200",
     urgencia: "Lead en progreso",                plazo: "Mantener ritmo de contacto" },
   tibio:    { label: "→ Tibio",    cls: "bg-yellow-100 text-yellow-700", border: "border-yellow-200",
     urgencia: "Requiere seguimiento antes de 72h", plazo: "Riesgo de enfriamiento si no se actúa" },
@@ -317,7 +317,7 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
           {(() => {
             const blockCls =
               nivel === "caliente" ? "bg-red-50 border-red-200 text-red-800"
-              : nivel === "activo" ? "bg-indigo-50 border-indigo-200 text-indigo-800"
+              : nivel === "activo" ? "bg-amber-50 border-amber-200 text-amber-800"
               : nivel === "tibio"  ? "bg-amber-50 border-amber-300 text-amber-800"
               :                      "bg-gray-50 border-gray-200 text-gray-600";
             return (
@@ -330,11 +330,11 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
           })()}
 
           {/* Acción recomendada */}
-          <div className="bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2.5 mb-3 flex items-start gap-2">
+          <div className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2.5 mb-3 flex items-start gap-2">
             <span className="text-base shrink-0 mt-0.5">⚡</span>
             <div>
-              <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-wide mb-0.5">Acción sugerida</p>
-              <p className="text-xs font-semibold text-indigo-800 leading-snug">{accion}</p>
+              <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wide mb-0.5">Acción sugerida</p>
+              <p className="text-xs font-semibold text-amber-800 leading-snug">{accion}</p>
             </div>
           </div>
 
@@ -432,28 +432,30 @@ const COLOR_VENTA: Record<string, "green" | "blue" | "gray"> = {
 };
 
 interface ProspectoDetalleProps {
-  prospecto: Prospecto;
-  onCerrar:  () => void;
-  onEditar:  () => void;
+  prospecto:      Prospecto;
+  onCerrar:       () => void;
+  onEditar:       () => void;
+  onActualizado?: (id: string) => void;
 }
 
 type Tab = "info" | "llamadas" | "reuniones" | "brochures" | "propuestas" | "tareas" | "timeline" | "plantillas";
 
 const FORM_PROPUESTA_VACIO: FormPropuesta = {
-  servicio:        "desarrollo_web",
-  descripcion:     "",
-  monto_propuesto: "",
-  monto_cerrado:   "",
-  moneda:          "PEN",
-  tipo_cambio:     "1",
-  estado:          "enviada",
-  fecha_propuesta:   fechaHoy(),
-  fecha_negociacion: "",
-  fecha_cierre:      "",
-  notas:           "",
+  servicio:              "desarrollo_web",
+  descripcion:           "",
+  monto_propuesto:       "",
+  monto_cerrado:         "",
+  moneda:                "PEN",
+  tipo_cambio:           "1",
+  estado:                "enviada",
+  fecha_propuesta:       fechaHoy(),
+  fecha_negociacion:     "",
+  fecha_cierre:          "",
+  notas:                 "",
+  motivo_cierre_perdido: "",
 };
 
-export function ProspectoDetalle({ prospecto, onCerrar, onEditar }: ProspectoDetalleProps) {
+export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado }: ProspectoDetalleProps) {
   const [tab, setTab]               = useState<Tab>("info");
   const [detalle, setDetalle]       = useState<Prospecto>(prospecto);
   const [llamadasDet, setLlamadasDet] = useState<Llamada[]>([]);
@@ -517,14 +519,16 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar }: ProspectoDet
         monto_cerrado:   formPropuesta.monto_cerrado ? parseFloat(formPropuesta.monto_cerrado) : null,
         moneda:          formPropuesta.moneda,
         tipo_cambio:     parseFloat(formPropuesta.tipo_cambio) || 1,
-        estado:            formPropuesta.estado as any,
-        fecha_propuesta:   formPropuesta.fecha_propuesta,
-        fecha_negociacion: (formPropuesta.fecha_negociacion || null) as any,
-        fecha_cierre:      (formPropuesta.fecha_cierre || null) as any,
-        notas:             formPropuesta.notas || "",
+        estado:                formPropuesta.estado as any,
+        fecha_propuesta:       formPropuesta.fecha_propuesta,
+        fecha_negociacion:     (formPropuesta.fecha_negociacion || null) as any,
+        fecha_cierre:          (formPropuesta.fecha_cierre || null) as any,
+        notas:                 formPropuesta.notas || "",
+        motivo_cierre_perdido: formPropuesta.motivo_cierre_perdido || null,
       });
       setModalNuevaPropuesta(false);
       setFormPropuesta(FORM_PROPUESTA_VACIO);
+      onActualizado?.(prospecto.id);
       cargarDetalle();
     } catch (err) {
       console.error(err);
@@ -544,13 +548,15 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar }: ProspectoDet
         monto_cerrado:   formPropuesta.monto_cerrado ? parseFloat(formPropuesta.monto_cerrado) : null,
         moneda:          formPropuesta.moneda,
         tipo_cambio:     parseFloat(formPropuesta.tipo_cambio) || 1,
-        estado:            formPropuesta.estado as any,
-        fecha_propuesta:   formPropuesta.fecha_propuesta,
-        fecha_negociacion: (formPropuesta.fecha_negociacion || null) as any,
-        fecha_cierre:      (formPropuesta.fecha_cierre || null) as any,
-        notas:             formPropuesta.notas || "",
+        estado:                formPropuesta.estado as any,
+        fecha_propuesta:       formPropuesta.fecha_propuesta,
+        fecha_negociacion:     (formPropuesta.fecha_negociacion || null) as any,
+        fecha_cierre:          (formPropuesta.fecha_cierre || null) as any,
+        notas:                 formPropuesta.notas || "",
+        motivo_cierre_perdido: formPropuesta.motivo_cierre_perdido || null,
       });
       setPropuestaEditando(null);
+      onActualizado?.(prospecto.id);
       // Recargar detalle del prospecto para reflejar cambios de estado_venta/clasificacion
       cargarDetalle();
     } catch (err) {
@@ -563,17 +569,18 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar }: ProspectoDet
   function abrirEditarPropuesta(p: Propuesta) {
     setPropuestaEditando(p);
     setFormPropuesta({
-      servicio:        p.servicio as any,
-      descripcion:     p.descripcion,
-      monto_propuesto: String(p.monto_propuesto),
-      monto_cerrado:   p.monto_cerrado != null ? String(p.monto_cerrado) : "",
-      moneda:          p.moneda as any,
-      tipo_cambio:     String(p.tipo_cambio),
-      estado:          p.estado as any,
-      fecha_propuesta:   (p.fecha_propuesta   ?? "").slice(0, 10),
-      fecha_negociacion: (p.fecha_negociacion ?? "").slice(0, 10),
-      fecha_cierre:      (p.fecha_cierre      ?? "").slice(0, 10),
-      notas:           p.notas ?? "",
+      servicio:              p.servicio as any,
+      descripcion:           p.descripcion,
+      monto_propuesto:       String(p.monto_propuesto),
+      monto_cerrado:         p.monto_cerrado != null ? String(p.monto_cerrado) : "",
+      moneda:                p.moneda as any,
+      tipo_cambio:           String(p.tipo_cambio),
+      estado:                p.estado as any,
+      fecha_propuesta:       (p.fecha_propuesta   ?? "").slice(0, 10),
+      fecha_negociacion:     (p.fecha_negociacion ?? "").slice(0, 10),
+      fecha_cierre:          (p.fecha_cierre      ?? "").slice(0, 10),
+      notas:                 p.notas ?? "",
+      motivo_cierre_perdido: p.motivo_cierre_perdido ?? "",
     });
   }
 

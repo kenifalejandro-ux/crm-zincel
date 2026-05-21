@@ -35,7 +35,7 @@ export function KanbanColumn({
       onDragLeave={onDragLeave}
       onDrop={e => onDrop(e, etapa)}
       className={`flex flex-col rounded-2xl transition-colors min-h-[400px] w-64 shrink-0
-        ${isDragOver ? "bg-indigo-50 ring-2 ring-indigo-300" : "bg-gray-50"}`}
+        ${isDragOver ? "bg-amber-50 ring-2 ring-amber-300" : "bg-gray-50"}`}
     >
       {/* Column header */}
       <div className="px-3 py-3 border-b border-gray-100">
@@ -57,7 +57,7 @@ export function KanbanColumn({
       <div className="flex-1 p-2 space-y-2 overflow-y-auto">
         {prospectos.length === 0 && (
           <div className={`rounded-xl border-2 border-dashed h-20 flex items-center justify-center transition-colors
-            ${isDragOver ? "border-indigo-300" : "border-gray-200"}`}>
+            ${isDragOver ? "border-amber-300" : "border-gray-200"}`}>
             <p className="text-[10px] text-zinc-400">Arrastra aquí</p>
           </div>
         )}

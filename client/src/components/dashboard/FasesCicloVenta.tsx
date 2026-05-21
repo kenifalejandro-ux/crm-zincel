@@ -1,8 +1,29 @@
 /** client/src/components/dashboard/FasesCicloVenta.tsx */
 
 import { useEffect, useState } from "react";
-import { ArrowRight, Clock } from "lucide-react";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, Cell, LabelList,
+} from "recharts";
 import { getCicloVenta } from "../../services/prospectos.api";
+
+const FASES = [
+  { key: "prospeccion", label: "Prospección",  subLabel: "contacto → propuesta", color: "#60a5fa" },
+  { key: "negociacion", label: "Negociación",  subLabel: "propuesta → cierre",   color: "#fbbf24" },
+  { key: "total",       label: "Ciclo total",  subLabel: "contacto → cierre",    color: "#6366f1" },
+];
+
+const TooltipPersonalizado = ({ active, payload }: any) => {
+  if (!active || !payload?.length) return null;
+  const d = payload[0].payload;
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-2.5 text-xs">
+      <p className="font-semibold text-zinc-800">{d.label}</p>
+      <p className="text-zinc-500 text-[10px] mt-0.5">{d.subLabel}</p>
+      <p className="text-zinc-700 mt-1 font-medium">{d.dias}d promedio</p>
+    </div>
+  );
+};
 
 export function FasesCicloVenta() {
   const [kpis, setKpis] = useState<{
@@ -14,72 +35,81 @@ export function FasesCicloVenta() {
 
   useEffect(() => {
     getCicloVenta()
-      .then(d => setKpis(d.kpis))
+      .then((d) => setKpis(d.kpis))
       .catch(() => {});
   }, []);
 
   if (!kpis || kpis.total_cerrados === 0) return null;
 
-  const f1    = kpis.promedio_contacto_propuesta;
-  const f2    = kpis.promedio_propuesta_cierre;
-  const total = kpis.promedio_dias;
+  const chartData = [
+    { key: "prospeccion", label: "Prospección", subLabel: "contacto → propuesta", dias: kpis.promedio_contacto_propuesta ?? 0, color: "#60a5fa" },
+    { key: "negociacion", label: "Negociación", subLabel: "propuesta → cierre",   dias: kpis.promedio_propuesta_cierre   ?? 0, color: "#fbbf24" },
+    { key: "total",       label: "Ciclo total", subLabel: "contacto → cierre",    dias: kpis.promedio_dias               ?? 0, color: "#6366f1" },
+  ];
 
-  const p1 = total && f1 ? Math.round((f1 / total) * 100) : 0;
-  const p2 = total && f2 ? Math.round((f2 / total) * 100) : 0;
+  const maxDias = Math.max(...chartData.map((d) => d.dias), 1);
 
   return (
     <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-4">
       <div className="flex items-center justify-between mb-3">
         <div>
           <p className="text-sm font-semibold text-zinc-800">Ciclo de venta promedio</p>
-          <p className="text-[11px] text-zinc-400">Basado en {kpis.total_cerrados} venta{kpis.total_cerrados !== 1 ? "s" : ""} cerrada{kpis.total_cerrados !== 1 ? "s" : ""}</p>
+          <p className="text-[11px] text-zinc-400">
+            Basado en {kpis.total_cerrados} venta{kpis.total_cerrados !== 1 ? "s" : ""} cerrada{kpis.total_cerrados !== 1 ? "s" : ""}
+          </p>
         </div>
-        <div className="flex items-center gap-1 text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
-          <Clock size={12} />
-          <span className="text-xs font-bold">{total}d total</span>
-        </div>
+        <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
+          {kpis.promedio_dias}d total
+        </span>
       </div>
 
-      {/* Fases en línea */}
-      <div className="flex items-center gap-2 mb-3 flex-wrap">
-        <div className="flex-1 min-w-[90px] bg-blue-50 rounded-xl p-2.5 text-center">
-          <p className="text-[9px] text-blue-500 font-medium uppercase tracking-wide mb-0.5">📋 Prospección</p>
-          <p className="text-lg font-bold text-blue-700">{f1 != null ? `${f1}d` : "—"}</p>
-          <p className="text-[9px] text-blue-400">contacto → propuesta</p>
-        </div>
-        <ArrowRight size={14} className="text-zinc-300 shrink-0" />
-        <div className="flex-1 min-w-[90px] bg-amber-50 rounded-xl p-2.5 text-center">
-          <p className="text-[9px] text-amber-600 font-medium uppercase tracking-wide mb-0.5">⚖️ Negociación</p>
-          <p className="text-lg font-bold text-amber-700">{f2 != null ? `${f2}d` : "—"}</p>
-          <p className="text-[9px] text-amber-500">propuesta → cierre</p>
-        </div>
-        <ArrowRight size={14} className="text-zinc-300 shrink-0" />
-        <div className="flex-1 min-w-[90px] bg-green-50 rounded-xl p-2.5 text-center">
-          <p className="text-[9px] text-green-600 font-medium uppercase tracking-wide mb-0.5">✅ Cierre</p>
-          <p className="text-lg font-bold text-green-700">{total != null ? `${total}d` : "—"}</p>
-          <p className="text-[9px] text-green-500">ciclo completo</p>
-        </div>
-      </div>
+      <ResponsiveContainer width="100%" height={130}>
+        <BarChart
+          data={chartData}
+          layout="vertical"
+          margin={{ top: 0, right: 40, left: 0, bottom: 0 }}
+          barSize={20}
+        >
+          <XAxis
+            type="number"
+            domain={[0, maxDias * 1.2]}
+            tick={{ fontSize: 9, fill: "#a1a1aa" }}
+            tickLine={false}
+            axisLine={false}
+            unit="d"
+          />
+          <YAxis
+            type="category"
+            dataKey="label"
+            tick={{ fontSize: 10, fill: "#52525b" }}
+            tickLine={false}
+            axisLine={false}
+            width={80}
+          />
+          <Tooltip content={<TooltipPersonalizado />} cursor={{ fill: "#f4f4f5" }} />
+          <Bar dataKey="dias" radius={[0, 6, 6, 0]}>
+            {chartData.map((entry) => (
+              <Cell key={entry.key} fill={entry.color} />
+            ))}
+            <LabelList
+              dataKey="dias"
+              position="right"
+              style={{ fontSize: 11, fontWeight: 600, fill: "#3f3f46" }}
+              formatter={(v: number) => `${v}d`}
+            />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
 
-      {/* Barra de proporción */}
-      {total && total > 0 && (
-        <div className="space-y-1.5">
-          <div className="flex h-2 rounded-full overflow-hidden gap-px bg-zinc-100">
-            <div className="bg-blue-400 transition-all rounded-l-full" style={{ width: `${p1}%` }} />
-            <div className="bg-amber-400 transition-all rounded-r-full" style={{ width: `${p2}%` }} />
-          </div>
-          <div className="flex gap-4 text-[10px] text-zinc-400">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
-              Prospección {p1}%
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
-              Negociación {p2}%
-            </span>
-          </div>
-        </div>
-      )}
+      {/* Sub-labels */}
+      <div className="flex justify-between text-[10px] text-zinc-400 mt-1 px-1">
+        {chartData.map((d) => (
+          <span key={d.key} className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: d.color }} />
+            {d.subLabel}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

@@ -13,7 +13,7 @@ type Filtro = "todas" | "vencidas" | "hoy" | "proximas" | "completadas";
 function classFiltro(activo: boolean) {
   return `px-3 py-1.5 text-xs rounded-lg border transition ${
     activo
-      ? "bg-indigo-600 text-white border-indigo-600"
+      ? "bg-amber-600 text-white border-amber-600"
       : "border-gray-200 text-zinc-600 hover:bg-gray-50"
   }`;
 }
@@ -61,20 +61,20 @@ export default function TareasPage() {
   const tareasFiltradas = aplicarFiltro(tareas, filtro);
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
+    <div className="p-6 max-w-9xl mx-auto space-y-6">
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-zinc-900 flex items-center gap-2">
-            <CheckSquare size={20} className="text-indigo-500" />
+            <CheckSquare size={20} className="text-amber-500" />
             Tareas de seguimiento
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">Recordatorios y pendientes de tus prospectos</p>
         </div>
         <button
           onClick={() => setMostrarForm(v => !v)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition"
         >
           <Plus size={13} /> Nueva tarea
         </button>
@@ -132,7 +132,7 @@ export default function TareasPage() {
       {/* Lista */}
       {cargando ? (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600" />
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600" />
         </div>
       ) : (
         <TareasList tareas={tareasFiltradas} onActualizar={cargar} />

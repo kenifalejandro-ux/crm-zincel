@@ -6,7 +6,7 @@ import type { ScoreLead } from "../../services/prospectos.api";
 
 const SCORE_BADGE: Record<string, string> = {
   caliente: "bg-red-50 text-red-600",
-  activo:   "bg-indigo-50 text-indigo-600",
+  activo:   "bg-amber-50 text-amber-600",
   tibio:    "bg-yellow-50 text-yellow-600",
   frio:     "bg-gray-50 text-gray-400",
 };
@@ -15,7 +15,7 @@ const SCORE_ICON: Record<string, string> = {
 };
 const ROW_TINT: Record<string, string> = {
   caliente: "bg-red-50/40 hover:bg-red-50/60",
-  activo:   "bg-indigo-50/20 hover:bg-indigo-50/40",
+  activo:   "bg-amber-50/20 hover:bg-amber-50/40",
 };
 
 interface Props {

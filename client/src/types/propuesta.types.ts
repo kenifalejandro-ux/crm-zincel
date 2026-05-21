@@ -19,6 +19,19 @@ export type EstadoPropuesta =
 
 export type Moneda = "PEN" | "USD";
 
+export const MOTIVOS_CIERRE_PERDIDO = [
+  "Precio muy alto",
+  "Eligió a la competencia",
+  "Sin presupuesto aprobado",
+  "Decisor no aprobó",
+  "Proyecto cancelado",
+  "Propuesta vencida sin respuesta",
+  "No respondió más",
+  "Otro motivo",
+] as const;
+
+export type MotivoCierrePerdido = typeof MOTIVOS_CIERRE_PERDIDO[number];
+
 export interface Propuesta {
   id:              string;
   prospecto_id:    string;
@@ -28,27 +41,29 @@ export interface Propuesta {
   monto_cerrado?:  number | null;
   moneda:          Moneda;
   tipo_cambio:     number;
-  estado:              EstadoPropuesta;
-  fecha_propuesta:     string;
-  fecha_negociacion?:  string | null;
-  fecha_cierre?:       string | null;
-  notas?:              string;
+  estado:                EstadoPropuesta;
+  fecha_propuesta:       string;
+  fecha_negociacion?:    string | null;
+  fecha_cierre?:         string | null;
+  notas?:                string;
+  motivo_cierre_perdido?: string | null;
   creado_en:       string;
   actualizado_en:  string;
 }
 
 export interface FormPropuesta {
-  servicio:           ServicioPropuesta;
-  descripcion:        string;
-  monto_propuesto:    string;
-  monto_cerrado:      string;
-  moneda:             Moneda;
-  tipo_cambio:        string;
-  estado:             EstadoPropuesta;
-  fecha_propuesta:    string;
-  fecha_negociacion:  string;
-  fecha_cierre:       string;
-  notas:              string;
+  servicio:              ServicioPropuesta;
+  descripcion:           string;
+  monto_propuesto:       string;
+  monto_cerrado:         string;
+  moneda:                Moneda;
+  tipo_cambio:           string;
+  estado:                EstadoPropuesta;
+  fecha_propuesta:       string;
+  fecha_negociacion:     string;
+  fecha_cierre:          string;
+  notas:                 string;
+  motivo_cierre_perdido: string;
 }
 
 export const LABEL_SERVICIO: Record<ServicioPropuesta, string> = {

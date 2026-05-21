@@ -51,7 +51,7 @@ const EJEMPLOS: Omit<Plantilla, "id" | "creado_en">[] = [
 ];
 
 const FORM_VACIO = { titulo: "", canal: "whatsapp" as CanalPlantilla, contenido: "" };
-const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500";
+const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500";
 
 export default function PlantillasPage() {
   const [plantillas,  setPlantillas]  = useState<Plantilla[]>([]);
@@ -135,13 +135,13 @@ export default function PlantillasPage() {
   }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
+    <div className="p-6 max-w-9xl mx-auto space-y-6">
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-zinc-900 flex items-center gap-2">
-            <MessageSquare size={20} className="text-indigo-500" />
+            <MessageSquare size={20} className="text-amber-500" />
             Plantillas de mensaje
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
@@ -150,7 +150,7 @@ export default function PlantillasPage() {
         </div>
         <button
           onClick={abrirNueva}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition"
         >
           <Plus size={13} /> Nueva plantilla
         </button>
@@ -158,9 +158,9 @@ export default function PlantillasPage() {
 
       {/* Formulario */}
       {mostrarForm && (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 space-y-3">
+        <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-indigo-700">
+            <p className="text-xs font-semibold text-amber-700">
               {editando ? "Editar plantilla" : "Nueva plantilla"}
             </p>
             <button onClick={() => setMostrarForm(false)} className="text-zinc-400 hover:text-zinc-600">
@@ -198,7 +198,7 @@ export default function PlantillasPage() {
               <button
                 key={v}
                 onClick={() => insertarVariable(v)}
-                className="text-[10px] px-2 py-0.5 rounded border border-indigo-200 text-indigo-600 hover:bg-indigo-100 transition font-mono"
+                className="text-[10px] px-2 py-0.5 rounded border border-amber-200 text-amber-600 hover:bg-amber-100 transition font-mono"
               >
                 {v}
               </button>
@@ -227,7 +227,7 @@ export default function PlantillasPage() {
             <button
               onClick={handleGuardar}
               disabled={guardando}
-              className="px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-lg transition"
+              className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white rounded-lg transition"
             >
               {guardando ? "Guardando..." : "Guardar plantilla"}
             </button>
@@ -238,7 +238,7 @@ export default function PlantillasPage() {
       {/* Lista de plantillas */}
       {cargando ? (
         <div className="flex justify-center py-10">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600" />
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600" />
         </div>
       ) : plantillas.length === 0 ? (
         <div className="space-y-4">
@@ -258,7 +258,7 @@ export default function PlantillasPage() {
                 <button
                   onClick={() => usarEjemplo(ej)}
                   disabled={guardando}
-                  className="shrink-0 px-2.5 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition disabled:opacity-50"
+                  className="shrink-0 px-2.5 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition disabled:opacity-50"
                 >
                   Usar
                 </button>

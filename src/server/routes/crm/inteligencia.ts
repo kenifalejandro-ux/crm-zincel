@@ -12,6 +12,11 @@ import {
   actualizarObjetivosService,
   tendenciasService,
   leadesPrioridadService,
+  abandonoPipelineService,
+  rechazosDualesService,
+  tiempoPrimeraRespuestaService,
+  forecastIngresosService,
+  tasaConversionFunnelService,
 } from "../../services/inteligencia.service";
 
 export const inteligenciaRouter = Router();
@@ -112,6 +117,56 @@ inteligenciaRouter.put("/objetivos", async (req: any, res) => {
       brochures_meta: Math.max(1, parseInt(brochures_meta) || 5),
     });
     const data = await getObjetivosService(req.usuario.id);
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/rechazos-duales
+inteligenciaRouter.get("/rechazos-duales", async (_req, res) => {
+  try {
+    const data = await rechazosDualesService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/abandono-pipeline
+inteligenciaRouter.get("/abandono-pipeline", async (_req, res) => {
+  try {
+    const data = await abandonoPipelineService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/primera-respuesta
+inteligenciaRouter.get("/primera-respuesta", async (_req, res) => {
+  try {
+    const data = await tiempoPrimeraRespuestaService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/forecast-ingresos
+inteligenciaRouter.get("/forecast-ingresos", async (_req, res) => {
+  try {
+    const data = await forecastIngresosService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/conversion-funnel
+inteligenciaRouter.get("/conversion-funnel", async (_req, res) => {
+  try {
+    const data = await tasaConversionFunnelService();
     res.json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

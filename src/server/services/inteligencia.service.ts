@@ -714,3 +714,304 @@ export async function leadesPrioridadService(tipo: string) {
   const result = await pool.query(query);
   return result.rows;
 }
+
+// ─── 1. Análisis de abandono del pipeline ─────────────────────────────────────
+
+export async function abandonoPipelineService() {
+  const [porEtapa, porMotivo, cruce, motivosPropuesta] = await Promise.all([
+    // Leads perdidos por etapa (etapa_pipeline solo tiene 'perdido', no 'descartado')
+    // clasificacion = 'descartado' captura los descartados
+    pool.query(`
+      SELECT
+        CASE
+          WHEN clasificacion = 'descartado' AND etapa_pipeline != 'perdido' THEN 'descartado'
+          ELSE etapa_pipeline::text
+        END AS etapa,
+        COUNT(*)::int AS total
+      FROM prospectos
+      WHERE etapa_pipeline = 'perdido'
+         OR clasificacion = 'descartado'
+      GROUP BY 1
+      ORDER BY total DESC
+    `),
+    pool.query(`
+      SELECT motivo_no_interes AS motivo, COUNT(*)::int AS total
+      FROM llamadas
+      WHERE motivo_no_interes IS NOT NULL AND motivo_no_interes != ''
+      GROUP BY motivo_no_interes
+      ORDER BY total DESC
+      LIMIT 10
+    `),
+    pool.query(`
+      SELECT p.etapa_pipeline::text AS etapa, l.motivo_no_interes AS motivo, COUNT(*)::int AS total
+      FROM prospectos p
+      JOIN llamadas l ON l.prospecto_id = p.id
+      WHERE l.motivo_no_interes IS NOT NULL AND l.motivo_no_interes != ''
+        AND (p.etapa_pipeline = 'perdido' OR p.clasificacion = 'descartado')
+      GROUP BY p.etapa_pipeline, l.motivo_no_interes
+      ORDER BY total DESC
+      LIMIT 20
+    `),
+    // Capa 2: motivos de propuestas cerradas perdidas / vencidas
+    pool.query(`
+      SELECT motivo_cierre_perdido AS motivo, COUNT(*)::int AS total
+      FROM propuestas
+      WHERE estado IN ('cerrada_perdida','vencida')
+        AND motivo_cierre_perdido IS NOT NULL
+        AND motivo_cierre_perdido != ''
+      GROUP BY motivo_cierre_perdido
+      ORDER BY total DESC
+      LIMIT 10
+    `),
+  ]);
+
+  const funnelAbandono = await pool.query(`
+    SELECT etapa_pipeline::text AS etapa, COUNT(*)::int AS total
+    FROM prospectos
+    WHERE etapa_pipeline != 'cerrado_ganado'
+    GROUP BY etapa_pipeline
+    ORDER BY CASE etapa_pipeline::text
+      WHEN 'nuevo'             THEN 1
+      WHEN 'contactado'        THEN 2
+      WHEN 'interesado'        THEN 3
+      WHEN 'propuesta_enviada' THEN 4
+      WHEN 'negociacion'       THEN 5
+      WHEN 'perdido'           THEN 6
+      ELSE 7 END
+  `);
+
+  return {
+    por_etapa:        porEtapa.rows,
+    por_motivo:       porMotivo.rows,
+    cruce:            cruce.rows,
+    funnel_abandono:  funnelAbandono.rows,
+    motivos_propuesta: motivosPropuesta.rows,
+  };
+}
+
+// ─── 1b. Rechazos duales (primer contacto + propuestas perdidas) ─────────────
+
+export async function rechazosDualesService() {
+  const [primerContacto, propuestasPerdidas] = await Promise.all([
+    pool.query(`
+      SELECT
+        COUNT(*)::int                                                      AS total_no_interesado,
+        COUNT(*) FILTER (WHERE motivo_no_interes IS NOT NULL
+                           AND motivo_no_interes != '')::int              AS con_motivo,
+        COUNT(*) FILTER (WHERE motivo_no_interes IS NULL
+                           OR  motivo_no_interes = '')::int               AS sin_motivo,
+        ROUND(COUNT(*) * 100.0 / NULLIF(
+          (SELECT COUNT(*) FROM llamadas), 0))::int                       AS pct_rechazo
+      FROM llamadas
+      WHERE resultado = 'no_interesado'
+    `),
+    pool.query(`
+      SELECT
+        COUNT(*)::int                                                      AS total,
+        COUNT(*) FILTER (WHERE motivo_cierre_perdido IS NOT NULL
+                           AND motivo_cierre_perdido != '')::int          AS con_motivo,
+        COUNT(*) FILTER (WHERE motivo_cierre_perdido IS NULL
+                           OR  motivo_cierre_perdido = '')::int           AS sin_motivo,
+        COALESCE(SUM(
+          CASE WHEN moneda = 'USD'
+            THEN COALESCE(monto_cerrado, monto_propuesto) * tipo_cambio
+            ELSE COALESCE(monto_cerrado, monto_propuesto) END
+        ), 0)::float                                                       AS monto_perdido,
+        COUNT(*) FILTER (WHERE estado = 'cerrada_perdida')::int           AS cerradas_perdidas,
+        COUNT(*) FILTER (WHERE estado = 'vencida')::int                   AS vencidas
+      FROM propuestas
+      WHERE estado IN ('cerrada_perdida', 'vencida')
+    `),
+  ]);
+
+  const [motivosContacto, motivosPropuesta] = await Promise.all([
+    pool.query(`
+      SELECT motivo_no_interes AS motivo, COUNT(*)::int AS total
+      FROM llamadas
+      WHERE resultado = 'no_interesado'
+        AND motivo_no_interes IS NOT NULL AND motivo_no_interes != ''
+      GROUP BY motivo_no_interes
+      ORDER BY total DESC LIMIT 8
+    `),
+    pool.query(`
+      SELECT motivo_cierre_perdido AS motivo, COUNT(*)::int AS total
+      FROM propuestas
+      WHERE estado IN ('cerrada_perdida','vencida')
+        AND motivo_cierre_perdido IS NOT NULL AND motivo_cierre_perdido != ''
+      GROUP BY motivo_cierre_perdido
+      ORDER BY total DESC LIMIT 8
+    `),
+  ]);
+
+  const pc = primerContacto.rows[0] ?? {};
+  const pp = propuestasPerdidas.rows[0] ?? {};
+
+  return {
+    primer_contacto: {
+      total_no_interesado: pc.total_no_interesado ?? 0,
+      con_motivo:          pc.con_motivo          ?? 0,
+      sin_motivo:          pc.sin_motivo          ?? 0,
+      pct_rechazo:         pc.pct_rechazo         ?? 0,
+      motivos:             motivosContacto.rows,
+    },
+    propuestas_perdidas: {
+      total:            pp.total            ?? 0,
+      con_motivo:       pp.con_motivo       ?? 0,
+      sin_motivo:       pp.sin_motivo       ?? 0,
+      monto_perdido:    pp.monto_perdido    ?? 0,
+      cerradas_perdidas:pp.cerradas_perdidas?? 0,
+      vencidas:         pp.vencidas         ?? 0,
+      motivos:          motivosPropuesta.rows,
+    },
+  };
+}
+
+// ─── 2. Tiempo de primera respuesta ──────────────────────────────────────────
+
+export async function tiempoPrimeraRespuestaService() {
+  const [general, distribucion] = await Promise.all([
+    pool.query(`
+      SELECT
+        ROUND(AVG(fecha_primer_contacto - creado_en::date))::int   AS promedio_dias,
+        ROUND(MIN(fecha_primer_contacto - creado_en::date))::int   AS minimo_dias,
+        ROUND(MAX(fecha_primer_contacto - creado_en::date))::int   AS maximo_dias,
+        COUNT(*)::int                                               AS total_con_contacto,
+        (SELECT COUNT(*)::int FROM prospectos WHERE fecha_primer_contacto IS NULL) AS sin_contacto
+      FROM prospectos
+      WHERE fecha_primer_contacto IS NOT NULL
+        AND creado_en IS NOT NULL
+        AND fecha_primer_contacto >= creado_en::date
+    `),
+    pool.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE dias < 1)::int        AS menos_24h,
+        COUNT(*) FILTER (WHERE dias BETWEEN 1 AND 3)::int AS uno_a_3_dias,
+        COUNT(*) FILTER (WHERE dias > 3)::int        AS mas_3_dias
+      FROM (
+        SELECT (fecha_primer_contacto - creado_en::date) AS dias
+        FROM prospectos
+        WHERE fecha_primer_contacto IS NOT NULL
+          AND creado_en IS NOT NULL
+          AND fecha_primer_contacto >= creado_en::date
+      ) t
+    `),
+  ]);
+
+  const g = general.rows[0] ?? {};
+  const d = distribucion.rows[0] ?? {};
+  const totalContacto = g.total_con_contacto ?? 0;
+
+  return {
+    promedio_dias:     g.promedio_dias    ?? null,
+    minimo_dias:       g.minimo_dias      ?? null,
+    maximo_dias:       g.maximo_dias      ?? null,
+    total_con_contacto: totalContacto,
+    sin_contacto:      g.sin_contacto     ?? 0,
+    distribucion: [
+      { label: "< 24h",    valor: d.menos_24h    ?? 0, pct: totalContacto > 0 ? Math.round(((d.menos_24h ?? 0) / totalContacto) * 100) : 0, color: "#22c55e" },
+      { label: "1-3 días", valor: d.uno_a_3_dias ?? 0, pct: totalContacto > 0 ? Math.round(((d.uno_a_3_dias ?? 0) / totalContacto) * 100) : 0, color: "#f59e0b" },
+      { label: "> 3 días", valor: d.mas_3_dias   ?? 0, pct: totalContacto > 0 ? Math.round(((d.mas_3_dias ?? 0) / totalContacto) * 100) : 0, color: "#ef4444" },
+    ],
+  };
+}
+
+// ─── 3. Forecast de ingresos ponderado ───────────────────────────────────────
+
+const PROB_POR_ESTADO: Record<string, number> = {
+  enviada:         0.20,
+  en_negociacion:  0.60,
+  cerrada_ganada:  1.00,
+};
+
+export async function forecastIngresosService() {
+  const rows = await pool.query(`
+    SELECT
+      estado,
+      COUNT(*)::int AS cantidad,
+      COALESCE(SUM(
+        CASE WHEN moneda = 'USD'
+          THEN COALESCE(monto_cerrado, monto_propuesto) * tipo_cambio
+          ELSE COALESCE(monto_cerrado, monto_propuesto)
+        END
+      ), 0)::float AS monto_total
+    FROM propuestas
+    WHERE estado IN ('enviada','en_negociacion','cerrada_ganada')
+    GROUP BY estado
+  `);
+
+  let totalPonderado = 0;
+  let totalSinPonderar = 0;
+  const desglose: { estado: string; label: string; cantidad: number; monto_total: number; prob: number; ponderado: number }[] = [];
+
+  const LABELS: Record<string, string> = {
+    enviada:        "Enviadas",
+    en_negociacion: "En negociación",
+    cerrada_ganada: "Cerradas ganadas",
+  };
+
+  for (const row of rows.rows) {
+    const prob       = PROB_POR_ESTADO[row.estado] ?? 0;
+    const ponderado  = row.monto_total * prob;
+    totalPonderado  += ponderado;
+    totalSinPonderar += row.monto_total;
+    desglose.push({
+      estado:     row.estado,
+      label:      LABELS[row.estado] ?? row.estado,
+      cantidad:   row.cantidad,
+      monto_total: row.monto_total,
+      prob:        prob * 100,
+      ponderado,
+    });
+  }
+
+  return {
+    total_ponderado:    Math.round(totalPonderado),
+    total_sin_ponderar: Math.round(totalSinPonderar),
+    desglose,
+  };
+}
+
+// ─── 4. Tasa de conversión por etapa del funnel ───────────────────────────────
+
+const ORDEN_ETAPAS = [
+  "nuevo", "contactado", "interesado", "propuesta_enviada", "negociacion", "cerrado_ganado",
+];
+
+export async function tasaConversionFunnelService() {
+  const rows = await pool.query(`
+    SELECT etapa_pipeline AS etapa, COUNT(*)::int AS total
+    FROM prospectos
+    GROUP BY etapa_pipeline
+  `);
+
+  const mapa: Record<string, number> = {};
+  for (const r of rows.rows) mapa[r.etapa] = r.total;
+
+  // Etapas activas (en pipeline) — excluyendo perdido/descartado
+  const activos = ORDEN_ETAPAS.map((e) => ({ etapa: e, total: mapa[e] ?? 0 }));
+
+  // Conversion rate between consecutive stages
+  const etapas = activos.map((e, i) => {
+    const prev = i > 0 ? activos[i - 1].total : null;
+    const pct  = prev !== null && prev > 0
+      ? Math.round((e.total / prev) * 100)
+      : null;
+    return { etapa: e.etapa, total: e.total, pct_conversion: pct };
+  });
+
+  const perdidos    = mapa["perdido"]    ?? 0;
+  const descartados = mapa["descartado"] ?? 0;
+  const totalEntrada = activos[0].total + perdidos + descartados +
+    activos.slice(1).reduce((s, e) => s + e.total, 0);
+
+  const tasaGlobal = totalEntrada > 0
+    ? Math.round(((mapa["cerrado_ganado"] ?? 0) / totalEntrada) * 100)
+    : 0;
+
+  return {
+    etapas,
+    perdidos,
+    descartados,
+    tasa_global: tasaGlobal,
+  };
+}

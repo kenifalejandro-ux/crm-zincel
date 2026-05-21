@@ -8,7 +8,7 @@ import type { MetricasCalculadas } from "./metricas.calc";
 
 // ── Paleta ────────────────────────────────────────────────────────────────────
 const C = {
-  indigo:  [79,  70,  229] as [number,number,number], //color principal (headers, valores, 
+  amber:  [79,  70,  229] as [number,number,number], //color principal (headers, valores, 
   dark:    [24,  24,  27 ] as [number,number,number], // fondos oscuros y texto principal
   white:   [255, 255, 255] as [number,number,number], // blanco
   gray:    [113, 113, 122] as [number,number,number], // labels y texto secundario
@@ -58,7 +58,7 @@ function dibujarHeader(doc: jsPDF, totalCampanas: number) {
   doc.setFillColor(...C.dark);
   doc.rect(0, 0, W, 30, "F");
 
-  doc.setFillColor(...C.indigo);
+  doc.setFillColor(...C.amber);
   doc.roundedRect(M, 7, 16, 16, 2, 2, "F");
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
@@ -93,7 +93,7 @@ function dibujarInfoEmpresa(doc: jsPDF, empresa: string, desde: string, hasta: s
   doc.text("ELABORADO POR", M + 5, y + 6);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
-  doc.setTextColor(...C.indigo);
+  doc.setTextColor(...C.amber);
   doc.text("Zincel Ideas", M + 5, y + 12);
 
   doc.setDrawColor(...C.zinc200);
@@ -161,12 +161,12 @@ function dibujarResumenEjecutivo(doc: jsPDF, metricas: Metrica[], y: number): nu
     doc.setFillColor(...C.white);
     doc.setDrawColor(...C.zinc200);
     doc.roundedRect(x, yy, boxW, boxH, 2, 2, "FD");
-    doc.setFillColor(...C.indigo);
+    doc.setFillColor(...C.amber);
     doc.roundedRect(x, yy, boxW, 1.5, 0.5, 0.5, "F");
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...C.indigo);
+    doc.setTextColor(...C.amber);
     doc.text(kpi.value, x + boxW / 2, yy + 10, { align: "center" });
 
     doc.setFont("helvetica", "normal");
@@ -189,7 +189,7 @@ function dibujarCampanaHeader(
   const W  = doc.internal.pageSize.getWidth();
   const M  = 14;
   const hc = healthColor(c.health_color);
-  const pc = PLAT_COLOR[m.plataforma] ?? C.indigo;
+  const pc = PLAT_COLOR[m.plataforma] ?? C.amber;
 
   doc.setFillColor(...C.dark);
   doc.roundedRect(M, y, W - M * 2, 22, 2, 2, "F");
@@ -240,7 +240,7 @@ function dibujarMiniHeader(
 ): number {
   const W  = doc.internal.pageSize.getWidth();
   const M  = 14;
-  const pc = PLAT_COLOR[m.plataforma] ?? C.indigo;
+  const pc = PLAT_COLOR[m.plataforma] ?? C.amber;
 
   doc.setFillColor(...C.dark);
   doc.roundedRect(M, y, W - M * 2, 10, 1.5, 1.5, "F");
@@ -320,8 +320,8 @@ function dibujarCampanaMetricas(doc: jsPDF, m: Metrica, numero: number, c: Metri
     alternateRowStyles: { fillColor: C.zinc50 },
     styles:             { cellPadding: 2.5, overflow: "linebreak", font: "helvetica" },
     columnStyles: {
-      1: { fontStyle: "bold", textColor: C.indigo as any },
-      3: { fontStyle: "bold", textColor: C.indigo as any },
+      1: { fontStyle: "bold", textColor: C.amber as any },
+      3: { fontStyle: "bold", textColor: C.amber as any },
     },
   });
 
@@ -361,14 +361,14 @@ function dibujarCampanaMetricas(doc: jsPDF, m: Metrica, numero: number, c: Metri
       }
       return rows;
     })(),
-    headStyles:         { fillColor: C.indigo, textColor: C.white, fontStyle: "bold", fontSize: 7 },
+    headStyles:         { fillColor: C.amber, textColor: C.white, fontStyle: "bold", fontSize: 7 },
     bodyStyles:         { fontSize: 7.5, textColor: C.dark },
     alternateRowStyles: { fillColor: C.zinc50 },
     styles:             { cellPadding: 2.5, overflow: "linebreak", font: "helvetica" },
     columnStyles: {
-      1: { fontStyle: "bold", textColor: C.indigo as any },
+      1: { fontStyle: "bold", textColor: C.amber as any },
       2: { textColor: C.gray as any, fontSize: 6.5 },
-      4: { fontStyle: "bold", textColor: C.indigo as any },
+      4: { fontStyle: "bold", textColor: C.amber as any },
       5: { textColor: C.gray as any, fontSize: 6.5 },
     },
   });
@@ -452,8 +452,8 @@ function dibujarCampanaRecomendaciones(
       `${Number(p.roas_proyectado).toFixed(2)}x`,
       fmtS(p.presupuesto_meta),
     ]],
-    headStyles: { fillColor: C.indigo, textColor: C.white, fontStyle: "bold", fontSize: 7 },
-    bodyStyles: { fontSize: 9, fontStyle: "bold", textColor: C.indigo, halign: "center" },
+    headStyles: { fillColor: C.amber, textColor: C.white, fontStyle: "bold", fontSize: 7 },
+    bodyStyles: { fontSize: 9, fontStyle: "bold", textColor: C.amber, halign: "center" },
     styles:     { cellPadding: 4, overflow: "linebreak", font: "helvetica" },
   });
 
@@ -538,7 +538,7 @@ function dibujarCampanaRecomendaciones(
       lineWidth: 0.2,
     },
     columnStyles: {
-      0: { cellWidth: 10, fontStyle: "bold", textColor: C.indigo as any, halign: "center" },
+      0: { cellWidth: 10, fontStyle: "bold", textColor: C.amber as any, halign: "center" },
       1: { cellWidth: textColW },
     },
   });
@@ -582,13 +582,13 @@ function dibujarPaginaCierre(doc: jsPDF, empresa: string) {
   doc.setFillColor(...C.zinc50);
   doc.rect(0, H * 0.55, W, H * 0.45, "F");
 
-  doc.setFillColor(...C.indigo);
+  doc.setFillColor(...C.amber);
   doc.rect(0, H * 0.55 - 2, W, 4, "F");
 
   // Logo Z
   const logoSize = 22;
   const logoY    = 44;
-  doc.setFillColor(...C.indigo);
+  doc.setFillColor(...C.amber);
   doc.roundedRect(cx - logoSize / 2, logoY, logoSize, logoSize, 3, 3, "F");
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
@@ -611,7 +611,7 @@ function dibujarPaginaCierre(doc: jsPDF, empresa: string) {
   );
 
   // Divisor
-  doc.setDrawColor(...C.indigo);
+  doc.setDrawColor(...C.amber);
   doc.setLineWidth(0.5);
   doc.line(cx - 30, logoY + 50, cx + 30, logoY + 50);
 
@@ -655,7 +655,7 @@ function dibujarPaginaCierre(doc: jsPDF, empresa: string) {
     doc.setDrawColor(...C.zinc200);
     doc.roundedRect(x, cardY, cardW, cardH, 2, 2, "FD");
 
-    doc.setFillColor(...C.indigo);
+    doc.setFillColor(...C.amber);
     doc.circle(x + 8, cardY + cardH / 2, 4, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(6.5);
@@ -678,7 +678,7 @@ function dibujarPaginaCierre(doc: jsPDF, empresa: string) {
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
-  doc.setTextColor(...C.indigo);
+  doc.setTextColor(...C.amber);
   doc.text(`Reporte generado el ${hoy}`, cx, disclaimerY, { align: "center" });
 
   doc.setFont("helvetica", "normal");
@@ -697,7 +697,7 @@ function dibujarPaginaCierre(doc: jsPDF, empresa: string) {
   doc.setFontSize(6);
   doc.setTextColor(180, 180, 185);
   doc.text(`© ${new Date().getFullYear()} Zincel Ideas Globales · Todos los derechos reservados`, cx, H - 12, { align: "center" });
-  doc.setFillColor(...C.indigo);
+  doc.setFillColor(...C.amber);
   doc.rect(0, H - 6, W, 6, "F");
 }
 
@@ -756,7 +756,7 @@ export function exportarReportePDF(metricas: Metrica[], empresa: string) {
         `${calc.health_score}/100`,
       ];
     }),
-    headStyles:         { fillColor: C.indigo, textColor: C.white, fontStyle: "bold", fontSize: 7.5 },
+    headStyles:         { fillColor: C.amber, textColor: C.white, fontStyle: "bold", fontSize: 7.5 },
     bodyStyles:         { fontSize: 7.5, textColor: C.dark },
     alternateRowStyles: { fillColor: C.zinc50 },
     styles:             { cellPadding: 2.5, overflow: "linebreak", font: "helvetica" },

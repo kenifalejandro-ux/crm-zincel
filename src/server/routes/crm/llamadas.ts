@@ -58,12 +58,12 @@ llamadasRouter.get("/heatmap", async (req, res) => {
 llamadasRouter.get("/estadisticas/:periodo", async (req, res) => {
   try {
     const { periodo } = req.params;
-    if (!["dia", "mes", "semana"].includes(periodo)) {
-      return res.status(400).json({ ok: false, message: "Período inválido. Use: dia, mes, semana" });
+    if (!["dia", "mes", "semana", "anio"].includes(periodo)) {
+      return res.status(400).json({ ok: false, message: "Período inválido. Use: dia, mes, semana, anio" });
     }
     const { fecha_inicio, fecha_fin } = req.query as Record<string, string>;
-    const granularidad = periodo === "dia" ? "hora" : "dia";
-    const data = await estadisticasLlamadasPorPeriodoService(fecha_inicio, fecha_fin, granularidad as "dia" | "hora");
+    const granularidad = periodo === "dia" ? "hora" : periodo === "anio" ? "mes" : "dia";
+    const data = await estadisticasLlamadasPorPeriodoService(fecha_inicio, fecha_fin, granularidad as "dia" | "hora" | "mes");
     res.status(200).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

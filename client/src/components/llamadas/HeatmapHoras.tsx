@@ -9,7 +9,7 @@ interface HoraData {
 
 interface Props { data: HoraData[] }
 
-const HORAS        = Array.from({ length: 16 }, (_, i) => i + 6); // 6am–9pm
+const HORAS        = Array.from({ length:10 }, (_, i) => i + 9); // 6am–9pm
 const MIN_MUESTRA  = 5; // mínimo de llamadas para considerar una franja estadísticamente válida
 
 function colorBarra(tasa: number, total: number, confiable: boolean) {

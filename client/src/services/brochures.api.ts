@@ -2,10 +2,8 @@
 
 import api from "./api";
 
-export async function getBrochures(prospecto_id?: string) {
-  const { data } = await api.get("/brochures", {
-    params: prospecto_id ? { prospecto_id } : {},
-  });
+export async function getBrochures(filters?: { prospecto_id?: string; fecha_inicio?: string; fecha_fin?: string }) {
+  const { data } = await api.get("/brochures", { params: filters ?? {} });
   return data.data;
 }
 
@@ -36,4 +34,22 @@ export async function actualizarBrochure(id: string, payload: { canal?: string; 
 export async function eliminarBrochuresMasivo(ids: string[]) {
   const { data } = await api.delete("/brochures/masivo", { data: { ids } });
   return data;
+}
+
+export async function getEstadisticasBrochures(
+  granularidad: "dia" | "hora" | "mes",
+  filters?: { fecha_inicio?: string; fecha_fin?: string }
+) {
+  const { data } = await api.get("/brochures/estadisticas", {
+    params: { granularidad, ...filters },
+  });
+  return data.data as Array<{ periodo: any; total: number }>;
+}
+
+export async function getResumenBrochuresFiltrado(filters?: { fecha_inicio?: string; fecha_fin?: string }) {
+  const { data } = await api.get("/brochures/resumen-filtrado", { params: filters });
+  return data.data as {
+    total: number;
+    canales: Array<{ canal: string; total: number }>;
+  };
 }

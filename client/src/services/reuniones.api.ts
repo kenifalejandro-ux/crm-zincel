@@ -31,10 +31,30 @@ export async function getResumenReuniones() {
   const { data } = await api.get("/reuniones/resumen");
   return data.data;
 }
+
+export async function getEstadisticasReuniones(
+  granularidad: "dia" | "hora" | "mes",
+  filters?: { fecha_inicio?: string; fecha_fin?: string }
+) {
+  const { data } = await api.get("/reuniones/estadisticas", {
+    params: { granularidad, ...filters },
+  });
+  return data.data as Array<{ periodo: any; total: number; realizadas: number; programadas: number; canceladas: number }>;
+}
+
+export async function getKpisReuniones(filters?: { fecha_inicio?: string; fecha_fin?: string }) {
+  const { data } = await api.get("/reuniones/kpis", { params: filters });
+  return data.data as {
+    kpis: { total: number; programadas: number; realizadas: number; canceladas: number; reprogramadas: number };
+    modalidad: Array<{ modalidad: string; total: number }>;
+  };
+}
 interface ReunionesFiltros {
   estado?:       string;
   periodo?:      string;
   prospecto_id?: string;
+  desde?:        string;
+  hasta?:        string;
 }
 
 export async function eliminarReunionesMasivoService(ids: string[]) {

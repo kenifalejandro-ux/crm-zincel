@@ -52,16 +52,16 @@ export function lSidebar({ abierto, onCerrar }: Props) {
         end={to === "/"}
         onClick={onCerrar}
         className={({ isActive }) =>
-          `flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs transition-all duration-150 ${
+          `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all duration-150 ${
             isActive
-              ? "bg-indigo-100/15 text-zinc-100 font-medium border border-indigo-500/20"
-              : "text-slate-200 hover:bg-white/[0.09] hover:text-slate-100 border border-transparent"
+              ? "bg-zinc-900 text-white font-medium shadow-sm"
+              : "text-slate-500 hover:bg-gray-100 hover:text-zinc-800"
           }`
         }
       >
         {({ isActive }) => (
           <>
-            <Icon size={16} className={isActive ? "text-indigo-400" : ""} />
+            <Icon size={16} className={isActive ? "text-white" : "text-slate-400"} />
             <span className="flex-1">{label}</span>
             {badge != null && badge > 0 && (
               <span className={`px-1.5 py-0.5 text-[10px] rounded-full ${badgeColor} text-white font-bold leading-none`}>
@@ -76,38 +76,37 @@ export function lSidebar({ abierto, onCerrar }: Props) {
 
   return (
     <>
-      {/* ── Overlay oscuro — solo en móvil/tablet cuando el drawer está abierto ── */}
+      {/* Overlay móvil */}
       {abierto && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-30 bg-black/30 lg:hidden"
           onClick={onCerrar}
         />
       )}
 
-      {/* ── Sidebar ── */}
+      {/* Sidebar */}
       <aside
         className={`
           fixed inset-y-0 left-0 z-40 w-64 flex flex-col
-          bg-zinc-950 border-r border-white/[0.06]
+          bg-white border-r border-gray-200
           transform transition-transform duration-300 ease-in-out
           ${abierto ? "translate-x-0" : "-translate-x-full"}
           lg:relative lg:w-56 lg:translate-x-0 lg:z-auto lg:shrink-0
         `}
       >
-        {/* Logo + botón cerrar en móvil */}
-        <div className="flex items-center justify-between px-5 py-5 border-b border-white/[0.05]">
+        {/* Logo */}
+        <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-lg
-                            flex items-center justify-center shadow-[0_0_16px_rgba(99,102,241,0.4)]">
-              <span className="text-zinc-100 text-xs font-bold">Z</span>
+            <div className="w-7 h-7 bg-zinc-900 rounded-lg border border-zinc-800
+                            flex items-center justify-center">
+              <span className="text-white text-xs font-bold tracking-tight">Z</span>
             </div>
-            <span className="font-semibold text-slate-100 text-xs tracking-tight">CRM Zincel</span>
+            <span className="font-semibold text-zinc-900 text-xs tracking-tight">CRM Zincel</span>
           </div>
 
-          {/* Botón X solo visible en móvil/tablet */}
           <button
             onClick={onCerrar}
-            className="lg:hidden p-1.5 text-slate-400 hover:text-slate-100 hover:bg-white/10 rounded-lg transition"
+            className="lg:hidden p-1.5 text-slate-400 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition"
           >
             <X size={16} />
           </button>
@@ -115,7 +114,6 @@ export function lSidebar({ abierto, onCerrar }: Props) {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {/* Prospectos + Pipeline con badge de leads calientes */}
           <NavItem label="Prospectos" to="/prospectos" icon={Users}  badge={leadsCalientes} badgeColor="bg-orange-500" />
           <NavItem label="Pipeline"   to="/pipeline"   icon={Kanban} badge={leadsCalientes} badgeColor="bg-orange-500" />
 
@@ -123,11 +121,9 @@ export function lSidebar({ abierto, onCerrar }: Props) {
             <NavItem key={to} label={label} to={to} icon={icon} />
           ))}
 
-          {/* Tareas con badge */}
           <NavItem label="Tareas" to="/tareas" icon={CheckSquare} badge={tareasUrgentes} />
 
-          {/* Separador */}
-          <div className="my-2 border-t border-white/[0.05]" />
+          <div className="my-2 border-t border-gray-100" />
 
           {navegacionFinal.map(({ label, to, icon }) => (
             <NavItem key={to} label={label} to={to} icon={icon} />
@@ -135,8 +131,8 @@ export function lSidebar({ abierto, onCerrar }: Props) {
         </nav>
 
         {/* Footer */}
-        <div className="px-4 py-4 border-t border-white/[0.05]">
-          <p className="text-[10px] text-slate-600 text-center tracking-widest uppercase">v1.0.0</p>
+        <div className="px-4 py-4 border-t border-gray-100">
+          <p className="text-[10px] text-slate-300 text-center tracking-widest uppercase">v1.0.0</p>
         </div>
       </aside>
     </>

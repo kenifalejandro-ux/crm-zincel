@@ -9,11 +9,12 @@ export async function getPropuestas(prospecto_id: string): Promise<Propuesta[]> 
 }
 
 export async function crearPropuesta(
-  payload: Omit<FormPropuesta, "monto_propuesto" | "monto_cerrado" | "tipo_cambio"> & {
-    prospecto_id:    string;
-    monto_propuesto: number;
-    monto_cerrado?:  number | null;
-    tipo_cambio:     number;
+  payload: Omit<FormPropuesta, "monto_propuesto" | "monto_cerrado" | "tipo_cambio" | "motivo_cierre_perdido"> & {
+    prospecto_id:          string;
+    monto_propuesto:       number;
+    monto_cerrado?:        number | null;
+    tipo_cambio:           number;
+    motivo_cierre_perdido?: string | null;
   }
 ): Promise<Propuesta> {
   const { data } = await api.post("/propuestas", payload);
@@ -30,10 +31,11 @@ export async function actualizarPropuesta(
     moneda:          string;
     tipo_cambio:     number;
     estado:          string;
-    fecha_propuesta:   string;
-    fecha_negociacion: string | null;
-    fecha_cierre:      string | null;
-    notas:             string;
+    fecha_propuesta:       string;
+    fecha_negociacion:     string | null;
+    fecha_cierre:          string | null;
+    notas:                 string;
+    motivo_cierre_perdido: string | null;
   }>
 ): Promise<Propuesta> {
   const { data } = await api.put(`/propuestas/${id}`, payload);

@@ -1,7 +1,7 @@
 /** client/src/components/propuestas/ModalEditarPropuesta.tsx */
 
 import type { Propuesta, FormPropuesta, EstadoPropuesta, ServicioPropuesta } from "../../types/propuesta.types";
-import { LABEL_SERVICIO, LABEL_ESTADO } from "../../types/propuesta.types";
+import { LABEL_SERVICIO, LABEL_ESTADO, MOTIVOS_CIERRE_PERDIDO } from "../../types/propuesta.types";
 
 const SERVICIOS = Object.keys(LABEL_SERVICIO) as ServicioPropuesta[];
 const ESTADOS   = Object.keys(LABEL_ESTADO)   as EstadoPropuesta[];
@@ -18,9 +18,10 @@ interface Props {
 export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, onGuardar, onCerrar }: Props) {
   const set = (campo: Partial<FormPropuesta>) => onFormChange({ ...form, ...campo });
 
-  const esCerrada    = form.estado === "cerrada_ganada" || form.estado === "cerrada_perdida";
-  const esFinalizada = esCerrada || form.estado === "vencida";
+  const esCerrada     = form.estado === "cerrada_ganada" || form.estado === "cerrada_perdida";
+  const esFinalizada  = esCerrada || form.estado === "vencida";
   const esNegociacion = form.estado === "en_negociacion";
+  const esPerdida     = form.estado === "cerrada_perdida" || form.estado === "vencida";
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
@@ -183,6 +184,25 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
             </div>
           )}
         </div>
+
+        {/* Motivo cierre perdido — solo si cerrada_perdida o vencida */}
+        {esPerdida && (
+          <div className="bg-red-50 border border-red-100 rounded-xl p-3 space-y-2">
+            <label className="text-xs font-semibold text-red-700 block">
+              ¿Por qué se perdió esta venta? <span className="font-normal text-red-400">(ayuda a mejorar)</span>
+            </label>
+            <select
+              value={form.motivo_cierre_perdido}
+              onChange={(e) => set({ motivo_cierre_perdido: e.target.value })}
+              className="w-full px-3 py-2 text-xs border border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 bg-white"
+            >
+              <option value="">Seleccionar motivo...</option>
+              {MOTIVOS_CIERRE_PERDIDO.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Notas */}
         <div>

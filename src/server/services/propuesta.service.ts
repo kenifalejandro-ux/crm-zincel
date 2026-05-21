@@ -29,7 +29,18 @@ async function sincronizarEtapaPorPropuestas(prospectoId: string, query: QueryFn
     if (p > maxPriority) { maxPriority = p; maxEstado = row.estado; }
   }
 
-  if (!maxEstado) return; // Todas cerrada_perdida/vencida — no tocar el pipeline
+  // Todas las propuestas son cerrada_perdida / vencida → mover a perdido
+  if (!maxEstado) {
+    await query(
+      `UPDATE prospectos
+       SET etapa_pipeline = 'perdido', estado_venta = 'no',
+           clasificacion = 'descartado',
+           fecha_cierre = COALESCE(fecha_cierre, CURRENT_DATE)
+       WHERE id = $1`,
+      [prospectoId]
+    );
+    return;
+  }
 
   if (maxEstado === "cerrada_ganada") {
     await query(
@@ -63,8 +74,9 @@ export async function crearPropuestaService(input: CrearPropuestaInput, usuarioI
   const result = await pool.query(
     `INSERT INTO propuestas
        (prospecto_id, servicio, descripcion, monto_propuesto, monto_cerrado,
-        moneda, tipo_cambio, estado, fecha_propuesta, fecha_cierre, notas, creado_por)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+        moneda, tipo_cambio, estado, fecha_propuesta, fecha_cierre, notas,
+        motivo_cierre_perdido, creado_por)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
      RETURNING *`,
     [
       input.prospecto_id,
@@ -78,6 +90,7 @@ export async function crearPropuestaService(input: CrearPropuestaInput, usuarioI
       input.fecha_propuesta,
       input.fecha_cierre ?? null,
       input.notas ?? null,
+      input.motivo_cierre_perdido ?? null,
       usuarioId,
     ]
   );

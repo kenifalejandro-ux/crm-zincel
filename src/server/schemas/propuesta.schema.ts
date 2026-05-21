@@ -23,7 +23,8 @@ export const crearPropuestaSchema = z.object({
   fecha_propuesta:    z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   fecha_negociacion:  z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
   fecha_cierre:       z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
-  notas:           z.string().optional(),
+  notas:                 z.string().optional(),
+  motivo_cierre_perdido: z.string().optional().nullable(),
 });
 
 export const actualizarPropuestaSchema = crearPropuestaSchema

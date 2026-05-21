@@ -127,3 +127,94 @@ export async function actualizarObjetivos(metas: {
   const { data } = await api.put("/inteligencia/objetivos", metas);
   return data.data as ObjetivosDiarios;
 }
+
+// ─── Rechazos duales ─────────────────────────────────────────────────────────
+
+export interface RechazosDuales {
+  primer_contacto: {
+    total_no_interesado: number;
+    con_motivo:          number;
+    sin_motivo:          number;
+    pct_rechazo:         number;
+    motivos:             { motivo: string; total: number }[];
+  };
+  propuestas_perdidas: {
+    total:             number;
+    con_motivo:        number;
+    sin_motivo:        number;
+    monto_perdido:     number;
+    cerradas_perdidas: number;
+    vencidas:          number;
+    motivos:           { motivo: string; total: number }[];
+  };
+}
+
+export async function getRechazosDuales() {
+  const { data } = await api.get("/inteligencia/rechazos-duales");
+  return data.data as RechazosDuales;
+}
+
+// ─── Análisis abandono pipeline ───────────────────────────────────────────────
+
+export interface AbandonoPipeline {
+  por_etapa:         { etapa: string; total: number }[];
+  por_motivo:        { motivo: string; total: number }[];
+  cruce:             { etapa: string; motivo: string; total: number }[];
+  funnel_abandono:   { etapa: string; total: number }[];
+  motivos_propuesta: { motivo: string; total: number }[];
+}
+
+export async function getAbandonoPipeline() {
+  const { data } = await api.get("/inteligencia/abandono-pipeline");
+  return data.data as AbandonoPipeline;
+}
+
+// ─── Tiempo primera respuesta ─────────────────────────────────────────────────
+
+export interface TiempoPrimeraRespuesta {
+  promedio_dias:      number | null;
+  minimo_dias:        number | null;
+  maximo_dias:        number | null;
+  total_con_contacto: number;
+  sin_contacto:       number;
+  distribucion:       { label: string; valor: number; pct: number; color: string }[];
+}
+
+export async function getTiempoPrimeraRespuesta() {
+  const { data } = await api.get("/inteligencia/primera-respuesta");
+  return data.data as TiempoPrimeraRespuesta;
+}
+
+// ─── Forecast ingresos ponderado ─────────────────────────────────────────────
+
+export interface ForecastIngresos {
+  total_ponderado:    number;
+  total_sin_ponderar: number;
+  desglose: {
+    estado:      string;
+    label:       string;
+    cantidad:    number;
+    monto_total: number;
+    prob:        number;
+    ponderado:   number;
+  }[];
+}
+
+export async function getForecastIngresos() {
+  const { data } = await api.get("/inteligencia/forecast-ingresos");
+  return data.data as ForecastIngresos;
+}
+
+// ─── Tasa conversión por etapa ────────────────────────────────────────────────
+
+export interface ConversionFunnel {
+  etapas: { etapa: string; total: number; pct_conversion: number | null }[];
+  perdidos:    number;
+  descartados: number;
+  tasa_global: number;
+}
+
+export async function getConversionFunnel() {
+  const { data } = await api.get("/inteligencia/conversion-funnel");
+  return data.data as ConversionFunnel;
+}

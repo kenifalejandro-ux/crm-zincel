@@ -143,7 +143,7 @@ export async function resumenLlamadasService(filters?: { fecha_inicio?: string; 
 export async function estadisticasLlamadasPorPeriodoService(
   fecha_inicio?: string,
   fecha_fin?: string,
-  granularidad: "dia" | "hora" = "dia"
+  granularidad: "dia" | "hora" | "mes" = "dia"
 ) {
   const condiciones: string[] = [];
   const valores: any[] = [];
@@ -153,7 +153,11 @@ export async function estadisticasLlamadasPorPeriodoService(
   if (fecha_fin)    { condiciones.push(`fecha <  $${idx++}::timestamptz`); valores.push(fecha_fin); }
 
   const where    = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "WHERE fecha >= CURRENT_DATE - INTERVAL '90 days'";
-  const groupBy  = granularidad === "hora" ? "EXTRACT(HOUR FROM fecha)::int" : "fecha::date";
+  const groupBy  = granularidad === "hora"
+    ? "EXTRACT(HOUR FROM fecha)::int"
+    : granularidad === "mes"
+    ? "EXTRACT(MONTH FROM fecha)::int"
+    : "fecha::date";
 
   const result = await pool.query(`
     SELECT

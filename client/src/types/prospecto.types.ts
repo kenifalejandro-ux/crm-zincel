@@ -98,6 +98,7 @@ export interface Prospecto {
   etapa_pipeline:          EtapaPipeline;
   valor_estimado?:         number | null;
   valor_pipeline?:         number;
+  servicio_propuesta?:     string | null;
   fecha_primer_contacto?:  string | null;
   fecha_cierre?:           string | null;
   creado_en:               string;

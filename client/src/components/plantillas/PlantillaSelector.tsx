@@ -60,7 +60,7 @@ export function PlantillaSelector({ empresa, nombre, telefono }: Props) {
 
   if (cargando) return (
     <div className="flex justify-center py-8">
-      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-500" />
+      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-500" />
     </div>
   );
 
@@ -70,7 +70,7 @@ export function PlantillaSelector({ empresa, nombre, telefono }: Props) {
       <p className="text-xs text-zinc-400">Aún no tienes plantillas creadas</p>
       <button
         onClick={() => navigate("/plantillas")}
-        className="text-xs text-indigo-500 hover:text-indigo-700 underline"
+        className="text-xs text-amber-500 hover:text-amber-700 underline"
       >
         Crear plantillas →
       </button>
@@ -94,8 +94,8 @@ export function PlantillaSelector({ empresa, nombre, telefono }: Props) {
             onClick={() => setSeleccionada(prev => prev?.id === p.id ? null : p)}
             className={`text-left px-3 py-2.5 rounded-xl border text-xs transition ${
               seleccionada?.id === p.id
-                ? "border-indigo-400 bg-indigo-50 text-indigo-700 font-medium shadow-sm"
-                : "border-gray-100 bg-white hover:border-indigo-200 hover:bg-indigo-50 text-zinc-600"
+                ? "border-amber-400 bg-amber-50 text-amber-700 font-medium shadow-sm"
+                : "border-gray-100 bg-white hover:border-amber-200 hover:bg-amber-50 text-zinc-600"
             }`}
           >
             <span className={`inline-block text-[9px] px-1.5 py-0.5 rounded font-medium mb-1 ${CANAL_BADGE[p.canal]}`}>

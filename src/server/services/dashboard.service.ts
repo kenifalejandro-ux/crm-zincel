@@ -289,3 +289,114 @@ export async function metricasDashboardService(
     };
   }
 }
+
+
+export async function actividadAnualService(anio: number) {
+  const inicio = `${anio}-01-01`;
+  const fin    = `${anio + 1}-01-01`;
+
+  const [llamadas, reuniones, brochures, propuestas] = await Promise.all([
+    pool.query(`
+      SELECT EXTRACT(MONTH FROM fecha)::int AS mes, COUNT(*)::int AS total,
+             COUNT(*) FILTER (WHERE contestada = true)::int AS contestadas
+      FROM llamadas WHERE fecha >= $1 AND fecha < $2
+      GROUP BY mes ORDER BY mes`, [inicio, fin]),
+
+    pool.query(`
+      SELECT EXTRACT(MONTH FROM fecha_hora)::int AS mes, COUNT(*)::int AS total,
+             COUNT(*) FILTER (WHERE estado = 'realizada')::int AS realizadas
+      FROM reuniones WHERE fecha_hora >= $1 AND fecha_hora < $2
+      GROUP BY mes ORDER BY mes`, [inicio, fin]),
+
+    pool.query(`
+      SELECT EXTRACT(MONTH FROM fecha_envio)::int AS mes, COUNT(*)::int AS total
+      FROM brochures WHERE fecha_envio >= $1 AND fecha_envio < $2
+      GROUP BY mes ORDER BY mes`, [inicio, fin]),
+
+    pool.query(`
+      SELECT EXTRACT(MONTH FROM fecha_cierre)::int AS mes, COUNT(*)::int AS total
+      FROM propuestas WHERE estado = 'cerrada_ganada' AND fecha_cierre >= $1 AND fecha_cierre < $2
+      GROUP BY mes ORDER BY mes`, [inicio, fin]),
+  ]);
+
+  const toMap = (rows: any[], key: string) => {
+    const m: Record<number, any> = {};
+    rows.forEach((r) => { m[r.mes] = r; });
+    return m;
+  };
+
+  const llMap  = toMap(llamadas.rows,   "mes");
+  const reMap  = toMap(reuniones.rows,  "mes");
+  const brMap  = toMap(brochures.rows,  "mes");
+  const prMap  = toMap(propuestas.rows, "mes");
+
+  const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+  return Array.from({ length: 12 }, (_, i) => {
+    const m = i + 1;
+    return {
+      mes:         m,
+      label:       MESES[i],
+      llamadas:    llMap[m]?.total       ?? 0,
+      contestadas: llMap[m]?.contestadas ?? 0,
+      reuniones:   reMap[m]?.total       ?? 0,
+      realizadas:  reMap[m]?.realizadas  ?? 0,
+      brochures:   brMap[m]?.total       ?? 0,
+      ventas:      prMap[m]?.total       ?? 0,
+    };
+  });
+}
+
+export async function actividadMensualService(anio: number, mes: number) {
+  const inicio = `${anio}-${String(mes).padStart(2, "0")}-01`;
+  const fin    = mes === 12
+    ? `${anio + 1}-01-01`
+    : `${anio}-${String(mes + 1).padStart(2, "0")}-01`;
+
+  const [llamadas, reuniones, brochures] = await Promise.all([
+    pool.query(`
+      SELECT EXTRACT(DAY FROM fecha)::int AS dia,
+             COUNT(*)::int AS total,
+             COUNT(*) FILTER (WHERE contestada = true)::int AS contestadas
+      FROM llamadas WHERE fecha >= $1 AND fecha < $2
+      GROUP BY dia ORDER BY dia`, [inicio, fin]),
+
+    pool.query(`
+      SELECT EXTRACT(DAY FROM fecha_hora)::int AS dia,
+             COUNT(*)::int AS total,
+             COUNT(*) FILTER (WHERE estado = 'realizada')::int AS realizadas
+      FROM reuniones WHERE fecha_hora >= $1 AND fecha_hora < $2
+      GROUP BY dia ORDER BY dia`, [inicio, fin]),
+
+    pool.query(`
+      SELECT EXTRACT(DAY FROM fecha_envio)::int AS dia,
+             COUNT(*)::int AS total
+      FROM brochures WHERE fecha_envio >= $1 AND fecha_envio < $2
+      GROUP BY dia ORDER BY dia`, [inicio, fin]),
+  ]);
+
+  const toMap = (rows: any[]) => {
+    const m: Record<number, any> = {};
+    rows.forEach((r) => { m[r.dia] = r; });
+    return m;
+  };
+
+  const llMap = toMap(llamadas.rows);
+  const reMap = toMap(reuniones.rows);
+  const brMap = toMap(brochures.rows);
+
+  const diasEnMes = new Date(anio, mes, 0).getDate();
+
+  return Array.from({ length: diasEnMes }, (_, i) => {
+    const d = i + 1;
+    return {
+      dia:         d,
+      label:       String(d),
+      llamadas:    llMap[d]?.total       ?? 0,
+      contestadas: llMap[d]?.contestadas ?? 0,
+      reuniones:   reMap[d]?.total       ?? 0,
+      realizadas:  reMap[d]?.realizadas  ?? 0,
+      brochures:   brMap[d]?.total       ?? 0,
+    };
+  });
+}
