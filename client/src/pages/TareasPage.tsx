@@ -6,6 +6,7 @@ import { getTareas, getResumenTareas } from "../services/tareas.api";
 import { TareaForm } from "../components/tareas/TareaForm";
 import { TareasList } from "../components/tareas/TareasList";
 import type { Tarea, ResumenTareas } from "../types/tarea.types";
+import { fechaHoy } from "../utils/date";
 
 type Filtro = "todas" | "vencidas" | "hoy" | "proximas" | "completadas";
 
@@ -17,7 +18,7 @@ function classFiltro(activo: boolean) {
   }`;
 }
 
-const hoy = () => new Date().toISOString().split("T")[0];
+const hoy = () => fechaHoy();
 
 function aplicarFiltro(tareas: Tarea[], filtro: Filtro): Tarea[] {
   const h = hoy();

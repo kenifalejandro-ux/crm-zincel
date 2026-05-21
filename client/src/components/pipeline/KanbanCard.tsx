@@ -54,8 +54,8 @@ interface Props {
 }
 
 export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }: Props) {
-  const montoFmt = p.valor_estimado
-    ? `S/ ${Number(p.valor_estimado).toLocaleString("es-PE", { minimumFractionDigits: 0 })}`
+  const montoFmt = (p.valor_pipeline ?? 0) > 0
+    ? `S/ ${Number(p.valor_pipeline).toLocaleString("es-PE", { minimumFractionDigits: 0 })}`
     : null;
 
   const ringClass = nivel === "caliente" ? "ring-2 ring-red-400 ring-offset-1"

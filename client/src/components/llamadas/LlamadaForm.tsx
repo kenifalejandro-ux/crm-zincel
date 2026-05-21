@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Modal }  from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { crearLlamada } from "../../services/llamadas.api";
+import { fechaHoy } from "../../utils/date";
 
 const CANALES    = ["llamada", "whatsapp", "correo", "linkedin", "instagram", "facebook"];
 const RESULTADOS = [
@@ -33,7 +34,7 @@ const getNowTime = () => {
   const now = new Date();
   return `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
 };
-const getToday = () => new Date().toISOString().split("T")[0];
+const getToday = () => fechaHoy();
 
 const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500";
 

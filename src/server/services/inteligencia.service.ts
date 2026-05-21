@@ -1,12 +1,17 @@
 /** src/server/services/inteligencia.service.ts */
 
 import { pool } from "../config/database";
+import { cacheGet, cacheSet } from "../config/cache";
 
 // ─── Actividad comercial KPIs ─────────────────────────────────────────────────
 
 export async function actividadKPIsService(filters?: { fecha_inicio?: string; fecha_fin?: string }) {
   const desde = filters?.fecha_inicio ?? null;
   const hasta = filters?.fecha_fin ?? null;
+
+  const cacheKey = `actividad:${desde ?? ""}:${hasta ?? ""}`;
+  const cached = await cacheGet<unknown>(cacheKey);
+  if (cached) return cached as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   const [llamadas, reuniones, propuestas, brochures] = await Promise.all([
     pool.query(
@@ -40,7 +45,9 @@ export async function actividadKPIsService(filters?: { fecha_inicio?: string; fe
         COUNT(*) FILTER (WHERE estado = 'aceptada')::int         AS aceptadas,
         COUNT(*) FILTER (WHERE estado = 'rechazada')::int        AS rechazadas,
         COUNT(*) FILTER (WHERE estado IN ('caida','caída'))::int  AS caidas,
-        COALESCE(SUM(monto_cerrado) FILTER (WHERE estado='aceptada'),0)::float AS monto_cerrado
+        COALESCE(SUM(
+          CASE WHEN moneda = 'USD' THEN monto_cerrado * tipo_cambio ELSE monto_cerrado END
+        ) FILTER (WHERE estado='aceptada'),0)::float AS monto_cerrado
        FROM propuestas
        WHERE ($1::date IS NULL OR fecha_propuesta >= $1::date)
          AND ($2::date IS NULL OR fecha_propuesta  < $2::date)`,
@@ -70,7 +77,7 @@ export async function actividadKPIsService(filters?: { fecha_inicio?: string; fe
     ? Math.round((l.contestadas / l.total) * 100)
     : 0;
 
-  return {
+  const result = {
     llamadas: {
       total:         l.total         ?? 0,
       contestadas:   l.contestadas   ?? 0,
@@ -99,6 +106,8 @@ export async function actividadKPIsService(filters?: { fecha_inicio?: string; fe
       enviados:bEnv,
     },
   };
+  await cacheSet(cacheKey, result, 900); // 15 min
+  return result;
 }
 
 // ─── Insights automáticos ─────────────────────────────────────────────────────
@@ -113,6 +122,9 @@ function horaLabel(h: number) {
 }
 
 export async function insightsAutomaticosService(): Promise<Insight[]> {
+  const cached = await cacheGet<Insight[]>("inteligencia:insights");
+  if (cached) return cached;
+
   const insights: Insight[] = [];
 
   // ── 1. Mejor franja horaria (últimos 30 días) ──────────────────────────────
@@ -274,6 +286,7 @@ export async function insightsAutomaticosService(): Promise<Insight[]> {
     }
   }
 
+  await cacheSet("inteligencia:insights", insights, 7200); // 2 horas
   return insights;
 }
 
@@ -290,6 +303,9 @@ export interface AccionPrioridad {
 }
 
 export async function prioridadOperacionalService(): Promise<AccionPrioridad[]> {
+  const cached = await cacheGet<AccionPrioridad[]>("inteligencia:prioridad");
+  if (cached) return cached;
+
   const [a, b, c, d, e] = await Promise.all([
     // 1. Interesados sin propuesta
     pool.query(`
@@ -361,12 +377,17 @@ export async function prioridadOperacionalService(): Promise<AccionPrioridad[]> 
     cantidad: e.rows[0].n, accion: "Ver leads",
   });
 
+  await cacheSet("inteligencia:prioridad", acciones, 1800); // 30 min
   return acciones;
 }
 
 // ─── Leads estancados (lista detallada) ──────────────────────────────────────
 
 export async function leadsEstancadosService(dias = 14) {
+  const cacheKey = `inteligencia:estancados:${dias}`;
+  const cached = await cacheGet<unknown[]>(cacheKey);
+  if (cached) return cached;
+
   const result = await pool.query(
     `SELECT p.id, p.empresa, p.nombre_contacto, p.telefono,
             p.etapa_pipeline, p.prioridad, p.creado_en,
@@ -384,6 +405,7 @@ export async function leadsEstancadosService(dias = 14) {
      LIMIT 20`,
     [dias]
   );
+  await cacheSet(cacheKey, result.rows, 1800); // 30 min
   return result.rows;
 }
 
@@ -431,6 +453,10 @@ export async function tendenciasService(periodo: string, mes?: number, anio?: nu
     brochures: { actual: 0, anterior: 0, pct: null },
   };
 
+  const cacheKey = `inteligencia:tendencias:${periodo}:${mes ?? ""}:${anio ?? ""}`;
+  const cached = await cacheGet<Tendencias>(cacheKey);
+  if (cached) return cached;
+
   const { curr, prev } = rangoPeriodo(periodo, mes, anio);
 
   const [lC, lP, rC, rP, bC, bP] = await Promise.all([
@@ -446,11 +472,13 @@ export async function tendenciasService(periodo: string, mes?: number, anio?: nu
   const ra = rC.rows[0]?.n ?? 0, rant = rP.rows[0]?.n ?? 0;
   const ba = bC.rows[0]?.n ?? 0, bant = bP.rows[0]?.n ?? 0;
 
-  return {
+  const result: Tendencias = {
     llamadas:  { actual: la, anterior: lant, pct: pct(la, lant) },
     reuniones: { actual: ra, anterior: rant, pct: pct(ra, rant) },
     brochures: { actual: ba, anterior: bant, pct: pct(ba, bant) },
   };
+  await cacheSet(cacheKey, result, 3600); // 1 hora
+  return result;
 }
 
 // ─── Objetivos diarios ───────────────────────────────────────────────────────
@@ -524,6 +552,9 @@ export interface Forecast {
 }
 
 export async function forecastingService(): Promise<Forecast> {
+  const cached = await cacheGet<Forecast>("inteligencia:forecast");
+  if (cached) return cached;
+
   const [r1, r2, r3, r4, r5, r6] = await Promise.all([
     // Llamadas últimas 4 semanas (promedio semanal)
     pool.query(`
@@ -605,7 +636,7 @@ export async function forecastingService(): Promise<Forecast> {
   `);
   const leadsActivos = leadsActivosRes.rows[0]?.n ?? 0;
 
-  return {
+  const result: Forecast = {
     llamadas_semana_prom:  llamadasProm,
     tendencia,
     tasa_conversion_pct:   tasaPct,
@@ -616,6 +647,8 @@ export async function forecastingService(): Promise<Forecast> {
     ciclo_promedio_dias:   cicloDias,
     contactos_necesarios:  contactosNecesarios,
   };
+  await cacheSet("inteligencia:forecast", result, 3600); // 1 hora
+  return result;
 }
 
 // ─── Leads detalle por tipo de acción prioritaria ─────────────────────────────

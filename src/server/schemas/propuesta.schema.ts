@@ -20,8 +20,9 @@ export const crearPropuestaSchema = z.object({
   moneda:          z.enum(["PEN", "USD"]).default("PEN"),
   tipo_cambio:     z.number().positive().default(1),
   estado:          z.enum(ESTADOS).default("enviada"),
-  fecha_propuesta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  fecha_cierre:    z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+  fecha_propuesta:    z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  fecha_negociacion:  z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+  fecha_cierre:       z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
   notas:           z.string().optional(),
 });
 

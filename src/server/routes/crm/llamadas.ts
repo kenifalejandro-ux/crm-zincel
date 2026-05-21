@@ -13,6 +13,7 @@ import {
   actualizarLlamadaService,
   heatmapLlamadasService,
 } from "../../services/llamada.service";
+import { invalidarCacheCRM } from "../../config/cache";
 
 export const llamadasRouter = Router();
 
@@ -84,6 +85,7 @@ llamadasRouter.put("/:id", async (req, res) => {
   try {
     const data = await actualizarLlamadaService(req.params.id, req.body);
     if (!data) return res.status(404).json({ ok: false, message: "No encontrada" });
+    void invalidarCacheCRM();
     res.status(200).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
@@ -95,6 +97,7 @@ llamadasRouter.post("/", validate(crearLlamadaSchema), async (req, res) => {
   try {
     const usuario = (req as any).usuario;
     const data = await crearLlamadaService(req.body, usuario.id);
+    void invalidarCacheCRM();
     res.status(201).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

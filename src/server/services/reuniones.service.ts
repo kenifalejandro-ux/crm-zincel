@@ -3,6 +3,7 @@
 import { pool } from "../config/database";
 import { logger } from "../config/logger";
 import type { CrearReunionInput, ActualizarReunionInput } from "../schemas/reunion.schema";
+import { registrarActividad } from "./activityLog.service";
 
 export async function crearReunionService(input: CrearReunionInput, usuarioId: string) {
   const result = await pool.query(
@@ -15,6 +16,16 @@ export async function crearReunionService(input: CrearReunionInput, usuarioId: s
     ]
   );
   logger.info({ id: result.rows[0].id }, "Reunión creada");
+
+  void registrarActividad({
+    prospecto_id: input.prospecto_id,
+    tipo:        "reunion",
+    titulo:      `Reunión programada: ${input.titulo}`,
+    descripcion: input.notas ?? undefined,
+    metadata:    { modalidad: input.modalidad, estado: input.estado ?? "programada", fecha_hora: input.fecha_hora },
+    usuario_id:  usuarioId,
+  });
+
   return result.rows[0];
 }
 
@@ -71,7 +82,18 @@ export async function actualizarReunionService(id: string, input: ActualizarReun
   );
   if (result.rowCount === 0) throw new Error("Reunión no encontrada");
   logger.info({ id }, "Reunión actualizada");
-  return result.rows[0];
+
+  const reunion = result.rows[0];
+  if (input.estado) {
+    void registrarActividad({
+      prospecto_id: reunion.prospecto_id,
+      tipo:        "reunion",
+      titulo:      `Reunión ${input.estado}: ${reunion.titulo}`,
+      metadata:    { estado: input.estado },
+    });
+  }
+
+  return reunion;
 }
 
 export async function marcarEmailEnviadoService(id: string) {

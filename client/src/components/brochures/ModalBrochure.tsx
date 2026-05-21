@@ -4,8 +4,9 @@ import { CANALES } from "./ResumenCanales";
 
 export interface FormBrochure {
   prospecto_id: string;
-  canal: string;
-  notas: string;
+  canal:        string;
+  fecha_envio:  string;
+  notas:        string;
 }
 
 interface Props {
@@ -56,6 +57,17 @@ export function ModalBrochure({
               <option key={c} value={c} className="capitalize">{c}</option>
             ))}
           </select>
+        </div>
+
+        {/* Fecha de envío */}
+        <div>
+          <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha de envío</label>
+          <input
+            type="date"
+            value={form.fecha_envio}
+            onChange={(e) => set({ fecha_envio: e.target.value })}
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
         {/* Notas */}

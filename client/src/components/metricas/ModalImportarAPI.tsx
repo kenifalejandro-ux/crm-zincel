@@ -5,6 +5,7 @@ import { X, RefreshCw, CheckCircle, AlertCircle, ChevronLeft } from "lucide-reac
 import { getEmpresasConCuentas, getPlataformasDeEmpresa } from "../../services/plataformaCuentas.api";
 import { previewMetaAds, syncMetaAds }       from "../../services/metaAds.api";
 import { previewTikTokAds, syncTikTokAds }   from "../../services/tiktokAds.api";
+import { fechaHoy } from "../../utils/date";
 
 interface Props {
   onCerrar:       () => void;
@@ -14,8 +15,8 @@ interface Props {
 type Paso = "empresa" | "plataforma" | "preview" | "exito";
 type PlataformaAPI = "meta" | "tiktok" | "google";
 
-const hoy    = () => new Date().toISOString().split("T")[0];
-const hace30 = () => { const d = new Date(); d.setDate(d.getDate() - 30); return d.toISOString().split("T")[0]; };
+const hoy    = () => fechaHoy();
+const hace30 = () => { const d = new Date(); d.setDate(d.getDate() - 30); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 
 const PLAT_CONFIG: Record<string, { label: string; color: string; bg: string; icon: string; description: string }> = {
   meta:   { label: "Meta Ads",    color: "text-blue-700",  bg: "bg-blue-600",  icon: "f", description: "Facebook e Instagram Ads" },

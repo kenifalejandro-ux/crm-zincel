@@ -21,6 +21,7 @@ import { TableBulkActions }       from "../components/ui/TableBulkActions";
 
 import { deleteMetricasMasivo, updateMetrica } from "../services/metricas.api";
 import { exportarReportePDF }                  from "../utils/exportarPDF";
+import { fechaHoy }                            from "../utils/date";
 
 import {
   FiltrosMetrica,
@@ -30,7 +31,7 @@ import {
 } from "../types/metricas.types";
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
-const hoy = () => new Date().toISOString().split("T")[0];
+const hoy = () => fechaHoy();
 
 const FORM_INICIAL: FormMetrica = {
   empresa:            "",

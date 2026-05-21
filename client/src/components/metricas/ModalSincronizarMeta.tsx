@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, RefreshCw, CheckCircle, AlertCircle } from "lucide-react";
 import { previewMetaAds, syncMetaAds } from "../../services/metaAds.api";
+import { fechaHoy } from "../../utils/date";
 
 interface Props {
   onCerrar:       () => void;
@@ -10,11 +11,11 @@ interface Props {
   empresaPrefill?: string;
 }
 
-const hoy    = () => new Date().toISOString().split("T")[0];
+const hoy    = () => fechaHoy();
 const hace30 = () => {
   const d = new Date();
   d.setDate(d.getDate() - 30);
-  return d.toISOString().split("T")[0];
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
 type Paso = "form" | "preview" | "exito";

@@ -1,8 +1,8 @@
 // client/src/components/layout/lHeader.tsx
 
-import { Menu } from "lucide-react";
+import { Menu, LogOut, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { LogOut, User } from "lucide-react";
+import { NotificacionBell } from "./NotificacionBell";
 
 interface Props {
   onToggleSidebar: () => void;
@@ -56,6 +56,8 @@ export function lHeader({ onToggleSidebar }: Props) {
             <User size={15} className="text-indigo-400" />
           </div>
         </div>
+
+        <NotificacionBell />
 
         <button
           onClick={logout}

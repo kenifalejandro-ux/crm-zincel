@@ -1,6 +1,7 @@
 /**src/server/services/dashboard.service.ts */
 
 import { pool } from "../config/database";
+import { cacheGet, cacheSet } from "../config/cache";
 
 export async function metricasDashboardService(
   periodo: string = "mes",
@@ -8,6 +9,12 @@ export async function metricasDashboardService(
   anio?: number,
   fecha?: string
 ) {
+  const cacheKey = `dashboard:${periodo}:${mes ?? ""}:${anio ?? ""}:${fecha ?? ""}`;
+  // TTL corto para hoy/día (datos en tiempo real), más largo para históricos
+  const cacheTTL = (periodo === "hoy" || periodo === "dia") ? 300 : 1800; // 5 min o 30 min
+  const cached = await cacheGet(cacheKey);
+  if (cached) return cached;
+
   const buildFiltro = (columna: string) => {
     if (periodo === "dia" && fecha) {
       return `${columna}::date = '${fecha}'`;
@@ -38,6 +45,7 @@ export async function metricasDashboardService(
   const filtroReuniones  = buildFiltro("fecha_hora");
   const filtroProspectos = buildFiltro("creado_en");
   const filtroIngresos   = buildFiltro("fecha");
+  const filtroVentas     = buildFiltro("fecha_cierre");
 
   try {
     const [
@@ -50,6 +58,8 @@ export async function metricasDashboardService(
       prospectosPorCiudadResult,
       prospectosPorEstadoResult,
       finanzasResult,
+      ventasResult,
+      ventasPorServicioResult,
     ] = await Promise.all([
 
       pool.query(`
@@ -155,12 +165,38 @@ export async function metricasDashboardService(
       `).catch(() => ({ rows: [] })),
 
       pool.query(`
-        SELECT COALESCE(SUM(monto_total), 0)::numeric AS ingresos_mes
+        SELECT COALESCE(SUM(
+          CASE WHEN moneda = 'USD' THEN monto_total * tipo_cambio ELSE monto_total END
+        ), 0)::numeric AS ingresos_mes
         FROM ingresos
         WHERE ${filtroIngresos}
       `).catch(() => ({
         rows: [{ ingresos_mes: 0 }]
       })),
+
+      // Ventas filtradas por fecha_cierre (no por creado_en)
+      pool.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE estado_venta = 'si'  AND fecha_cierre IS NOT NULL AND ${filtroVentas})::int AS cerradas,
+          COUNT(*) FILTER (WHERE estado_venta = 'en_proceso')::int                                           AS en_proceso,
+          COUNT(*) FILTER (WHERE estado_venta = 'no')::int                                                   AS no_venta
+        FROM prospectos
+      `).catch(() => ({ rows: [{ cerradas: 0, en_proceso: 0, no_venta: 0 }] })),
+
+      // Ventas cerradas por tipo de servicio en el período
+      pool.query(`
+        SELECT
+          servicio,
+          COUNT(*)::int AS cantidad,
+          COALESCE(SUM(
+            CASE WHEN moneda = 'USD' THEN COALESCE(monto_cerrado, monto_propuesto) * tipo_cambio
+                 ELSE COALESCE(monto_cerrado, monto_propuesto) END
+          ), 0)::float AS monto_total
+        FROM propuestas
+        WHERE estado = 'cerrada_ganada' AND fecha_cierre IS NOT NULL AND ${filtroVentas}
+        GROUP BY servicio
+        ORDER BY monto_total DESC
+      `).catch(() => ({ rows: [] })),
     ]);
 
     const ll = llamadasResult.rows[0];
@@ -168,8 +204,9 @@ export async function metricasDashboardService(
     const re = reunionesResult.rows[0];
     const pr = prospectosResult.rows[0];
     const fi = finanzasResult.rows[0];
+    const vt = ventasResult.rows[0];
 
-    return {
+    const dashResult = {
       llamadas: {
         total_llamadas:          ll.total_llamadas,
         llamadas_contestadas:    ll.llamadas_contestadas,
@@ -214,10 +251,11 @@ export async function metricasDashboardService(
       },
 
       ventas: {
-        cerradas:   pr.ventas_cerradas,
-        en_proceso: pr.ventas_en_proceso,
-        no:         pr.ventas_no,
+        cerradas:   vt.cerradas,
+        en_proceso: vt.en_proceso,
+        no:         vt.no_venta,
       },
+      ventas_por_servicio: ventasPorServicioResult.rows as Array<{ servicio: string; cantidad: number; monto_total: number }>,
 
       tasa_conversion: Number(pr.tasa_conversion),
 
@@ -230,6 +268,9 @@ export async function metricasDashboardService(
       },
     };
 
+    await cacheSet(cacheKey, dashResult, cacheTTL);
+    return dashResult;
+
   } catch (error) {
     console.error('Error general en metricasDashboardService:', error);
     return {
@@ -240,6 +281,7 @@ export async function metricasDashboardService(
       reuniones:             { total_reuniones: 0, reuniones_programadas: 0, reuniones_realizadas: 0, reuniones_canceladas: 0, reuniones_descartadas: 0, reuniones_reprogramadas: 0, reuniones_hoy: 0, reuniones_mes: 0 },
       prospectos:            { total_prospectos: 0, prospectos_interesados: 0, prospectos_no_interesados: 0, prospectos_no_contesta: 0, prospectos_volver_llamar: 0, prospectos_buzon: 0, prospectos_tiene_proveedor: 0, prospectos_con_web: 0, prospectos_sin_web: 0, prospectos_hoy: 0, prospectos_mes: 0 },
       ventas:                { cerradas: 0, en_proceso: 0, no: 0 },
+      ventas_por_servicio:   [],
       tasa_conversion:       0,
       prospectos_por_ciudad: [],
       prospectos_por_estado: [],

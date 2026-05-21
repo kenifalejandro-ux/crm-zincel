@@ -29,8 +29,9 @@ import {
 } from "../services/finanzas.api";
 import { getTipoCambio } from "../services/configuracion.api";
 import type { FormIngreso, FormEgreso, FormPrestamo } from "../types/finanzas.types";
+import { fechaHoy } from "../utils/date";
 
-const hoy = () => new Date().toISOString().split("T")[0];
+const hoy = () => fechaHoy();
 
 const formIngresoInicial = (tc: number): FormIngreso => ({
   empresa: "", descripcion: "", tipo_servicio: "otro",

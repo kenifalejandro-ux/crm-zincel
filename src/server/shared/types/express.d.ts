@@ -5,6 +5,7 @@ declare module "express-serve-static-core" {
     id?: string;
     validatedBody?: unknown;
     log?: Logger;
+    usuario: { id: string; rol: string; nombre: string; email: string };
   }
 }
 

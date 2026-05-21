@@ -52,12 +52,18 @@ export function diasRestantes(fecha: Date | string): number {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
+export function fechaHoy(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export function inicioDelMes(): string {
-  const hoy = new Date();
-  return new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split("T")[0];
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
 }
 
 export function finDelMes(): string {
-  const hoy = new Date();
-  return new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).toISOString().split("T")[0];
+  const d = new Date();
+  const ultimo = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(ultimo).padStart(2, "0")}`;
 }

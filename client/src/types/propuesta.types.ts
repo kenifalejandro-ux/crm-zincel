@@ -28,25 +28,27 @@ export interface Propuesta {
   monto_cerrado?:  number | null;
   moneda:          Moneda;
   tipo_cambio:     number;
-  estado:          EstadoPropuesta;
-  fecha_propuesta: string;
-  fecha_cierre?:   string | null;
-  notas?:          string;
+  estado:              EstadoPropuesta;
+  fecha_propuesta:     string;
+  fecha_negociacion?:  string | null;
+  fecha_cierre?:       string | null;
+  notas?:              string;
   creado_en:       string;
   actualizado_en:  string;
 }
 
 export interface FormPropuesta {
-  servicio:        ServicioPropuesta;
-  descripcion:     string;
-  monto_propuesto: string;
-  monto_cerrado:   string;
-  moneda:          Moneda;
-  tipo_cambio:     string;
-  estado:          EstadoPropuesta;
-  fecha_propuesta: string;
-  fecha_cierre:    string;
-  notas:           string;
+  servicio:           ServicioPropuesta;
+  descripcion:        string;
+  monto_propuesto:    string;
+  monto_cerrado:      string;
+  moneda:             Moneda;
+  tipo_cambio:        string;
+  estado:             EstadoPropuesta;
+  fecha_propuesta:    string;
+  fecha_negociacion:  string;
+  fecha_cierre:       string;
+  notas:              string;
 }
 
 export const LABEL_SERVICIO: Record<ServicioPropuesta, string> = {

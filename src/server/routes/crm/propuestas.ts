@@ -9,11 +9,23 @@ import {
   obtenerPropuestasService,
   actualizarPropuestaService,
   eliminarPropuestaService,
+  resumenEstadosPropuestasService,
 } from "../../services/propuesta.service";
+import { invalidarCacheCRM } from "../../config/cache";
 
 export const propuestasRouter = Router();
 
 propuestasRouter.use(authMiddleware);
+
+// GET /api/crm/propuestas/resumen-estados
+propuestasRouter.get("/resumen-estados", async (_req, res) => {
+  try {
+    const data = await resumenEstadosPropuestasService();
+    res.status(200).json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
 
 // GET /api/crm/propuestas?prospecto_id=xxx
 propuestasRouter.get("/", async (req, res) => {
@@ -34,6 +46,7 @@ propuestasRouter.post("/", validate(crearPropuestaSchema), async (req, res) => {
   try {
     const usuario = (req as any).usuario;
     const data = await crearPropuestaService(req.body, usuario.id);
+    void invalidarCacheCRM();
     res.status(201).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
@@ -45,6 +58,7 @@ propuestasRouter.put("/:id", validate(actualizarPropuestaSchema), async (req, re
   try {
     const usuario = (req as any).usuario;
     const data = await actualizarPropuestaService(req.params.id, req.body, usuario.id);
+    void invalidarCacheCRM();
     res.status(200).json({ ok: true, data });
   } catch (err: any) {
     const status = err.message === "Propuesta no encontrada" ? 404 : 500;

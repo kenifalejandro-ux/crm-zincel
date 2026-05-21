@@ -4,7 +4,10 @@ import { createApp } from "./app";
 import { env, missingRequiredEnv } from "./config/env";
 import { logger } from "./config/logger";
 import { getRedis } from "./config/redis";
-import { testDatabaseConnection } from "./config/database"; 
+import { testDatabaseConnection } from "./config/database";
+import { startMetaAdsWorker } from "./config/queue";
+import { metaAdsSyncProcessor } from "./workers/metaAds.worker";
+import { startCrons } from "./workers/crons";
 
 export function startServer() {
   // ====================== VALIDACIONES INICIALES ======================
@@ -31,6 +34,9 @@ export function startServer() {
   // ====================== INICIO DEL SERVIDOR ======================
   const app = createApp();
   
+  startMetaAdsWorker(metaAdsSyncProcessor);
+  startCrons();
+
   const server = app.listen(env.port, () => {
     logger.info(`🚀 CRM API iniciada correctamente en http://localhost:${env.port}`);
     logger.info(`📊 Entorno: ${env.isProduction ? 'PRODUCCIÓN' : 'DESARROLLO'}`);

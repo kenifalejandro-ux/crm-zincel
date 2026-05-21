@@ -259,6 +259,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
             frecuencia:         fila.frecuencia         || "0",  // ← nuevo
 
             // Engagement
+            interacciones:      fila.interacciones      || "0",
             me_gusta:           fila.me_gusta           || "0",
             comentarios:        fila.comentarios        || "0",
             compartidos:        fila.compartidos        || "0",

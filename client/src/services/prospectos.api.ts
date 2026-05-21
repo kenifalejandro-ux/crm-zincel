@@ -54,6 +54,8 @@ export interface PipelineEtapa {
   prospectos: Prospecto[];
   total:      number;
   valor:      number;
+  valor_pen:  number;
+  valor_usd:  number;
 }
 
 export async function getPipeline() {
@@ -61,8 +63,8 @@ export async function getPipeline() {
   return data.data as Record<string, PipelineEtapa>;
 }
 
-export async function actualizarEtapaPipeline(id: string, etapa: string, valor_estimado?: number | null) {
-  const { data } = await api.patch(`/prospectos/${id}/etapa`, { etapa, valor_estimado });
+export async function actualizarEtapaPipeline(id: string, etapa: string) {
+  const { data } = await api.patch(`/prospectos/${id}/etapa`, { etapa });
   return data.data as Prospecto;
 }
 
@@ -111,4 +113,56 @@ export interface ScoreHistoryEntry {
 export async function getScoreHistory(id: string) {
   const { data } = await api.get(`/prospectos/${id}/score-history`);
   return data.data as ScoreHistoryEntry[];
+}
+
+export interface CicloVentaKPIs {
+  total_cerrados:              number;
+  promedio_dias:               number | null;
+  min_dias:                    number | null;
+  max_dias:                    number | null;
+  promedio_contacto_propuesta: number | null;
+  promedio_propuesta_cierre:   number | null;
+}
+export interface CicloVentaPorRubro {
+  rubro:         string;
+  total:         number;
+  promedio_dias: number;
+}
+export interface ProspectoEnRiesgo {
+  id:                    string;
+  empresa:               string;
+  nombre_contacto:       string | null;
+  etapa_pipeline:        string;
+  fecha_primer_contacto: string;
+  dias_en_pipeline:      number;
+}
+export interface CicloVentaTendencia {
+  mes:           string;
+  cerrados:      number;
+  promedio_dias: number;
+}
+export interface CicloVentaDetalle {
+  id:                       string;
+  empresa:                  string;
+  nombre_contacto:          string | null;
+  rubro:                    string | null;
+  fecha_primer_contacto:    string;
+  fecha_primera_propuesta:  string | null;
+  fecha_cierre:             string;
+  dias_ciclo:               number;
+  dias_contacto_propuesta:  number | null;
+  dias_propuesta_cierre:    number | null;
+  valor_cerrado:            number;
+}
+export interface CicloVentaData {
+  kpis:       CicloVentaKPIs;
+  por_rubro:  CicloVentaPorRubro[];
+  en_riesgo:  ProspectoEnRiesgo[];
+  tendencia:  CicloVentaTendencia[];
+  detalle:    CicloVentaDetalle[];
+}
+
+export async function getCicloVenta(): Promise<CicloVentaData> {
+  const { data } = await api.get("/prospectos/ciclo-venta");
+  return data.data as CicloVentaData;
 }

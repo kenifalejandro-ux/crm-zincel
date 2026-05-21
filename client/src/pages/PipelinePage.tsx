@@ -1,7 +1,7 @@
 /**client/src/pages/PipelinePage.tsx */
 
 import { useEffect, useRef, useState } from "react";
-import { Kanban, DollarSign, RefreshCw, Undo2 } from "lucide-react";
+import { Kanban, RefreshCw, Undo2 } from "lucide-react";
 import { getPipeline, actualizarEtapaPipeline, getScoresLeads, type PipelineEtapa, type ScoreLead } from "../services/prospectos.api";
 import { KanbanColumn } from "../components/pipeline/KanbanColumn";
 import { ProspectoDetalle } from "../components/prospectos/ProspectoDetalle";
@@ -97,12 +97,12 @@ export default function PipelinePage() {
       if (!card) return prev;
       next[origen].prospectos = next[origen].prospectos.filter(p => p.id !== id);
       next[origen].total  = Math.max(0, next[origen].total - 1);
-      next[origen].valor -= Number(card.valor_estimado ?? 0);
+      next[origen].valor -= Number(card.valor_pipeline ?? 0);
       card.etapa_pipeline = destino as EtapaPipeline;
-      if (!next[destino]) next[destino] = { prospectos: [], total: 0, valor: 0 };
+      if (!next[destino]) next[destino] = { prospectos: [], total: 0, valor: 0, valor_pen: 0, valor_usd: 0 };
       next[destino].prospectos.unshift(card);
       next[destino].total++;
-      next[destino].valor += Number(card.valor_estimado ?? 0);
+      next[destino].valor += Number(card.valor_pipeline ?? 0);
       return next;
     });
   }
@@ -118,10 +118,13 @@ export default function PipelinePage() {
   }
 
   const totalProspectos = Object.values(pipeline).reduce((s, e) => s + e.total, 0);
-  const valorActivo = ETAPAS
-    .filter(e => !["cerrado_ganado", "perdido"].includes(e.key))
-    .reduce((s, e) => s + (pipeline[e.key]?.valor ?? 0), 0);
-  const valorCerrado = pipeline["cerrado_ganado"]?.valor ?? 0;
+  const etapasActivas = ETAPAS.filter(e => !["cerrado_ganado", "perdido"].includes(e.key));
+  const valorActivo    = etapasActivas.reduce((s, e) => s + (pipeline[e.key]?.valor     ?? 0), 0);
+  const valorActivoPen = etapasActivas.reduce((s, e) => s + (pipeline[e.key]?.valor_pen ?? 0), 0);
+  const valorActivoUsd = etapasActivas.reduce((s, e) => s + (pipeline[e.key]?.valor_usd ?? 0), 0);
+  const valorCerrado   = pipeline["cerrado_ganado"]?.valor     ?? 0;
+  const valorCerradoPen = pipeline["cerrado_ganado"]?.valor_pen ?? 0;
+  const valorCerradoUsd = pipeline["cerrado_ganado"]?.valor_usd ?? 0;
 
   return (
     <div className="h-full flex flex-col">
@@ -134,19 +137,43 @@ export default function PipelinePage() {
             <p className="text-xs text-zinc-400">{totalProspectos} prospectos en el pipeline</p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Pipeline activo — desglose por moneda */}
+          <div className="text-right border-r border-gray-100 pr-3">
             <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Pipeline activo</p>
-            <p className="text-sm font-bold text-indigo-600 flex items-center gap-0.5">
-              <DollarSign size={13} />
-              {valorActivo.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
+            <div className="flex items-center gap-2">
+              {valorActivoPen > 0 && (
+                <span className="text-sm font-bold text-indigo-600">
+                  S/ {valorActivoPen.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
+                </span>
+              )}
+              {valorActivoUsd > 0 && (
+                <span className="text-sm font-bold text-indigo-400">
+                  $ {valorActivoUsd.toLocaleString("en-US", { minimumFractionDigits: 0 })}
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] text-zinc-400">
+              Total S/ {valorActivo.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
             </p>
           </div>
+          {/* Cerrado — desglose por moneda */}
           <div className="text-right">
             <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Cerrado</p>
-            <p className="text-sm font-bold text-green-600 flex items-center gap-0.5">
-              <DollarSign size={13} />
-              {valorCerrado.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
+            <div className="flex items-center gap-2">
+              {valorCerradoPen > 0 && (
+                <span className="text-sm font-bold text-green-600">
+                  S/ {valorCerradoPen.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
+                </span>
+              )}
+              {valorCerradoUsd > 0 && (
+                <span className="text-sm font-bold text-green-400">
+                  $ {valorCerradoUsd.toLocaleString("en-US", { minimumFractionDigits: 0 })}
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] text-zinc-400">
+              Total S/ {valorCerrado.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
             </p>
           </div>
           <button onClick={cargar}

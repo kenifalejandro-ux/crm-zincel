@@ -28,6 +28,7 @@ import type { Prospecto } from "../../types/prospecto.types";
 import type { Reunion } from "../../types/reunion.types";
 import type { Propuesta, FormPropuesta } from "../../types/propuesta.types";
 import type { Tarea } from "../../types/tarea.types";
+import { fechaHoy } from "../../utils/date";
 
 const COLOR_ESTADO: Record<string, string> = {
   interesado:         "green",
@@ -446,8 +447,9 @@ const FORM_PROPUESTA_VACIO: FormPropuesta = {
   moneda:          "PEN",
   tipo_cambio:     "1",
   estado:          "enviada",
-  fecha_propuesta: new Date().toISOString().split("T")[0],
-  fecha_cierre:    "",
+  fecha_propuesta:   fechaHoy(),
+  fecha_negociacion: "",
+  fecha_cierre:      "",
   notas:           "",
 };
 
@@ -515,10 +517,11 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar }: ProspectoDet
         monto_cerrado:   formPropuesta.monto_cerrado ? parseFloat(formPropuesta.monto_cerrado) : null,
         moneda:          formPropuesta.moneda,
         tipo_cambio:     parseFloat(formPropuesta.tipo_cambio) || 1,
-        estado:          formPropuesta.estado as any,
-        fecha_propuesta: formPropuesta.fecha_propuesta,
-        fecha_cierre:    (formPropuesta.fecha_cierre || null) as any,
-        notas:           formPropuesta.notas || "",
+        estado:            formPropuesta.estado as any,
+        fecha_propuesta:   formPropuesta.fecha_propuesta,
+        fecha_negociacion: (formPropuesta.fecha_negociacion || null) as any,
+        fecha_cierre:      (formPropuesta.fecha_cierre || null) as any,
+        notas:             formPropuesta.notas || "",
       });
       setModalNuevaPropuesta(false);
       setFormPropuesta(FORM_PROPUESTA_VACIO);
@@ -541,10 +544,11 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar }: ProspectoDet
         monto_cerrado:   formPropuesta.monto_cerrado ? parseFloat(formPropuesta.monto_cerrado) : null,
         moneda:          formPropuesta.moneda,
         tipo_cambio:     parseFloat(formPropuesta.tipo_cambio) || 1,
-        estado:          formPropuesta.estado as any,
-        fecha_propuesta: formPropuesta.fecha_propuesta,
-        fecha_cierre:    (formPropuesta.fecha_cierre || null) as any,
-        notas:           formPropuesta.notas || "",
+        estado:            formPropuesta.estado as any,
+        fecha_propuesta:   formPropuesta.fecha_propuesta,
+        fecha_negociacion: (formPropuesta.fecha_negociacion || null) as any,
+        fecha_cierre:      (formPropuesta.fecha_cierre || null) as any,
+        notas:             formPropuesta.notas || "",
       });
       setPropuestaEditando(null);
       // Recargar detalle del prospecto para reflejar cambios de estado_venta/clasificacion
@@ -566,8 +570,9 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar }: ProspectoDet
       moneda:          p.moneda as any,
       tipo_cambio:     String(p.tipo_cambio),
       estado:          p.estado as any,
-      fecha_propuesta: p.fecha_propuesta,
-      fecha_cierre:    p.fecha_cierre ?? "",
+      fecha_propuesta:   (p.fecha_propuesta   ?? "").slice(0, 10),
+      fecha_negociacion: (p.fecha_negociacion ?? "").slice(0, 10),
+      fecha_cierre:      (p.fecha_cierre      ?? "").slice(0, 10),
       notas:           p.notas ?? "",
     });
   }
@@ -625,6 +630,37 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar }: ProspectoDet
             </Badge>
           )}
           <ScoreBadge score={score} nivel={nivel} breakdown={breakdown} accion={accion} insight={insight} delta={delta} historial={historialScore} />
+          {detalle.etapa_pipeline === "cerrado_ganado" && detalle.fecha_primer_contacto && detalle.fecha_cierre && (() => {
+            const parseD = (s: string) => new Date(s.slice(0, 10) + "T12:00:00");
+            const diffD  = (a: string | null | undefined, b: string | null | undefined) => {
+              if (!a || !b) return null;
+              return Math.round((parseD(b).getTime() - parseD(a).getTime()) / 86_400_000);
+            };
+            const primeraPropuesta = propuestas.length > 0
+              ? propuestas.reduce((min, p) => p.fecha_propuesta < min ? p.fecha_propuesta : min, propuestas[0].fecha_propuesta)
+              : null;
+            const diasTotal    = diffD(detalle.fecha_primer_contacto, detalle.fecha_cierre);
+            const diasF1       = diffD(detalle.fecha_primer_contacto, primeraPropuesta);
+            const diasF2       = diffD(primeraPropuesta, detalle.fecha_cierre);
+            return (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {diasF1 != null && diasF1 >= 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-700">
+                    📋 Contacto→Propuesta: {diasF1}d
+                  </span>
+                )}
+                {diasF2 != null && diasF2 >= 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-700">
+                    ⚖️ Propuesta→Cierre: {diasF2}d
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-green-100 text-green-700">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Total: {diasTotal}d
+                </span>
+              </div>
+            );
+          })()}
           <div className="ml-auto">
             <Button size="sm" variant="secondary" onClick={onEditar}>
               <Pencil size={13} /> Editar
@@ -861,6 +897,7 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar }: ProspectoDet
         {/* TAB: Timeline */}
         {tab === "timeline" && (
           <TimelineDetalle
+            prospectoId={detalle.id}
             llamadas={llamadasDet}
             reuniones={reuniones}
             brochures={brochures}

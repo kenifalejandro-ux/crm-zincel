@@ -1,9 +1,10 @@
 /** client/src/components/propuestas/ModalPropuesta.tsx */
 
-import type { FormPropuesta, ServicioPropuesta } from "../../types/propuesta.types";
-import { LABEL_SERVICIO } from "../../types/propuesta.types";
+import type { FormPropuesta, ServicioPropuesta, EstadoPropuesta } from "../../types/propuesta.types";
+import { LABEL_SERVICIO, LABEL_ESTADO } from "../../types/propuesta.types";
 
 const SERVICIOS = Object.keys(LABEL_SERVICIO) as ServicioPropuesta[];
+const ESTADOS   = Object.keys(LABEL_ESTADO)   as EstadoPropuesta[];
 
 interface Props {
   form:         FormPropuesta;
@@ -89,6 +90,20 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
             />
           </div>
         )}
+
+        {/* Estado */}
+        <div>
+          <label className="text-xs font-medium text-gray-500 mb-1 block">Estado</label>
+          <select
+            value={form.estado}
+            onChange={(e) => set({ estado: e.target.value as EstadoPropuesta })}
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {ESTADOS.map((e) => (
+              <option key={e} value={e}>{LABEL_ESTADO[e]}</option>
+            ))}
+          </select>
+        </div>
 
         {/* Fecha propuesta */}
         <div>

@@ -9,6 +9,7 @@ import {
   actualizarBrochureService,
   eliminarBrochuresMasivoService,
 } from "../../services/brochure.service";
+import { invalidarCacheCRM } from "../../config/cache";
 
 export const brochuresRouter = Router();
 
@@ -38,11 +39,12 @@ brochuresRouter.get("/", async (req, res) => {
 brochuresRouter.post("/", async (req, res) => {
   try {
     const usuario = (req as any).usuario;
-    const { prospecto_id, canal, notas } = req.body;
+    const { prospecto_id, canal, notas, fecha_envio } = req.body;
     if (!prospecto_id || !canal) {
       return res.status(400).json({ ok: false, message: "prospecto_id y canal son obligatorios" });
     }
-    const data = await crearBrochureService({ prospecto_id, canal, notas }, usuario.id);
+    const data = await crearBrochureService({ prospecto_id, canal, notas, fecha_envio }, usuario.id);
+    void invalidarCacheCRM();
     res.status(201).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
@@ -52,9 +54,10 @@ brochuresRouter.post("/", async (req, res) => {
 // PUT /api/crm/brochures/:id
 brochuresRouter.put("/:id", async (req, res) => {
   try {
-    const { canal, notas } = req.body;
-    const data = await actualizarBrochureService(req.params.id, { canal, notas });
+    const { canal, notas, fecha_envio } = req.body;
+    const data = await actualizarBrochureService(req.params.id, { canal, notas, fecha_envio });
     if (!data) return res.status(404).json({ ok: false, message: "Brochure no encontrado" });
+    void invalidarCacheCRM();
     res.status(200).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

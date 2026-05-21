@@ -28,7 +28,7 @@ export async function eliminarBrochure(id: string) {
   return data;
 }
 
-export async function actualizarBrochure(id: string, payload: { canal?: string; notas?: string }) {
+export async function actualizarBrochure(id: string, payload: { canal?: string; fecha_envio?: string; notas?: string }) {
   const { data } = await api.put(`/brochures/${id}`, payload);
   return data.data;
 }

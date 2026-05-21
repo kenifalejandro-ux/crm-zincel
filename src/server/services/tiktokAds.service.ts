@@ -89,6 +89,7 @@ export async function syncTikTokAdsService(empresa: string, desde: string, hasta
         interacciones,
         me_gusta, comentarios, compartidos, guardados, tasa_engagement,
         costo_por_mensaje, reproducciones, tasa_reproduccion,
+        moneda_gasto,
         notas
       ) VALUES (
         $1,$2,'tiktok',NULL,
@@ -100,6 +101,7 @@ export async function syncTikTokAdsService(empresa: string, desde: string, hasta
         0,
         0,0,0,0,0,
         0,0,0,
+        'USD',
         $12
       )
       ON CONFLICT DO NOTHING

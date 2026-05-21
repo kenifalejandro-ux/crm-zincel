@@ -2,17 +2,28 @@
 
 import { pool } from "../config/database";
 import { logger } from "../config/logger";
+import { registrarActividad } from "./activityLog.service";
 
 export async function crearBrochureService(
-  input: { prospecto_id: string; canal: string; notas?: string },
+  input: { prospecto_id: string; canal: string; notas?: string; fecha_envio?: string },
   usuarioId: string
 ) {
   const result = await pool.query(
-    `INSERT INTO brochures (prospecto_id, canal, notas, creado_por)
-     VALUES ($1,$2,$3,$4) RETURNING *`,
-    [input.prospecto_id, input.canal, input.notas, usuarioId]
+    `INSERT INTO brochures (prospecto_id, canal, notas, fecha_envio, creado_por)
+     VALUES ($1,$2,$3, COALESCE($4::timestamptz, now()), $5) RETURNING *`,
+    [input.prospecto_id, input.canal, input.notas, input.fecha_envio ?? null, usuarioId]
   );
   logger.info({ id: result.rows[0].id }, "Brochure registrado");
+
+  void registrarActividad({
+    prospecto_id: input.prospecto_id,
+    tipo:        "brochure",
+    titulo:      `Brochure enviado por ${input.canal}`,
+    descripcion: input.notas ?? undefined,
+    metadata:    { canal: input.canal },
+    usuario_id:  usuarioId,
+  });
+
   return result.rows[0];
 }
 
@@ -49,7 +60,7 @@ export async function resumenBrochuresService() {
 
 export async function actualizarBrochureService(
   id: string,
-  input: { canal?: string; notas?: string }
+  input: { canal?: string; notas?: string; fecha_envio?: string }
 ) {
   const campos = Object.keys(input) as (keyof typeof input)[];
   if (campos.length === 0) return null;

@@ -13,8 +13,10 @@ import type { Tendencias } from "../services/inteligencia.api";
 import { FunnelConversion }    from "../components/inteligencia/FunnelConversion";
 import { RegionChart }         from "../components/inteligencia/RegionChart";
 import { PrioridadOperacional } from "../components/inteligencia/PrioridadOperacional";
+import { CicloVenta }          from "../components/inteligencia/CicloVenta";
 import { HeatmapHoras }        from "../components/llamadas/HeatmapHoras";
 import { MotivosChart }        from "../components/llamadas/MotivosChart";
+import { ResumenEstadosPropuestas } from "../components/propuestas/ResumenEstadosPropuestas";
 import type { FunnelEtapa, RegionEtapa } from "../services/prospectos.api";
 import type { Insight, LeadEstancado, AccionPrioridad, Forecast, ObjetivosDiarios } from "../services/inteligencia.api";
 
@@ -581,7 +583,7 @@ export default function InteligenciaPage() {
             Inteligencia comercial
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-            KPIs de actividad · Funnel · Insights automáticos · Región
+            KPIs de actividad · Funnel · Insights automáticos · Región · Ciclo de venta
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -760,6 +762,9 @@ export default function InteligenciaPage() {
             ))}
           </div>
 
+          {/* ── Estado de propuestas ── */}
+          <ResumenEstadosPropuestas />
+
           {/* ── Objetivos del día ── */}
           {objetivos && (
             <ObjetivosPanel obj={objetivos} onActualizar={handleActualizarObjetivos} />
@@ -810,6 +815,20 @@ export default function InteligenciaPage() {
 
           {/* ── Región ── */}
           <RegionChart data={regiones} />
+
+          {/* ── Ciclo de venta ── */}
+          <div className="bg-zinc-50 rounded-2xl p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-zinc-800">Ciclo de venta</p>
+                <p className="text-[10px] text-zinc-400">Tiempo promedio desde primer contacto hasta cierre</p>
+              </div>
+            </div>
+            <CicloVenta />
+          </div>
 
         </div>
       )}

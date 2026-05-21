@@ -22,6 +22,8 @@ import { VentasChart }           from "../components/dashboard/VentasChart";
 import { BrochuresChart }        from "../components/dashboard/BrochuresChart";
 import { TasaConversion }        from "../components/dashboard/TasaConversion";
 import { WebActivaChart }        from "../components/dashboard/WebActivaChart";
+import { ResumenEstadosPropuestas } from "../components/propuestas/ResumenEstadosPropuestas";
+import { FasesCicloVenta }         from "../components/dashboard/FasesCicloVenta";
 
 const MESES_FULL  = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const MESES_CORTO = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
@@ -88,6 +90,7 @@ export interface Metricas {
     en_proceso: number;
     no:         number;
   };
+  ventas_por_servicio: Array<{ servicio: string; cantidad: number; monto_total: number }>;
   tasa_conversion:       number;
   prospectos_por_ciudad: Array<{ ciudad: string; total: number }>;
   prospectos_por_estado: Array<{ estado_lead: string; total: number }>;
@@ -329,6 +332,8 @@ export default function DashboardPage() {
       {/* Fila 2 — Nuevos KPIs */}
       {metricas && (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+          <ResumenEstadosPropuestas />
+          <FasesCicloVenta />
           <TasaConversion   metricas={metricas} />
           <BrochuresChart   metricas={metricas} />
           <VentasChart      metricas={metricas} />

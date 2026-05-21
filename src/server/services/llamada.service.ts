@@ -3,6 +3,7 @@
 import { pool } from "../config/database";
 import { logger } from "../config/logger";
 import type { CrearLlamadaInput } from "../schemas/llamada.schema";
+import { registrarActividad } from "./activityLog.service";
 
 export async function crearLlamadaService(input: CrearLlamadaInput, usuarioId: string) {
   const client = await pool.connect();
@@ -33,8 +34,37 @@ export async function crearLlamadaService(input: CrearLlamadaInput, usuarioId: s
       );
     }
 
+    // Trigger: llamada contestada + prospecto en 'nuevo' → avanzar a 'contactado'
+    if (input.contestada) {
+      await client.query(
+        `UPDATE prospectos
+         SET etapa_pipeline = 'contactado',
+             clasificacion  = 'por_gestionar'
+         WHERE id = $1
+           AND etapa_pipeline = 'nuevo'`,
+        [input.prospecto_id]
+      );
+    }
+
     await client.query("COMMIT");
     logger.info({ id: llamada.rows[0].id }, "Llamada registrada");
+
+    // Setear fecha_primer_contacto solo si aún no tiene (primera llamada)
+    void pool.query(
+      `UPDATE prospectos SET fecha_primer_contacto = CURRENT_DATE
+       WHERE id = $1 AND fecha_primer_contacto IS NULL`,
+      [input.prospecto_id]
+    );
+
+    void registrarActividad({
+      prospecto_id: input.prospecto_id,
+      tipo:        "llamada",
+      titulo:      input.contestada ? "Llamada contestada" : "Llamada no contestada",
+      descripcion: input.notas ?? undefined,
+      metadata:    { canal: input.canal, contestada: input.contestada, resultado: input.resultado },
+      usuario_id:  usuarioId,
+    });
+
     return llamada.rows[0];
   } catch (err) {
     await client.query("ROLLBACK");

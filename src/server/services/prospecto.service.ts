@@ -1,6 +1,7 @@
 /**src/server/services/prospecto.service.ts */
 
 import { pool } from "../config/database";
+import { registrarActividad } from "./activityLog.service";
 import { logger } from "../config/logger";
 import type { CrearProspectoInput, ActualizarProspectoInput } from "../schemas/prospecto.schema";
 
@@ -164,40 +165,158 @@ export async function getPipelineService() {
     SELECT
       p.id, p.empresa, p.nombre_contacto, p.telefono, p.email_contacto,
       p.estado_lead, p.prioridad, p.etapa_pipeline,
-      p.valor_estimado, p.ciudad, p.rubro, p.notas,
-      p.creado_en, p.actualizado_en
+      p.ciudad, p.rubro, p.notas,
+      p.creado_en, p.actualizado_en,
+      COALESCE((
+        SELECT SUM(
+          CASE WHEN pr.moneda = 'USD'
+            THEN pr.monto_propuesto * COALESCE(pr.tipo_cambio, 1)
+            ELSE pr.monto_propuesto
+          END
+        )
+        FROM propuestas pr
+        WHERE pr.prospecto_id = p.id
+          AND pr.estado NOT IN ('cerrada_perdida', 'vencida')
+      ), 0)::float AS valor_pipeline,
+      COALESCE((
+        SELECT SUM(pr.monto_propuesto)
+        FROM propuestas pr
+        WHERE pr.prospecto_id = p.id
+          AND pr.moneda = 'PEN'
+          AND pr.estado NOT IN ('cerrada_perdida', 'vencida')
+      ), 0)::float AS valor_pipeline_pen,
+      COALESCE((
+        SELECT SUM(pr.monto_propuesto)
+        FROM propuestas pr
+        WHERE pr.prospecto_id = p.id
+          AND pr.moneda = 'USD'
+          AND pr.estado NOT IN ('cerrada_perdida', 'vencida')
+      ), 0)::float AS valor_pipeline_usd
     FROM prospectos p
-    WHERE p.etapa_pipeline != 'perdido' OR p.etapa_pipeline = 'perdido'
     ORDER BY p.etapa_pipeline, p.creado_en DESC
   `);
 
   const etapas = ["nuevo","contactado","interesado","propuesta_enviada","negociacion","cerrado_ganado","perdido"];
-  const pipeline: Record<string, { prospectos: any[]; total: number; valor: number }> = {};
+  const pipeline: Record<string, { prospectos: any[]; total: number; valor: number; valor_pen: number; valor_usd: number }> = {};
   for (const e of etapas) {
-    pipeline[e] = { prospectos: [], total: 0, valor: 0 };
+    pipeline[e] = { prospectos: [], total: 0, valor: 0, valor_pen: 0, valor_usd: 0 };
   }
   for (const row of result.rows) {
     const etapa = row.etapa_pipeline ?? "nuevo";
-    if (!pipeline[etapa]) pipeline[etapa] = { prospectos: [], total: 0, valor: 0 };
+    if (!pipeline[etapa]) pipeline[etapa] = { prospectos: [], total: 0, valor: 0, valor_pen: 0, valor_usd: 0 };
     pipeline[etapa].prospectos.push(row);
     pipeline[etapa].total++;
-    pipeline[etapa].valor += Number(row.valor_estimado ?? 0);
+    pipeline[etapa].valor     += Number(row.valor_pipeline     ?? 0);
+    pipeline[etapa].valor_pen += Number(row.valor_pipeline_pen ?? 0);
+    pipeline[etapa].valor_usd += Number(row.valor_pipeline_usd ?? 0);
   }
   return pipeline;
 }
 
-export async function actualizarEtapaPipelineService(id: string, etapa: string, valor_estimado?: number | null) {
-  const sets: string[] = ["etapa_pipeline = $2", "actualizado_en = now()"];
-  const vals: any[]    = [id, etapa];
-  if (valor_estimado !== undefined) {
-    sets.push(`valor_estimado = $${vals.length + 1}`);
-    vals.push(valor_estimado);
+export async function actualizarEtapaPipelineService(id: string, etapa: string) {
+  // Leer etapa anterior para saber si venimos de un estado finalizado
+  const prev = await pool.query(
+    `SELECT etapa_pipeline FROM prospectos WHERE id = $1`,
+    [id]
+  );
+  const etapaAnterior = prev.rows[0]?.etapa_pipeline ?? "";
+
+  // Definir estado_venta y clasificacion según la nueva etapa
+  const ESTADO_VENTA_MAP: Record<string, string> = {
+    nuevo:             "no",
+    contactado:        "no",
+    interesado:        "en_proceso",
+    propuesta_enviada: "en_proceso",
+    negociacion:       "en_proceso",
+    cerrado_ganado:    "si",
+    perdido:           "no",
+  };
+  const CLASIFICACION_MAP: Record<string, string> = {
+    nuevo:             "por_gestionar",
+    contactado:        "por_gestionar",
+    interesado:        "gestionado",
+    propuesta_enviada: "gestionado",
+    negociacion:       "gestionado",
+    cerrado_ganado:    "cerrado",
+    perdido:           "por_gestionar",
+  };
+
+  const sets: string[] = [
+    "etapa_pipeline = $2",
+    "actualizado_en = now()",
+    `estado_venta = '${ESTADO_VENTA_MAP[etapa] ?? "en_proceso"}'`,
+    `clasificacion = '${CLASIFICACION_MAP[etapa] ?? "activo"}'`,
+  ];
+  const vals: any[] = [id, etapa];
+
+  if (etapa === "cerrado_ganado") {
+    sets.push("fecha_cierre = CURRENT_DATE");
+  } else if (["cerrado_ganado", "perdido"].includes(etapaAnterior)) {
+    // Revertir: limpiar fecha_cierre si venimos de un estado finalizado
+    sets.push("fecha_cierre = NULL");
   }
+
   const result = await pool.query(
     `UPDATE prospectos SET ${sets.join(", ")} WHERE id = $1 RETURNING *`,
     vals
   );
   if (result.rowCount === 0) throw new Error("Prospecto no encontrado");
+
+  // ── Sincronizar propuesta: si venimos de cerrado/perdido, reabrir la última ──
+  const PROPUESTA_MAP: Record<string, string> = {
+    propuesta_enviada: "enviada",
+    negociacion:       "en_negociacion",
+    cerrado_ganado:    "cerrada_ganada",
+    perdido:           "cerrada_perdida",
+  };
+  const nuevoPropuestaEstado = PROPUESTA_MAP[etapa];
+  if (nuevoPropuestaEstado) {
+    if (["cerrado_ganado", "perdido"].includes(etapaAnterior)) {
+      // Reabrir la última propuesta que estaba cerrada
+      void pool.query(
+        `UPDATE propuestas
+         SET estado = $2
+         WHERE id = (
+           SELECT id FROM propuestas
+           WHERE prospecto_id = $1
+           ORDER BY fecha_propuesta DESC
+           LIMIT 1
+         )`,
+        [id, nuevoPropuestaEstado]
+      ).catch(() => {});
+    } else {
+      // Solo actualizar propuestas activas
+      void pool.query(
+        `UPDATE propuestas
+         SET estado = $2
+         WHERE id = (
+           SELECT id FROM propuestas
+           WHERE prospecto_id = $1
+             AND estado NOT IN ('cerrada_ganada', 'cerrada_perdida', 'vencida')
+           ORDER BY fecha_propuesta DESC
+           LIMIT 1
+         )`,
+        [id, nuevoPropuestaEstado]
+      ).catch(() => {});
+    }
+  }
+
+  const ETAPA_LABEL: Record<string, string> = {
+    nuevo:              "Nuevo lead",
+    contactado:         "Lead contactado",
+    interesado:         "Lead interesado",
+    propuesta_enviada:  "Propuesta enviada",
+    negociacion:        "En negociación",
+    cerrado_ganado:     "¡Venta cerrada! 🎉",
+    perdido:            "Lead perdido",
+  };
+  void registrarActividad({
+    prospecto_id: id,
+    tipo:        "pipeline",
+    titulo:      ETAPA_LABEL[etapa] ?? `Movido a ${etapa}`,
+    metadata:    { etapa },
+  });
+
   return result.rows[0];
 }
 
@@ -216,11 +335,21 @@ const ORDEN_ETAPAS = ["nuevo","contactado","interesado","propuesta_enviada","neg
 
 export async function funnelPipelineService() {
   const result = await pool.query(`
-    SELECT etapa_pipeline,
-           COUNT(*)::int                          AS total,
-           COALESCE(SUM(valor_estimado),0)::float AS valor
-    FROM prospectos
-    GROUP BY etapa_pipeline
+    SELECT p.etapa_pipeline,
+           COUNT(*)::int AS total,
+           COALESCE(SUM((
+             SELECT COALESCE(SUM(
+               CASE WHEN pr.moneda = 'USD'
+                 THEN pr.monto_propuesto * COALESCE(pr.tipo_cambio, 1)
+                 ELSE pr.monto_propuesto
+               END
+             ), 0)
+             FROM propuestas pr
+             WHERE pr.prospecto_id = p.id
+               AND pr.estado NOT IN ('cerrada_perdida', 'vencida')
+           )), 0)::float AS valor
+    FROM prospectos p
+    GROUP BY p.etapa_pipeline
   `);
 
   const byEtapa: Record<string, { total: number; valor: number }> = {};
@@ -245,8 +374,18 @@ export async function analisisRegionService() {
       COUNT(*)::int                                                              AS total,
       COUNT(*) FILTER (WHERE etapa_pipeline = 'cerrado_ganado')::int            AS cerrados,
       COUNT(*) FILTER (WHERE etapa_pipeline NOT IN ('perdido','cerrado_ganado'))::int AS activos,
-      COALESCE(SUM(valor_estimado),0)::float                                    AS valor
-    FROM prospectos
+      COALESCE(SUM((
+        SELECT COALESCE(SUM(
+          CASE WHEN pr.moneda = 'USD'
+            THEN pr.monto_propuesto * COALESCE(pr.tipo_cambio, 1)
+            ELSE pr.monto_propuesto
+          END
+        ), 0)
+        FROM propuestas pr
+        WHERE pr.prospecto_id = p.id
+          AND pr.estado NOT IN ('cerrada_perdida', 'vencida')
+      )), 0)::float AS valor
+    FROM prospectos p
     GROUP BY zona
     ORDER BY total DESC
     LIMIT 20
@@ -504,4 +643,132 @@ export async function getScoreHistoryService(prospectoId: string): Promise<Score
     [prospectoId]
   );
   return result.rows;
+}
+
+export async function ciclodeVentaService() {
+  // KPIs globales + promedios por fase
+  const kpis = await pool.query(`
+    WITH base AS (
+      SELECT
+        p.id,
+        (p.fecha_cierre - p.fecha_primer_contacto)::int                                         AS dias_total,
+        ((SELECT MIN(pr.fecha_propuesta) FROM propuestas pr WHERE pr.prospecto_id = p.id)
+          - p.fecha_primer_contacto)::int                                                        AS dias_contacto_propuesta,
+        (p.fecha_cierre -
+          (SELECT MIN(pr.fecha_propuesta) FROM propuestas pr WHERE pr.prospecto_id = p.id))::int AS dias_propuesta_cierre
+      FROM prospectos p
+      WHERE p.etapa_pipeline = 'cerrado_ganado'
+        AND p.fecha_cierre IS NOT NULL
+        AND p.fecha_primer_contacto IS NOT NULL
+        AND p.eliminado = false
+    )
+    SELECT
+      COUNT(*)::int                               AS total_cerrados,
+      ROUND(AVG(dias_total))::int                 AS promedio_dias,
+      MIN(dias_total)::int                        AS min_dias,
+      MAX(dias_total)::int                        AS max_dias,
+      ROUND(AVG(dias_contacto_propuesta))::int    AS promedio_contacto_propuesta,
+      ROUND(AVG(dias_propuesta_cierre))::int      AS promedio_propuesta_cierre
+    FROM base
+    WHERE dias_contacto_propuesta >= 0 AND dias_propuesta_cierre >= 0
+  `);
+
+  // Por rubro (top 8)
+  const porRubro = await pool.query(`
+    SELECT
+      COALESCE(rubro, 'Sin rubro')               AS rubro,
+      COUNT(*)::int                              AS total,
+      ROUND(AVG(fecha_cierre - fecha_primer_contacto))::int AS promedio_dias
+    FROM prospectos
+    WHERE etapa_pipeline = 'cerrado_ganado'
+      AND fecha_cierre IS NOT NULL
+      AND fecha_primer_contacto IS NOT NULL
+      AND eliminado = false
+    GROUP BY rubro
+    ORDER BY total DESC
+    LIMIT 8
+  `);
+
+  // Prospectos activos en riesgo: llevan más días que el promedio sin cerrar
+  const promedio = kpis.rows[0]?.promedio_dias ?? null;
+  const enRiesgo = promedio
+    ? await pool.query(
+        `SELECT
+           id, empresa, nombre_contacto, etapa_pipeline,
+           fecha_primer_contacto::text,
+           (CURRENT_DATE - fecha_primer_contacto)::int AS dias_en_pipeline
+         FROM prospectos
+         WHERE etapa_pipeline NOT IN ('cerrado_ganado', 'perdido')
+           AND fecha_primer_contacto IS NOT NULL
+           AND eliminado = false
+           AND (CURRENT_DATE - fecha_primer_contacto) > $1
+         ORDER BY dias_en_pipeline DESC
+         LIMIT 10`,
+        [promedio]
+      )
+    : { rows: [] };
+
+  // Detalle individual — todos los cierres con fases
+  const detalle = await pool.query(`
+    SELECT
+      p.id,
+      p.empresa,
+      p.nombre_contacto,
+      p.rubro,
+      p.fecha_primer_contacto::text,
+      p.fecha_cierre::text,
+      (p.fecha_cierre - p.fecha_primer_contacto)::int                                          AS dias_ciclo,
+      (SELECT MIN(pr.fecha_propuesta) FROM propuestas pr WHERE pr.prospecto_id = p.id)::text   AS fecha_primera_propuesta,
+      ((SELECT MIN(pr.fecha_propuesta) FROM propuestas pr WHERE pr.prospecto_id = p.id)
+        - p.fecha_primer_contacto)::int                                                        AS dias_contacto_propuesta,
+      (p.fecha_cierre -
+        (SELECT MIN(pr.fecha_propuesta) FROM propuestas pr WHERE pr.prospecto_id = p.id))::int AS dias_propuesta_cierre,
+      COALESCE((
+        SELECT SUM(
+          CASE WHEN pr.moneda = 'USD'
+            THEN pr.monto_propuesto * COALESCE(pr.tipo_cambio, 1)
+            ELSE pr.monto_propuesto
+          END
+        )
+        FROM propuestas pr
+        WHERE pr.prospecto_id = p.id
+      ), 0)::float AS valor_cerrado
+    FROM prospectos p
+    WHERE p.etapa_pipeline = 'cerrado_ganado'
+      AND p.fecha_cierre IS NOT NULL
+      AND p.fecha_primer_contacto IS NOT NULL
+      AND p.eliminado = false
+    ORDER BY p.fecha_cierre DESC
+  `);
+
+  // Tendencia mensual — últimos 12 meses
+  const tendencia = await pool.query(`
+    SELECT
+      TO_CHAR(fecha_cierre, 'YYYY-MM') AS mes,
+      COUNT(*)::int                    AS cerrados,
+      ROUND(AVG(fecha_cierre - fecha_primer_contacto))::int AS promedio_dias
+    FROM prospectos
+    WHERE etapa_pipeline = 'cerrado_ganado'
+      AND fecha_cierre IS NOT NULL
+      AND fecha_primer_contacto IS NOT NULL
+      AND fecha_cierre >= CURRENT_DATE - INTERVAL '12 months'
+      AND eliminado = false
+    GROUP BY mes
+    ORDER BY mes ASC
+  `);
+
+  return {
+    kpis: {
+      total_cerrados:              kpis.rows[0]?.total_cerrados              ?? 0,
+      promedio_dias:               kpis.rows[0]?.promedio_dias               ?? null,
+      min_dias:                    kpis.rows[0]?.min_dias                    ?? null,
+      max_dias:                    kpis.rows[0]?.max_dias                    ?? null,
+      promedio_contacto_propuesta: kpis.rows[0]?.promedio_contacto_propuesta ?? null,
+      promedio_propuesta_cierre:   kpis.rows[0]?.promedio_propuesta_cierre   ?? null,
+    },
+    por_rubro:  porRubro.rows,
+    en_riesgo:  enRiesgo.rows,
+    tendencia:  tendencia.rows,
+    detalle:    detalle.rows,
+  };
 }

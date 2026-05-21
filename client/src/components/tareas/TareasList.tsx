@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Trash2, Clock, AlertCircle } from "lucide-react";
 import { completarTarea, eliminarTarea } from "../../services/tareas.api";
 import type { Tarea } from "../../types/tarea.types";
+import { fechaHoy } from "../../utils/date";
 
 interface Props {
   tareas:      Tarea[];
@@ -11,7 +12,7 @@ interface Props {
 }
 
 function urgencia(t: Tarea): "vencida" | "hoy" | "proxima" {
-  const hoy   = new Date().toISOString().split("T")[0];
+  const hoy   = fechaHoy();
   const venc  = t.fecha_vencimiento.split("T")[0];
   if (venc < hoy)  return "vencida";
   if (venc === hoy) return "hoy";

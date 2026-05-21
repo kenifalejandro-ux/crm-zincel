@@ -18,7 +18,9 @@ interface Props {
 export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, onGuardar, onCerrar }: Props) {
   const set = (campo: Partial<FormPropuesta>) => onFormChange({ ...form, ...campo });
 
-  const esCerrada = form.estado === "cerrada_ganada" || form.estado === "cerrada_perdida";
+  const esCerrada    = form.estado === "cerrada_ganada" || form.estado === "cerrada_perdida";
+  const esFinalizada = esCerrada || form.estado === "vencida";
+  const esNegociacion = form.estado === "en_negociacion";
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
@@ -134,25 +136,49 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
           </select>
         </div>
 
-        {/* Fechas */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Fechas — una por cada etapa relevante */}
+        <div className="space-y-3 border border-dashed border-gray-200 rounded-xl p-3 bg-gray-50">
+          <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Fechas del proceso</p>
+
+          {/* Enviada — siempre visible */}
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha propuesta</label>
+            <label className="text-xs font-medium text-gray-500 mb-1 block">
+              📤 Enviada — fecha de propuesta
+            </label>
             <input
               type="date"
               value={form.fecha_propuesta}
               onChange={(e) => set({ fecha_propuesta: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+
+          {/* Negociación — cuando el estado es en_negociacion o más avanzado */}
+          {(esNegociacion || esFinalizada) && (
+            <div>
+              <label className="text-xs font-medium text-gray-500 mb-1 block">
+                ⚖️ En negociación — fecha de inicio
+              </label>
+              <input
+                type="date"
+                value={form.fecha_negociacion}
+                onChange={(e) => set({ fecha_negociacion: e.target.value })}
+                className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          )}
+
+          {/* Cierre — solo si está cerrada */}
           {esCerrada && (
             <div>
-              <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha cierre</label>
+              <label className="text-xs font-medium text-gray-500 mb-1 block">
+                {form.estado === "cerrada_ganada" ? "✅ Cerrada ganada" : "❌ Cerrada perdida"} — fecha de cierre
+              </label>
               <input
                 type="date"
                 value={form.fecha_cierre}
                 onChange={(e) => set({ fecha_cierre: e.target.value })}
-                className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           )}

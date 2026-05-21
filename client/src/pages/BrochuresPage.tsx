@@ -14,10 +14,12 @@ import { ModalBrochure, type FormBrochure } from "../components/brochures/ModalB
 import { ModalEditarBrochure }              from "../components/brochures/ModalEditarBrochure";
 import { TableBulkActions }                 from "@/components/ui/TableBulkActions";
 import { useEditar }                        from "../hooks/useEditar";
+import { fechaHoy }                         from "../utils/date";
 
 const FORM_INICIAL: FormBrochure = {
   prospecto_id: "",
   canal:        "correo",
+  fecha_envio:  fechaHoy(),
   notas:        "",
 };
 
@@ -31,7 +33,7 @@ export default function BrochuresPage() {
   const [seleccionados, setSeleccionados] = useState<string[]>([]);
   const editar = useEditar<any>();
 
-  const handleGuardarEdicion = async (form: { canal: string; notas: string }) => {
+  const handleGuardarEdicion = async (form: { canal: string; fecha_envio: string; notas: string }) => {
     await editar.guardar(async () => {
       await actualizarBrochure(editar.editando!.id, form);
       cargar();

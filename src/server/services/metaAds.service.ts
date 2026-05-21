@@ -166,6 +166,7 @@ export async function syncMetaAdsService(empresa: string, desde: string, hasta: 
         interacciones,
         me_gusta, comentarios, compartidos, guardados, tasa_engagement,
         costo_por_mensaje, reproducciones, tasa_reproduccion,
+        moneda_gasto,
         notas
       ) VALUES (
         $1,$2,'meta',NULL,
@@ -177,6 +178,7 @@ export async function syncMetaAdsService(empresa: string, desde: string, hasta: 
         $19,
         0,0,0,0,0,
         $20,0,0,
+        'USD',
         $21
       )
       ON CONFLICT DO NOTHING

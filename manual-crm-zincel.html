@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Manual CRM Zincel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --indigo: #4f46e5;
+    --indigo-light: #eef2ff;
+    --zinc-800: #27272a;
+    --zinc-600: #52525b;
+    --zinc-400: #a1a1aa;
+    --zinc-200: #e4e4e7;
+    --zinc-50:  #fafafa;
+    --red:      #dc2626;
+    --amber:    #d97706;
+    --emerald:  #059669;
+    --blue:     #2563eb;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 10pt;
+    color: var(--zinc-800);
+    background: white;
+    padding: 0;
+  }
+
+  /* ── Portada ── */
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4f46e5 100%);
+    color: white;
+    text-align: center;
+    padding: 40px;
+    page-break-after: always;
+  }
+  .cover .logo {
+    width: 72px; height: 72px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; margin-bottom: 24px;
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+  .cover h1 { font-size: 36pt; font-weight: 700; letter-spacing: -1px; margin-bottom: 8px; }
+  .cover h2 { font-size: 16pt; font-weight: 300; opacity: 0.8; margin-bottom: 32px; }
+  .cover .badge {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 100px;
+    padding: 6px 20px;
+    font-size: 9pt;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .cover .version { font-size: 8pt; opacity: 0.5; margin-top: 40px; }
+
+  /* ── Layout general ── */
+  .page { padding: 32px 40px; max-width: 800px; margin: 0 auto; }
+
+  /* ── Índice ── */
+  .toc { page-break-after: always; }
+  .toc h2 { font-size: 18pt; font-weight: 700; color: var(--indigo); margin-bottom: 24px;
+             border-bottom: 3px solid var(--indigo); padding-bottom: 8px; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .toc-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--zinc-200);
+    border-radius: 10px;
+    background: var(--zinc-50);
+  }
+  .toc-item .num {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--indigo); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8pt; font-weight: 700; flex-shrink: 0;
+  }
+  .toc-item .name { font-size: 9pt; font-weight: 600; color: var(--zinc-800); }
+  .toc-item .desc { font-size: 8pt; color: var(--zinc-400); }
+
+  /* ── Módulo ── */
+  .module { page-break-before: always; }
+  .module:first-of-type { page-break-before: avoid; }
+
+  .module-header {
+    display: flex; align-items: flex-start; gap: 16px;
+    margin-bottom: 20px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, var(--indigo-light), white);
+    border-left: 5px solid var(--indigo);
+    border-radius: 0 12px 12px 0;
+  }
+  .module-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--indigo); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .module-meta .num { font-size: 8pt; color: var(--indigo); font-weight: 600;
+                       text-transform: uppercase; letter-spacing: 1px; }
+  .module-meta h2 { font-size: 16pt; font-weight: 700; color: var(--zinc-800); margin: 2px 0; }
+  .module-meta .route { font-size: 8pt; color: var(--zinc-400); font-family: monospace;
+                         background: var(--zinc-200); padding: 2px 8px; border-radius: 4px; }
+  .module-meta .purpose { font-size: 9pt; color: var(--zinc-600); margin-top: 4px; }
+
+  /* ── Tabla de funcionalidades ── */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  thead tr { background: var(--indigo); color: white; }
+  thead th { padding: 8px 12px; font-size: 8pt; font-weight: 600;
+              text-align: left; letter-spacing: 0.5px; }
+  tbody tr:nth-child(even) { background: var(--zinc-50); }
+  tbody tr:hover { background: var(--indigo-light); }
+  tbody td { padding: 7px 12px; font-size: 8.5pt; border-bottom: 1px solid var(--zinc-200);
+              vertical-align: top; }
+  tbody td:first-child { font-weight: 600; color: var(--zinc-800); white-space: nowrap;
+                          width: 32%; }
+  tbody td:last-child { color: var(--zinc-600); }
+
+  /* ── Integración entre módulos ── */
+  .section-title {
+    font-size: 14pt; font-weight: 700; color: var(--zinc-800);
+    margin: 24px 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before {
+    content: ''; display: block;
+    width: 4px; height: 18px;
+    background: var(--indigo); border-radius: 2px;
+  }
+
+  .int-table thead tr { background: var(--zinc-800); }
+  .int-table tbody td:first-child { color: var(--indigo); font-family: monospace; font-size: 8pt; }
+  .int-table tbody td:nth-child(2) { color: var(--emerald); font-family: monospace; font-size: 8pt; }
+
+  /* ── Flujo diario ── */
+  .flujo { page-break-before: always; }
+  .flujo-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .flujo-card {
+    border: 1px solid var(--zinc-200);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .flujo-card-header {
+    padding: 10px 14px;
+    font-size: 9pt; font-weight: 700;
+    color: white;
+  }
+  .flujo-card-header.morning { background: #f59e0b; }
+  .flujo-card-header.day     { background: var(--indigo); }
+  .flujo-card-header.week    { background: var(--emerald); }
+  .flujo-card ul { list-style: none; padding: 10px 14px; }
+  .flujo-card ul li {
+    padding: 5px 0;
+    font-size: 8.5pt;
+    color: var(--zinc-600);
+    border-bottom: 1px solid var(--zinc-200);
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .flujo-card ul li:last-child { border-bottom: none; }
+  .flujo-card ul li .step {
+    width: 18px; height: 18px; border-radius: 5px;
+    background: var(--indigo-light); color: var(--indigo);
+    font-size: 7pt; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ── BD ── */
+  .db-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .db-card {
+    border: 1px solid var(--zinc-200); border-radius: 10px; padding: 12px 14px;
+    background: var(--zinc-50);
+  }
+  .db-card h4 { font-size: 9pt; font-weight: 700; color: var(--indigo); margin-bottom: 6px;
+                 font-family: monospace; }
+  .db-card ul { list-style: none; }
+  .db-card ul li { font-size: 8pt; color: var(--zinc-600); padding: 2px 0;
+                    border-bottom: 1px solid var(--zinc-200); }
+  .db-card ul li:last-child { border-bottom: none; }
+
+  /* ── Badges ── */
+  .badge-red    { background: #fee2e2; color: var(--red);     border-radius: 4px; padding: 1px 6px; font-size: 7pt; font-weight: 700; }
+  .badge-amber  { background: #fef3c7; color: var(--amber);   border-radius: 4px; padding: 1px 6px; font-size: 7pt; font-weight: 700; }
+  .badge-green  { background: #d1fae5; color: var(--emerald); border-radius: 4px; padding: 1px 6px; font-size: 7pt; font-weight: 700; }
+  .badge-indigo { background: var(--indigo-light); color: var(--indigo); border-radius: 4px; padding: 1px 6px; font-size: 7pt; font-weight: 700; }
+
+  /* ── Footer de página ── */
+  @media print {
+    body { font-size: 9pt; }
+    .cover { height: 100vh; }
+    .module { page-break-before: always; }
+    .flujo  { page-break-before: always; }
+    @page { margin: 0; size: A4; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════ PORTADA -->
+<div class="cover">
+  <div class="logo">Z</div>
+  <div class="badge">Manual de Usuario</div>
+  <h1>CRM Zincel</h1>
+  <h2>Guía completa de funcionalidades y módulos</h2>
+  <p style="opacity:0.6; font-size:9pt; max-width:400px; line-height:1.6;">
+    Sistema de gestión comercial inteligente para seguimiento de prospectos,
+    actividad de ventas y análisis estratégico.
+  </p>
+  <div class="version">Versión 1.0.0 · Mayo 2026 · Zincel Ideas</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ ÍNDICE -->
+<div class="page toc">
+  <h2>Índice de módulos</h2>
+  <div class="toc-grid">
+    <div class="toc-item">
+      <div class="num">1</div>
+      <div><div class="name">Prospectos</div><div class="desc">Base de datos de leads</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">2</div>
+      <div><div class="name">Pipeline</div><div class="desc">Proceso de ventas kanban</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">3</div>
+      <div><div class="name">Dashboard</div><div class="desc">Resumen ejecutivo</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">4</div>
+      <div><div class="name">Llamadas</div><div class="desc">Registro y análisis</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">5</div>
+      <div><div class="name">Reuniones</div><div class="desc">Gestión de citas</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">6</div>
+      <div><div class="name">Finanzas</div><div class="desc">Control financiero</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">7</div>
+      <div><div class="name">Brochures</div><div class="desc">Materiales enviados</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">8</div>
+      <div><div class="name">Métricas</div><div class="desc">Campañas publicitarias</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">9</div>
+      <div><div class="name">Inteligencia</div><div class="desc">BI y análisis estratégico</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">10</div>
+      <div><div class="name">Plantillas</div><div class="desc">Mensajes reutilizables</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">11</div>
+      <div><div class="name">Tareas</div><div class="desc">Gestión de pendientes</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">12</div>
+      <div><div class="name">Mi Perfil</div><div class="desc">Datos del usuario</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">13</div>
+      <div><div class="name">Configuración</div><div class="desc">Conexiones externas</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="num">+</div>
+      <div><div class="name">Flujo de trabajo</div><div class="desc">Uso diario recomendado</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M1 PROSPECTOS -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">👥</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 01</div>
+      <h2>Prospectos</h2>
+      <span class="route">/prospectos</span>
+      <p class="purpose">Base de datos central de todos tus leads y clientes potenciales.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Tabla principal</td><td>Lista todos los prospectos con empresa, contacto, teléfono, estado lead, etapa pipeline y score. Paginada, ordenable y con búsqueda en tiempo real.</td></tr>
+      <tr><td>Score de temperatura</td><td>Cada lead tiene un score 0–100 calculado automáticamente según actividad reciente, etapa y comportamiento. Se visualiza como 🔥 Caliente (75+) / ⬆ Activo (50–74) / → Tibio (25–49) / ❄ Frío (0–24).</td></tr>
+      <tr><td>Filtros avanzados</td><td>Filtra por ciudad, estado lead, etapa pipeline, web activa y score mínimo. Se combinan entre sí.</td></tr>
+      <tr><td>Ficha del prospecto</td><td>Clic en cualquier fila abre el detalle completo con 6 tabs: Información · Llamadas · Reuniones · Brochures · Propuestas · Tareas. Permite gestionar todo el historial sin salir.</td></tr>
+      <tr><td>Importar Excel</td><td>Sube un .xlsx con tu base de datos. El sistema mapea las columnas, muestra previsualización y confirma la importación masiva.</td></tr>
+      <tr><td>Exportar</td><td>Descarga la lista filtrada como Excel o PDF.</td></tr>
+      <tr><td>Selección masiva</td><td>Checkbox múltiple para eliminar varios prospectos a la vez.</td></tr>
+      <tr><td>Crear prospecto</td><td>Formulario completo: empresa, contacto, teléfono, email, ciudad, rubro, número de empleados, web activa y estado inicial.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M2 PIPELINE -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">📊</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 02</div>
+      <h2>Pipeline</h2>
+      <span class="route">/pipeline</span>
+      <p class="purpose">Vista kanban del proceso de ventas — mueve leads de etapa en etapa visualmente.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Kanban 7 etapas</td><td>Columnas: <strong>Nuevo → Contactado → Interesado → Propuesta enviada → Negociación → Cerrado → Perdido</strong>. Cada columna muestra cuántos leads tiene.</td></tr>
+      <tr><td>Drag &amp; Drop</td><td>Arrastra una tarjeta de columna a columna para actualizar la etapa del lead automáticamente en la base de datos.</td></tr>
+      <tr><td>Valor en pipeline</td><td>Cada columna muestra el total en S/ de los leads que contiene (suma de valor estimado).</td></tr>
+      <tr><td>Score visible</td><td>Cada tarjeta muestra el score del lead con su color de temperatura para priorizar visualmente.</td></tr>
+      <tr><td>Undo</td><td>Si mueves un lead por error, botón de deshacer disponible para revertir el último movimiento.</td></tr>
+      <tr><td>Ficha desde kanban</td><td>Clic en una tarjeta abre la ficha completa del prospecto (llamadas, reuniones, propuestas, tareas) sin salir del pipeline.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M3 DASHBOARD -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">🏠</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 03</div>
+      <h2>Dashboard</h2>
+      <span class="route">/dashboard</span>
+      <p class="purpose">Resumen ejecutivo de toda tu actividad comercial en un vistazo.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Filtro período</td><td>Botones: <strong>Hoy / Semana / Año</strong> + calendario "Día" para ver métricas de cualquier fecha pasada específica. Carga silenciosa (no borra la página).</td></tr>
+      <tr><td>Llamadas</td><td>Donut chart: total llamadas, contestadas y no contestadas en el período seleccionado.</td></tr>
+      <tr><td>Llamadas por canal</td><td>Distribución por tipo de contacto: llamada directa, WhatsApp, etc.</td></tr>
+      <tr><td>Reuniones</td><td>Donut: programadas, realizadas, canceladas y reprogramadas.</td></tr>
+      <tr><td>Temperatura de leads</td><td>Grid 4 cuadros con conteo de leads por temperatura: 🔥 Calientes / ⬆ Activos / → Tibios / ❄ Fríos. Clic → navega a Prospectos.</td></tr>
+      <tr><td>Tasa de conversión</td><td>% de leads interesados sobre el total de prospectos en el período.</td></tr>
+      <tr><td>Brochures por canal</td><td>Distribución de brochures enviados: correo vs WhatsApp.</td></tr>
+      <tr><td>Estado de ventas</td><td>Donut: Cerradas / En proceso / Sin venta.</td></tr>
+      <tr><td>Prospectos por ciudad</td><td>Top ciudades con más prospectos en el período.</td></tr>
+      <tr><td>Web activa</td><td>Ratio de prospectos con web activa vs sin web (oportunidad de servicio).</td></tr>
+      <tr><td>Tareas urgentes</td><td>Widget con conteo de tareas: Vencidas / Hoy / Próximas. Clic → navega a Tareas.</td></tr>
+      <tr><td>Próximas reuniones</td><td>Lista de las siguientes 5 reuniones programadas con empresa y fecha.</td></tr>
+      <tr><td>Actividad hoy / mes</td><td>Conteos rápidos de llamadas, reuniones y brochures del día y del mes actual.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M4 LLAMADAS -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">📞</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 04</div>
+      <h2>Llamadas</h2>
+      <span class="route">/llamadas</span>
+      <p class="purpose">Registro, análisis y seguimiento de todas tus llamadas comerciales.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Filtros</td><td>Selecciona período (día/semana/mes) y fecha específica. El rango se aplica a todos los KPIs y charts simultáneamente.</td></tr>
+      <tr><td>KPIs</td><td>Total llamadas · Contestadas · No contestadas en el período seleccionado.</td></tr>
+      <tr><td>Llamadas por día</td><td>Chart recharts: barras azules = volumen por día + línea azul oscuro = tendencia de contestadas. Filtrando enero → muestra los 31 días exactos de enero.</td></tr>
+      <tr><td>Heatmap de horas</td><td>Mapa de calor de 0 a 23h mostrando en qué horas del día se contesta más. Úsalo para determinar tu mejor horario de llamadas.</td></tr>
+      <tr><td>Motivos de pérdida</td><td>Distribución de por qué los leads no avanzan: no interesado, ya tiene proveedor, no contesta, etc.</td></tr>
+      <tr><td>Historial</td><td>Tabla completa con todas las llamadas: empresa, contacto, canal, hora inicio/fin, contestada, resultado y notas. Cada fila es editable.</td></tr>
+      <tr><td>Registrar llamada</td><td>Modal con campos: prospecto vinculado, fecha/hora inicio y fin, canal, ¿fue contestada?, resultado y notas libres.</td></tr>
+      <tr><td>Exportar Excel</td><td>Descarga el historial del período filtrado en formato .xlsx.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M5 REUNIONES -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">📅</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 05</div>
+      <h2>Reuniones</h2>
+      <span class="route">/reuniones</span>
+      <p class="purpose">Gestión completa del ciclo de vida de cada reunión comercial.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Lista filtrada</td><td>Filtra por estado: Todas / Programadas / Realizadas / Canceladas / Reprogramadas. Muestra empresa, contacto, fecha/hora y tipo.</td></tr>
+      <tr><td>Cambio de estado</td><td>Desde la tabla puedes marcar directamente una reunión como realizada, cancelarla o reprogramarla sin abrir modal.</td></tr>
+      <tr><td>Crear reunión</td><td>Vincula la reunión a un prospecto específico, define fecha/hora, tipo (presencial/virtual) y notas previas.</td></tr>
+      <tr><td>Editar</td><td>Modifica cualquier campo: fecha, estado, notas posteriores a la reunión.</td></tr>
+      <tr><td>Selección masiva</td><td>Checkbox múltiple para eliminar varias reuniones a la vez.</td></tr>
+      <tr><td>Exportar Excel</td><td>Descarga la lista con el filtro actual aplicado.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M6 FINANZAS -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">💰</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 06</div>
+      <h2>Finanzas</h2>
+      <span class="route">/finanzas</span>
+      <p class="purpose">Control financiero del negocio organizado en 3 tabs independientes.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Tab / Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Ingresos</td><td>Registra cobros por servicio. Campos: empresa cliente, tipo de servicio, monto en S/, fecha, método de pago (efectivo/transferencia/tarjeta) y estado (pagado/pendiente/vencido).</td></tr>
+      <tr><td>Egresos</td><td>Registra gastos del negocio. Campos: descripción, categoría (publicidad/servicios/sueldos/etc.), monto, fecha y comprobante.</td></tr>
+      <tr><td>Préstamos</td><td>Registra préstamos activos con entidad, monto total, cuotas restantes, monto por cuota y fecha de vencimiento. Alertas automáticas de vencimiento próximo.</td></tr>
+      <tr><td>Resumen general</td><td>KPIs superiores: ingresos del mes, egresos del mes, utilidad neta y balance acumulado.</td></tr>
+      <tr><td>Charts</td><td>Flujo de caja mensual · Egresos por categoría (donut) · Ingresos por tipo de servicio.</td></tr>
+      <tr><td>Filtros</td><td>Por mes y por categoría. Se aplican a tabla y charts simultáneamente.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M7 BROCHURES -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">📄</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 07</div>
+      <h2>Brochures</h2>
+      <span class="route">/brochures</span>
+      <p class="purpose">Registro y seguimiento de materiales comerciales enviados a prospectos.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Tabla</td><td>Lista todos los brochures enviados: empresa destino, nombre contacto, canal de envío, fecha y estado.</td></tr>
+      <tr><td>Resumen por canal</td><td>Cards superiores con totales: Correo vs WhatsApp. Permite ver qué canal usas más.</td></tr>
+      <tr><td>Registrar</td><td>Vincula el brochure a un prospecto, define el canal (correo/WhatsApp), fecha de envío y notas adicionales.</td></tr>
+      <tr><td>Editar / Eliminar</td><td>Gestión completa de cada registro con modal de edición.</td></tr>
+      <tr><td>Selección masiva</td><td>Checkbox para eliminar múltiples brochures a la vez.</td></tr>
+      <tr><td>Exportar Excel</td><td>Descarga el listado filtrado en .xlsx.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M8 MÉTRICAS -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">📈</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 08</div>
+      <h2>Métricas de Campañas</h2>
+      <span class="route">/metricas</span>
+      <p class="purpose">Análisis de rendimiento de campañas publicitarias: Meta Ads, Google Ads y TikTok Ads.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>KPIs globales</td><td>Total invertido (S/) · Total leads generados · Clics · ROAS (retorno sobre inversión) · CPA (costo por adquisición).</td></tr>
+      <tr><td>Tabs plataforma</td><td>Filtra por: Todas / Meta Ads / Google Ads / TikTok Ads. Los charts y tabla se actualizan al instante.</td></tr>
+      <tr><td>Importar desde API</td><td><span class="badge-green">Activo</span> Conecta con Meta Ads API usando tu Access Token. Jala campañas, grupos de anuncios y métricas automáticamente.</td></tr>
+      <tr><td>Importar CSV</td><td>Sube archivo exportado desde cualquier plataforma publicitaria. El sistema interpreta las columnas.</td></tr>
+      <tr><td>Registro manual</td><td>Carga métricas a mano si no tienes acceso a API: inversión, impresiones, clics, leads, ROAS.</td></tr>
+      <tr><td>Evolución de gasto</td><td>Line chart: inversión vs resultados a lo largo del tiempo. Muestra tendencia de rendimiento.</td></tr>
+      <tr><td>Comparativa</td><td>Bar chart: rendimiento lado a lado entre Meta, Google y TikTok. Identifica qué plataforma rinde más.</td></tr>
+      <tr><td>Tabla detalle</td><td>Todas las campañas con métricas completas. Clic en una fila → abre detalle con funnel de conversión, análisis de rentabilidad y proyección.</td></tr>
+      <tr><td>TikTok / Google</td><td><span class="badge-amber">Pendiente</span> Backend listo. API por conectar en próxima fase.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M9 INTELIGENCIA -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">🧠</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 09</div>
+      <h2>Inteligencia</h2>
+      <span class="route">/inteligencia</span>
+      <p class="purpose">BI y análisis estratégico — no solo muestra qué pasó, te dice qué hacer.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Período de análisis</td><td>Filtra todo el módulo: 7 días / 30 días / 90 días / Todo / Mes específico.</td></tr>
+      <tr><td>KPIs de actividad</td><td>Llamadas · Reuniones · Propuestas · Brochures con totales, tasas y porcentajes del período.</td></tr>
+      <tr><td>Tendencias ↑↓</td><td>Cada KPI muestra el % de cambio vs el período anterior equivalente. Ej: esta semana vs la semana pasada. Verde = subió, rojo = bajó.</td></tr>
+      <tr><td>Objetivos diarios</td><td>Barra de progreso meta vs real de hoy para: llamadas, reuniones y brochures. Editable con clic en el ícono lápiz.</td></tr>
+      <tr><td>Funnel de conversión</td><td>Visualiza cuántos leads hay en cada etapa del pipeline y el valor económico total en S/ por etapa.</td></tr>
+      <tr><td>Análisis por región</td><td>Distribución geográfica de tus leads más activos por ciudad.</td></tr>
+      <tr><td>Haz esto primero</td><td>Lista priorizada de acciones: <span class="badge-red">CRÍTICO</span> Enviar propuestas · <span class="badge-amber">URGENTE</span> Volver a llamar · Leads sin contacto. <strong>Clic en cada acción → lista de los leads específicos → clic en un lead → abre ficha completa para gestionar.</strong></td></tr>
+      <tr><td>Leads sin actividad</td><td>Acordeón con todos los leads +14 días sin contacto, clasificados por gravedad: Bajo / Medio / Alto / <span class="badge-red">Crítico</span>. <strong>Clic en cualquier fila → abre ficha del prospecto directamente.</strong></td></tr>
+      <tr><td>Insights automáticos</td><td>Observaciones generadas por el sistema: canal más efectivo, leads olvidados, negociaciones estancadas, oportunidades de propuesta, contactabilidad alta/baja.</td></tr>
+      <tr><td>Forecasting</td><td>Proyección de cierres del mes: ciclo promedio de ventas, contactos necesarios para cumplir meta, tendencia (subiendo / estable / bajando).</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M10 PLANTILLAS -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">✉️</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 10</div>
+      <h2>Plantillas</h2>
+      <span class="route">/plantillas</span>
+      <p class="purpose">Biblioteca de mensajes reutilizables para WhatsApp y correo electrónico.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Lista de plantillas</td><td>Todas tus plantillas con nombre, canal asignado y preview del texto.</td></tr>
+      <tr><td>Canal</td><td>Define si la plantilla es para: WhatsApp · Correo · Ambos.</td></tr>
+      <tr><td>Variables dinámicas</td><td>Usa <code>{{empresa}}</code>, <code>{{nombre}}</code>, <code>{{telefono}}</code> en el texto. Se autocompletan con los datos reales del prospecto al usarla.</td></tr>
+      <tr><td>Usar en prospecto</td><td>Desde la ficha de cualquier prospecto puedes seleccionar una plantilla y copiar el mensaje personalizado listo para enviar.</td></tr>
+      <tr><td>CRUD completo</td><td>Crear nuevas plantillas, editar el texto y eliminar las que ya no uses.</td></tr>
+      <tr><td>Ejemplos predefinidos</td><td>El sistema incluye 4 plantillas base de ejemplo que puedes usar o modificar.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M11 TAREAS -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">✅</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 11</div>
+      <h2>Tareas</h2>
+      <span class="route">/tareas</span>
+      <p class="purpose">Gestión de pendientes con alertas de urgencia integradas en todo el CRM.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Filtros</td><td>5 vistas: Todas · Vencidas · Hoy · Próximas · Completadas.</td></tr>
+      <tr><td>KPIs superiores</td><td>Contador de tareas vencidas, de hoy y próximas. Este mismo contador aparece en Dashboard y en el Sidebar como badge rojo.</td></tr>
+      <tr><td>Crear tarea</td><td>Campos: título, descripción, fecha de vencimiento, prioridad y prospecto vinculado (opcional).</td></tr>
+      <tr><td>Completar</td><td>Checkbox directo en la tabla para marcar como hecha sin abrir modal.</td></tr>
+      <tr><td>Badge urgente en sidebar</td><td>El menú lateral muestra un badge rojo con el total de tareas vencidas + las que vencen hoy. Siempre visible mientras navegas el CRM.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M12 PERFIL -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">👤</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 12</div>
+      <h2>Mi Perfil</h2>
+      <span class="route">/perfil</span>
+      <p class="purpose">Datos personales y seguridad de la cuenta del usuario logueado.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Datos personales</td><td>Nombre completo y email del usuario. Rol actual: Admin.</td></tr>
+      <tr><td>Cambio de contraseña</td><td>Formulario con contraseña actual, nueva contraseña y confirmación. Validación mínimo 6 caracteres.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ M13 CONFIGURACIÓN -->
+<div class="page module">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div class="module-meta">
+      <div class="num">MÓDULO 13</div>
+      <h2>Configuración</h2>
+      <span class="route">/configuracion</span>
+      <p class="purpose">Gestión de conexiones con plataformas publicitarias externas.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Sección</th><th>Funcionalidad</th></tr></thead>
+    <tbody>
+      <tr><td>Meta Ads <span class="badge-green">Activo</span></td><td>Registra Access Token y Ad Account ID de tu cuenta Meta Business. Semáforo de vencimiento: 🟢 Vigente / 🟡 Por vencer / 🔴 Vencido. Permite crear múltiples cuentas.</td></tr>
+      <tr><td>TikTok Ads <span class="badge-amber">Pendiente</span></td><td>Estructura lista para conectar. Token de acceso y configuración de cuenta TikTok Ads (próxima fase).</td></tr>
+      <tr><td>Plataforma cuentas</td><td>Gestión centralizada de cuentas multi-plataforma (Meta, TikTok, Google) con estado activo/inactivo.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ INTEGRACIONES -->
+<div class="page module">
+  <div class="section-title">Integraciones activas entre módulos</div>
+  <table class="int-table">
+    <thead><tr><th>Desde</th><th>Consume</th><th>Para qué</th></tr></thead>
+    <tbody>
+      <tr><td>InteligenciaPage</td><td>ProspectoDetalle</td><td>Abrir ficha completa desde "Haz esto primero" y leads estancados sin salir de Inteligencia</td></tr>
+      <tr><td>InteligenciaPage</td><td>prioridad-leads API</td><td>Cargar la lista de leads específicos para cada tipo de acción urgente (sin_propuesta, volver_llamar, sin_contacto, etc.)</td></tr>
+      <tr><td>PipelinePage</td><td>ProspectoDetalle</td><td>Gestionar lead completo desde el kanban sin navegar a Prospectos</td></tr>
+      <tr><td>DashboardPage</td><td>inteligencia.service</td><td>Score y temperatura de leads para el widget "Temperatura de Leads"</td></tr>
+      <tr><td>DashboardPage</td><td>calendario día</td><td>Filtrar todas las métricas por cualquier fecha pasada específica</td></tr>
+      <tr><td>inteligencia.service</td><td>llamadas, propuestas, reuniones, prospectos</td><td>KPIs de actividad, insights automáticos, forecasting y prioridad operacional</td></tr>
+      <tr><td>dashboard.service</td><td>todas las tablas</td><td>buildFiltro dinámico: hoy / semana / mes / año / fecha específica</td></tr>
+      <tr><td>MetricasPage</td><td>metaAds.service</td><td>Importar campañas y métricas reales desde Meta Ads API</td></tr>
+      <tr><td>ProspectoDetalle</td><td>llamadas, reuniones, brochures, propuestas, tareas</td><td>Ficha completa del prospecto con historial de toda su actividad en un solo lugar</td></tr>
+      <tr><td>Sidebar</td><td>tareas + prospectos scores</td><td>Badges dinámicos: tareas urgentes (rojo) y leads calientes (naranja) siempre visibles</td></tr>
+      <tr><td>LlamadasPage</td><td>estadisticas + rango fechas</td><td>Chart por día/semana/mes con filtro correcto de fechas y línea de tendencia</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title" style="margin-top:28px;">Base de datos — zincel_rp</div>
+  <div class="db-grid">
+    <div class="db-card">
+      <h4>prospectos</h4>
+      <ul>
+        <li>empresa, nombre_contacto, telefono, email</li>
+        <li>ciudad, rubro, empleados, web_activa</li>
+        <li>estado_lead, etapa_pipeline</li>
+        <li>valor_estimado, score (calculado)</li>
+        <li>creado_en, actualizado_en</li>
+      </ul>
+    </div>
+    <div class="db-card">
+      <h4>llamadas</h4>
+      <ul>
+        <li>prospecto_id, fecha, hora_fin</li>
+        <li>canal, contestada</li>
+        <li>resultado, motivo_no_interes</li>
+        <li>notas, creado_por</li>
+      </ul>
+    </div>
+    <div class="db-card">
+      <h4>reuniones</h4>
+      <ul>
+        <li>prospecto_id, fecha_hora</li>
+        <li>tipo, estado</li>
+        <li>notas, creado_por</li>
+      </ul>
+    </div>
+    <div class="db-card">
+      <h4>propuestas</h4>
+      <ul>
+        <li>prospecto_id, fecha_propuesta</li>
+        <li>estado (enviada/aceptada/rechazada)</li>
+        <li>monto_cerrado, descripcion</li>
+      </ul>
+    </div>
+    <div class="db-card">
+      <h4>finanzas</h4>
+      <ul>
+        <li>ingresos (servicio, monto, estado)</li>
+        <li>egresos (categoria, monto)</li>
+        <li>prestamos (cuotas, vencimiento)</li>
+      </ul>
+    </div>
+    <div class="db-card">
+      <h4>objetivos_diarios</h4>
+      <ul>
+        <li>usuario_id</li>
+        <li>llamadas_meta, reuniones_meta</li>
+        <li>brochures_meta</li>
+        <li>actualizado_en</li>
+      </ul>
+    </div>
+    <div class="db-card">
+      <h4>score_history</h4>
+      <ul>
+        <li>prospecto_id, score</li>
+        <li>nivel (caliente/activo/tibio/frío)</li>
+        <li>calculado_en</li>
+      </ul>
+    </div>
+    <div class="db-card">
+      <h4>tareas / plantillas / brochures</h4>
+      <ul>
+        <li>tareas: vence_en, completada</li>
+        <li>plantillas: canal, variables</li>
+        <li>brochures: canal, fecha_envio</li>
+        <li>campana_metricas: ads data</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ FLUJO DIARIO -->
+<div class="page flujo">
+  <div class="section-title">Flujo de trabajo recomendado</div>
+  <div class="flujo-grid">
+    <div class="flujo-card">
+      <div class="flujo-card-header morning">🌅 Mañana (inicio del día)</div>
+      <ul>
+        <li><span class="step">1</span>Dashboard (Hoy) — ver temperatura de leads y qué pasó ayer</li>
+        <li><span class="step">2</span>Inteligencia → "Haz esto primero" — revisar acciones críticas y urgentes</li>
+        <li><span class="step">3</span>Tareas → procesar las vencidas y las que vencen hoy</li>
+        <li><span class="step">4</span>Planificar llamadas del día basándote en el heatmap de horas</li>
+      </ul>
+    </div>
+    <div class="flujo-card">
+      <div class="flujo-card-header day">☀️ Durante el día</div>
+      <ul>
+        <li><span class="step">5</span>Llamadas → registrar cada llamada al momento (contestada, resultado, notas)</li>
+        <li><span class="step">6</span>Pipeline → mover leads según el avance de cada conversación</li>
+        <li><span class="step">7</span>Prospectos → crear nuevos leads captados</li>
+        <li><span class="step">8</span>Reuniones → registrar antes y después de cada cita</li>
+        <li><span class="step">9</span>Brochures → registrar envíos realizados por WhatsApp/correo</li>
+      </ul>
+    </div>
+    <div class="flujo-card">
+      <div class="flujo-card-header week">📆 Revisión semanal</div>
+      <ul>
+        <li><span class="step">10</span>Inteligencia (30d) → revisar tendencias ↑↓ vs semana anterior</li>
+        <li><span class="step">11</span>Leads estancados → contactar los de riesgo Alto y Crítico</li>
+        <li><span class="step">12</span>Métricas → evaluar rendimiento de campañas activas</li>
+        <li><span class="step">13</span>Finanzas → registrar ingresos y gastos de la semana</li>
+        <li><span class="step">14</span>Forecasting → revisar proyección de cierres del mes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:24px; padding:16px 20px; background:#eef2ff; border-radius:12px; border-left:4px solid #4f46e5;">
+    <p style="font-size:9pt; font-weight:700; color:#4f46e5; margin-bottom:6px;">💡 Consejo clave</p>
+    <p style="font-size:8.5pt; color:#52525b; line-height:1.6;">
+      El CRM es tan útil como los datos que registres. Cada llamada, reunión o brochure que no queda registrado
+      es información que el módulo de Inteligencia no puede analizar. El hábito de registrar en el momento
+      (no al final del día) marca la diferencia entre datos precisos e información incompleta.
+    </p>
+  </div>
+
+  <div style="margin-top:40px; text-align:center; color:#a1a1aa; font-size:8pt; border-top:1px solid #e4e4e7; padding-top:16px;">
+    CRM Zincel v1.0.0 · Mayo 2026 · Zincel Ideas · Manual generado automáticamente
+  </div>
+</div>
+
+</body>
+</html>

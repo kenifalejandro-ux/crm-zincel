@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { crearTarea } from "../../services/tareas.api";
+import { fechaHoy } from "../../utils/date";
 
 interface Props {
   prospectoId?: string;
@@ -14,7 +15,7 @@ const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:ou
 const hoyMas = (dias: number) => {
   const d = new Date();
   d.setDate(d.getDate() + dias);
-  return d.toISOString().split("T")[0];
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
 export function TareaForm({ prospectoId, onGuardado, onCancelar }: Props) {

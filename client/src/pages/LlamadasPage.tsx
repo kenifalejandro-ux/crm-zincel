@@ -23,13 +23,14 @@ import { ModalEditarLlamada }     from "../components/llamadas/ModalEditarLlamad
 import { HeatmapHoras }           from "../components/llamadas/HeatmapHoras";
 import { MotivosChart }           from "../components/llamadas/MotivosChart";
 import { useEditar }              from "../hooks/useEditar";
+import { fechaHoy }              from "../utils/date";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const getNow = () => {
   const now = new Date();
   return {
-    fecha:       now.toISOString().split("T")[0],
+    fecha:       fechaHoy(),
     hora_inicio: `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`,
   };
 };

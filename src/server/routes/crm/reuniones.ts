@@ -12,6 +12,7 @@ import {
   resumenReunionesService,
   eliminarReunionesMasivoService,
 } from "../../services/reuniones.service";
+import { invalidarCacheCRM } from "../../config/cache";
 
 export const reunionesRouter = Router();
 
@@ -38,6 +39,7 @@ reunionesRouter.post("/", validate(crearReunionSchema), async (req, res) => {
   try {
     const usuario = (req as any).usuario;
     const data = await crearReunionService(req.body, usuario.id);
+    void invalidarCacheCRM();
     res.status(201).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
@@ -48,6 +50,7 @@ reunionesRouter.post("/", validate(crearReunionSchema), async (req, res) => {
 reunionesRouter.put("/:id", validate(actualizarReunionSchema), async (req, res) => {
   try {
     const data = await actualizarReunionService(req.params.id, req.body);
+    void invalidarCacheCRM();
     res.status(200).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

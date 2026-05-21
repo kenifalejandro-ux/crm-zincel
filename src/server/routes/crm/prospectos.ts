@@ -19,7 +19,9 @@ import {
   analisisRegionService,
   scoreLeadsService,
   getScoreHistoryService,
+  ciclodeVentaService,
 } from "../../services/prospecto.service";
+import { invalidarCacheCRM } from "../../config/cache";
 
 export const prospectosRouter = Router();
 
@@ -75,6 +77,16 @@ prospectosRouter.get("/motivos-perdida", async (req, res) => {
   }
 });
 
+// GET /api/crm/prospectos/ciclo-venta
+prospectosRouter.get("/ciclo-venta", async (req, res) => {
+  try {
+    const data = await ciclodeVentaService();
+    res.status(200).json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
 // GET /api/crm/prospectos/pipeline
 prospectosRouter.get("/pipeline", async (req, res) => {
   try {
@@ -88,9 +100,10 @@ prospectosRouter.get("/pipeline", async (req, res) => {
 // PATCH /api/crm/prospectos/:id/etapa
 prospectosRouter.patch("/:id/etapa", async (req, res) => {
   try {
-    const { etapa, valor_estimado } = req.body;
+    const { etapa } = req.body;
     if (!etapa) return res.status(400).json({ ok: false, message: "etapa requerida" });
-    const data = await actualizarEtapaPipelineService(req.params.id, etapa, valor_estimado);
+    const data = await actualizarEtapaPipelineService(req.params.id, etapa);
+    void invalidarCacheCRM();
     res.json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
@@ -132,6 +145,7 @@ prospectosRouter.post("/", validate(crearProspectoSchema), async (req, res) => {
   try {
     const usuario = (req as any).usuario;
     const data = await crearProspectoService(req.body, usuario.id);
+    void invalidarCacheCRM();
     res.status(201).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
@@ -142,6 +156,7 @@ prospectosRouter.post("/", validate(crearProspectoSchema), async (req, res) => {
 prospectosRouter.put("/:id", validate(actualizarProspectoSchema), async (req, res) => {
   try {
     const data = await actualizarProspectoService(req.params.id, req.body);
+    void invalidarCacheCRM();
     res.status(200).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

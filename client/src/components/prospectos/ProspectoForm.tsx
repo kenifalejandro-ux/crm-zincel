@@ -3,7 +3,10 @@ import { useState, useEffect } from "react";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
-import { crearProspecto, actualizarProspecto } from "../../services/prospectos.api";
+import { crearProspecto, actualizarProspecto, getProspecto } from "../../services/prospectos.api";
+import { crearLlamada } from "../../services/llamadas.api";
+import { crearBrochure } from "../../services/brochures.api";
+import { crearReunion } from "../../services/reuniones.api";
 import type { Prospecto } from "../../types/prospecto.types";
 
 const ESTADOS_LEAD = [
@@ -95,14 +98,14 @@ const INICIAL = {
   // CRM
   estado_lead: "no_contesta", clasificacion: "por_gestionar",
   prioridad: "media", fuente: "", estado_venta: "no", notas: "",
-  etapa_pipeline: "nuevo", valor_estimado: "",
+  etapa_pipeline: "nuevo",
   // Llamadas
   canal_llamada: "", contesto: "", devolvio_llamada: "", intentos: "",
   // Brochure
   brochure: "", canal_brochure: "",
   // Reunión
-  agenda_reunion: "", modalidad_reunion: "", fecha_reunion: "",
-  hora_reunion: "", ingreso_reunion: "", estado_reunion: "",
+  agenda_reunion: "", modalidad_reunion: "presencial", fecha_reunion: "",
+  hora_reunion: "", ingreso_reunion: "", estado_reunion: "programada",
 };
 
 const selectClass = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500";
@@ -141,7 +144,6 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         estado_venta:     p.estado_venta    ?? "no",
         notas:            p.notas           ?? "",
         etapa_pipeline:   p.etapa_pipeline  ?? "nuevo",
-        valor_estimado:   p.valor_estimado != null ? String(p.valor_estimado) : "",
         // Llamadas
         canal_llamada:    llamada?.canal    ?? "",
         contesto:         llamada?.contestada ? "true" : "",
@@ -189,18 +191,71 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         notas:            form.notas || undefined,
         motivo_perdida:   (form as any).motivo_perdida || null,
         etapa_pipeline:   (form as any).etapa_pipeline || "nuevo",
-        valor_estimado:   (form as any).valor_estimado ? parseFloat((form as any).valor_estimado) : null,
       };
 
+      let prospectoId: string;
       if (esEdicion && prospecto?.id) {
         await actualizarProspecto(prospecto.id, payload);
+        prospectoId = prospecto.id;
       } else {
-        await crearProspecto(payload);
+        const nuevo = await crearProspecto(payload);
+        prospectoId = nuevo.id;
       }
+
+      // Consultar el estado actual del prospecto para no duplicar registros
+      const detalleFull = await getProspecto(prospectoId);
+      const sinLlamadas  = !detalleFull?.llamadas?.length;
+      const sinBrochures = !detalleFull?.brochures?.length;
+      const sinReuniones = !detalleFull?.reuniones?.length;
+
+      const tareas: Promise<any>[] = [];
+
+      if (form.canal_llamada && sinLlamadas) {
+        tareas.push(
+          crearLlamada({
+            prospecto_id: prospectoId,
+            canal:        form.canal_llamada,
+            contestada:   form.contesto === "true",
+            fecha:        new Date().toISOString(),
+          })
+        );
+      }
+
+      if (form.brochure === "true" && form.canal_brochure && sinBrochures) {
+        tareas.push(
+          crearBrochure({
+            prospecto_id: prospectoId,
+            canal:        form.canal_brochure,
+          })
+        );
+      }
+
+      if (form.agenda_reunion === "true" && form.fecha_reunion && sinReuniones) {
+        const fechaHora = form.hora_reunion
+          ? `${form.fecha_reunion}T${form.hora_reunion}:00`
+          : `${form.fecha_reunion}T09:00:00`;
+        tareas.push(
+          crearReunion({
+            prospecto_id: prospectoId,
+            titulo:       "Reunión inicial",
+            fecha_hora:   fechaHora,
+            modalidad:    (form.modalidad_reunion || "presencial") as any,
+            estado:       (form.estado_reunion    || "programada") as any,
+          })
+        );
+      }
+
+      if (tareas.length > 0) await Promise.allSettled(tareas);
+
       onGuardado?.();
       onCerrar();
     } catch (err: any) {
-      setError(err.response?.data?.message || "Error al guardar");
+      const data = err.response?.data;
+      if (data?.errors?.length) {
+        setError(data.errors.map((e: any) => e.message).join(" · "));
+      } else {
+        setError(data?.message || "Error al guardar");
+      }
     } finally {
       setLoading(false);
     }
@@ -332,16 +387,6 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
                 {ETAPAS_PIPELINE.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
               </select>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Valor estimado (S/)</label>
-              <input
-                type="number" min="0" step="100"
-                placeholder="Ej: 3500"
-                value={(form as any).valor_estimado ?? ""}
-                onChange={e => set("valor_estimado", e.target.value)}
-                className={selectClass}
-              />
-            </div>
           </div>
         </div>
 
@@ -419,9 +464,10 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
               <select value={form.modalidad_reunion} onChange={e => set("modalidad_reunion", e.target.value)} className={selectClass}>
                 <option value="">Sin especificar</option>
                 <option value="presencial">Presencial</option>
-                <option value="virtual">Virtual</option>
                 <option value="google_meet">Google Meet</option>
                 <option value="zoom">Zoom</option>
+                <option value="teams">Teams</option>
+                <option value="whatsapp_video">WhatsApp Video</option>
               </select>
             </div>
             <Input label="Fecha reunión" type="date"
@@ -439,11 +485,11 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
             <div className="space-y-1">
               <label className="text-xs font-medium gray-100">Estado de la reunión</label>
               <select value={form.estado_reunion} onChange={e => set("estado_reunion", e.target.value)} className={selectClass}>
-                <option value="">Sin especificar</option>
-                <option value="agendada">Agendada</option>
+                <option value="programada">Programada</option>
+                <option value="realizada">Realizada</option>
                 <option value="en_proceso">En proceso</option>
-                <option value="cerrada">Cerrada</option>
-                <option value="descartada">Descartada</option>
+                <option value="reprogramada">Reprogramada</option>
+                <option value="cancelada">Cancelada</option>
               </select>
             </div>
           </div>

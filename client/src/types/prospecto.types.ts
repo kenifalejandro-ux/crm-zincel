@@ -95,10 +95,13 @@ export interface Prospecto {
   clasificacion:    ClasificacionLead;
   estado_venta:     EstadoVenta;
   notas?:           string;
-  etapa_pipeline:   EtapaPipeline;
-  valor_estimado?:  number | null;
-  creado_en:        string;
-  actualizado_en:   string;
+  etapa_pipeline:          EtapaPipeline;
+  valor_estimado?:         number | null;
+  valor_pipeline?:         number;
+  fecha_primer_contacto?:  string | null;
+  fecha_cierre?:           string | null;
+  creado_en:               string;
+  actualizado_en:          string;
   llamadas?:        Llamada[];
   reuniones?:       Reunion[];
   brochures?:       Brochure[];

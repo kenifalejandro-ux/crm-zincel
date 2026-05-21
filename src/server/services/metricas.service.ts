@@ -7,7 +7,7 @@ export async function crearMetricaService(input: MetricaInput) {
       empresa, campana_nombre, plataforma, sub_plataforma,
       periodo_inicio, periodo_fin,
       impresiones, alcance, clics, ctr,
-      gasto, cpc, cpm, cpa,
+      moneda_gasto, gasto, cpc, cpm, cpa,
       conversiones, leads, mensajes, roas, roi, costo_por_lead,
       seguidores_ganados, perfil_visitas,
       interacciones,
@@ -17,14 +17,14 @@ export async function crearMetricaService(input: MetricaInput) {
       notas
     ) VALUES (
       $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
-      $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
-      $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32
+      $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,
+      $22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33
     ) RETURNING *`,
     [
       input.empresa, input.campana_nombre, input.plataforma, input.sub_plataforma ?? null,
       input.periodo_inicio, input.periodo_fin,
       input.impresiones, input.alcance, input.clics, input.ctr,
-      input.gasto, input.cpc, input.cpm, input.cpa,
+      input.moneda_gasto ?? "USD", input.gasto, input.cpc, input.cpm, input.cpa,
       input.conversiones, input.leads, input.mensajes,
       input.roas, input.roi, input.costo_por_lead,
       input.seguidores_ganados, input.perfil_visitas,

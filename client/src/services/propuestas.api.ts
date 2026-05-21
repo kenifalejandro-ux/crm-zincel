@@ -30,9 +30,10 @@ export async function actualizarPropuesta(
     moneda:          string;
     tipo_cambio:     number;
     estado:          string;
-    fecha_propuesta: string;
-    fecha_cierre:    string | null;
-    notas:           string;
+    fecha_propuesta:   string;
+    fecha_negociacion: string | null;
+    fecha_cierre:      string | null;
+    notas:             string;
   }>
 ): Promise<Propuesta> {
   const { data } = await api.put(`/propuestas/${id}`, payload);
@@ -41,4 +42,15 @@ export async function actualizarPropuesta(
 
 export async function eliminarPropuesta(id: string): Promise<void> {
   await api.delete(`/propuestas/${id}`);
+}
+
+export interface ResumenEstadoPropuesta {
+  estado:      string;
+  total:       number;
+  monto_total: number;
+}
+
+export async function getResumenEstadosPropuestas(): Promise<ResumenEstadoPropuesta[]> {
+  const { data } = await api.get("/propuestas/resumen-estados");
+  return data.data;
 }

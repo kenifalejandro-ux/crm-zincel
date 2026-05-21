@@ -2,6 +2,7 @@
 
 import { pool } from "../config/database";
 import { logger } from "../config/logger";
+import { fechaHoy } from "../shared/utils/date.util";
 import type {
   CrearIngresoInput, ActualizarIngresoInput,
   CrearEgresoInput, ActualizarEgresoInput,
@@ -70,7 +71,7 @@ export async function obtenerIngresosService(filtros: {
   );
 
   // Marcar vencidos automáticamente en la respuesta (sin alterar BD)
-  const hoy = new Date().toISOString().split("T")[0];
+  const hoy = fechaHoy();
   return result.rows.map((row) => {
     if (
       row.estado !== "cobrado" &&
@@ -353,7 +354,7 @@ export async function obtenerPrestamosService(filtros: { estado?: string; catego
     valores
   );
   // Auto-marcar vencidos en la respuesta
-  const hoy = new Date().toISOString().split("T")[0];
+  const hoy = fechaHoy();
   return result.rows.map((row) => {
     if (row.estado === "por_pagar" && row.fecha_vencimiento && row.fecha_vencimiento < hoy) {
       return { ...row, estado: "vencido" };

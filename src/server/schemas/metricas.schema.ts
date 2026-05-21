@@ -17,6 +17,7 @@ export const MetricaSchema = z.object({
   ctr:                z.number().default(0),
 
   // Costo
+  moneda_gasto:       z.enum(["PEN", "USD"]).default("USD"),
   gasto:              z.number().default(0),
   cpc:                z.number().default(0),
   cpm:                z.number().default(0),
