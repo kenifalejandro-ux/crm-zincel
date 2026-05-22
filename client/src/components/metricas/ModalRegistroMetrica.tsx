@@ -96,7 +96,7 @@ const Campo = ({
       className={`w-full border rounded-lg px-3 py-2 text-xs focus:outline-none transition ${
         calculado
           ? "border-zinc-100 bg-zinc-50 text-zinc-400 cursor-not-allowed"
-          : "border-zinc-200 focus:ring-2 focus:ring-blue-500"
+          : "border-zinc-200 focus:ring-2 focus:ring-brand/50"
       }`}
       placeholder="0"
     />
@@ -155,7 +155,7 @@ export const ModalRegistroMetrica = ({
               <input
                 value={form.empresa}
                 onChange={(e) => set("empresa", e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
                 placeholder="Nombre de empresa"
               />
             </div>
@@ -164,7 +164,7 @@ export const ModalRegistroMetrica = ({
               <input
                 value={form.campana_nombre}
                 onChange={(e) => set("campana_nombre", e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
                 placeholder="Ej: Black Friday 2026"
               />
             </div>
@@ -179,7 +179,7 @@ export const ModalRegistroMetrica = ({
                 onChange={(e) =>
                   onFormChange({ ...form, plataforma: e.target.value as Plataforma, sub_plataforma: "" })
                 }
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
               >
                 <option value="meta">Meta Ads</option>
                 <option value="google">Google Ads</option>
@@ -193,7 +193,7 @@ export const ModalRegistroMetrica = ({
                 <select
                   value={form.sub_plataforma}
                   onChange={(e) => set("sub_plataforma", e.target.value)}
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
                 >
                   <option value="">Ambas</option>
                   <option value="facebook">Facebook</option>
@@ -208,7 +208,7 @@ export const ModalRegistroMetrica = ({
               <input
                 type="date" value={form.periodo_inicio}
                 onChange={(e) => set("periodo_inicio", e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
               />
             </div>
             <div>
@@ -216,7 +216,7 @@ export const ModalRegistroMetrica = ({
               <input
                 type="date" value={form.periodo_fin}
                 onChange={(e) => set("periodo_fin", e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
               />
             </div>
           </div>
@@ -277,7 +277,7 @@ export const ModalRegistroMetrica = ({
               value={form.notas}
               onChange={(e) => set("notas", e.target.value)}
               rows={2}
-              className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
               placeholder="Observaciones opcionales..."
             />
           </div>
@@ -295,7 +295,7 @@ export const ModalRegistroMetrica = ({
           <button
             onClick={onGuardar}
             disabled={cargando}
-            className="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition disabled:opacity-50"
+            className="px-4 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition disabled:opacity-50"
           >
             {cargando ? "Guardando..." : "Guardar métricas"}
           </button>

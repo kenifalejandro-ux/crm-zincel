@@ -74,14 +74,14 @@ export function ReunionCalendario({ reuniones }: ReunionCalendarioProps) {
 
           return (
             <div key={i} className={`min-h-[52px] rounded-lg p-1 text-xs
-              ${!valido ? "" : esHoy ? "bg-blue-50 ring-1 ring-blue-300" : "hover:bg-gray-50"}`}>
+              ${!valido ? "" : esHoy ? "bg-brand/5 ring-1 ring-brand/30" : "hover:bg-gray-50"}`}>
               {valido && (
                 <>
-                  <span className={`block text-right mb-1 font-medium ${esHoy ? "text-blue-600" : "gray-100"}`}>
+                  <span className={`block text-right mb-1 font-medium ${esHoy ? "text-brand" : "gray-100"}`}>
                     {dia}
                   </span>
                   {eventos.slice(0, 2).map(r => (
-                    <div key={r.id} className="truncate text-[10px] bg-blue-100 text-zinc-800 rounded px-1 mb-0.5">
+                    <div key={r.id} className="truncate text-[10px] bg-brand/15 text-zinc-800 rounded px-1 mb-0.5">
                       {new Date(r.fecha_hora).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })} {r.titulo}
                     </div>
                   ))}

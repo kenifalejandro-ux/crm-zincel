@@ -34,7 +34,7 @@ export function ModalBrochure({
           <select
             value={form.prospecto_id}
             onChange={(e) => set({ prospecto_id: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             <option value="">Selecciona un prospecto</option>
             {prospectos.map((p) => (
@@ -51,7 +51,7 @@ export function ModalBrochure({
           <select
             value={form.canal}
             onChange={(e) => set({ canal: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             {CANALES.map((c) => (
               <option key={c} value={c} className="capitalize">{c}</option>
@@ -66,7 +66,7 @@ export function ModalBrochure({
             type="date"
             value={form.fecha_envio}
             onChange={(e) => set({ fecha_envio: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           />
         </div>
 
@@ -78,7 +78,7 @@ export function ModalBrochure({
             value={form.notas}
             onChange={(e) => set({ notas: e.target.value })}
             placeholder="Ej: Enviado con propuesta de rediseño..."
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
           />
         </div>
 
@@ -93,7 +93,7 @@ export function ModalBrochure({
           <button
             onClick={onGuardar}
             disabled={cargando || !form.prospecto_id}
-            className="flex-1 px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition"
+            className="flex-1 px-4 py-2 text-xs bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition"
           >
             {cargando ? "Guardando..." : "Registrar envío"}
           </button>

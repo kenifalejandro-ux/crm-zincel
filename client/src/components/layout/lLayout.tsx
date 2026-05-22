@@ -9,7 +9,7 @@ export function lLayout() {
   const [sidebarAbierto, setSidebarAbierto] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#E8E8E8] overflow-hidden text-slate-900">
+    <div className="flex h-screen bg-[#E8E8E8] overflow-hidden text-slate-900 ">
 
       <Sidebar
         abierto={sidebarAbierto}

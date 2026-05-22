@@ -29,7 +29,7 @@ export async function crearProspectoService(input: CrearProspectoInput, usuarioI
       input.web_activa, input.proveedor_web, input.nombre_contacto, input.cargo,
       input.telefono, input.email_contacto, input.ciudad, input.region,
       input.pais ?? "Perú", input.prioridad ?? "media", input.fuente,
-      input.estado_lead ?? "no_contesta", input.clasificacion ?? "por_gestionar",
+      input.estado_lead ?? "por_gestionar", input.clasificacion ?? "por_gestionar",
       input.estado_venta ?? "no", input.notas, usuarioId,
     ]
   );
@@ -52,6 +52,15 @@ export async function obtenerProspectosService(filtros: {
 
   if (filtros.estado_lead === "contestada") {
     condiciones.push(`EXISTS (SELECT 1 FROM llamadas ll2 WHERE ll2.prospecto_id = p.id AND ll2.contestada = true)`);
+  } else if (filtros.estado_lead === "no_contesta") {
+    // Solo leads con llamadas reales donde no contestaron (excluye los que nunca se llamaron)
+    condiciones.push(`p.estado_lead = 'no_contesta' AND EXISTS (SELECT 1 FROM llamadas ll2 WHERE ll2.prospecto_id = p.id)`);
+  } else if (filtros.estado_lead === "por_gestionar") {
+    // Leads sin ninguna actividad: estado_lead::text = 'por_gestionar' (post-migration)
+    // O estado_lead = 'no_contesta' sin ninguna llamada (pre-migration)
+    condiciones.push(`(p.estado_lead::text = 'por_gestionar' OR (p.estado_lead = 'no_contesta' AND NOT EXISTS (SELECT 1 FROM llamadas ll2 WHERE ll2.prospecto_id = p.id)))`);
+  } else if (filtros.estado_lead === "nuevo") {
+    condiciones.push(`p.estado_lead::text = 'nuevo'`);
   } else if (filtros.estado_lead) {
     condiciones.push(`p.estado_lead = $${idx++}`);
     valores.push(filtros.estado_lead);
@@ -89,12 +98,14 @@ export async function obtenerProspectosService(filtros: {
         json_agg(DISTINCT l.*) FILTER (WHERE l.id IS NOT NULL) AS llamadas,
         json_agg(DISTINCT r.*) FILTER (WHERE r.id IS NOT NULL) AS reuniones,
         json_agg(DISTINCT b.*) FILTER (WHERE b.id IS NOT NULL) AS brochures,
-        json_agg(DISTINCT pr.*) FILTER (WHERE pr.id IS NOT NULL) AS propuestas
+        json_agg(DISTINCT pr.*) FILTER (WHERE pr.id IS NOT NULL) AS propuestas,
+        json_agg(DISTINCT c.*) FILTER (WHERE c.id IS NOT NULL) AS contactos
        FROM prospectos p
        LEFT JOIN llamadas l ON l.prospecto_id = p.id
        LEFT JOIN reuniones r ON r.prospecto_id = p.id
        LEFT JOIN brochures b ON b.prospecto_id = p.id
        LEFT JOIN propuestas pr ON pr.prospecto_id = p.id
+       LEFT JOIN contactos c ON c.prospecto_id = p.id
        ${where}
        GROUP BY p.id
        ORDER BY p.creado_en DESC
@@ -121,17 +132,44 @@ export async function obtenerProspectoPorIdService(id: string) {
       json_agg(DISTINCT l.*) FILTER (WHERE l.id IS NOT NULL) AS llamadas,
       json_agg(DISTINCT r.*) FILTER (WHERE r.id IS NOT NULL) AS reuniones,
       json_agg(DISTINCT b.*) FILTER (WHERE b.id IS NOT NULL) AS brochures,
-      json_agg(DISTINCT pr.*) FILTER (WHERE pr.id IS NOT NULL) AS propuestas
+      json_agg(DISTINCT pr.*) FILTER (WHERE pr.id IS NOT NULL) AS propuestas,
+      json_agg(DISTINCT c.*) FILTER (WHERE c.id IS NOT NULL) AS contactos
      FROM prospectos p
      LEFT JOIN llamadas l ON l.prospecto_id = p.id
      LEFT JOIN reuniones r ON r.prospecto_id = p.id
      LEFT JOIN brochures b ON b.prospecto_id = p.id
      LEFT JOIN propuestas pr ON pr.prospecto_id = p.id
+     LEFT JOIN contactos c ON c.prospecto_id = p.id
      WHERE p.id = $1
      GROUP BY p.id`,
     [id]
   );
   return result.rows[0] ?? null;
+}
+
+export async function upsertContactoService(
+  prospectoId: string,
+  contacto: { id?: string; nombre: string; cargo?: string; telefono?: string; email?: string }
+) {
+  if (contacto.id) {
+    const result = await pool.query(
+      `UPDATE contactos SET nombre=$1, cargo=$2, telefono=$3, email=$4
+       WHERE id=$5 AND prospecto_id=$6 RETURNING *`,
+      [contacto.nombre, contacto.cargo ?? null, contacto.telefono ?? null, contacto.email ?? null, contacto.id, prospectoId]
+    );
+    return result.rows[0];
+  } else {
+    const result = await pool.query(
+      `INSERT INTO contactos (prospecto_id, nombre, cargo, telefono, email)
+       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [prospectoId, contacto.nombre, contacto.cargo ?? null, contacto.telefono ?? null, contacto.email ?? null]
+    );
+    return result.rows[0];
+  }
+}
+
+export async function eliminarContactoService(id: string, prospectoId: string) {
+  await pool.query(`DELETE FROM contactos WHERE id=$1 AND prospecto_id=$2`, [id, prospectoId]);
 }
 
 export async function actualizarProspectoService(id: string, input: ActualizarProspectoInput) {
@@ -324,6 +362,43 @@ export async function actualizarEtapaPipelineService(id: string, etapa: string) 
   return result.rows[0];
 }
 
+export async function resumenProspectosService() {
+  const [leads, llamadas] = await Promise.all([
+    pool.query(`
+      SELECT
+        COUNT(*)::int                                                             AS total,
+        COUNT(*) FILTER (WHERE estado_lead::text = 'nuevo')::int                 AS nuevo,
+        COUNT(*) FILTER (WHERE estado_lead::text = 'por_gestionar')::int         AS por_gestionar,
+        COUNT(*) FILTER (WHERE estado_lead = 'interesado')::int                  AS interesado,
+        COUNT(*) FILTER (WHERE estado_lead = 'no_contesta')::int                 AS no_contesta,
+        COUNT(*) FILTER (WHERE estado_lead = 'volver_a_llamar')::int             AS volver_a_llamar,
+        COUNT(*) FILTER (WHERE estado_lead = 'no_interesado')::int               AS no_interesado,
+        COUNT(*) FILTER (WHERE estado_lead = 'buzon_de_voz')::int                AS buzon_de_voz,
+        COUNT(*) FILTER (WHERE estado_lead::text IN (
+          'interesado','no_interesado','volver_a_llamar','ya_tiene_proveedor'
+        ))::int                                                                   AS leads_contactados
+      FROM prospectos p
+    `),
+    pool.query(`
+      SELECT
+        COUNT(*)::int                                          AS total_llamadas,
+        COUNT(*) FILTER (WHERE contestada = true)::int        AS llamadas_contestadas,
+        COUNT(*) FILTER (WHERE contestada = false)::int       AS llamadas_no_contestadas
+      FROM llamadas
+    `),
+  ]);
+
+  return {
+    ...leads.rows[0],
+    // Métricas de llamadas (iguales al dashboard)
+    total_llamadas:          llamadas.rows[0].total_llamadas,
+    llamadas_contestadas:    llamadas.rows[0].llamadas_contestadas,
+    llamadas_no_contestadas: llamadas.rows[0].llamadas_no_contestadas,
+    // Alias para compatibilidad con la card "Contestadas"
+    contestadas: llamadas.rows[0].llamadas_contestadas,
+  };
+}
+
 export async function motivosPerdidaService() {
   const result = await pool.query(`
     SELECT motivo_perdida, COUNT(*)::int AS total
@@ -416,6 +491,12 @@ export async function importarProspectosService(prospectos: any[], usuarioId: st
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+
+    // Leads que eran "nuevo" de la carga anterior → pasan a "por_gestionar"
+    await client.query(
+      `UPDATE prospectos SET estado_lead = 'por_gestionar' WHERE estado_lead = 'nuevo'`
+    );
+
     const insertados: any[] = [];
 
     for (const p of prospectos) {
@@ -439,7 +520,7 @@ export async function importarProspectosService(prospectos: any[], usuarioId: st
           p.empresa, p.rubro, p.tamano_empresa, p.pagina_web, webActiva,
           p.proveedor_web, p.nombre_contacto, p.cargo, p.telefono, p.email_contacto,
           p.ciudad, p.region, p.pais ?? "Perú", p.prioridad ?? "media", p.fuente,
-          p.estado_lead ?? "no_contesta", p.clasificacion ?? "por_gestionar",
+          "nuevo", p.clasificacion ?? "por_gestionar",
           p.estado_venta ?? "no", p.notas, usuarioId,
         ]
       );
@@ -582,7 +663,7 @@ export async function scoreLeadsService(): Promise<ScoreLead[]> {
           WHEN 'perdido'           THEN 0
           ELSE 5
         END
-        + CASE p.estado_lead
+        + CASE p.estado_lead::text
             WHEN 'interesado'      THEN 10
             WHEN 'volver_a_llamar' THEN 5
             WHEN 'no_contesta'     THEN -10
@@ -594,8 +675,14 @@ export async function scoreLeadsService(): Promise<ScoreLead[]> {
             WHEN 'media' THEN 5
             ELSE 0
           END
-        + LEAST(10, COALESCE(a7.cnt, 0) * 3)
-        - CASE WHEN COALESCE(a30.cnt, 0) = 0 THEN 15 ELSE 0 END
+        + LEAST(10, COALESCE(act7.cnt, 0) * 3)
+        -- Solo penalizar inactividad si el lead ya fue llamado antes (no castiga base fría)
+        - CASE
+            WHEN COALESCE(act30.cnt, 0) = 0
+             AND EXISTS (SELECT 1 FROM llamadas lh WHERE lh.prospecto_id = p.id)
+            THEN 15
+            ELSE 0
+          END
         + COALESCE(CASE pr.nivel WHEN 2 THEN 15 WHEN 1 THEN 5 ELSE 0 END, 0)
       ))::int AS score
     FROM prospectos p

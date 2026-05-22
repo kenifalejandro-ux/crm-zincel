@@ -7,8 +7,18 @@ export function fechaHoy(): string {
 /** Calcula el rango de fechas ISO a partir de un valor de filtro y un período */
 export function calcularRangoFecha(
   fecha: string,
-  periodo: "dia" | "semana" | "mes" | "anio"
+  periodo: "hoy" | "dia" | "semana" | "mes" | "anio"
 ): { fecha_inicio?: string; fecha_fin?: string } {
+  if (periodo === "hoy") {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    return {
+      fecha_inicio: `${y}-${String(m).padStart(2,"0")}-${String(day).padStart(2,"0")}T00:00:00.000Z`,
+      fecha_fin:    new Date(Date.UTC(y, m - 1, day + 1)).toISOString(),
+    };
+  }
   if (periodo === "anio") {
     const year = parseInt(fecha);
     if (!year) return {};

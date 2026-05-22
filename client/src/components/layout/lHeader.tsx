@@ -12,7 +12,7 @@ export function lHeader({ onToggleSidebar }: Props) {
   const { usuario, logout } = useAuth();
 
   return (
-    <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shrink-0 shadow-sm">
+    <header className=" border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shrink-0 ">
 
       {/* Izquierda: hamburger (móvil/tablet) + fecha */}
       <div className="flex items-center gap-3 min-w-0">

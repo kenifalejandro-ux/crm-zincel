@@ -311,7 +311,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               <input
                 value={empresa}
                 onChange={(e) => setEmpresa(e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
                 placeholder="Nombre de empresa"
               />
             </div>
@@ -323,7 +323,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
                   setPlataforma(e.target.value as Plataforma);
                   setSubPlat("");
                 }}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
               >
                 <option value="meta">Meta Ads</option>
                 <option value="google">Google Ads</option>
@@ -339,7 +339,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               <select
                 value={subPlat}
                 onChange={(e) => setSubPlat(e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
               >
                 <option value="">Ambas (Facebook + Instagram)</option>
                 <option value="facebook">Facebook</option>
@@ -356,7 +356,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               <input
                 type="date" value={periodoI}
                 onChange={(e) => setPeriodoI(e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
               />
             </div>
             <div>
@@ -364,7 +364,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               <input
                 type="date" value={periodoF}
                 onChange={(e) => setPeriodoF(e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
               />
             </div>
           </div>
@@ -432,7 +432,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           <button
             onClick={handleImportar}
             disabled={estado !== "preview" || !empresa || !periodoI || !periodoF || filas.length === 0}
-            className="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition disabled:opacity-40"
+            className="px-4 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition disabled:opacity-40"
           >
             {estado === "cargando"
               ? "Importando..."

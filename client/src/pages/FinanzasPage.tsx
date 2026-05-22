@@ -22,6 +22,7 @@ import { ModalEditarPrestamo }    from "../components/finanzas/ModalEditarPresta
 import { ResumenFinanzas }        from "../components/finanzas/ResumenFinanzas";
 import { AlertasVencimiento }     from "../components/finanzas/AlertasVencimiento";
 import { FiltrosFinanzas }        from "../components/finanzas/FiltrosFinanzas";
+import { FiltroPeriodoBotones, type FiltroPeriodo } from "../components/shared/FiltroPeriodoBotones";
 
 import {
   actualizarIngreso, actualizarEgreso, actualizarPrestamo,
@@ -29,7 +30,7 @@ import {
 } from "../services/finanzas.api";
 import { getTipoCambio } from "../services/configuracion.api";
 import type { FormIngreso, FormEgreso, FormPrestamo } from "../types/finanzas.types";
-import { fechaHoy } from "../utils/date";
+import { fechaHoy, calcularRangoFecha } from "../utils/date";
 
 const hoy = () => fechaHoy();
 
@@ -73,6 +74,11 @@ export default function FinanzasPage() {
   const [filtroAnio,     setFiltroAnio]    = useState(0);
   const [filtroCategoria, setFiltroCategoria] = useState("");
 
+  const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>("anio");
+  const [filtroFecha,   setFiltroFecha]   = useState(() => String(new Date().getFullYear()));
+  // rango de fechas derivado del período para filtrado cliente
+  const [rangoFiltro,   setRangoFiltro]   = useState<{ ini?: Date; fin?: Date }>({});
+
   const editarIngreso  = useEditar<any>();
   const editarEgreso   = useEditar<any>();
   const editarPrestamo = useEditar<any>();
@@ -91,32 +97,43 @@ export default function FinanzasPage() {
     cargarResumen({ tipo_cambio: tipoCambio });
   }, [tipoCambio]);
 
-  // ── Limpiar selección y filtros al cambiar tab ────────────
+  // ── Limpiar selección y categoría al cambiar tab ──────────
   useEffect(() => {
     setSeleccionados([]);
-    setFiltroMes(0);
-    setFiltroAnio(0);
     setFiltroCategoria("");
   }, [tab]);
 
+  // ── Handler del filtro de período ─────────────────────────
+  const handleFiltroPeriodo = (periodo: FiltroPeriodo, fecha: string) => {
+    setFiltroPeriodo(periodo);
+    setFiltroFecha(fecha);
+    const rango = calcularRangoFecha(fecha, periodo);
+    setRangoFiltro({
+      ini: rango.fecha_inicio ? new Date(rango.fecha_inicio) : undefined,
+      fin: rango.fecha_fin    ? new Date(rango.fecha_fin)    : undefined,
+    });
+  };
+
   // ── Datos filtrados ────────────────────────────────────────
+  const dentroDeRango = (fechaStr: string) => {
+    if (!rangoFiltro.ini && !rangoFiltro.fin) return true;
+    const f = new Date(fechaStr.split("T")[0] + "T12:00:00");
+    if (rangoFiltro.ini && f < rangoFiltro.ini) return false;
+    if (rangoFiltro.fin && f >= rangoFiltro.fin) return false;
+    return true;
+  };
+
   const egresosFiltrados = useMemo(() => egresos.filter(eg => {
-    if (filtroMes > 0 && filtroAnio > 0) {
-      const f = new Date(eg.fecha.split("T")[0] + "T12:00:00");
-      if (f.getMonth() + 1 !== filtroMes || f.getFullYear() !== filtroAnio) return false;
-    }
+    if (!dentroDeRango(eg.fecha)) return false;
     if (filtroCategoria && eg.categoria !== filtroCategoria) return false;
     return true;
-  }), [egresos, filtroMes, filtroAnio, filtroCategoria]);
+  }), [egresos, rangoFiltro, filtroCategoria]);
 
   const prestamosFiltrados = useMemo(() => prestamos.filter(p => {
-    if (filtroMes > 0 && filtroAnio > 0) {
-      const f = new Date(p.fecha.split("T")[0] + "T12:00:00");
-      if (f.getMonth() + 1 !== filtroMes || f.getFullYear() !== filtroAnio) return false;
-    }
+    if (!dentroDeRango(p.fecha)) return false;
     if (filtroCategoria && p.categoria !== filtroCategoria) return false;
     return true;
-  }), [prestamos, filtroMes, filtroAnio, filtroCategoria]);
+  }), [prestamos, rangoFiltro, filtroCategoria]);
 
   // ── Selección dinámica según tab ───────────────────────────
   const listaActual =
@@ -340,8 +357,8 @@ export default function FinanzasPage() {
       label: "Utilidad neta",
       valor: `S/ ${Number(resumen.ingresos.utilidad_neta).toLocaleString("es-PE")}`,
       icon:  <DollarSign size={18} />,
-      color: resumen.ingresos.utilidad_neta >= 0 ? "text-blue-600" : "text-red-600",
-      bg:    resumen.ingresos.utilidad_neta >= 0 ? "bg-blue-50"    : "bg-red-50",
+      color: resumen.ingresos.utilidad_neta >= 0 ? "text-brand" : "text-red-600",
+      bg:    resumen.ingresos.utilidad_neta >= 0 ? "bg-brand/5" : "bg-red-50",
     },
     {
       label: "Préstamos por pagar",
@@ -356,34 +373,42 @@ export default function FinanzasPage() {
     <div className="space-y-5">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold text-zinc-800">Finanzas</h1>
-          <p className="text-xs text-zinc-400 mt-0.5">Sistema contable digital personal</p>
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-semibold text-zinc-800">Finanzas</h1>
+            <p className="text-xs text-zinc-400 mt-0.5">Sistema contable digital personal</p>
+          </div>
+          <div className="flex gap-2">
+            {(ingresos.length > 0 || egresos.length > 0 || prestamos.length > 0) && (
+              <button
+                onClick={exportarExcel}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs bg-zinc-800 hover:bg-zinc-900 text-white rounded-lg transition"
+              >
+                <FileDown size={15} /> Exportar Excel
+              </button>
+            )}
+            {tab !== "resumen" && (
+              <>
+                <TableBulkActions count={seleccionados.length} onDelete={eliminarSeleccionados} />
+                <button
+                  onClick={handleNuevo}
+                  className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
+                >
+                  <Plus size={15} />
+                  {labelNuevo}
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
-        <div className="flex gap-2">
-          {(ingresos.length > 0 || egresos.length > 0 || prestamos.length > 0) && (
-            <button
-              onClick={exportarExcel}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
-            >
-              <FileDown size={15} /> Exportar Excel
-            </button>
-          )}
-          {tab !== "resumen" && (
-            <>
-              <TableBulkActions count={seleccionados.length} onDelete={eliminarSeleccionados} />
-              <button
-                onClick={handleNuevo}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
-              >
-                <Plus size={15} />
-                {labelNuevo}
-              </button>
-            </>
-          )}
-        </div>
+        {/* Filtro de período — parte superior */}
+        <FiltroPeriodoBotones
+          periodo={filtroPeriodo}
+          filtroFecha={filtroFecha}
+          onChange={handleFiltroPeriodo}
+        />
       </div>
 
       {/* KPIs */}
@@ -395,7 +420,7 @@ export default function FinanzasPage() {
       {/* Tabs */}
       <TabsFinanzas tab={tab} onChange={setTab} />
 
-      {/* Filtros por mes/categoría */}
+      {/* Filtro categoría (solo en egresos/préstamos) */}
       <FiltrosFinanzas
         tab={tab}
         filtroMes={filtroMes}

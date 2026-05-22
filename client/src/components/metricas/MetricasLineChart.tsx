@@ -1,5 +1,6 @@
 /** src/components/metricas/MetricasLineChart.tsx */
 
+import { COLORS } from "../../lib/tokens";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
@@ -9,9 +10,9 @@ import { Metrica } from "../../types/metricas.types";
 interface Props { metricas: Metrica[] }
 
 const COLORES: Record<string, string> = {
-  meta:   "#3b82f6",
-  google: "#ef4444",
-  tiktok: "#ec4899",
+  meta:   COLORS.dark,
+  google: COLORS.primary,
+  tiktok: COLORS.muted,
 };
 
 export const MetricasLineChart = ({ metricas }: Props) => {
@@ -38,11 +39,11 @@ export const MetricasLineChart = ({ metricas }: Props) => {
   );
 
   return (
-    <div className="bg-white rounded-xl border border-zinc-100 p-4">
-      <h3 className="text-xs font-semibold text-zinc-700 mb-4">Evolución de gasto por plataforma</h3>
+    <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6">
+      <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-6">Evolución de gasto por plataforma</h3>
       <ResponsiveContainer width="100%" height={240}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} />
           //fecha formato dd/mm/yyyy
           <XAxis
            dataKey="fecha"

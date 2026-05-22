@@ -28,7 +28,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
           <select
             value={form.servicio}
             onChange={(e) => set({ servicio: e.target.value as ServicioPropuesta })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             {SERVICIOS.map((s) => (
               <option key={s} value={s}>{LABEL_SERVICIO[s]}</option>
@@ -44,7 +44,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
             value={form.descripcion}
             onChange={(e) => set({ descripcion: e.target.value })}
             placeholder="Ej: Desarrollo de landing page con pasarela de pago"
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           />
         </div>
 
@@ -55,7 +55,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
             <select
               value={form.moneda}
               onChange={(e) => set({ moneda: e.target.value as "PEN" | "USD" })}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
             >
               <option value="PEN">S/ Soles (PEN)</option>
               <option value="USD">$ Dólares (USD)</option>
@@ -70,7 +70,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
               value={form.monto_propuesto}
               onChange={(e) => set({ monto_propuesto: e.target.value })}
               placeholder="0.00"
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
             />
           </div>
         </div>
@@ -86,7 +86,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
               value={form.tipo_cambio}
               onChange={(e) => set({ tipo_cambio: e.target.value })}
               placeholder="3.750"
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
             />
           </div>
         )}
@@ -97,7 +97,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
           <select
             value={form.estado}
             onChange={(e) => set({ estado: e.target.value as EstadoPropuesta })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             {ESTADOS.map((e) => (
               <option key={e} value={e}>{LABEL_ESTADO[e]}</option>
@@ -112,7 +112,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
             type="date"
             value={form.fecha_propuesta}
             onChange={(e) => set({ fecha_propuesta: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           />
         </div>
 
@@ -124,7 +124,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
             value={form.notas}
             onChange={(e) => set({ notas: e.target.value })}
             placeholder="Detalles adicionales de la propuesta..."
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
           />
         </div>
 
@@ -139,7 +139,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
           <button
             onClick={onGuardar}
             disabled={cargando || !form.descripcion || !form.monto_propuesto}
-            className="flex-1 px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition"
+            className="flex-1 px-4 py-2 text-xs bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition"
           >
             {cargando ? "Guardando..." : "Registrar propuesta"}
           </button>

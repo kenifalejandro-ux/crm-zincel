@@ -1,5 +1,7 @@
 /** client/src/components/llamadas/HeatmapHoras.tsx */
 
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+
 interface HoraData {
   hora:        number;
   total:       number;
@@ -9,16 +11,16 @@ interface HoraData {
 
 interface Props { data: HoraData[] }
 
-const HORAS        = Array.from({ length:10 }, (_, i) => i + 9); // 6am–9pm
-const MIN_MUESTRA  = 5; // mínimo de llamadas para considerar una franja estadísticamente válida
+const HORAS       = Array.from({ length: 10 }, (_, i) => i + 9);
+const MIN_MUESTRA = 5;
 
 function colorBarra(tasa: number, total: number, confiable: boolean) {
-  if (total === 0)    return "bg-gray-100";
-  if (!confiable)     return "bg-gray-200";   // baja muestra — gris neutro
-  if (tasa >= 60)     return "bg-emerald-500";
-  if (tasa >= 40)     return "bg-yellow-400";
-  if (tasa >= 20)     return "bg-orange-400";
-  return "bg-red-400";
+  if (total === 0)  return "bg-zinc-100";
+  if (!confiable)   return "bg-zinc-200";
+  if (tasa >= 60)   return "bg-[#27272a]";
+  if (tasa >= 40)   return "bg-brand";
+  if (tasa >= 20)   return "bg-[#a1a1aa]";
+  return "bg-[#f87171]";
 }
 
 function horaLabel(h: number) {
@@ -30,38 +32,36 @@ export function HeatmapHoras({ data }: Props) {
   data.forEach(d => { byHora[d.hora] = d; });
   const maxTotal = Math.max(...data.map(d => d.total), 1);
 
-  // Solo franjas con muestra suficiente son confiables
   const confiables = data.filter(d => d.total >= MIN_MUESTRA);
   const mejorHora  = confiables.reduce<HoraData | null>(
     (best, d) => (!best || d.tasa > best.tasa || (d.tasa === best.tasa && d.total > best.total)) ? d : best,
     null
   );
 
-  // Hora con más volumen (independiente de confiabilidad)
   const masVolumen = data.reduce<HoraData | null>(
     (best, d) => (!best || d.total > best.total) ? d : best, null
   );
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-5">
-      <div className="flex items-start justify-between mb-4">
+    <div className={CARD_CLASS}>
+      <div className="flex items-start justify-between mb-6">
         <div>
-          <h3 className="text-sm font-semibold text-zinc-800">Mejor hora para llamar</h3>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <h3 className={HEADER_CLASS}>Mejor hora para llamar</h3>
+          <p className="text-[11px] text-zinc-400 font-medium mt-1">
             Altura = volumen · color = % contestadas · gris = muestra insuficiente (&lt;{MIN_MUESTRA})
           </p>
         </div>
         <div className="text-right space-y-1">
           {mejorHora ? (
             <div>
-              <p className="text-[10px] text-zinc-400">Más efectiva ✓</p>
-              <p className="text-sm font-bold text-emerald-600">{horaLabel(mejorHora.hora)}</p>
+              <p className="text-[10px] text-zinc-400">Más efectiva</p>
+              <p className="text-sm font-bold text-zinc-800">{horaLabel(mejorHora.hora)}</p>
               <p className="text-[10px] text-zinc-500">{mejorHora.tasa}% · {mejorHora.total} llamadas</p>
             </div>
           ) : masVolumen && masVolumen.total > 0 ? (
             <div>
-              <p className="text-[10px] text-amber-500">Mayor volumen</p>
-              <p className="text-sm font-bold text-amber-600">{horaLabel(masVolumen.hora)}</p>
+              <p className="text-[10px] text-zinc-400">Mayor volumen</p>
+              <p className="text-sm font-bold text-brand">{horaLabel(masVolumen.hora)}</p>
               <p className="text-[10px] text-zinc-400">Muestra aún baja</p>
             </div>
           ) : null}
@@ -83,21 +83,16 @@ export function HeatmapHoras({ data }: Props) {
               const height    = total > 0 ? Math.max((total / maxTotal) * 72, 6) : 3;
               const color     = colorBarra(tasa, total, confiable);
               return (
-                <div
-                  key={hora}
-                  className="flex-1 flex flex-col items-center gap-0.5"
-                  title={
-                    total === 0
-                      ? `${horaLabel(hora)}: sin llamadas`
-                      : !confiable
-                        ? `${horaLabel(hora)}: ${total} llamada${total > 1 ? "s" : ""} — muestra insuficiente para ser confiable (mín. ${MIN_MUESTRA})`
-                        : `${horaLabel(hora)}: ${total} llamadas · ${tasa}% contestadas ✓ confiable`
+                <div key={hora} className="flex-1 flex flex-col items-center gap-0.5"
+                  title={total === 0
+                    ? `${horaLabel(hora)}: sin llamadas`
+                    : !confiable
+                      ? `${horaLabel(hora)}: ${total} llamada${total > 1 ? "s" : ""} — muestra insuficiente`
+                      : `${horaLabel(hora)}: ${total} llamadas · ${tasa}% contestadas`
                   }
                 >
-                  <div
-                    className={`w-full ${color} rounded-t-sm transition-all ${!confiable && total > 0 ? "opacity-50" : ""}`}
-                    style={{ height }}
-                  />
+                  <div className={`w-full ${color} rounded-t-sm transition-all ${!confiable && total > 0 ? "opacity-50" : ""}`}
+                    style={{ height }} />
                 </div>
               );
             })}
@@ -112,15 +107,14 @@ export function HeatmapHoras({ data }: Props) {
         </>
       )}
 
-      {/* Leyenda */}
-      <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-gray-50">
+      <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-zinc-100">
         {[
-          { color: "bg-emerald-500", label: "+60%" },
-          { color: "bg-yellow-400",  label: "40–60%" },
-          { color: "bg-orange-400",  label: "20–40%" },
-          { color: "bg-red-400",     label: "-20%" },
-          { color: "bg-gray-200 opacity-50", label: `<${MIN_MUESTRA} llamadas` },
-          { color: "bg-gray-100",    label: "Sin datos" },
+          { color: "bg-[#27272a]",          label: "+60%" },
+          { color: "bg-brand",          label: "40–60%" },
+          { color: "bg-[#a1a1aa]",          label: "20–40%" },
+          { color: "bg-[#f87171]",          label: "-20%" },
+          { color: "bg-zinc-200 opacity-50", label: `<${MIN_MUESTRA} llamadas` },
+          { color: "bg-zinc-100",            label: "Sin datos" },
         ].map(({ color, label }) => (
           <span key={label} className="flex items-center gap-1 text-[10px] text-zinc-500">
             <span className={`w-2.5 h-2.5 rounded-sm ${color} inline-block`} />

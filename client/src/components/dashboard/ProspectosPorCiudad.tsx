@@ -1,16 +1,17 @@
-/**client/src/components/dashboard/ProspectosPorCiudad.tsx */
-
+/** client/src/components/dashboard/ProspectosPorCiudad.tsx */
+import { COLORS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import { MapPin } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
+
 
 interface Props {
   metricas: Metricas;
 }
 
-const COLORES = [
-  "bg-blue-500", "bg-purple-500", "bg-amber-500",
-  "bg-green-500", "bg-red-400", "bg-pink-500",
-  "bg-amber-500", "bg-teal-500", "bg-orange-500", "bg-cyan-500",
+const COLORES_CIUDAD = [
+  "#27272a", "#3f3f46", COLORS.primary, "#d1b377",
+  "#71717a", "#a1a1aa", "#d4d4d8", "#e4e4e7"
 ];
 
 export function ProspectosPorCiudad({ metricas }: Props) {
@@ -18,31 +19,31 @@ export function ProspectosPorCiudad({ metricas }: Props) {
   const total = datos.reduce((acc, d) => acc + d.total, 0);
 
   return (
-    <div className="bg-slate-50 rounded-xl border border-gray-100 p-5">
-      <h2 className="text-xs font-semibold text-zinc-800 mb-4 flex items-center">
-        <MapPin size={16} className="mr-2" />
+    <div className={CARD_CLASS}>
+      <h2 className={HEADER_CLASS}>
+        <MapPin size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
         Prospectos por Ciudad
       </h2>
 
       {datos.length === 0 ? (
-        <p className="text-xs text-zinc-800 text-center py-6">Sin datos</p>
+        <p className="text-[12px] text-zinc-400 text-center py-6 font-medium">Sin datos</p>
       ) : (
-        <div className="space-y-2.5">
+        <div className="space-y-4">
           {datos.slice(0, 8).map((item, i) => {
             const pct = total > 0 ? Math.round((item.total / total) * 100) : 0;
             return (
               <div key={i}>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs gray-100 capitalize">{item.ciudad}</span>
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className="text-[12px] font-medium text-zinc-500 capitalize">{item.ciudad}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-zinc-800">{item.total}</span>
-                    <span className="text-xs text-zinc-800">({pct}%)</span>
+                    <span className="text-[12px] font-semibold text-zinc-900">{item.total}</span>
+                    <span className="text-[10px] text-zinc-400 font-medium w-8 text-right">{pct}%</span>
                   </div>
                 </div>
-                <div className="w-full bg-gray-100 rounded-full h-1.5">
+                <div className="w-full bg-zinc-100 rounded-full h-1">
                   <div
-                    className={`${COLORES[i % COLORES.length]} h-1.5 rounded-full transition-all`}
-                    style={{ width: `${pct}%` }}
+                    className="h-1 rounded-full transition-all duration-500"
+                    style={{ width: `${pct}%`, backgroundColor: COLORES_CIUDAD[i % COLORES_CIUDAD.length] }}
                   />
                 </div>
               </div>
@@ -51,9 +52,9 @@ export function ProspectosPorCiudad({ metricas }: Props) {
         </div>
       )}
 
-      <div className="mt-4 pt-3 border-t border-gray-50 flex justify-between">
-        <span className="text-xs text-zinc-800">Total</span>
-        <span className="text-xs font-semibold text-zinc-800">{total}</span>
+      <div className="mt-6 pt-4 border-t border-zinc-100/60 flex justify-between items-center">
+        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Total</span>
+        <span className="text-[14px] font-bold text-zinc-900">{total}</span>
       </div>
     </div>
   );

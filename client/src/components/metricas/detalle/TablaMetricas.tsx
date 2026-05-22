@@ -146,7 +146,7 @@ export const TablaMetricas = ({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => onEditar(m)}
-                        className="text-zinc-400 hover:text-blue-500 transition"
+                        className="text-zinc-400 hover:text-brand transition"
                         title="Editar"
                       >
                         <Pencil size={14} />

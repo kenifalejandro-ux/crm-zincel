@@ -22,7 +22,7 @@ const SUB_PLATAFORMAS = [
   { value: "audience_network",  label: "Audience Network"     },
 ];
 
-const inputCls = "text-xs border border-zinc-200 rounded-lg px-3 py-2 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500";
+const inputCls = "text-xs border border-zinc-200 rounded-lg px-3 py-2 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-brand/50";
 
 export const FiltrosMetricas = ({ filtros, empresas, onChange }: Props) => (
   <div className="flex flex-wrap gap-3 items-center">

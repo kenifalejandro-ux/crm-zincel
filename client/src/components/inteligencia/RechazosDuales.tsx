@@ -65,13 +65,13 @@ export function RechazosDualesChart() {
 
       {/* Panel 1 — Primer contacto rechazado */}
       {pc.total_no_interesado > 0 && (
-        <div className="bg-white border border-gray-100 rounded-xl p-5">
+        <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6">
           <div className="flex items-center gap-2 mb-3">
             <div className="p-1.5 rounded-lg bg-orange-50 shrink-0">
               <PhoneMissed size={14} className="text-orange-500" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-zinc-800">Rechazos en primer contacto</h3>
+              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Rechazos en primer contacto</h3>
               <p className="text-[11px] text-zinc-400">Llamadas con resultado "No interesado"</p>
             </div>
           </div>
@@ -108,13 +108,13 @@ export function RechazosDualesChart() {
 
       {/* Panel 2 — Propuestas caídas / vencidas */}
       {pp.total > 0 ? (
-        <div className="bg-white border border-gray-100 rounded-xl p-5">
+        <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6">
           <div className="flex items-center gap-2 mb-3">
             <div className="p-1.5 rounded-lg bg-red-50 shrink-0">
               <FileX size={14} className="text-red-500" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-zinc-800">Propuestas caídas / vencidas</h3>
+              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Propuestas caídas / vencidas</h3>
               <p className="text-[11px] text-zinc-400">Ventas perdidas en etapa de propuesta</p>
             </div>
           </div>

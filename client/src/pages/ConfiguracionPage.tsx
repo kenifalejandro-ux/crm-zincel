@@ -47,7 +47,7 @@ const PLATAFORMAS: Record<PlataformaAPI, {
   icon: string;
 }> = {
   meta: {
-    label: "Meta Ads", color: "text-blue-700", bg: "bg-blue-600",
+    label: "Meta Ads", color: "text-white", bg: "bg-brand",
     border: "border-blue-200",
     accountLabel: "Ad Account ID", accountPlaceholder: "Ej: 1328625372336520",
     accountHint: "Solo el número, sin el prefijo \"act_\"",
@@ -260,7 +260,7 @@ export default function ConfiguracionPage() {
                       {c.activo ? "Activo" : "Inactivo"}
                     </span>
                     <button onClick={() => abrirEditar(c)}
-                      className="p-1.5 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition">
+                      className="p-1.5 text-zinc-400 hover:text-brand hover:bg-brand/5 rounded-lg transition">
                       <Pencil size={13} />
                     </button>
                     <button onClick={() => handleEliminar(c)}
@@ -325,7 +325,7 @@ export default function ConfiguracionPage() {
                 <label className="text-xs font-medium text-zinc-600 mb-1 block">Empresa / Cliente *</label>
                 <input value={form.empresa} onChange={e => set("empresa", e.target.value)}
                   placeholder="Ej: Codeli, Zincel Ideas"
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50" />
                 <p className="text-[10px] text-zinc-400 mt-1">Debe coincidir exactamente con el nombre en las métricas</p>
               </div>
 
@@ -333,7 +333,7 @@ export default function ConfiguracionPage() {
                 <label className="text-xs font-medium text-zinc-600 mb-1 block">{cfg.accountLabel} *</label>
                 <input value={form.account_id} onChange={e => set("account_id", e.target.value)}
                   placeholder={cfg.accountPlaceholder}
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand/50" />
                 <p className="text-[10px] text-zinc-400 mt-1">{cfg.accountHint}</p>
               </div>
 
@@ -345,7 +345,7 @@ export default function ConfiguracionPage() {
                   <input type={verToken ? "text" : "password"}
                     value={form.access_token} onChange={e => set("access_token", e.target.value)}
                     placeholder={editando ? "••••••• (sin cambios si está vacío)" : "Token de acceso..."}
-                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 pr-10 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 pr-10 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand/50" />
                   <button type="button" onClick={() => setVerToken(v => !v)} tabIndex={-1}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
                     {verToken ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -362,7 +362,7 @@ export default function ConfiguracionPage() {
                   type="date"
                   value={form.token_vence_en}
                   onChange={e => set("token_vence_en", e.target.value)}
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
                 />
                 <p className="text-[10px] text-zinc-400 mt-1">
                   El CRM te alertará 5 días antes del vencimiento
@@ -373,7 +373,7 @@ export default function ConfiguracionPage() {
                 <label className="text-xs font-medium text-zinc-600 mb-1 block">Notas (opcional)</label>
                 <input value={form.notas} onChange={e => set("notas", e.target.value)}
                   placeholder="Ej: Token de sistema, creado por cuenta principal"
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50" />
               </div>
 
               <button type="button" onClick={() => set("activo", !form.activo)}

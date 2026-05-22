@@ -3,6 +3,8 @@
 /**client/src/types/prospecto.types.ts*/
 
 export type EstadoLead =
+  | "nuevo"
+  | "por_gestionar"
   | "interesado"
   | "no_interesado"
   | "no_contesta"
@@ -74,6 +76,14 @@ export interface Propuesta {
   actualizado_en:  string;
 }
 
+export interface ContactoSecundario {
+  id:        string;
+  nombre:    string;
+  cargo?:    string;
+  telefono?: string;
+  email?:    string;
+}
+
 export interface Prospecto {
   id:               string;
   empresa:          string;
@@ -107,6 +117,7 @@ export interface Prospecto {
   reuniones?:       Reunion[];
   brochures?:       Brochure[];
   propuestas?:      Propuesta[];
+  contactos?:       ContactoSecundario[];
 }
 
 export interface FiltrosProspecto {

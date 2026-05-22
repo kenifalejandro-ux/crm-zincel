@@ -57,7 +57,7 @@ export function HistorialLlamadas({ llamadas, onEditar }: Props) {
                 {onEditar && (
                   <button
                     onClick={() => onEditar(l)}
-                    className="text-zinc-300 hover:text-blue-500 transition"
+                    className="text-zinc-300 hover:text-brand transition"
                     title="Editar llamada"
                   >
                     <Pencil size={13} />

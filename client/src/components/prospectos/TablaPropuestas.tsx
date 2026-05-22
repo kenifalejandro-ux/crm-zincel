@@ -174,7 +174,7 @@ export function TablaPropuestas({ propuestas, onEditar, onEliminar }: Props) {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => onEditar(p)}
-                      className="p-1.5 rounded-md text-zinc-400 hover:text-blue-600 hover:bg-blue-50 transition"
+                      className="p-1.5 rounded-md text-zinc-400 hover:text-brand hover:bg-brand/5 transition"
                     >
                       <Pencil size={13} />
                     </button>

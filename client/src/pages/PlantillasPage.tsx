@@ -150,7 +150,7 @@ export default function PlantillasPage() {
         </div>
         <button
           onClick={abrirNueva}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
         >
           <Plus size={13} /> Nueva plantilla
         </button>
@@ -227,7 +227,7 @@ export default function PlantillasPage() {
             <button
               onClick={handleGuardar}
               disabled={guardando}
-              className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white rounded-lg transition"
+              className="px-3 py-1.5 text-xs bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition"
             >
               {guardando ? "Guardando..." : "Guardar plantilla"}
             </button>
@@ -258,7 +258,7 @@ export default function PlantillasPage() {
                 <button
                   onClick={() => usarEjemplo(ej)}
                   disabled={guardando}
-                  className="shrink-0 px-2.5 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition disabled:opacity-50"
+                  className="shrink-0 px-2.5 py-1.5 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition disabled:opacity-50"
                 >
                   Usar
                 </button>

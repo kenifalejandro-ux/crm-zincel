@@ -5,9 +5,9 @@ import { ResumenPlataforma as TResumen } from "../../types/metricas.types";
 interface Props { resumen: TResumen[] }
 
 const CONFIG: Record<string, { label: string; badge: string; bg: string }> = {
-  meta:   { label: "Meta Ads",   badge: "bg-blue-100 text-blue-700",  bg: "bg-blue-50  border-blue-100"  },
-  google: { label: "Google Ads", badge: "bg-red-100  text-red-700",   bg: "bg-red-50   border-red-100"   },
-  tiktok: { label: "TikTok Ads", badge: "bg-pink-100 text-pink-700",  bg: "bg-pink-50  border-pink-100"  },
+  meta:   { label: "Meta Ads",   badge: "bg-zinc-100 text-zinc-700", bg: "bg-white/85 backdrop-blur-xl border-zinc-200/50" },
+  google: { label: "Google Ads", badge: "bg-zinc-100 text-zinc-700", bg: "bg-white/85 backdrop-blur-xl border-zinc-200/50" },
+  tiktok: { label: "TikTok Ads", badge: "bg-zinc-100 text-zinc-700", bg: "bg-white/85 backdrop-blur-xl border-zinc-200/50" },
 };
 
 export const ResumenPlataforma = ({ resumen }: Props) => {
@@ -18,7 +18,7 @@ export const ResumenPlataforma = ({ resumen }: Props) => {
       {resumen.map((r) => {
         const cfg = CONFIG[r.plataforma] ?? CONFIG.meta;
         return (
-          <div key={`${r.plataforma}-${r.sub_plataforma ?? "all"}`} className={`rounded-xl border p-4 space-y-3 ${cfg.bg}`}>
+          <div key={`${r.plataforma}-${r.sub_plataforma ?? "all"}`} className={`rounded-xl border shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6 space-y-3 ${cfg.bg}`}>
 
             {/* Header */}
             <div className="flex items-center justify-between">

@@ -1,7 +1,10 @@
 /** client/src/components/finanzas/EgresosPorCategoriaChart.tsx */
 
+import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { TrendingDown } from "lucide-react";
 import type { ResumenFinanciero, CategoriaEgreso } from "../../types/finanzas.types";
+
 
 const CATEGORIA_LABEL: Record<CategoriaEgreso, string> = {
   publicidad_digital:      "Publicidad digital",
@@ -12,18 +15,18 @@ const CATEGORIA_LABEL: Record<CategoriaEgreso, string> = {
 };
 
 const COLORES: Record<CategoriaEgreso, string> = {
-  publicidad_digital:      "#3b82f6",
-  herramientas_saas:       "#8b5cf6",
-  herramientas_ia:         "#06b6d4",
-  infraestructura_digital: "#f59e0b",
-  subcontratos:            "#10b981",
+  publicidad_digital:      COLORS.dark,
+  herramientas_saas:       COLORS.primary,
+  herramientas_ia:         COLORS.muted,
+  infraestructura_digital: COLORS.mutedLight,
+  subcontratos:            COLORS.mutedDark,
 };
 
 const TooltipCustom = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   const { name, value } = payload[0];
   return (
-    <div className="bg-white border border-gray-100 rounded-lg shadow px-3 py-1.5 text-xs">
+    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-1.5 text-xs">
       <p className="font-medium text-zinc-700">{name}</p>
       <p className="text-zinc-500">S/ {Number(value).toLocaleString("es-PE", { minimumFractionDigits: 2 })}</p>
     </div>
@@ -40,14 +43,17 @@ export function EgresosPorCategoriaChart({ por_categoria }: Props) {
     .map((c) => ({
       name:  CATEGORIA_LABEL[c.categoria as CategoriaEgreso] ?? c.categoria,
       value: Number(c.total),
-      color: COLORES[c.categoria as CategoriaEgreso] ?? "#6b7280",
+      color: COLORES[c.categoria as CategoriaEgreso] ?? COLORS.muted,
     }));
 
   if (!data.length) return null;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-5">
-      <h3 className="text-xs font-semibold text-zinc-800 mb-4">Egresos por categoría</h3>
+    <div className={CARD_CLASS}>
+      <h3 className={HEADER_CLASS}>
+        <TrendingDown size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+        Egresos por categoría
+      </h3>
       <ResponsiveContainer width="100%" height={220}>
         <PieChart>
           <Pie data={data} dataKey="value" nameKey="name"

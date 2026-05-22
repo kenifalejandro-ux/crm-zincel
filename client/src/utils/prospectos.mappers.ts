@@ -1,7 +1,7 @@
 /** client/src/utils/prospectos.mappers.ts */
 
 export const mapEstado = (valor: any) => {
-  if (!valor) return "no_contesta";
+  if (!valor) return "por_gestionar";
   const map: Record<string, string> = {
     // Interesado
     "interesado":            "interesado",
@@ -38,7 +38,7 @@ export const mapEstado = (valor: any) => {
     "número equivocado":     "numero_equivocado",
     "equivocado":            "numero_equivocado",
   };
-  return map[String(valor).toLowerCase().trim()] || "no_contesta";
+  return map[String(valor).toLowerCase().trim()] || "por_gestionar";
 };
 
 export const mapClasificacion = (valor: any) => {
@@ -355,6 +355,8 @@ export const mapearExcelACRM = (rows: any[]) => {
 
 export const ESTADOS_LEAD = [
   { value: "",                   label: "Todos los estados" },
+  { value: "nuevo",              label: "Nuevo (última carga)" },
+  { value: "por_gestionar",      label: "Por gestionar" },
   { value: "contestada",         label: "Contestadas" },
   { value: "interesado",         label: "Interesado" },
   { value: "no_interesado",      label: "No interesado" },
@@ -367,6 +369,8 @@ export const ESTADOS_LEAD = [
 ];
 
 export const COLOR_ESTADO: Record<string, string> = {
+  nuevo:              "bg-blue-100 text-blue-700",
+  por_gestionar:      "bg-zinc-100 text-zinc-600",
   interesado:         "bg-green-100 text-green-700",
   no_interesado:      "bg-red-100 text-red-700",
   no_contesta:        "bg-gray-100 text-gray-500",

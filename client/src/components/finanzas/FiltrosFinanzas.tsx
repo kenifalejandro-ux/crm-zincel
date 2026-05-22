@@ -52,47 +52,19 @@ interface Props {
 }
 
 export function FiltrosFinanzas({
-  tab, filtroMes, filtroAnio, filtroCategoria,
-  onMesChange, onCategoriaChange,
+  tab, filtroCategoria, onCategoriaChange,
 }: Props) {
   if (tab === "ingresos" || tab === "resumen") return null;
 
   const categorias = tab === "egresos" ? CATEGORIAS_EGRESO : CATEGORIAS_PRESTAMO;
 
-  const valorMes = filtroMes > 0 && filtroAnio > 0
-    ? `${filtroMes}-${filtroAnio}`
-    : "";
-
-  const handleMes = (val: string) => {
-    if (!val) { onMesChange(0, 0); return; }
-    const [m, a] = val.split("-").map(Number);
-    onMesChange(m, a);
-  };
-
-  const hayFiltros = filtroMes > 0 || filtroCategoria !== "";
-
   return (
     <div className="flex flex-wrap items-center gap-2">
-
-      {/* Filtro por mes */}
-      <select
-        value={valorMes}
-        onChange={e => handleMes(e.target.value)}
-        className="text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white text-zinc-600"
-      >
-        <option value="">Todos los meses</option>
-        {OPCIONES_MES.map(o => (
-          <option key={`${o.mes}-${o.anio}`} value={`${o.mes}-${o.anio}`}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-
       {/* Filtro por categoría */}
       <select
         value={filtroCategoria}
         onChange={e => onCategoriaChange(e.target.value)}
-        className="text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white text-zinc-600"
+        className="text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white text-zinc-600"
       >
         <option value="">Todas las categorías</option>
         {categorias.map(c => (
@@ -100,13 +72,12 @@ export function FiltrosFinanzas({
         ))}
       </select>
 
-      {/* Limpiar filtros */}
-      {hayFiltros && (
+      {filtroCategoria && (
         <button
-          onClick={() => { onMesChange(0, 0); onCategoriaChange(""); }}
+          onClick={() => onCategoriaChange("")}
           className="text-xs text-zinc-400 hover:text-zinc-600 underline transition"
         >
-          Limpiar filtros
+          Limpiar
         </button>
       )}
     </div>

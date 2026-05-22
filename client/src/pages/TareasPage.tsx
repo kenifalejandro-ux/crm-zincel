@@ -74,7 +74,7 @@ export default function TareasPage() {
         </div>
         <button
           onClick={() => setMostrarForm(v => !v)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
         >
           <Plus size={13} /> Nueva tarea
         </button>
@@ -93,10 +93,10 @@ export default function TareasPage() {
             <p className="text-xl font-bold text-orange-600">{resumen.hoy}</p>
             <p className="text-[10px] text-orange-400 font-medium uppercase tracking-wide">Para hoy</p>
           </div>
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-center">
-            <Calendar size={16} className="mx-auto text-blue-500 mb-1" />
-            <p className="text-xl font-bold text-blue-600">{resumen.proximas}</p>
-            <p className="text-[10px] text-blue-400 font-medium uppercase tracking-wide">Próximas</p>
+          <div className="bg-zinc-50 border border-zinc-100 rounded-xl p-3 text-center">
+            <Calendar size={16} className="mx-auto text-brand mb-1" />
+            <p className="text-xl font-bold text-brand">{resumen.proximas}</p>
+            <p className="text-[10px] text-brand/70 font-medium uppercase tracking-wide">Próximas</p>
           </div>
           <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 text-center">
             <CheckSquare size={16} className="mx-auto text-zinc-400 mb-1" />

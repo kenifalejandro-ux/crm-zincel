@@ -113,7 +113,7 @@ const Campo = ({
       className={`w-full border rounded-lg px-3 py-2 text-xs focus:outline-none transition ${
         calculado
           ? "border-zinc-100 bg-zinc-50 text-zinc-400 cursor-not-allowed"
-          : "border-zinc-200 focus:ring-2 focus:ring-blue-500"
+          : "border-zinc-200 focus:ring-2 focus:ring-brand/50"
       }`}
       placeholder="0"
     />
@@ -205,7 +205,7 @@ export function ModalEditarMetrica({ metrica, guardando, error, onGuardar, onCer
               onChange={(e) =>
                 setForm((f) => ({ ...f, plataforma: e.target.value as Plataforma, sub_plataforma: "" }))
               }
-              className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
             >
               <option value="meta">Meta Ads</option>
               <option value="google">Google Ads</option>
@@ -218,7 +218,7 @@ export function ModalEditarMetrica({ metrica, guardando, error, onGuardar, onCer
               <select
                 value={form.sub_plataforma}
                 onChange={(e) => set("sub_plataforma", e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
               >
                 <option value="">Ambas</option>
                 <option value="facebook">Facebook</option>
@@ -283,7 +283,7 @@ export function ModalEditarMetrica({ metrica, guardando, error, onGuardar, onCer
             value={form.notas}
             onChange={(e) => set("notas", e.target.value)}
             rows={2}
-            className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
             placeholder="Observaciones opcionales..."
           />
         </div>

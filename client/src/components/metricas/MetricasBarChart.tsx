@@ -1,5 +1,6 @@
 /** src/components/metricas/MetricasBarChart.tsx */
 
+import { COLORS } from "../../lib/tokens";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
@@ -43,18 +44,18 @@ export const MetricasBarChart = ({ metricas }: Props) => {
   );
 
   return (
-    <div className="bg-white rounded-xl border border-zinc-100 p-4">
-      <h3 className="text-xs font-semibold text-zinc-700 mb-4">Comparativa por plataforma</h3>
+    <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6">
+      <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-6">Comparativa por plataforma</h3>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={data} barCategoryGap="30%">
-          <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
-          <XAxis dataKey="plataforma" tick={{ fontSize: 10 }} />
-          <YAxis tick={{ fontSize: 10 }} />
+          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} vertical={false} />
+          <XAxis dataKey="plataforma" tick={{ fontSize: 10, fill: COLORS.muted }} tickLine={false} axisLine={false} />
+          <YAxis tick={{ fontSize: 10, fill: COLORS.muted }} tickLine={false} axisLine={false} />
           <Tooltip />
           <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Bar dataKey="leads"        name="Leads"        fill="#3b82f6" radius={[4,4,0,0]} />
-          <Bar dataKey="conversiones" name="Conversiones" fill="#10b981" radius={[4,4,0,0]} />
-          <Bar dataKey="gasto"        name="Gasto (S/)"   fill="#f59e0b" radius={[4,4,0,0]} />
+          <Bar dataKey="leads"        name="Leads"        fill={COLORS.dark} radius={[4,4,0,0]} />
+          <Bar dataKey="conversiones" name="Conversiones" fill={COLORS.primary} radius={[4,4,0,0]} />
+          <Bar dataKey="gasto"        name="Gasto (S/)"   fill={COLORS.muted} radius={[4,4,0,0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

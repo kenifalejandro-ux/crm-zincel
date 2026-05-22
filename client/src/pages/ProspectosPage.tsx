@@ -5,14 +5,15 @@ import { useProspectos } from "../hooks/useProspectos";
 import { Plus, Upload, AlertTriangle, FileDown } from "lucide-react";
 import * as XLSX from "xlsx";
 import api from "../services/api";
-import { getScoresLeads } from "../services/prospectos.api";
-import type { ScoreLead } from "../services/prospectos.api";
+import { getScoresLeads, getResumenProspectos } from "../services/prospectos.api";
+import type { ScoreLead, ResumenProspectos } from "../services/prospectos.api";
 
 import { ProspectoDetalle } from "../components/prospectos/ProspectoDetalle";
 import { ProspectoForm } from "../components/prospectos/ProspectoForm";
 import { FiltrosProspectos } from "../components/prospectos/FiltrosProspectos";
 import { TablaProspectos } from "../components/prospectos/TablaProspectos";
 import { PreviewImportacion } from "../components/prospectos/PreviewImportacion";
+import { KpisProspectos } from "../components/prospectos/KpisProspectos";
 import { mapearExcelACRM } from "../utils/prospectos.mappers";
 
 // ✅ Importar componentes reutilizables
@@ -43,11 +44,16 @@ export default function ProspectosPage() {
   // Scores — carga independiente, no bloquea la tabla
   const [scores, setScores] = useState<Record<string, ScoreLead>>({});
 
+  const [resumen, setResumen] = useState<ResumenProspectos | null>(null);
+
   // ── Cargar al cambiar filtros ───────────────────────────
   useEffect(() => {
     cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE });
     getScoresLeads()
       .then(s => setScores(Object.fromEntries(s.map(sc => [sc.id, sc]))))
+      .catch(console.error);
+    getResumenProspectos()
+      .then(setResumen)
       .catch(console.error);
   }, [busqueda, estadoFiltro, pagina]);
 
@@ -217,7 +223,7 @@ const eliminarSeleccionados = async () => {
             onDelete={eliminarSeleccionados}
           />
 
-          <label className="flex items-center gap-1.5 px-3 py-2 text-xs border border-gray-200 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition cursor-pointer">
+          <label className="flex items-center gap-1.5 px-3 py-2 text-xs border border-gray-200 rounded-lg bg-zinc-800 hover:bg-zinc-900 text-white transition cursor-pointer">
             <Upload size={15} /> Importar Excel
             <input type="file" accept=".xlsx,.xls" onChange={handleFile} className="hidden" />
           </label>
@@ -231,12 +237,21 @@ const eliminarSeleccionados = async () => {
           )}
           <button
             onClick={() => setMostrarNuevo(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
           >
             <Plus size={15} /> Nuevo
           </button>
         </div>
       </div>
+
+      {/* KPIs resumen */}
+      {resumen && (
+        <KpisProspectos
+          resumen={resumen}
+          filtroActivo={estadoFiltro}
+          onFiltro={(key) => { handleEstado(key); }}
+        />
+      )}
 
       {/* Alerta leads calientes */}
       {Object.values(scores).filter(s => s.nivel === "caliente").length > 0 && (

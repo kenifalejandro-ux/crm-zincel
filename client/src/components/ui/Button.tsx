@@ -12,7 +12,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary:   "bg-blue-600 hover:bg-blue-700 text-zinc-800 disabled:bg-blue-300",
+  primary:   "bg-brand hover:bg-brand-hover text-white disabled:opacity-60",
   secondary: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 disabled:opacity-50",
   danger:    "bg-red-500 hover:bg-red-600 text-zinc-800 disabled:bg-red-300",
   ghost:     "bg-transparent hover:bg-gray-100 gray-100 disabled:opacity-40",
@@ -29,7 +29,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     <button
       ref={ref}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-1 ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
       {loading && (

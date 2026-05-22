@@ -36,7 +36,7 @@ const getNowTime = () => {
 };
 const getToday = () => fechaHoy();
 
-const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500";
+const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
 
 interface LlamadaFormProps {
   abierto:     boolean;
@@ -140,7 +140,7 @@ export function LlamadaForm({ abierto, onCerrar, prospectoId, onGuardado }: Llam
         <label className="flex items-center gap-2 cursor-pointer select-none">
           <input type="checkbox" checked={form.contestada}
             onChange={e => set("contestada", e.target.checked)}
-            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-brand/50" />
           <span className="text-xs text-gray-700">¿Fue contestada?</span>
         </label>
 

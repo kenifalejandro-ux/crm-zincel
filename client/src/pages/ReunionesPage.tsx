@@ -20,7 +20,7 @@ import { ModalEditarReunion }            from "../components/reuniones/ModalEdit
 import { TableBulkActions }              from "../components/ui/TableBulkActions";
 import { KpisReuniones }                 from "../components/reuniones/KpisReuniones";
 import { EstadisticasReuniones }         from "../components/reuniones/EstadisticasReuniones";
-import { FiltrosFecha }                  from "../components/llamadas/FiltrosFecha";
+import { FiltroPeriodoBotones, type FiltroPeriodo } from "../components/shared/FiltroPeriodoBotones";
 import { useEditar }                     from "../hooks/useEditar";
 import { calcularRangoFecha }            from "../utils/date";
 
@@ -51,7 +51,7 @@ export default function ReunionesPage() {
   const [kpisData,     setKpisData]     = useState<{ total: number; programadas: number; realizadas: number; canceladas: number; reprogramadas: number }>({ total: 0, programadas: 0, realizadas: 0, canceladas: 0, reprogramadas: 0 });
   const [modalidadData, setModalidadData] = useState<any[]>([]);
 
-  const [filtroPeriodo, setFiltroPeriodo] = useState("mes");
+  const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>("mes");
   const [filtroFecha,   setFiltroFecha]   = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -62,7 +62,7 @@ export default function ReunionesPage() {
   const handleGuardarEdicion = async (form: any) => {
     await editar.guardar(async () => {
       await actualizarReunion(editar.editando!.id, form);
-      cargarAnalisis(filtroFecha, filtroPeriodo as "dia" | "semana" | "mes");
+      cargarAnalisis(filtroFecha, filtroPeriodo);
     });
   };
 
@@ -82,11 +82,14 @@ export default function ReunionesPage() {
   };
 
   // ── Carga análisis por período ───────────────────────────
-  const cargarAnalisis = async (fecha: string, periodo: "dia" | "semana" | "mes" | "anio") => {
+  const periodoEfectivo = (p: FiltroPeriodo): "hoy" | "dia" | "semana" | "mes" | "anio" => p;
+
+  const cargarAnalisis = async (fecha: string, periodo: FiltroPeriodo) => {
     try {
-      const rango = calcularRangoFecha(fecha, periodo);
+      const rango = calcularRangoFecha(fecha, periodoEfectivo(periodo));
       setRangoActual(rango);
-      const gran: "hora" | "dia" | "mes" = periodo === "dia" ? "hora" : periodo === "anio" ? "mes" : "dia";
+      const gran: "hora" | "dia" | "mes" =
+        (periodo === "dia" || periodo === "hoy") ? "hora" : periodo === "anio" ? "mes" : "dia";
       const [stats, kpis] = await Promise.all([
         getEstadisticasReuniones(gran, rango),
         getKpisReuniones(rango),
@@ -99,23 +102,16 @@ export default function ReunionesPage() {
   };
 
   useEffect(() => {
-    cargarAnalisis(filtroFecha, filtroPeriodo as "dia" | "semana" | "mes" | "anio");
+    cargarAnalisis(filtroFecha, filtroPeriodo);
   }, []);
 
   useEffect(() => { cargar(); }, [filtroEstado]);
 
-  useEffect(() => {
-    const now = new Date();
-    if (filtroPeriodo === "anio") {
-      if (filtroFecha.length !== 4) setFiltroFecha(String(now.getFullYear()));
-    } else if (filtroPeriodo === "mes") {
-      if (filtroFecha.length > 7) setFiltroFecha((prev) => prev.slice(0, 7));
-      else if (filtroFecha.length === 4) setFiltroFecha(`${filtroFecha}-${String(now.getMonth() + 1).padStart(2,"0")}`);
-    } else {
-      if (filtroFecha.length === 7) setFiltroFecha((prev) => `${prev}-01`);
-      else if (filtroFecha.length === 4) setFiltroFecha(`${filtroFecha}-${String(now.getMonth() + 1).padStart(2,"0")}-01`);
-    }
-  }, [filtroPeriodo]);
+  const handleFiltroChange = (periodo: FiltroPeriodo, fecha: string) => {
+    setFiltroPeriodo(periodo);
+    setFiltroFecha(fecha);
+    cargarAnalisis(fecha, periodo);
+  };
 
   // ── Selección ───────────────────────────────────────────
   const toggleUno = (id: string) =>
@@ -149,7 +145,7 @@ export default function ReunionesPage() {
     try {
       await eliminarReunionesMasivoService(seleccionados);
       setSeleccionados([]);
-      cargarAnalisis(filtroFecha, filtroPeriodo as "dia" | "semana" | "mes");
+      cargarAnalisis(filtroFecha, filtroPeriodo);
     } catch {
       alert("Error eliminando reuniones");
     }
@@ -167,7 +163,7 @@ export default function ReunionesPage() {
       });
       setModalAbierto(false);
       setForm(FORM_INICIAL);
-      cargarAnalisis(filtroFecha, filtroPeriodo as "dia" | "semana" | "mes");
+      cargarAnalisis(filtroFecha, filtroPeriodo);
     } catch (err) { console.error(err); }
     finally { setCargando(false); }
   };
@@ -230,7 +226,7 @@ export default function ReunionesPage() {
           <select
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value)}
-            className="px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-600"
+            className="px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 text-gray-600"
           >
             <option value="">Todos los estados</option>
             {ESTADOS.map((e) => (
@@ -239,24 +235,22 @@ export default function ReunionesPage() {
           </select>
           {reuniones.length > 0 && (
             <button onClick={exportarExcel}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition">
+              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-zinc-800 hover:bg-zinc-900 text-white rounded-lg transition">
               <FileDown size={15} /> Exportar Excel
             </button>
           )}
           <button onClick={() => setModalAbierto(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition">
             <Plus size={15} /> Nueva reunión
           </button>
         </div>
       </div>
 
       {/* Filtros de período */}
-      <FiltrosFecha
-        filtroPeriodo={filtroPeriodo}
+      <FiltroPeriodoBotones
+        periodo={filtroPeriodo}
         filtroFecha={filtroFecha}
-        onPeriodoChange={setFiltroPeriodo}
-        onFechaChange={setFiltroFecha}
-        onAplicar={() => cargarAnalisis(filtroFecha, filtroPeriodo as "dia" | "semana" | "mes" | "anio")}
+        onChange={handleFiltroChange}
       />
 
       {/* KPIs */}
@@ -272,7 +266,7 @@ export default function ReunionesPage() {
         estadisticas={estadisticasPorPeriodo}
         modalidad={modalidadData}
         filtroPeriodo={filtroPeriodo}
-        onPeriodoChange={setFiltroPeriodo}
+        onPeriodoChange={(p) => handleFiltroChange(p as FiltroPeriodo, filtroFecha)}
       />
 
       {/* Lista */}

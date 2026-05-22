@@ -1,6 +1,8 @@
 /** client/src/components/llamadas/KpisLlamadas.tsx */
 
+import { CARD_CLASS } from "../../lib/tokens";
 import { Phone, PhoneCall, PhoneMissed } from "lucide-react";
+
 
 interface Props {
   total: number;
@@ -10,33 +12,15 @@ interface Props {
 
 export function KpisLlamadas({ total, contestadas, noContestadas }: Props) {
   const kpis = [
-    {
-      label: "Total llamadas",
-      valor: total,
-      icon: <Phone size={18} />,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-    },
-    {
-      label: "Contestadas",
-      valor: contestadas,
-      icon: <PhoneCall size={18} />,
-      color: "text-green-600",
-      bg: "bg-green-50",
-    },
-    {
-      label: "No contestadas",
-      valor: noContestadas,
-      icon: <PhoneMissed size={18} />,
-      color: "text-amber-600",
-      bg: "bg-amber-50",
-    },
+    { label: "Total llamadas",  valor: total,         icon: <Phone      size={18} />, color: "text-zinc-700", bg: "bg-zinc-100" },
+    { label: "Contestadas",     valor: contestadas,   icon: <PhoneCall  size={18} />, color: "text-zinc-700", bg: "bg-zinc-100" },
+    { label: "No contestadas",  valor: noContestadas, icon: <PhoneMissed size={18} />, color: "text-red-500",  bg: "bg-red-50"  },
   ];
 
   return (
     <div className="grid grid-cols-3 gap-4">
       {kpis.map((k, i) => (
-        <div key={i} className="bg-white rounded-xl border border-gray-100 p-5">
+        <div key={i} className={CARD_CLASS}>
           <div className={`inline-flex p-2 rounded-lg ${k.bg} ${k.color} mb-3`}>
             {k.icon}
           </div>

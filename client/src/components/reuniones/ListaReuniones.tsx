@@ -187,7 +187,7 @@ export function ListaReuniones({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => onEditar(r)}
-                    className="text-zinc-400 hover:text-blue-500 transition"
+                    className="text-zinc-400 hover:text-brand transition"
                     title="Editar reunión"
                   >
                     <Pencil size={14} />

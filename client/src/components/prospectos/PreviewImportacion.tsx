@@ -35,7 +35,7 @@ export function PreviewImportacion({ preview, importando, onCancelar, onConfirma
           <button
             onClick={onConfirmar}
             disabled={importando}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition"
           >
             <CheckCircle size={14} />
             {importando ? "Importando..." : "Confirmar importación"}

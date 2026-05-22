@@ -67,7 +67,7 @@ export function ReunionForm({ abierto, onCerrar, prospectoId, onGuardado }: Reun
           <div className="space-y-1">
             <label className="text-xs font-medium gray-100">Modalidad</label>
             <select value={form.modalidad} onChange={e => set("modalidad", e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50">
               {MODALIDADES.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
             </select>
           </div>
@@ -79,7 +79,7 @@ export function ReunionForm({ abierto, onCerrar, prospectoId, onGuardado }: Reun
         <div className="space-y-1">
           <label className="text-xs font-medium gray-100">Notas</label>
           <textarea value={form.notas} onChange={e => set("notas", e.target.value)} rows={3}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
             placeholder="Temas a tratar, preparación necesaria..." />
         </div>
 

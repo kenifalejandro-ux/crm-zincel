@@ -44,7 +44,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
           <select
             value={form.servicio}
             onChange={(e) => set({ servicio: e.target.value as ServicioPropuesta })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             {SERVICIOS.map((s) => (
               <option key={s} value={s}>{LABEL_SERVICIO[s]}</option>
@@ -59,7 +59,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
             type="text"
             value={form.descripcion}
             onChange={(e) => set({ descripcion: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           />
         </div>
 
@@ -70,7 +70,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
             <select
               value={form.moneda}
               onChange={(e) => set({ moneda: e.target.value as "PEN" | "USD" })}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
             >
               <option value="PEN">S/ Soles (PEN)</option>
               <option value="USD">$ Dólares (USD)</option>
@@ -84,7 +84,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
               step="0.01"
               value={form.monto_propuesto}
               onChange={(e) => set({ monto_propuesto: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
             />
           </div>
         </div>
@@ -103,7 +103,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
               value={form.monto_cerrado}
               onChange={(e) => set({ monto_cerrado: e.target.value })}
               placeholder="0.00"
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
             />
           </div>
         )}
@@ -118,7 +118,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
               step="0.001"
               value={form.tipo_cambio}
               onChange={(e) => set({ tipo_cambio: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
             />
           </div>
         )}
@@ -129,7 +129,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
           <select
             value={form.estado}
             onChange={(e) => set({ estado: e.target.value as EstadoPropuesta })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             {ESTADOS.map((e) => (
               <option key={e} value={e}>{LABEL_ESTADO[e]}</option>
@@ -150,7 +150,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
               type="date"
               value={form.fecha_propuesta}
               onChange={(e) => set({ fecha_propuesta: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-brand/50"
             />
           </div>
 
@@ -164,7 +164,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
                 type="date"
                 value={form.fecha_negociacion}
                 onChange={(e) => set({ fecha_negociacion: e.target.value })}
-                className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-brand/50"
               />
             </div>
           )}
@@ -179,7 +179,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
                 type="date"
                 value={form.fecha_cierre}
                 onChange={(e) => set({ fecha_cierre: e.target.value })}
-                className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-brand/50"
               />
             </div>
           )}
@@ -211,7 +211,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
             rows={2}
             value={form.notas}
             onChange={(e) => set({ notas: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
           />
         </div>
 
@@ -226,7 +226,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
           <button
             onClick={onGuardar}
             disabled={cargando}
-            className="flex-1 px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition"
+            className="flex-1 px-4 py-2 text-xs bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition"
           >
             {cargando ? "Guardando..." : "Guardar cambios"}
           </button>

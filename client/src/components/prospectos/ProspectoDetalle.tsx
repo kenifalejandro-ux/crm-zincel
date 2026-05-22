@@ -763,7 +763,7 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
                 {detalle.telefono && (
                   <div className="flex items-start gap-2">
                     <Phone size={14} className="text-zinc-800 mt-0.5 shrink-0" />
-                    <a href={`tel:${detalle.telefono}`} className="text-xs text-gray-700 hover:text-blue-500 transition">
+                    <a href={`tel:${detalle.telefono}`} className="text-xs text-gray-700 hover:text-brand transition">
                       {detalle.telefono}
                     </a>
                   </div>
@@ -771,7 +771,7 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
                 {detalle.email_contacto && (
                   <div className="flex items-start gap-2">
                     <Mail size={14} className="text-zinc-800 mt-0.5 shrink-0" />
-                    <a href={`mailto:${detalle.email_contacto}`} className="text-xs text-gray-700 hover:text-blue-500 transition truncate">
+                    <a href={`mailto:${detalle.email_contacto}`} className="text-xs text-gray-700 hover:text-brand transition truncate">
                       {detalle.email_contacto}
                     </a>
                   </div>

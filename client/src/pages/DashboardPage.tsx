@@ -162,7 +162,7 @@ export default function DashboardPage() {
 
   if (cargando) return (
     <div className="flex items-center justify-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
     </div>
   );
 
@@ -175,7 +175,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             <h1 className="text-lg sm:text-xl font-semibold text-zinc-800">Dashboard</h1>
             {actualizando && (
-              <div className="w-3.5 h-3.5 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+              <div className="w-3.5 h-3.5 rounded-full border-2 border-brand border-t-transparent animate-spin" />
             )}
           </div>
           <p className="text-xs text-zinc-500 mt-0.5">Resumen de tu actividad comercial</p>
@@ -189,17 +189,77 @@ export default function DashboardPage() {
               onClick={() => { setFiltroPeriodo(p); setPickerAbierto(false); setCalAbierto(false); }}
               className={`px-4 py-2 rounded-lg text-xs font-medium transition-all
                 ${filtroPeriodo === p
-                  ? "bg-blue-600 text-white shadow-sm"
+                  ? "bg-brand text-white shadow-sm"
                   : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"}`}>
               {p === "hoy" ? "Hoy" : "Semana"}
             </button>
           ))}
 
+          {/* Mes — picker */}
+          <div className="relative">
+            <button
+              onClick={() => { setPickerAbierto(v => !v); setCalAbierto(false); if (filtroPeriodo !== "mes") setFiltroPeriodo("mes"); }}
+              className={`flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-medium transition-all
+                ${filtroPeriodo === "mes"
+                  ? "bg-brand text-white shadow-sm"
+                  : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"}`}>
+              <Calendar size={12} />
+              {filtroPeriodo === "mes"
+                ? `${MESES_CORTO[mesSeleccionado.mes]} ${mesSeleccionado.anio}`
+                : "Mes"}
+              <ChevronDown size={12} />
+            </button>
+
+            {pickerAbierto && (
+              <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4 w-56">
+                {/* Nav año */}
+                <div className="flex items-center justify-between mb-3">
+                  <button
+                    onClick={() => setAnioNavegando(y => y - 1)}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50">
+                    <ChevronLeft size={14} />
+                  </button>
+                  <span className="text-xs font-semibold text-zinc-800">{anioNavegando}</span>
+                  <button
+                    onClick={() => setAnioNavegando(y => y + 1)}
+                    disabled={anioNavegando >= hoy.getFullYear()}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-30">
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+                {/* Grid meses */}
+                <div className="grid grid-cols-4 gap-1">
+                  {MESES_CORTO.map((m, i) => {
+                    const esFuturo   = anioNavegando === hoy.getFullYear() && i > hoy.getMonth();
+                    const esActual   = filtroPeriodo === "mes" && mesSeleccionado.mes === i && mesSeleccionado.anio === anioNavegando;
+                    return (
+                      <button
+                        key={m}
+                        disabled={esFuturo}
+                        onClick={() => {
+                          setMesSeleccionado({ mes: i, anio: anioNavegando });
+                          setFiltroPeriodo("mes");
+                          setPickerAbierto(false);
+                        }}
+                        className={`py-1.5 text-xs rounded-lg transition capitalize ${
+                          esActual  ? "bg-brand text-white font-semibold" :
+                          esFuturo  ? "text-zinc-300 cursor-not-allowed" :
+                                      "text-zinc-600 hover:bg-brand/5 hover:text-brand"
+                        }`}>
+                        {m}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Año */}
           <button onClick={() => { setFiltroPeriodo("anio"); setPickerAbierto(false); setCalAbierto(false); }}
             className={`px-4 py-2 rounded-lg text-xs font-medium transition-all
               ${filtroPeriodo === "anio"
-                ? "bg-blue-600 text-white shadow-sm"
+                ? "bg-brand text-white shadow-sm"
                 : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"}`}>
             Año
           </button>
@@ -210,7 +270,7 @@ export default function DashboardPage() {
               onClick={() => { setFiltroPeriodo("dia"); setCalAbierto(c => !c); setPickerAbierto(false); }}
               className={`flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-medium transition-all
                 ${filtroPeriodo === "dia"
-                  ? "bg-blue-600 text-white shadow-sm"
+                  ? "bg-brand text-white shadow-sm"
                   : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"}`}>
               <Calendar size={12} />
               {filtroPeriodo === "dia" ? formatDiaBtn(diaSeleccionado) : "Día"}
@@ -261,9 +321,9 @@ export default function DashboardPage() {
                         onClick={() => { setDiaSeleccionado(fechaStr); setCalAbierto(false); }}
                         className={`
                           w-full aspect-square flex items-center justify-center rounded-lg text-xs font-medium transition-all
-                          ${seleccionado ? "bg-blue-600 text-white" :
-                            esHoy        ? "border-2 border-blue-400 text-blue-600" :
-                                           "text-zinc-700 hover:bg-blue-50"}
+                          ${seleccionado ? "bg-brand text-white" :
+                            esHoy        ? "border-2 border-brand text-brand" :
+                                           "text-zinc-700 hover:bg-brand/5"}
                         `}>
                         {dia}
                       </button>
@@ -274,7 +334,7 @@ export default function DashboardPage() {
                 {/* Atajo hoy */}
                 <button
                   onClick={() => { setDiaSeleccionado(hoyStr); setCalAbierto(false); }}
-                  className="mt-3 w-full py-1.5 text-xs text-blue-600 border border-blue-100 rounded-lg hover:bg-blue-50 transition">
+                  className="mt-3 w-full py-1.5 text-xs text-brand border border-brand/20 rounded-lg hover:bg-brand/5 transition">
                   Ir a hoy
                 </button>
               </div>
@@ -304,7 +364,7 @@ export default function DashboardPage() {
               <p className="text-sm font-semibold text-zinc-800">Temperatura de Leads</p>
               <p className="text-[11px] text-zinc-400 mt-0.5">Score automático — ordenados por prioridad de cierre</p>
             </div>
-            <span className="text-xs text-blue-500 hover:underline">Ver prospectos →</span>
+            <span className="text-xs text-brand hover:underline">Ver prospectos →</span>
           </div>
           <div className="grid grid-cols-4 gap-3">
             <div className="bg-red-50 rounded-xl p-3 text-center">
@@ -392,10 +452,10 @@ export default function DashboardPage() {
               <p className="text-lg font-bold text-orange-600">{resumenTareas.hoy}</p>
               <p className="text-[10px] text-orange-400 uppercase tracking-wide">Hoy</p>
             </div>
-            <div className="text-center p-3 rounded-xl bg-blue-50">
-              <Calendar size={14} className="mx-auto text-blue-400 mb-1" />
-              <p className="text-lg font-bold text-blue-600">{resumenTareas.proximas}</p>
-              <p className="text-[10px] text-blue-400 uppercase tracking-wide">Próximas</p>
+            <div className="text-center p-3 rounded-xl bg-brand/5">
+              <Calendar size={14} className="mx-auto text-brand/70 mb-1" />
+              <p className="text-lg font-bold text-brand">{resumenTareas.proximas}</p>
+              <p className="text-[10px] text-brand/70 uppercase tracking-wide">Próximas</p>
             </div>
           </div>
         </div>

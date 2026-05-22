@@ -93,7 +93,7 @@ export function TablaIngresos({
                 <td className="px-4 py-3 text-right font-medium text-zinc-800">
                   {fmt(ing.monto_total, ing.moneda)}
                 </td>
-                <td className="px-4 py-3 text-right text-blue-600 font-medium">
+                <td className="px-4 py-3 text-right text-brand font-medium">
                   {fmt(ing.adelanto, ing.moneda)}
                 </td>
                 <td className="px-4 py-3 text-right font-semibold text-orange-600">
@@ -109,7 +109,7 @@ export function TablaIngresos({
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-2">
                     <button onClick={() => onEditar(ing)}
-                      className="text-zinc-400 hover:text-blue-500 transition" title="Editar">
+                      className="text-zinc-400 hover:text-brand transition" title="Editar">
                       <Pencil size={14} />
                     </button>
                     <button onClick={() => onBorrar(ing.id)}

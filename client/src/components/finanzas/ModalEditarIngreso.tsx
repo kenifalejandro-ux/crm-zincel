@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ModalEditar } from "../ui/ModalEditar";
 import type { TipoServicio, EstadoIngreso, Moneda } from "../../types/finanzas.types";
 
-const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500";
+const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
 
 const TIPOS: { value: TipoServicio; label: string }[] = [
   { value: "desarrollo_web",    label: "Desarrollo web (a medida)" },

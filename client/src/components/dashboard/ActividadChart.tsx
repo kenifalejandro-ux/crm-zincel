@@ -1,8 +1,9 @@
-/**client/src/components/dashboard/ActividadChart.tsx */
-
+/** client/src/components/dashboard/ActividadChart.tsx */
+import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { TrendingUp } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
+
 
 interface Props {
   metricas: Metricas;
@@ -16,40 +17,44 @@ export function ActividadChart({ metricas }: Props) {
   ].filter(d => d.llamadas > 0 || d.brochures > 0 || d.reuniones > 0);
 
   return (
-    <div className="bg-slate-50 rounded-xl border border-gray-100 p-5 xl:col-span-3">
-      <h2 className="text-xs font-semibold text-zinc-800 mb-4 flex items-center">
-        <TrendingUp size={16} className="mr-2" />
+    <div className={`${CARD_CLASS} xl:col-span-3`}>
+      <h2 className={HEADER_CLASS}>
+        <TrendingUp size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
         Actividad del Período
       </h2>
 
       <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={datos} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-          <XAxis dataKey="name" fontSize={12} tick={{ fill: "#6b7280" }} axisLine={{ stroke: "#d1d5db" }} />
-          <YAxis fontSize={12} tick={{ fill: "#6b7280" }} axisLine={{ stroke: "#d1d5db" }} />
+        <BarChart data={datos} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} vertical={false} />
+          <XAxis dataKey="name" fontSize={11} tick={{ fill: COLORS.muted }} axisLine={false} tickLine={false} dy={10} />
+          <YAxis fontSize={11} tick={{ fill: COLORS.muted }} axisLine={false} tickLine={false} />
           <Tooltip
+            cursor={{ fill: '#fafafa' }}
             contentStyle={{
-              backgroundColor: "white",
-              border: "1px solid #e5e7eb",
+              backgroundColor: "#ffffff",
+              border: "1px solid #e4e4e7",
               borderRadius: "8px",
-              boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+              boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)",
+              fontSize: "12px",
+              color: "#18181b"
             }}
+            itemStyle={{ color: "#52525b", fontWeight: 500 }}
           />
-          <Bar dataKey="llamadas"  stackId="a" fill="#3b82f6" radius={[2, 2, 0, 0]} />
-          <Bar dataKey="brochures" stackId="a" fill="#8b5cf6" radius={[2, 2, 0, 0]} />
-          <Bar dataKey="reuniones" stackId="a" fill="#f59e0b" radius={[2, 2, 0, 0]} />
+          <Bar dataKey="llamadas"  stackId="a" fill={COLORS.dark} radius={[2, 2, 0, 0]} maxBarSize={40} />
+          <Bar dataKey="brochures" stackId="a" fill="#e4e4e7" radius={[2, 2, 0, 0]} maxBarSize={40} />
+          <Bar dataKey="reuniones" stackId="a" fill={COLORS.primary} radius={[2, 2, 0, 0]} maxBarSize={40} />
         </BarChart>
       </ResponsiveContainer>
 
-      <div className="flex justify-center gap-6 mt-4">
+      <div className="flex justify-center gap-6 mt-6">
         {[
-          { label: "Llamadas",  color: "bg-blue-500" },
-          { label: "Brochures", color: "bg-purple-500" },
-          { label: "Reuniones", color: "bg-amber-500" },
+          { label: "Llamadas",  color: COLORS.dark },
+          { label: "Brochures", color: "#e4e4e7" },
+          { label: "Reuniones", color: COLORS.primary },
         ].map((item, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <div className={`w-4 h-4 rounded ${item.color}`} />
-            <span className="text-xs gray-100">{item.label}</span>
+          <div key={i} className="flex items-center gap-2.5">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+            <span className="text-[11px] font-medium text-zinc-500 uppercase tracking-wide">{item.label}</span>
           </div>
         ))}
       </div>

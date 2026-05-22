@@ -38,7 +38,7 @@ export function ModalReunion({
           <select
             value={form.prospecto_id}
             onChange={(e) => set({ prospecto_id: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             <option value="">Selecciona un prospecto</option>
             {prospectos.map((p) => (
@@ -57,7 +57,7 @@ export function ModalReunion({
             value={form.titulo}
             onChange={(e) => set({ titulo: e.target.value })}
             placeholder="Ej: Primera reunión de presentación"
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           />
         </div>
 
@@ -69,7 +69,7 @@ export function ModalReunion({
               type="datetime-local"
               value={form.fecha_hora}
               onChange={(e) => set({ fecha_hora: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
             />
           </div>
           <div>
@@ -77,7 +77,7 @@ export function ModalReunion({
             <select
               value={form.modalidad}
               onChange={(e) => set({ modalidad: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
             >
               {MODALIDADES.map((m) => (
                 <option key={m} value={m} className="capitalize">
@@ -96,7 +96,7 @@ export function ModalReunion({
             value={form.enlace}
             onChange={(e) => set({ enlace: e.target.value })}
             placeholder="https://meet.google.com/..."
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           />
         </div>
 
@@ -107,7 +107,7 @@ export function ModalReunion({
             value={form.notas}
             onChange={(e) => set({ notas: e.target.value })}
             rows={2}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
           />
         </div>
 
@@ -122,7 +122,7 @@ export function ModalReunion({
           <button
             onClick={onGuardar}
             disabled={disabled}
-            className="flex-1 px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition"
+            className="flex-1 px-4 py-2 text-xs bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition"
           >
             {cargando ? "Guardando..." : "Guardar"}
           </button>

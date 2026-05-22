@@ -10,7 +10,7 @@ interface Props {
   onCancelar:  () => void;
 }
 
-const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500";
+const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
 
 const hoyMas = (dias: number) => {
   const d = new Date();
@@ -40,8 +40,8 @@ export function TareaForm({ prospectoId, onGuardado, onCancelar }: Props) {
   }
 
   return (
-    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-3">
-      <p className="text-xs font-semibold text-blue-700">Nueva tarea de seguimiento</p>
+    <div className="bg-brand/5 border border-brand/20 rounded-xl p-4 space-y-3">
+      <p className="text-xs font-semibold text-brand">Nueva tarea de seguimiento</p>
 
       {/* Accesos rápidos de fecha */}
       <div className="flex gap-1.5 flex-wrap">
@@ -55,8 +55,8 @@ export function TareaForm({ prospectoId, onGuardado, onCancelar }: Props) {
           <button key={dias} onClick={() => setFecha(hoyMas(dias))}
             className={`px-2 py-1 text-[10px] rounded-md border transition ${
               fecha === hoyMas(dias)
-                ? "bg-blue-600 text-white border-blue-600"
-                : "border-blue-200 text-blue-600 hover:bg-blue-100"
+                ? "bg-brand text-white border-brand"
+                : "border-brand/30 text-brand hover:bg-brand/5"
             }`}>
             {label}
           </button>
@@ -79,7 +79,7 @@ export function TareaForm({ prospectoId, onGuardado, onCancelar }: Props) {
           Cancelar
         </button>
         <button onClick={handleGuardar} disabled={loading}
-          className="flex-1 px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition">
+          className="flex-1 px-3 py-1.5 text-xs bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition">
           {loading ? "Guardando..." : "Guardar tarea"}
         </button>
       </div>

@@ -1,5 +1,6 @@
 /** client/src/components/inteligencia/AbandonoPipeline.tsx */
 
+import { COLORS } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { XCircle } from "lucide-react";
@@ -16,20 +17,20 @@ const ETAPA_LABEL: Record<string, string> = {
 };
 
 const ETAPA_COLOR: Record<string, string> = {
-  nuevo:             "#60a5fa",
-  contactado:        "#6366f1",
-  interesado:        "#f59e0b",
-  propuesta_enviada: "#10b981",
-  negociacion:       "#8b5cf6",
-  perdido:           "#f87171",
-  descartado:        "#a1a1aa",
+  nuevo:             COLORS.mutedLight,
+  contactado:        COLORS.muted,
+  interesado:        COLORS.primary,
+  propuesta_enviada: COLORS.primary,
+  negociacion:       COLORS.mutedDark,
+  perdido:           COLORS.danger,
+  descartado:        COLORS.muted,
 };
 
 const TooltipBar = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-2.5 text-xs">
+    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm p-2.5 text-xs">
       <p className="font-semibold text-zinc-800 truncate max-w-[200px]">{d.label ?? d.motivo}</p>
       <p className="text-zinc-600 mt-0.5">{d.total} ocurrencia{d.total !== 1 ? "s" : ""}</p>
     </div>
@@ -66,14 +67,14 @@ export function AbandonoPipelineChart() {
   const totalActivo  = capa === "primer_contacto" ? totalMotivos1 : totalMotivos2;
 
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-5 space-y-4">
+    <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6 space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-red-50">
             <XCircle size={14} className="text-red-500" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-zinc-800">Análisis de abandono del pipeline</h3>
+            <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Análisis de abandono del pipeline</h3>
             <p className="text-[11px] text-zinc-400">{totalPerdidos} leads perdidos/descartados · ¿dónde y por qué se pierden?</p>
           </div>
         </div>
@@ -113,13 +114,13 @@ export function AbandonoPipelineChart() {
             ) : (
               data.por_etapa.map((e) => {
                 const pct   = totalPerdidos > 0 ? Math.round((e.total / totalPerdidos) * 100) : 0;
-                const color = ETAPA_COLOR[e.etapa] ?? "#a1a1aa";
+                const color = ETAPA_COLOR[e.etapa] ?? COLORS.muted;
                 return (
                   <div key={e.etapa} className="flex items-center gap-2">
                     <span className="text-[10px] text-zinc-500 w-20 shrink-0">
                       {ETAPA_LABEL[e.etapa] ?? e.etapa}
                     </span>
-                    <div className="flex-1 bg-gray-100 rounded-full h-2">
+                    <div className="flex-1 bg-zinc-100 rounded-full h-2">
                       <div
                         className="h-2 rounded-full transition-all"
                         style={{ width: `${Math.max(pct, 2)}%`, background: color }}
@@ -175,7 +176,7 @@ export function AbandonoPipelineChart() {
                 margin={{ top: 0, right: 35, left: 0, bottom: 0 }}
                 barSize={13}
               >
-                <XAxis type="number" tick={{ fontSize: 9, fill: "#a1a1aa" }} tickLine={false} axisLine={false} />
+                <XAxis type="number" tick={{ fontSize: 9, fill: COLORS.muted }} tickLine={false} axisLine={false} />
                 <YAxis
                   type="category"
                   dataKey="motivo"
@@ -184,7 +185,7 @@ export function AbandonoPipelineChart() {
                   axisLine={false}
                   width={95}
                 />
-                <Tooltip content={<TooltipBar />} cursor={{ fill: "#f4f4f5" }} />
+                <Tooltip content={<TooltipBar />} cursor={{ fill: COLORS.surface }} />
                 <Bar dataKey="total" radius={[0, 4, 4, 0]}>
                   {motivoActivo.map((_, i) => (
                     <Cell
@@ -227,7 +228,7 @@ export function AbandonoPipelineChart() {
                     <td className="py-1.5">
                       <span
                         className="px-2 py-0.5 rounded-full text-[10px] font-medium text-white"
-                        style={{ background: ETAPA_COLOR[c.etapa] ?? "#a1a1aa" }}
+                        style={{ background: ETAPA_COLOR[c.etapa] ?? COLORS.muted }}
                       >
                         {ETAPA_LABEL[c.etapa] ?? c.etapa}
                       </span>

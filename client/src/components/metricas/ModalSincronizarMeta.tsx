@@ -98,7 +98,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
                     value={empresa}
                     onChange={e => setEmpresa(e.target.value)}
                     placeholder="Ej: Zincel Ideas"
-                    className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50"
                   />
                 </div>
               )}
@@ -110,7 +110,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
                     type="date"
                     value={desde}
                     onChange={e => setDesde(e.target.value)}
-                    className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50"
                   />
                 </div>
                 <div>
@@ -119,7 +119,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
                     type="date"
                     value={hasta}
                     onChange={e => setHasta(e.target.value)}
-                    className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50"
                   />
                 </div>
               </div>
@@ -133,7 +133,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
               <button
                 onClick={handlePreview}
                 disabled={cargando}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-brand hover:bg-brand-hover text-white text-xs font-semibold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {cargando ? <><RefreshCw size={14} className="animate-spin" /> Consultando Meta...</> : "Ver campañas disponibles"}
               </button>
@@ -143,7 +143,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
           {/* PASO: preview */}
           {paso === "preview" && preview && (
             <>
-              <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3">
+              <div className="bg-brand/5 border border-brand/20 rounded-lg px-4 py-3">
                 <p className="text-xs font-semibold text-blue-700 mb-0.5">
                   {preview.total} campaña{preview.total !== 1 ? "s" : ""} encontrada{preview.total !== 1 ? "s" : ""}
                 </p>
@@ -177,7 +177,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
                 <button
                   onClick={handleSync}
                   disabled={cargando}
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 bg-brand hover:bg-brand-hover text-white text-xs font-semibold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {cargando ? <><RefreshCw size={14} className="animate-spin" /> Importando...</> : "Importar al CRM"}
                 </button>

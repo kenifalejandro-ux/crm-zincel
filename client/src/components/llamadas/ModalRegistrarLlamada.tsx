@@ -35,7 +35,7 @@ interface Props {
 
 export function ModalRegistrarLlamada({ form, prospectos, cargando, onFormChange, onGuardar, onCerrar }: Props) {
   const set = (campo: Partial<FormLlamada>) => onFormChange({ ...form, ...campo });
-  const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500";
+  const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
@@ -107,7 +107,7 @@ export function ModalRegistrarLlamada({ form, prospectos, cargando, onFormChange
             Cancelar
           </button>
           <button onClick={onGuardar} disabled={cargando || !form.prospecto_id}
-            className="flex-1 px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition">
+            className="flex-1 px-4 py-2 text-xs bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition">
             {cargando ? "Guardando..." : "Guardar"}
           </button>
         </div>

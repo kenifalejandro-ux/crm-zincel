@@ -106,7 +106,7 @@ export const AnalisisDetalle = ({ metrica: m, calculado: c }: Props) => (
 
     {/* Análisis de ingresos si hay datos */}
     {m.ingresos > 0 && (
-      <div className="border border-blue-200 bg-blue-50 rounded-xl p-4 space-y-2">
+      <div className="border border-brand/20 bg-blue-50 rounded-xl p-4 space-y-2">
         <div className="flex items-center gap-2">
           <span>💰</span>
           <span className="text-xs font-bold uppercase tracking-wide text-blue-700">

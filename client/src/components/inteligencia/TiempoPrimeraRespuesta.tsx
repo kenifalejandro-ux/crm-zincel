@@ -9,7 +9,7 @@ const TooltipDist = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-2.5 text-xs">
+    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm p-2.5 text-xs">
       <p className="font-semibold text-zinc-800">{d.label}</p>
       <p className="text-zinc-600 mt-0.5">{d.valor} prospectos</p>
       <p className="text-zinc-400">{d.pct}% del total</p>
@@ -39,13 +39,13 @@ export function TiempoPrimeraRespuestaChart() {
     : data.distribucion;
 
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-5">
+    <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6">
       <div className="flex items-center gap-2 mb-4">
         <div className="p-1.5 rounded-lg bg-amber-50">
           <Zap size={14} className="text-amber-500" />
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-zinc-800">Tiempo de primera respuesta</h3>
+          <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Tiempo de primera respuesta</h3>
           <p className="text-[11px] text-zinc-400">Días promedio entre creación del lead y primer contacto</p>
         </div>
       </div>
@@ -110,7 +110,7 @@ export function TiempoPrimeraRespuestaChart() {
             { label: "Promedio",value: data.promedio_dias, color: "text-zinc-700"   },
             { label: "Máximo",  value: data.maximo_dias,  color: "text-red-500"    },
           ].map((s) => (
-            <div key={s.label} className="bg-gray-50 rounded-lg p-2">
+            <div key={s.label} className="bg-zinc-50 rounded-lg p-2">
               <p className={`text-sm font-bold ${s.color}`}>{s.value !== null ? `${s.value}d` : "—"}</p>
               <p className="text-[9px] text-zinc-400">{s.label}</p>
             </div>

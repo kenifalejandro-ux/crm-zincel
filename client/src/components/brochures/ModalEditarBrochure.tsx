@@ -43,7 +43,7 @@ export function ModalEditarBrochure({ brochure, guardando, error, onGuardar, onC
             type="date"
             value={fecha_envio}
             onChange={(e) => setFechaEnvio(e.target.value)}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           />
         </div>
 
@@ -52,7 +52,7 @@ export function ModalEditarBrochure({ brochure, guardando, error, onGuardar, onC
           <select
             value={canal}
             onChange={(e) => setCanal(e.target.value)}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             {CANALES.map((c) => (
               <option key={c} value={c} className="capitalize">{c}</option>
@@ -67,7 +67,7 @@ export function ModalEditarBrochure({ brochure, guardando, error, onGuardar, onC
             value={notas}
             onChange={(e) => setNotas(e.target.value)}
             placeholder="Ej: Enviado con propuesta de rediseño..."
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
           />
         </div>
       </div>

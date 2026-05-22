@@ -7,7 +7,7 @@ import type { Reunion } from "../../types/reunion.types";
 const MODALIDADES = ["zoom", "google_meet", "presencial", "teams", "whatsapp_video"];
 const ESTADOS     = ["programada", "realizada", "cancelada", "reprogramada", "en_proceso"];
 
-const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500";
+const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
 
 export interface FormEditarReunion {
   titulo:     string;

@@ -7,9 +7,12 @@ import { crearProspecto, actualizarProspecto, getProspecto } from "../../service
 import { crearLlamada } from "../../services/llamadas.api";
 import { crearBrochure } from "../../services/brochures.api";
 import { crearReunion } from "../../services/reuniones.api";
+import { upsertContactoSecundario, eliminarContactoSecundario } from "../../services/prospectos.api";
 import type { Prospecto } from "../../types/prospecto.types";
 
 const ESTADOS_LEAD = [
+  { value: "nuevo",              label: "Nuevo (última carga)" },
+  { value: "por_gestionar",      label: "Por gestionar" },
   { value: "interesado",         label: "Interesado" },
   { value: "no_interesado",      label: "No interesado" },
   { value: "no_contesta",        label: "No contesta" },
@@ -96,7 +99,7 @@ const INICIAL = {
   nombre_contacto: "", cargo: "", telefono: "", email_contacto: "",
   ciudad: "", region: "",
   // CRM
-  estado_lead: "no_contesta", clasificacion: "por_gestionar",
+  estado_lead: "por_gestionar", clasificacion: "por_gestionar",
   prioridad: "media", fuente: "", estado_venta: "no", notas: "",
   etapa_pipeline: "nuevo",
   // Llamadas
@@ -108,13 +111,16 @@ const INICIAL = {
   hora_reunion: "", ingreso_reunion: "", estado_reunion: "programada",
 };
 
-const selectClass = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500";
+const selectClass = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
 
 export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoFormProps) {
   const esEdicion = !!prospecto?.id;
   const [form, setForm] = useState({ ...INICIAL });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
+
+  const [contacto2, setContacto2] = useState({ id: "", nombre: "", cargo: "", telefono: "", email: "" });
+  const setC2 = (k: string, v: string) => setContacto2(c => ({ ...c, [k]: v }));
 
   useEffect(() => {
     if (prospecto) {
@@ -123,6 +129,9 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
       const llamada  = p.llamadas?.[0];
       const brochure = p.brochures?.[0];
       const reunion  = p.reuniones?.[0];
+
+      const c2 = p.contactos?.[0];
+      if (c2) setContacto2({ id: c2.id ?? "", nombre: c2.nombre ?? "", cargo: c2.cargo ?? "", telefono: c2.telefono ?? "", email: c2.email ?? "" });
 
       setForm({
         empresa:          p.empresa         ?? "",
@@ -247,6 +256,19 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
 
       if (tareas.length > 0) await Promise.allSettled(tareas);
 
+      // Contacto secundario: upsert si tiene nombre, eliminar si se borró
+      if (contacto2.nombre.trim()) {
+        await upsertContactoSecundario(prospectoId, {
+          id:       contacto2.id || undefined,
+          nombre:   contacto2.nombre.trim(),
+          cargo:    contacto2.cargo || undefined,
+          telefono: contacto2.telefono || undefined,
+          email:    contacto2.email || undefined,
+        });
+      } else if (contacto2.id) {
+        await eliminarContactoSecundario(prospectoId, contacto2.id);
+      }
+
       onGuardado?.();
       onCerrar();
     } catch (err: any) {
@@ -325,6 +347,26 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
                 {REGIONES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
               </select>
             </div>
+          </div>
+        </div>
+
+        {/* ── CONTACTO SECUNDARIO ── */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide">Contacto 2</p>
+            {contacto2.id && !contacto2.nombre && (
+              <span className="text-[10px] text-zinc-400">Deja el nombre vacío para eliminar</span>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-3 p-3 rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50">
+            <Input label="Nombre" placeholder="Nombre del segundo contacto"
+              value={contacto2.nombre} onChange={e => setC2("nombre", e.target.value)} />
+            <Input label="Cargo" placeholder="Ej: Administrador"
+              value={contacto2.cargo} onChange={e => setC2("cargo", e.target.value)} />
+            <Input label="Teléfono" placeholder="+51 999 999 999"
+              value={contacto2.telefono} onChange={e => setC2("telefono", e.target.value)} />
+            <Input label="Email" type="email" placeholder="correo@empresa.com"
+              value={contacto2.email} onChange={e => setC2("email", e.target.value)} />
           </div>
         </div>
 
@@ -500,7 +542,7 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
           <label className="text-xs font-medium gray-100">Notas</label>
           <textarea value={form.notas} onChange={e => set("notas", e.target.value)} rows={3}
             placeholder="Observaciones generales del prospecto..."
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none" />
         </div>
 
         {error && <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}

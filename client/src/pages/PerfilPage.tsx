@@ -53,13 +53,13 @@ export default function PerfilPage() {
       {/* Info usuario */}
       <div className="bg-white rounded-xl border border-gray-100 p-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
-            <User size={24} className="text-blue-600" />
+          <div className="w-14 h-14 bg-zinc-100 rounded-full flex items-center justify-center">
+            <User size={24} className="text-zinc-600" />
           </div>
           <div>
             <p className="font-semibold text-zinc-800 text-lg">{usuario?.nombre}</p>
             <p className="text-xs text-zinc-800">{usuario?.email}</p>
-            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-zinc-800 capitalize mt-1">
+            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-700 capitalize mt-1">
               {usuario?.rol}
             </span>
           </div>
@@ -85,7 +85,7 @@ export default function PerfilPage() {
               required
               placeholder="••••••••"
               className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-xs
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-transparent"
             />
           </div>
 
@@ -100,7 +100,7 @@ export default function PerfilPage() {
               required
               placeholder="Mínimo 6 caracteres"
               className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-xs
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-transparent"
             />
           </div>
 
@@ -115,7 +115,7 @@ export default function PerfilPage() {
               required
               placeholder="Repite la nueva contraseña"
               className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-xs
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-transparent"
             />
           </div>
 
@@ -135,7 +135,7 @@ export default function PerfilPage() {
           <button
             type="submit"
             disabled={cargando}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400
+            className="w-full bg-brand hover:bg-brand-hover disabled:opacity-60
                        text-zinc-800 font-medium py-2.5 rounded-lg text-xs transition"
           >
             {cargando ? "Actualizando..." : "Actualizar contraseña"}

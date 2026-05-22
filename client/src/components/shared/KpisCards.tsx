@@ -1,13 +1,15 @@
-/** client/src/components/shared/KpiCards.tsx */
+/** client/src/components/shared/KpisCards.tsx */
 
+import { CARD_CLASS } from "../../lib/tokens";
 import type { ReactNode } from "react";
+
 
 export interface KpiItem {
   label: string;
   valor: string | number;
   icon: ReactNode;
-  color: string; // ej: "text-green-600"
-  bg: string;    // ej: "bg-green-50"
+  color: string;
+  bg: string;
 }
 
 interface Props {
@@ -25,7 +27,7 @@ export function KpiCards({ items, cols = 3 }: Props) {
   return (
     <div className={`grid ${gridCols} gap-4`}>
       {items.map((k, i) => (
-        <div key={i} className="bg-white rounded-xl border border-gray-100 p-5">
+        <div key={i} className={CARD_CLASS}>
           <div className={`inline-flex p-2 rounded-lg ${k.bg} ${k.color} mb-3`}>
             {k.icon}
           </div>

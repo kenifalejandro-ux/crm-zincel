@@ -18,7 +18,7 @@ export const crearProspectoSchema = z.object({
   pais:             z.string().max(100).default("Perú"),
   prioridad:        z.enum(["alta","media","baja"]).default("media"),
   fuente:           z.enum(["facebook","instagram","tiktok","linkedin","referido","web","llamada_fria","otro"]).optional(),
-  estado_lead:      z.enum(["interesado","no_interesado","no_contesta","volver_a_llamar","buzon_de_voz","fuera_de_servicio","numero_equivocado","ya_tiene_proveedor"]).default("no_contesta"),
+  estado_lead:      z.enum(["nuevo","por_gestionar","interesado","no_interesado","no_contesta","volver_a_llamar","buzon_de_voz","fuera_de_servicio","numero_equivocado","ya_tiene_proveedor"]).default("por_gestionar"),
   clasificacion:    z.enum(["gestionado","por_gestionar","cerrado","descartado"]).default("por_gestionar"),
   estado_venta:     z.enum(["si","no","en_proceso"]).default("no"),
   notas:            z.string().optional(),

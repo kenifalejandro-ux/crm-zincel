@@ -8,7 +8,13 @@ export default {
   ],
   darkMode: "class",
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        brand:       "#ceab11",  // color de marca — cambia aquí
+        "brand-hover":  "#b08d47",
+        "brand-light":  "#e8d9b8",
+      },
+    },
   },
   plugins: [
     require("tailwindcss-animate"),

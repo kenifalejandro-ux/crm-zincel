@@ -1,14 +1,15 @@
 /** client/src/components/inteligencia/ForecastIngresos.tsx */
 
+import { COLORS } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { TrendingUp } from "lucide-react";
 import { getForecastIngresos, type ForecastIngresos } from "../../services/inteligencia.api";
 
-const COLORS: Record<string, string> = {
-  enviada:        "#60a5fa",
-  en_negociacion: "#f59e0b",
-  cerrada_ganada: "#22c55e",
+const STAGE_COLORS: Record<string, string> = {
+  enviada:        COLORS.muted,
+  en_negociacion: COLORS.primary,
+  cerrada_ganada: COLORS.dark,
 };
 
 function fmt(n: number) {
@@ -21,11 +22,11 @@ const TooltipForecast = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-2.5 text-xs">
+    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm p-2.5 text-xs">
       <p className="font-semibold text-zinc-800">{d.label}</p>
       <p className="text-zinc-500 mt-0.5">{d.cantidad} propuesta{d.cantidad !== 1 ? "s" : ""}</p>
       <p className="text-zinc-600">Monto total: {fmt(d.monto_total)}</p>
-      <p className="font-medium mt-1" style={{ color: COLORS[d.estado] ?? "#6366f1" }}>
+      <p className="font-medium mt-1" style={{ color: STAGE_COLORS[d.estado] ?? "#6366f1" }}>
         Ponderado ({d.prob}%): {fmt(d.ponderado)}
       </p>
     </div>
@@ -45,14 +46,14 @@ export function ForecastIngresosChart() {
   const maxVal = Math.max(...chartData.map((d) => d.ponderado), 1);
 
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-5">
+    <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-amber-50">
             <TrendingUp size={14} className="text-amber-500" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-zinc-800">Forecast de ingresos ponderado</h3>
+            <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Forecast de ingresos ponderado</h3>
             <p className="text-[11px] text-zinc-400">Propuestas en pipeline × probabilidad de cierre por etapa</p>
           </div>
         </div>
@@ -65,9 +66,9 @@ export function ForecastIngresosChart() {
       {/* Barra principal de probabilidades */}
       <div className="flex gap-2 mb-4 text-[10px]">
         {[
-          { label: "Enviadas",       prob: "20%", color: "#60a5fa" },
-          { label: "Negociación",    prob: "60%", color: "#f59e0b" },
-          { label: "Cerradas/ganadas", prob: "100%", color: "#22c55e" },
+          { label: "Enviadas",          prob: "20%",  color: COLORS.muted },
+          { label: "Negociación",     prob: "60%",  color: COLORS.primary },
+          { label: "Cerradas/ganadas",prob: "100%", color: COLORS.dark },
         ].map((s) => (
           <div key={s.label} className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full shrink-0" style={{ background: s.color }} />
@@ -87,7 +88,7 @@ export function ForecastIngresosChart() {
           <XAxis
             type="number"
             domain={[0, maxVal * 1.15]}
-            tick={{ fontSize: 9, fill: "#a1a1aa" }}
+            tick={{ fontSize: 9, fill: COLORS.muted }}
             tickLine={false}
             axisLine={false}
             tickFormatter={(v) => fmt(v)}
@@ -100,10 +101,10 @@ export function ForecastIngresosChart() {
             axisLine={false}
             width={95}
           />
-          <Tooltip content={<TooltipForecast />} cursor={{ fill: "#f4f4f5" }} />
+          <Tooltip content={<TooltipForecast />} cursor={{ fill: COLORS.surface }} />
           <Bar dataKey="ponderado" radius={[0, 6, 6, 0]}>
             {chartData.map((entry) => (
-              <Cell key={entry.estado} fill={COLORS[entry.estado] ?? "#6366f1"} />
+              <Cell key={entry.estado} fill={STAGE_COLORS[entry.estado] ?? "#6366f1"} />
             ))}
             <LabelList
               dataKey="ponderado"

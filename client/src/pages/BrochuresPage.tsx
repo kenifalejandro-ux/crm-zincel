@@ -19,7 +19,7 @@ import { ModalBrochure, type FormBrochure } from "../components/brochures/ModalB
 import { ModalEditarBrochure }              from "../components/brochures/ModalEditarBrochure";
 import { KpisBrochures }                    from "../components/brochures/KpisBrochures";
 import { EstadisticasBrochures }            from "../components/brochures/EstadisticasBrochures";
-import { FiltrosFecha }                     from "../components/llamadas/FiltrosFecha";
+import { FiltroPeriodoBotones, type FiltroPeriodo } from "../components/shared/FiltroPeriodoBotones";
 import { TableBulkActions }                 from "@/components/ui/TableBulkActions";
 import { useEditar }                        from "../hooks/useEditar";
 import { fechaHoy, calcularRangoFecha }     from "../utils/date";
@@ -46,7 +46,7 @@ export default function BrochuresPage() {
   const [totalEnvios,  setTotalEnvios]  = useState(0);
   const [canalesData,  setCanalesData]  = useState<any[]>([]);
 
-  const [filtroPeriodo, setFiltroPeriodo] = useState("mes");
+  const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>("mes");
   const [filtroFecha,   setFiltroFecha]   = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -57,7 +57,7 @@ export default function BrochuresPage() {
   const handleGuardarEdicion = async (form: { canal: string; fecha_envio: string; notas: string }) => {
     await editar.guardar(async () => {
       await actualizarBrochure(editar.editando!.id, form);
-      cargarAnalisis(filtroFecha, filtroPeriodo as "dia" | "semana" | "mes");
+      cargarAnalisis(filtroFecha, filtroPeriodo);
     });
   };
 
@@ -73,11 +73,12 @@ export default function BrochuresPage() {
     } catch (err) { console.error(err); }
   };
 
-  const cargarAnalisis = async (fecha: string, periodo: "dia" | "semana" | "mes" | "anio") => {
+  const cargarAnalisis = async (fecha: string, periodo: FiltroPeriodo) => {
     try {
       const rango = calcularRangoFecha(fecha, periodo);
       setRangoActual(rango);
-      const gran: "hora" | "dia" | "mes" = periodo === "dia" ? "hora" : periodo === "anio" ? "mes" : "dia";
+      const gran: "hora" | "dia" | "mes" =
+        (periodo === "dia" || periodo === "hoy") ? "hora" : periodo === "anio" ? "mes" : "dia";
       const [stats, resumen] = await Promise.all([
         getEstadisticasBrochures(gran, rango),
         getResumenBrochuresFiltrado(rango),
@@ -90,21 +91,14 @@ export default function BrochuresPage() {
   };
 
   useEffect(() => {
-    cargarAnalisis(filtroFecha, filtroPeriodo as "dia" | "semana" | "mes" | "anio");
+    cargarAnalisis(filtroFecha, filtroPeriodo);
   }, []);
 
-  useEffect(() => {
-    const now = new Date();
-    if (filtroPeriodo === "anio") {
-      if (filtroFecha.length !== 4) setFiltroFecha(String(now.getFullYear()));
-    } else if (filtroPeriodo === "mes") {
-      if (filtroFecha.length > 7) setFiltroFecha((prev) => prev.slice(0, 7));
-      else if (filtroFecha.length === 4) setFiltroFecha(`${filtroFecha}-${String(now.getMonth() + 1).padStart(2,"0")}`);
-    } else {
-      if (filtroFecha.length === 7) setFiltroFecha((prev) => `${prev}-01`);
-      else if (filtroFecha.length === 4) setFiltroFecha(`${filtroFecha}-${String(now.getMonth() + 1).padStart(2,"0")}-01`);
-    }
-  }, [filtroPeriodo]);
+  const handleFiltroChange = (periodo: FiltroPeriodo, fecha: string) => {
+    setFiltroPeriodo(periodo);
+    setFiltroFecha(fecha);
+    cargarAnalisis(fecha, periodo);
+  };
 
   const handleGuardar = async () => {
     if (!form.prospecto_id || !form.canal) return;
@@ -113,7 +107,7 @@ export default function BrochuresPage() {
       await crearBrochure(form);
       setModalAbierto(false);
       setForm(FORM_INICIAL);
-      cargarAnalisis(filtroFecha, filtroPeriodo as "dia" | "semana" | "mes");
+      cargarAnalisis(filtroFecha, filtroPeriodo);
     } catch (err) { console.error(err); }
     finally { setCargando(false); }
   };
@@ -136,7 +130,7 @@ export default function BrochuresPage() {
     try {
       await eliminarBrochuresMasivo(seleccionados);
       setSeleccionados([]);
-      cargarAnalisis(filtroFecha, filtroPeriodo as "dia" | "semana" | "mes");
+      cargarAnalisis(filtroFecha, filtroPeriodo);
     } catch {
       alert("Error eliminando brochures");
     }
@@ -161,7 +155,7 @@ export default function BrochuresPage() {
   // ── Estadísticas formateadas ─────────────────────────────
   const estadisticasPorPeriodo = useMemo(() => estadisticas.map((stat) => {
     let fechaLabel: string;
-    if (filtroPeriodo === "dia") {
+    if (filtroPeriodo === "dia" || filtroPeriodo === "hoy") {
       const hora = typeof stat.periodo === "number" ? stat.periodo : parseInt(String(stat.periodo));
       fechaLabel = `${String(hora).padStart(2, "0")}:00`;
     } else if (filtroPeriodo === "anio") {
@@ -189,24 +183,22 @@ export default function BrochuresPage() {
           <TableBulkActions count={seleccionados.length} onDelete={eliminarSeleccionados} />
           {brochures.length > 0 && (
             <button onClick={exportarExcel}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition">
+              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-zinc-800 hover:bg-zinc-900 text-white rounded-lg transition">
               <FileDown size={15} /> Exportar Excel
             </button>
           )}
           <button onClick={() => setModalAbierto(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition">
             <Plus size={15} /> Registrar envío
           </button>
         </div>
       </div>
 
       {/* Filtros de período */}
-      <FiltrosFecha
-        filtroPeriodo={filtroPeriodo}
+      <FiltroPeriodoBotones
+        periodo={filtroPeriodo}
         filtroFecha={filtroFecha}
-        onPeriodoChange={setFiltroPeriodo}
-        onFechaChange={setFiltroFecha}
-        onAplicar={() => cargarAnalisis(filtroFecha, filtroPeriodo as "dia" | "semana" | "mes" | "anio")}
+        onChange={handleFiltroChange}
       />
 
       {/* KPIs */}
@@ -217,7 +209,7 @@ export default function BrochuresPage() {
         estadisticas={estadisticasPorPeriodo}
         canales={canalesData}
         filtroPeriodo={filtroPeriodo}
-        onPeriodoChange={setFiltroPeriodo}
+        onPeriodoChange={(p) => handleFiltroChange(p as FiltroPeriodo, filtroFecha)}
       />
 
       {/* Tabla */}

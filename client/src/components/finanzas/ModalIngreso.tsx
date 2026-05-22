@@ -2,7 +2,7 @@
 
 import type { FormIngreso, TipoServicio, EstadoIngreso, Moneda } from "../../types/finanzas.types";
 
-const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500";
+const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
 
 const TIPOS: { value: TipoServicio; label: string }[] = [
   { value: "desarrollo_web",    label: "Desarrollo web (a medida)" },
@@ -170,7 +170,7 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
           </button>
           <button onClick={onGuardar}
             disabled={cargando || !form.empresa || !form.descripcion || !form.monto_total}
-            className="flex-1 px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg transition">
+            className="flex-1 px-4 py-2 text-xs bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition">
             {cargando ? "Guardando..." : "Guardar ingreso"}
           </button>
         </div>

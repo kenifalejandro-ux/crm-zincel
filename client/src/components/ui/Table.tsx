@@ -36,7 +36,7 @@ export function Table<T>({ columns, data, loading, empty = "Sin registros", rowK
             {loading ? (
               <tr>
                 <td colSpan={columns.length} className="text-center py-12">
-                  <div className="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                  <div className="inline-block w-6 h-6 border-2 border-brand border-t-transparent rounded-full animate-spin" />
                 </td>
               </tr>
             ) : data.length === 0 ? (

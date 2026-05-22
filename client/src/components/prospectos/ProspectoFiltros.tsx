@@ -30,7 +30,7 @@ export function ProspectoFiltros({ busqueda, estadoFiltro, onBusquedaChange, onE
           value={busqueda}
           onChange={e => onBusquedaChange(e.target.value)}
           placeholder="Buscar empresa, contacto, teléfono..."
-          className="w-full pl-9 pr-4 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full pl-9 pr-4 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
         />
       </div>
 
@@ -40,7 +40,7 @@ export function ProspectoFiltros({ busqueda, estadoFiltro, onBusquedaChange, onE
           <select
             value={estadoFiltro}
             onChange={e => onEstadoFiltroChange(e.target.value)}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 gray-100"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 gray-100"
           >
             {ESTADOS_LEAD.map(estado => (
               <option key={estado.value} value={estado.value}>

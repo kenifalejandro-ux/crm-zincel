@@ -1,49 +1,51 @@
-/**client/src/components/dashboard/ProspectosPorEstado.tsx */
-
+/** client/src/components/dashboard/ProspectosPorEstado.tsx */
+import { COLORS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import { Users } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
+
 
 interface Props {
   metricas: Metricas;
 }
 
-const ESTADOS: Array<{ key: keyof Metricas["prospectos"]; label: string; color: string; bg: string }> = [
-  { key: "prospectos_interesados",     label: "Interesado",       color: "bg-green-500",  bg: "bg-green-50"  },
-  { key: "prospectos_no_interesados",  label: "No interesado",    color: "bg-red-400",    bg: "bg-red-50"    },
-  { key: "prospectos_no_contesta",     label: "No contesta",      color: "bg-gray-400",   bg: "bg-gray-50"   },
-  { key: "prospectos_volver_llamar",   label: "Volver a llamar",  color: "bg-yellow-400", bg: "bg-yellow-50" },
-  { key: "prospectos_buzon",           label: "Buzón de voz",     color: "bg-orange-400", bg: "bg-orange-50" },
-  { key: "prospectos_tiene_proveedor", label: "Ya tiene proveedor", color: "bg-purple-400", bg: "bg-purple-50" },
+const ESTADOS = [
+  { key: "prospectos_interesados",     label: "Interesado",       color: "#ceab11" },
+  { key: "prospectos_volver_llamar",   label: "Volver a llamar",  color: COLORS.dark },
+  { key: "prospectos_no_contesta",     label: "No contesta",      color: "#71717a" },
+  { key: "prospectos_tiene_proveedor", label: "Ya tiene proveedor", color: "#f87171" },
+  { key: "prospectos_buzon",           label: "Buzón de voz",     color: "#d4d4d8" },
+  { key: "prospectos_no_interesados",  label: "No interesado",    color: "#f87171" },
 ];
 
 export function ProspectosPorEstado({ metricas }: Props) {
   const total = metricas.prospectos.total_prospectos;
 
   return (
-    <div className="bg-slate-50 rounded-xl border border-gray-100 p-5">
-      <h2 className="text-xs font-semibold text-zinc-800 mb-4 flex items-center">
-        <Users size={16} className="mr-2" />
+    <div className={CARD_CLASS}>
+      <h2 className={HEADER_CLASS}>
+        <Users size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
         Prospectos por Estado
       </h2>
 
-      <div className="space-y-2.5">
+      <div className="space-y-4">
         {ESTADOS.map((item, i) => {
-          const valor = metricas.prospectos[item.key] as number;
+          const valor = metricas.prospectos[item.key as keyof Metricas["prospectos"]] as number;
           const pct   = total > 0 ? Math.round((valor / total) * 100) : 0;
 
           return (
             <div key={i}>
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs gray-100">{item.label}</span>
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[12px] font-medium text-zinc-500">{item.label}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-zinc-800">{valor}</span>
-                  <span className="text-xs text-zinc-800">({pct}%)</span>
+                  <span className="text-[12px] font-semibold text-zinc-900">{valor}</span>
+                  <span className="text-[10px] text-zinc-400 font-medium w-8 text-right">{pct}%</span>
                 </div>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-1.5">
+              <div className="w-full bg-zinc-100 rounded-full h-1.5">
                 <div
-                  className={`${item.color} h-1.5 rounded-full transition-all`}
-                  style={{ width: `${pct}%` }}
+                  className="h-1.5 rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%`, backgroundColor: item.color }}
                 />
               </div>
             </div>
@@ -51,9 +53,9 @@ export function ProspectosPorEstado({ metricas }: Props) {
         })}
       </div>
 
-      <div className="mt-4 pt-3 border-t border-gray-50 flex justify-between">
-        <span className="text-xs text-zinc-800">Total prospectos</span>
-        <span className="text-xs font-semibold text-zinc-800">{total}</span>
+      <div className="mt-6 pt-4 border-t border-zinc-100/60 flex justify-between items-center">
+        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Total prospectos</span>
+        <span className="text-[14px] font-bold text-zinc-900">{total}</span>
       </div>
     </div>
   );

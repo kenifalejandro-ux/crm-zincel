@@ -78,7 +78,7 @@ export const ModalDetalleMetrica = ({ metrica, onCerrar, onSincronizado }: Props
               {metrica.plataforma === "meta" && esPropia && (
                 <button
                   onClick={() => setModalSync(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border border-brand/20 rounded-lg transition"
                   title="Sincronizar desde Meta Ads"
                 >
                   <RefreshCw size={13} />

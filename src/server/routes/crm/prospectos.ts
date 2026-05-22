@@ -20,12 +20,25 @@ import {
   scoreLeadsService,
   getScoreHistoryService,
   ciclodeVentaService,
+  resumenProspectosService,
+  upsertContactoService,
+  eliminarContactoService,
 } from "../../services/prospecto.service";
 import { invalidarCacheCRM } from "../../config/cache";
 
 export const prospectosRouter = Router();
 
 prospectosRouter.use(authMiddleware);
+
+// GET /api/crm/prospectos/resumen
+prospectosRouter.get("/resumen", async (_req, res) => {
+  try {
+    const data = await resumenProspectosService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
 
 // GET /api/crm/prospectos/scores
 prospectosRouter.get("/scores", async (req, res) => {
@@ -195,6 +208,28 @@ prospectosRouter.delete("/:id", async (req, res) => {
   try {
     const data = await eliminarProspectoService(req.params.id);
     res.status(200).json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// POST /api/crm/prospectos/:id/contactos  — crear o actualizar contacto secundario
+prospectosRouter.post("/:id/contactos", async (req, res) => {
+  try {
+    const { id: contactoId, nombre, cargo, telefono, email } = req.body;
+    if (!nombre) return res.status(400).json({ ok: false, message: "nombre requerido" });
+    const data = await upsertContactoService(req.params.id, { id: contactoId, nombre, cargo, telefono, email });
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// DELETE /api/crm/prospectos/:id/contactos/:cid
+prospectosRouter.delete("/:id/contactos/:cid", async (req, res) => {
+  try {
+    await eliminarContactoService(req.params.cid, req.params.id);
+    res.json({ ok: true });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
   }

@@ -133,7 +133,7 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
                     <button key={emp} onClick={() => seleccionarEmpresa(emp)}
                       className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-zinc-200 hover:border-blue-400 hover:bg-blue-50 transition text-left group">
                       <span className="text-sm font-medium text-zinc-700 group-hover:text-blue-700">{emp}</span>
-                      <ChevronLeft size={14} className="text-zinc-400 rotate-180 group-hover:text-blue-600" />
+                      <ChevronLeft size={14} className="text-zinc-400 rotate-180 group-hover:text-brand" />
                     </button>
                   ))}
                 </div>
@@ -144,12 +144,12 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 mb-1">Desde</label>
                   <input type="date" value={desde} onChange={e => setDesde(e.target.value)}
-                    className="w-full text-xs border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                    className="w-full text-xs border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 mb-1">Hasta</label>
                   <input type="date" value={hasta} onChange={e => setHasta(e.target.value)}
-                    className="w-full text-xs border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                    className="w-full text-xs border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50" />
                 </div>
               </div>
             </>
@@ -209,7 +209,7 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
           {paso === "preview" && preview && plataforma && (
             <>
               <div className={`rounded-lg px-4 py-3 ${
-                plataforma === "meta"   ? "bg-blue-50 border border-blue-100" :
+                plataforma === "meta"   ? "bg-brand/5 border border-brand/20" :
                 plataforma === "tiktok" ? "bg-pink-50 border border-pink-100" : ""
               }`}>
                 <p className={`text-xs font-semibold mb-0.5 ${PLAT_CONFIG[plataforma].color}`}>

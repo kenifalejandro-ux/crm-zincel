@@ -223,7 +223,7 @@ export default function MetricasPage() {
                   : metricasFiltradas;
                 exportarReportePDF(paraExportar, filtros.empresa ?? "");
               }}
-              className="flex items-center gap-1.5 px-2 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
+              className="flex items-center gap-1.5 px-2 py-1 text-xs bg-zinc-800 hover:bg-zinc-900 text-white rounded-lg transition"
               title={seleccionados.length > 0 ? `Exportar ${seleccionados.length} campaña(s) seleccionada(s)` : "Exportar todas las campañas"}
             >
               <FileDown size={12} />
@@ -252,7 +252,7 @@ export default function MetricasPage() {
           {/* Registro manual */}
           <button
             onClick={() => setModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
           >
             <Plus size={12} />
             Registrar métricas

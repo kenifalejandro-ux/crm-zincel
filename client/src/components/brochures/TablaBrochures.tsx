@@ -58,7 +58,7 @@ export function TablaBrochures({
               <td className="px-3 py-3.5" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => onEditar(b)}
-                  className="p-1.5 rounded-md text-zinc-400 hover:text-blue-600 hover:bg-blue-50 transition"
+                  className="p-1.5 rounded-md text-zinc-400 hover:text-brand hover:bg-brand/5 transition"
                 >
                   <Pencil size={13} />
                 </button>

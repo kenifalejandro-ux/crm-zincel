@@ -107,7 +107,7 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
                   value={diasAnticipacion}
                   onChange={e => setDiasAnticipacion(Number(e.target.value))}
                   onClick={e => e.stopPropagation()}
-                  className="text-xs border border-gray-200 rounded-md px-2 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  className="text-xs border border-gray-200 rounded-md px-2 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-brand/50"
                 >
                   {[3, 7, 15, 30].map(d => (
                     <option key={d} value={d}>{d} días de anticipación</option>

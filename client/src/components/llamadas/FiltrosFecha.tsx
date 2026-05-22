@@ -28,7 +28,7 @@ export function FiltrosFecha({
           <select
             value={filtroPeriodo}
             onChange={(e) => onPeriodoChange(e.target.value)}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             <option value="dia">Por día</option>
             <option value="semana">Por semana</option>
@@ -47,7 +47,7 @@ export function FiltrosFecha({
             <select
               value={filtroFecha}
               onChange={(e) => onFechaChange(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
             >
               {anios.map((y) => (
                 <option key={y} value={String(y)}>{y}</option>
@@ -58,7 +58,7 @@ export function FiltrosFecha({
               type={filtroPeriodo === "mes" ? "month" : "date"}
               value={filtroFecha}
               onChange={(e) => onFechaChange(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
             />
           )}
         </div>
@@ -66,7 +66,7 @@ export function FiltrosFecha({
 
       <button
         onClick={onAplicar}
-        className="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+        className="px-4 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
       >
         Aplicar filtro
       </button>

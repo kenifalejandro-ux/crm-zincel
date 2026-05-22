@@ -18,6 +18,14 @@ const ROW_TINT: Record<string, string> = {
   activo:   "bg-amber-50/20 hover:bg-amber-50/40",
 };
 
+// Leads with no_contesta but zero llamadas are treated as "por_gestionar" for display
+function estadoEfectivo(p: any): string {
+  if (p.estado_lead === "no_contesta" && (!p.llamadas || p.llamadas.length === 0)) {
+    return "por_gestionar";
+  }
+  return p.estado_lead;
+}
+
 interface Props {
   prospectos: any[];
   total: number;
@@ -94,8 +102,8 @@ export function TablaProspectos({
                 <td className="px-3 py-2 text-gray-500 max-w-[300px] truncate">{p.email_contacto || "-"}</td>
                 <td className="px-5 py-3.5 text-gray-500">{p.telefono || "-"}</td>
                 <td className="px-5 py-3.5">
-                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${COLOR_ESTADO[p.estado_lead] || "bg-gray-100 text-gray-500"}`}>
-                    {ESTADOS_LEAD.find((e) => e.value === p.estado_lead)?.label || p.estado_lead}
+                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${COLOR_ESTADO[estadoEfectivo(p)] || "bg-gray-100 text-gray-500"}`}>
+                    {ESTADOS_LEAD.find((e) => e.value === estadoEfectivo(p))?.label || estadoEfectivo(p)}
                   </span>
                 </td>
                 <td className="px-5 py-3.5">
@@ -104,7 +112,7 @@ export function TablaProspectos({
                   </span>
                 </td>
                 <td className="px-5 py-3.5">
-                  {sc ? (
+                  {sc && sc.score > 5 ? (
                     <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${SCORE_BADGE[sc.nivel]}`}>
                       {SCORE_ICON[sc.nivel]} {sc.score}
                     </span>

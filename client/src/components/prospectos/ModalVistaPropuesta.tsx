@@ -173,7 +173,7 @@ export function ModalVistaPropuesta({ propuesta: p, onEditar, onEliminar, onCerr
           </button>
           <button
             onClick={onEditar}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
           >
             <Pencil size={13} /> Editar propuesta
           </button>

@@ -3,6 +3,41 @@
 import api from "./api";
 import type { FiltrosProspecto, Prospecto } from "../types/prospecto.types";
 
+export interface ResumenProspectos {
+  // Lead states
+  total:                   number;
+  nuevo:                   number;
+  por_gestionar:           number;
+  interesado:              number;
+  no_contesta:             number;
+  volver_a_llamar:         number;
+  no_interesado:           number;
+  buzon_de_voz:            number;
+  leads_contactados:       number;
+  // Métricas de llamadas (iguales al dashboard)
+  total_llamadas:          number;
+  llamadas_contestadas:    number;
+  llamadas_no_contestadas: number;
+  contestadas:             number; // alias de llamadas_contestadas
+}
+
+export async function upsertContactoSecundario(
+  prospectoId: string,
+  contacto: { id?: string; nombre: string; cargo?: string; telefono?: string; email?: string }
+) {
+  const { data } = await api.post(`/prospectos/${prospectoId}/contactos`, contacto);
+  return data.data;
+}
+
+export async function eliminarContactoSecundario(prospectoId: string, contactoId: string) {
+  await api.delete(`/prospectos/${prospectoId}/contactos/${contactoId}`);
+}
+
+export async function getResumenProspectos(): Promise<ResumenProspectos> {
+  const { data } = await api.get("/prospectos/resumen");
+  return data.data;
+}
+
 export async function getProspectos(filtros?: any) {
 
   const params = {

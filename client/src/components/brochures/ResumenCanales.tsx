@@ -1,14 +1,8 @@
 /** client/src/components/brochures/ResumenCanales.tsx */
 
-const CANALES = ["correo", "whatsapp", "linkedin", "instagram", "facebook"];
+import { CARD_CLASS } from "../../lib/tokens";
 
-const COLOR_CANAL: Record<string, string> = {
-  correo:    "bg-blue-100 text-blue-700",
-  whatsapp:  "bg-green-100 text-green-700",
-  linkedin:  "bg-amber-100 text-amber-700",
-  instagram: "bg-pink-100 text-pink-700",
-  facebook:  "bg-purple-100 text-purple-700",
-};
+const CANALES = ["correo", "whatsapp", "linkedin", "instagram", "facebook"];
 
 interface Props {
   resumen: any[];
@@ -20,8 +14,8 @@ export function ResumenCanales({ resumen }: Props) {
       {CANALES.map((canal) => {
         const dato = resumen.find((r) => r.canal === canal);
         return (
-          <div key={canal} className="bg-white rounded-xl border border-gray-100 p-4 text-center">
-            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize mb-2 ${COLOR_CANAL[canal]}`}>
+          <div key={canal} className={`${CARD_CLASS} text-center`}>
+            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize mb-2 bg-zinc-100 text-zinc-600">
               {canal}
             </span>
             <p className="text-2xl font-semibold text-zinc-800">{dato?.total || 0}</p>
@@ -33,4 +27,12 @@ export function ResumenCanales({ resumen }: Props) {
   );
 }
 
-export { CANALES, COLOR_CANAL };
+export const COLOR_CANAL: Record<string, string> = {
+  correo:    "bg-zinc-100 text-zinc-700",
+  whatsapp:  "bg-zinc-100 text-zinc-700",
+  linkedin:  "bg-zinc-100 text-zinc-700",
+  instagram: "bg-zinc-100 text-zinc-700",
+  facebook:  "bg-zinc-100 text-zinc-700",
+};
+
+export { CANALES };

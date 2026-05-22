@@ -109,7 +109,7 @@ export function TablaEgresos({
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-2">
                     <button onClick={() => onEditar(eg)}
-                      className="text-zinc-400 hover:text-blue-500 transition" title="Editar">
+                      className="text-zinc-400 hover:text-brand transition" title="Editar">
                       <Pencil size={14} />
                     </button>
                     <button onClick={() => onBorrar(eg.id)}

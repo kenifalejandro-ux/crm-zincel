@@ -15,13 +15,13 @@ import { getProspectos }    from "../services/prospectos.api";
 import { getMotivosPerdida } from "../services/prospectos.api";
 
 import { KpisLlamadas }           from "../components/llamadas/KpisLlamadas";
-import { FiltrosFecha }           from "../components/llamadas/FiltrosFecha";
 import { EstadisticasPeriodo }    from "../components/llamadas/EstadisticasPeriodo";
 import { HistorialLlamadas }      from "../components/llamadas/HistorialLlamadas";
 import { ModalRegistrarLlamada, type FormLlamada } from "../components/llamadas/ModalRegistrarLlamada";
 import { ModalEditarLlamada }     from "../components/llamadas/ModalEditarLlamada";
 import { HeatmapHoras }           from "../components/llamadas/HeatmapHoras";
 import { MotivosChart }           from "../components/llamadas/MotivosChart";
+import { FiltroPeriodoBotones, type FiltroPeriodo } from "../components/shared/FiltroPeriodoBotones";
 import { useEditar }              from "../hooks/useEditar";
 import { fechaHoy, calcularRangoFecha } from "../utils/date";
 
@@ -47,6 +47,14 @@ const getFormInicial = (): FormLlamada => ({
 
 const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
+function fechaInicial(): { periodo: FiltroPeriodo; filtroFecha: string } {
+  const now = new Date();
+  return {
+    periodo:     "mes",
+    filtroFecha: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2,"0")}`,
+  };
+}
+
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function LlamadasPage() {
@@ -63,36 +71,26 @@ export default function LlamadasPage() {
 
   const editar = useEditar<any>();
 
-  const handleGuardarEdicion = async (formEdit: any) => {
-    await editar.guardar(async () => {
-      const { hora_inicio, ...resto } = formEdit;
-      const payload: any = { ...resto };
-      if (hora_inicio && editar.editando?.fecha) {
-        const fechaBase = editar.editando.fecha.split("T")[0];
-        payload.fecha = `${fechaBase}T${hora_inicio}:00.000Z`;
-      }
-      await actualizarLlamada(editar.editando!.id, payload);
-      await cargarLlamadas(filtroFecha, filtroPeriodo as "dia" | "mes" | "semana");
-    });
-  };
+  const init = fechaInicial();
+  const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>(init.periodo);
+  const [filtroFecha,   setFiltroFecha]   = useState(init.filtroFecha);
 
-  const [filtroPeriodo, setFiltroPeriodo] = useState("mes");
-  const [filtroFecha,   setFiltroFecha]   = useState(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  });
+  // periodo efectivo para calcularRangoFecha ("hoy" → "dia")
+  const periodoEfectivo = (p: FiltroPeriodo): "hoy" | "dia" | "semana" | "mes" | "anio" => p;
 
-  const granularidadActual = (): "dia" | "mes" | "semana" | "anio" =>
-    filtroPeriodo as "dia" | "mes" | "semana" | "anio";
+  // granularidad para la API de estadísticas
+  const granularidad = (p: FiltroPeriodo): "dia" | "semana" | "mes" | "anio" =>
+    p === "hoy" || p === "dia" ? "dia" : p === "semana" ? "semana" : p === "mes" ? "mes" : "anio";
 
   // ── Carga de datos ──────────────────────────────────────
-  const cargarLlamadas = async (fecha: string, periodo: "dia" | "semana" | "mes" | "anio") => {
+  const cargarLlamadas = async (fecha: string, periodo: FiltroPeriodo) => {
     try {
-      const rango = calcularRangoFecha(fecha, periodo);
+      const rango = calcularRangoFecha(fecha, periodoEfectivo(periodo));
+      const gran  = granularidad(periodo);
       const [res, llam, stats, heat] = await Promise.all([
         getResumenLlamadas(rango),
         getAllLlamadas(rango),
-        getEstadisticasLlamadas(periodo, rango),
+        getEstadisticasLlamadas(gran, rango),
         getHeatmapLlamadas(rango),
       ]);
       setResumen(res);
@@ -103,23 +101,29 @@ export default function LlamadasPage() {
   };
 
   useEffect(() => {
-    cargarLlamadas(filtroFecha, filtroPeriodo as "dia" | "mes" | "semana" | "anio");
+    cargarLlamadas(filtroFecha, filtroPeriodo);
     getProspectos({ limite: 200 }).then(p => setProspectos(p.data)).catch(console.error);
     getMotivosPerdida().then(setMotivos).catch(console.error);
   }, []);
 
-  useEffect(() => {
-    const now = new Date();
-    if (filtroPeriodo === "anio") {
-      if (filtroFecha.length !== 4) setFiltroFecha(String(now.getFullYear()));
-    } else if (filtroPeriodo === "mes") {
-      if (filtroFecha.length > 7) setFiltroFecha((prev) => prev.slice(0, 7));
-      else if (filtroFecha.length === 4) setFiltroFecha(`${filtroFecha}-${String(now.getMonth() + 1).padStart(2,"0")}`);
-    } else {
-      if (filtroFecha.length === 7) setFiltroFecha((prev) => `${prev}-01`);
-      else if (filtroFecha.length === 4) setFiltroFecha(`${filtroFecha}-${String(now.getMonth() + 1).padStart(2,"0")}-01`);
-    }
-  }, [filtroPeriodo]);
+  const handleFiltroChange = (periodo: FiltroPeriodo, fecha: string) => {
+    setFiltroPeriodo(periodo);
+    setFiltroFecha(fecha);
+    cargarLlamadas(fecha, periodo);
+  };
+
+  const handleGuardarEdicion = async (formEdit: any) => {
+    await editar.guardar(async () => {
+      const { hora_inicio, ...resto } = formEdit;
+      const payload: any = { ...resto };
+      if (hora_inicio && editar.editando?.fecha) {
+        const fechaBase = editar.editando.fecha.split("T")[0];
+        payload.fecha = `${fechaBase}T${hora_inicio}:00.000Z`;
+      }
+      await actualizarLlamada(editar.editando!.id, payload);
+      await cargarLlamadas(filtroFecha, filtroPeriodo);
+    });
+  };
 
   // ── Guardar llamada ─────────────────────────────────────
   const handleGuardar = async () => {
@@ -138,7 +142,7 @@ export default function LlamadasPage() {
       });
       setModalAbierto(false);
       setForm(getFormInicial());
-      await cargarLlamadas(filtroFecha, filtroPeriodo as "dia" | "mes" | "semana");
+      await cargarLlamadas(filtroFecha, filtroPeriodo);
     } catch (err) { console.error(err); }
     finally { setCargando(false); }
   };
@@ -169,7 +173,7 @@ export default function LlamadasPage() {
 
   const estadisticasPorPeriodo = useMemo(() => estadisticas.map((stat) => {
     let fechaLabel: string;
-    if (filtroPeriodo === "dia") {
+    if (filtroPeriodo === "hoy" || filtroPeriodo === "dia") {
       const hora = typeof stat.periodo === "number" ? stat.periodo : parseInt(String(stat.periodo));
       fechaLabel = `${String(hora).padStart(2, "0")}:00`;
     } else if (filtroPeriodo === "anio") {
@@ -197,24 +201,22 @@ export default function LlamadasPage() {
         <div className="flex gap-2">
           {llamadas.length > 0 && (
             <button onClick={exportarExcel}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition">
+              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-zinc-800 hover:bg-zinc-900 text-white rounded-lg transition">
               <FileDown size={15} /> Exportar Excel
             </button>
           )}
           <button onClick={() => { setForm(getFormInicial()); setModalAbierto(true); }}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition">
             <Plus size={15} /> Registrar llamada
           </button>
         </div>
       </div>
 
       {/* Filtros */}
-      <FiltrosFecha
-        filtroPeriodo={filtroPeriodo}
+      <FiltroPeriodoBotones
+        periodo={filtroPeriodo}
         filtroFecha={filtroFecha}
-        onPeriodoChange={setFiltroPeriodo}
-        onFechaChange={setFiltroFecha}
-        onAplicar={() => cargarLlamadas(filtroFecha, filtroPeriodo as "dia" | "mes" | "semana" | "anio")}
+        onChange={handleFiltroChange}
       />
 
       {/* KPIs */}
@@ -225,7 +227,7 @@ export default function LlamadasPage() {
         estadisticas={estadisticasPorPeriodo}
         resumen={resumen}
         filtroPeriodo={filtroPeriodo}
-        onPeriodoChange={setFiltroPeriodo}
+        onPeriodoChange={(p) => handleFiltroChange(p as FiltroPeriodo, filtroFecha)}
       />
 
       {/* Heatmap + Motivos en paralelo */}

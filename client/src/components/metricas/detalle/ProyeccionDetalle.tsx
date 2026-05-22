@@ -26,7 +26,7 @@ const Fila = ({ label, actual, proyectado, color = "text-zinc-800" }: FilaProps)
 export const ProyeccionDetalle = ({ metrica: m, proyeccion: p }: Props) => (
   <div className="space-y-5">
 
-    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+    <div className="bg-brand/5 border border-brand/20 rounded-xl p-4">
       <p className="text-xs font-semibold text-blue-700 mb-1">
         📈 Proyección a {p.dias} días
       </p>

@@ -2,7 +2,7 @@
 
 import type { FormPrestamo, CategoriaPrestamo, EstadoPrestamo, Moneda } from "../../types/finanzas.types";
 
-const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500";
+const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
 
 const CATEGORIAS: { value: CategoriaPrestamo; label: string; desc: string }[] = [
   { value: "herramientas_ia",         label: "Herramientas IA",         desc: "ChatGPT, Claude, Grok..." },
@@ -159,7 +159,7 @@ export function ModalPrestamo({ form, cargando, onFormChange, onGuardar, onCerra
           </button>
           <button onClick={onGuardar}
             disabled={cargando || !form.descripcion || !form.monto}
-            className="flex-1 px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg transition">
+            className="flex-1 px-4 py-2 text-xs bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition">
             {cargando ? "Guardando..." : "Guardar préstamo"}
           </button>
         </div>

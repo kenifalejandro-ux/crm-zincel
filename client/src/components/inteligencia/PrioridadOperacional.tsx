@@ -12,7 +12,7 @@ import type { Prospecto } from "../../types/prospecto.types";
 const NIVEL_STYLE = {
   critica:   { badge: "bg-red-100 text-red-700",    borde: "border-red-200",    bg: "bg-red-50"    },
   urgente:   { badge: "bg-amber-100 text-amber-700", borde: "border-amber-200", bg: "bg-amber-50"  },
-  pendiente: { badge: "bg-blue-100 text-blue-700",   borde: "border-blue-200",  bg: "bg-blue-50"   },
+  pendiente: { badge: "bg-zinc-100 text-zinc-600",   borde: "border-zinc-200",  bg: "bg-zinc-50"   },
 };
 
 const NIVEL_LABEL = { critica: "CRÍTICO", urgente: "URGENTE", pendiente: "PENDIENTE" };
@@ -148,14 +148,14 @@ export function PrioridadOperacional({ acciones }: Props) {
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
               {cargandoLeads ? (
                 <div className="flex justify-center py-10">
-                  <div className="w-6 h-6 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+                  <div className="w-6 h-6 rounded-full border-2 border-brand border-t-transparent animate-spin" />
                 </div>
               ) : leads.length === 0 ? (
                 <p className="text-xs text-zinc-400 text-center py-8">Sin leads disponibles</p>
               ) : (
                 leads.map((lead) => (
                   <button key={lead.id} onClick={() => abrirDetalle(lead)}
-                    className="w-full text-left flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-blue-300 hover:bg-blue-50 transition group">
+                    className="w-full text-left flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-brand/30 hover:bg-brand/5 transition group">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5">
                         <Building2 size={11} className="text-zinc-400 shrink-0" />
@@ -173,7 +173,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                             <MapPin size={9} /> {lead.ciudad}
                           </span>
                         )}
-                        <span className="text-[10px] text-blue-500 font-medium capitalize">
+                        <span className="text-[10px] text-brand font-medium capitalize">
                           {ETAPA_LABEL[lead.etapa_pipeline] ?? lead.etapa_pipeline}
                         </span>
                       </div>
@@ -181,7 +181,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                     {cargandoDetalle === lead.id ? (
                       <Loader2 size={14} className="shrink-0 text-blue-500 animate-spin" />
                     ) : (
-                      <ChevronRight size={14} className="shrink-0 text-zinc-300 group-hover:text-blue-500 transition" />
+                      <ChevronRight size={14} className="shrink-0 text-zinc-300 group-hover:text-brand transition" />
                     )}
                   </button>
                 ))

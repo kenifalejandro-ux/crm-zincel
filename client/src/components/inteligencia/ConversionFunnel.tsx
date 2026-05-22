@@ -1,5 +1,6 @@
 /** client/src/components/inteligencia/ConversionFunnel.tsx */
 
+import { COLORS } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import { Filter } from "lucide-react";
 import { getConversionFunnel, type ConversionFunnel } from "../../services/inteligencia.api";
@@ -14,12 +15,12 @@ const ETAPA_LABEL: Record<string, string> = {
 };
 
 const ETAPA_COLOR: Record<string, string> = {
-  nuevo:             "#60a5fa",
-  contactado:        "#6366f1",
-  interesado:        "#f59e0b",
-  propuesta_enviada: "#10b981",
-  negociacion:       "#8b5cf6",
-  cerrado_ganado:    "#22c55e",
+  nuevo:             "#d4d4d8",
+  contactado:        "#a1a1aa",
+  interesado:        COLORS.primary,
+  propuesta_enviada: COLORS.primary,
+  negociacion:       "#71717a",
+  cerrado_ganado:    "#27272a",
 };
 
 export function ConversionFunnelChart() {
@@ -34,14 +35,14 @@ export function ConversionFunnelChart() {
   const maxTotal = Math.max(...data.etapas.map((e) => e.total), 1);
 
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-5">
+    <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-violet-50">
             <Filter size={14} className="text-violet-500" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-zinc-800">Tasa de conversión por etapa del funnel</h3>
+            <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Tasa de conversión por etapa del funnel</h3>
             <p className="text-[11px] text-zinc-400">% de leads que avanzan entre etapas · identifica el cuello de botella</p>
           </div>
         </div>

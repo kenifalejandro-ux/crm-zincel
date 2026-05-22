@@ -1,382 +1,705 @@
 /** client/src/pages/LoginPage.tsx */
 
-import { useState, useRef }        from "react";
-import { Eye, EyeOff, TrendingUp, Users, Target } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Canvas, useFrame }        from "@react-three/fiber";
-import { useAuth }                 from "../context/AuthContext";
-import { loginApi }                from "../services/auth.api";
-import type { UsuarioPayload }     from "../context/AuthContext";
+import { useMemo, useRef, useState } from "react";
+import {
+  Eye,
+  EyeOff,
+  TrendingUp,
+  Users,
+  Target,
+  ShieldCheck,
+  ArrowRight,
+} from "lucide-react";
 
-// ── 3D: barra individual animada ──────────────────────────────────────────────
-function AnimatedBar({ x, targetH, color, delay }: {
-  x: number; targetH: number; color: string; delay: number;
-}) {
-  const mesh    = useRef<any>(null);
+import { motion, AnimatePresence } from "framer-motion";
+import { Canvas, useFrame } from "@react-three/fiber";
+
+import { useAuth } from "../context/AuthContext";
+import { loginApi } from "../services/auth.api";
+
+import type { UsuarioPayload } from "../context/AuthContext";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3D GRAPH
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface AnimatedBarProps {
+  x: number;
+  targetH: number;
+  color: string;
+  delay: number;
+}
+
+function AnimatedBar({
+  x,
+  targetH,
+  color,
+  delay,
+}: AnimatedBarProps) {
+  const mesh = useRef<any>(null);
   const elapsed = useRef(0);
 
   useFrame((_, delta) => {
     elapsed.current += delta;
-    const raw    = Math.max(0, (elapsed.current - delay) / 1.3);
-    const t      = Math.min(raw, 1);
-    const eased  = 1 - Math.pow(1 - t, 3);
-    const h      = Math.max(targetH * eased, 0.001);
+
+    const raw = Math.max(0, (elapsed.current - delay) / 1.25);
+    const progress = Math.min(raw, 1);
+
+    // easing suave
+    const eased = 1 - Math.pow(1 - progress, 3);
+
+    const height = Math.max(targetH * eased, 0.001);
+
     if (mesh.current) {
-      mesh.current.scale.y    = h;
-      mesh.current.position.y = h / 2;
+      mesh.current.scale.y = height;
+      mesh.current.position.y = height / 2;
     }
   });
 
   return (
-    <mesh ref={mesh} position={[x, 0, 0]} scale={[1, 0.001, 1]}>
-      <boxGeometry args={[0.55, 1, 0.55]} />
-      <meshStandardMaterial color={color} roughness={0.15} metalness={0.55} />
+    <mesh
+      ref={mesh}
+      position={[x, 0, 0]}
+      scale={[0.82, 0.001, 0.82]}
+    >
+      <boxGeometry args={[0.7, 1, 0.7]} />
+      <meshStandardMaterial
+        color={color}
+        roughness={0.15}
+        metalness={0.55}
+      />
     </mesh>
   );
 }
 
 const BARS = [
-  { x: -2,   targetH: 0.8,  color: "#3730a3", delay: 0.0  },
-  { x: -1,   targetH: 1.25, color: "#4338ca", delay: 0.15 },
-  { x:  0,   targetH: 1.05, color: "#4f46e5", delay: 0.3  },
-  { x:  1,   targetH: 2.0,  color: "#6366f1", delay: 0.45 },
-  { x:  2,   targetH: 2.8,  color: "#818cf8", delay: 0.6  },
+  { x: -2.4, targetH: 0.9, color: "#ffffff", delay: 0.0 },
+  { x: -1.2, targetH: 1.35, color: "#0fbd35", delay: 0.15 },
+  { x: 0, targetH: 1.15, color: "#ff004c", delay: 0.3 },
+  { x: 1.2, targetH: 2.15, color: "#07d4f8", delay: 0.45 },
+  { x: 2.4, targetH: 3.1, color: "#f1da06", delay: 0.6 },
 ];
 
 function Scene() {
   return (
     <>
+      <fog attach="fog" args={["#f1da06", 5, 12]} />
+
       <ambientLight intensity={0.35} />
-      <directionalLight position={[5, 8, 5]}  intensity={1.3}  color="#ffffff" />
-      <pointLight      position={[-3, 5, 3]}  intensity={0.7}  color="#6366f1" />
-      <pointLight      position={[ 3, 2, 4]}  intensity={0.35} color="#a5b4fc" />
-      <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[9, 5]} />
-        <meshStandardMaterial color="#06060f" roughness={1} />
+
+      <directionalLight
+        position={[5, 8, 5]}
+        intensity={1.4}
+        color="#ffffff"
+      />
+
+      <pointLight
+        position={[-3, 4, 3]}
+        intensity={0.9}
+        color="#ceab11"
+      />
+
+      <pointLight
+        position={[3, 2, 4]}
+        intensity={0.4}
+        color="#f5e8b0"
+      />
+
+      {/* Piso */}
+      <mesh
+        position={[0, -0.05, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+      >
+        <planeGeometry args={[12, 6]} />
+        <meshStandardMaterial color="#08080d" roughness={1} />
       </mesh>
-      {BARS.map((b, i) => <AnimatedBar key={i} {...b} />)}
+
+      {/* Barras */}
+      {BARS.map((bar, i) => (
+        <AnimatedBar key={i} {...bar} />
+      ))}
     </>
   );
 }
 
-// ── Login Page ────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// LOGIN PAGE
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function LoginPage() {
   const { login } = useAuth();
 
   const sessionMsg = sessionStorage.getItem("crm_session_msg");
 
-  const [email,       setEmail]       = useState("");
-  const [password,    setPassword]    = useState("");
-  const [error,       setError]       = useState<string | null>(null);
-  const [cargando,    setCargando]    = useState(false);
-  const [verPassword, setVerPassword] = useState(false);
-  const [transicion,  setTransicion]  = useState(false);
-  const [pendingData, setPendingData] = useState<{ token: string; usuario: UsuarioPayload } | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
+  const [error, setError] = useState<string | null>(null);
+
+  const [cargando, setCargando] = useState(false);
+  const [verPassword, setVerPassword] = useState(false);
+
+  const [transicion, setTransicion] = useState(false);
+
+  const [pendingData, setPendingData] = useState<{
+    token: string;
+    usuario: UsuarioPayload;
+  } | null>(null);
+
+  const currentYear = useMemo(
+    () => new Date().getFullYear(),
+    []
+  );
+
+  async function handleSubmit(
+    e: React.FormEvent<HTMLFormElement>
+  ) {
     e.preventDefault();
-    setCargando(true);
+
+    sessionStorage.removeItem("crm_session_msg");
+
     setError(null);
+    setCargando(true);
+
     try {
-      const result = await loginApi(email, password, "sin_recaptcha");
-      setPendingData({ token: result.token, usuario: result.usuario });
+      const result = await loginApi(
+        email,
+        password,
+        "sin_recaptcha"
+      );
+
+      setPendingData({
+        token: result.token,
+        usuario: result.usuario,
+      });
+
       setTransicion(true);
-      setTimeout(() => login(result.token, result.usuario), 1900);
+
+      setTimeout(() => {
+        login(result.token, result.usuario);
+      }, 1800);
     } catch (err: any) {
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.errors?.[0]?.message ||
-        (err.code === "ECONNABORTED" ? "Tiempo de espera agotado, revisa tu conexión" : null) ||
-        (!err.response ? "No se pudo conectar al servidor" : null) ||
+      const message =
+        err?.response?.data?.message ||
+        err?.response?.data?.errors?.[0]?.message ||
+        (err?.code === "ECONNABORTED"
+          ? "Tiempo de espera agotado. Revisa tu conexión."
+          : null) ||
+        (!err?.response
+          ? "No se pudo conectar con el servidor."
+          : null) ||
         "Credenciales inválidas";
-      setError(msg);
+
+      setError(message);
       setCargando(false);
     }
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen flex bg-white overflow-hidden">
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* LEFT PANEL */}
+      {/* ───────────────────────────────────────────────────────────── */}
 
-      {/* ── Izquierda: Formulario ──────────────────────────────────────────── */}
-      <div className="w-full lg:w-7xl bg-zinc-950 flex items-center justify-center px-8 py-12 relative overflow-hidden">
+      <div className="relative w-full lg:w-[42%] bg-zinc-100 flex items-center justify-center px-7 py-10 overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(206,171,17,0.08),transparent_30%)]" />
 
-        <div className="absolute top-[-20%] left-[-10%] w-[400px] h-[400px] bg-amber-600/[0.06] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-28 -left-28 w-[340px] h-[340px] rounded-full bg-amber-500/10 blur-3xl" />
 
-        <motion.div
-          className="w-full max-w-sm relative z-10"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-        >
-          {/* Logo */}
-          <div className="mb-10">
-            <motion.div
-              className="w-10 h-10 bg-gradient-to-br from-amber-600 to-amber-500
-                          flex items-center justify-center mb-6 rounded-lg
-                          shadow-[0_0_30px_-5px_rgba(99,102,241,0.6)]"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-            >
-              <span className="text-white text-lg font-bold tracking-tighter">Z</span>
-            </motion.div>
-            <motion.h1
-              className="text-2xl font-semibold text-white tracking-tight"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25, duration: 0.4 }}
-            >
-              Zincel CRM
-            </motion.h1>
-            <motion.p
-              className="text-zinc-500 text-sm mt-1"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.38, duration: 0.4 }}
-            >
-              Inicia sesión en tu cuenta
-            </motion.p>
-          </div>
-
-          {/* Mensaje de sesión expirada */}
-          {sessionMsg && (
-            <div className="mb-6 bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs px-4 py-3 rounded-lg">
-              {sessionMsg}
+        <div className="relative z-10 w-full max-w-md">
+          {/* LOGO */}
+          <motion.div
+            className="mb-10"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55 }}
+          >
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ceab11] to-[#f4cf34] flex items-center justify-center shadow-[0_0_40px_-5px_rgba(206,171,17,0.45)] mb-6">
+              <span className="text-white text-xl font-black tracking-tight">
+                Z
+              </span>
             </div>
-          )}
 
-          {/* Formulario */}
-          <form onSubmit={handleSubmit} className="space-y-5"
-            onSubmitCapture={() => sessionStorage.removeItem("crm_session_msg")}>
+            <h1 className="text-[2rem] font-bold tracking-tight text-zinc-900">
+              Zincel CRM
+            </h1>
 
+            <p className="text-sm text-zinc-500 mt-2 leading-relaxed">
+              Gestiona clientes, campañas y ventas desde una
+              sola plataforma moderna.
+            </p>
+          </motion.div>
+
+          {/* SESSION MESSAGE */}
+          <AnimatePresence>
+            {sessionMsg && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="mb-5 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3"
+              >
+                <div className="flex items-start gap-3">
+                  <ShieldCheck
+                    size={16}
+                    className="text-amber-500 mt-0.5"
+                  />
+
+                  <p className="text-xs text-amber-700 leading-relaxed">
+                    {sessionMsg}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* FORM */}
+          <motion.form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.15 }}
+          >
+            {/* EMAIL */}
             <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1.5 tracking-widest uppercase">
-                Email
+              <label className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-zinc-500 mb-2">
+                Correo electrónico
               </label>
+
               <input
                 type="email"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
+                autoComplete="email"
                 placeholder="tu@email.com"
-                className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg
-                           text-white text-sm placeholder:text-zinc-600
-                           focus:outline-none focus:border-amber-500/60 focus:ring-1
-                           focus:ring-amber-500/30 transition-all duration-200"
+                required
+                onChange={(e) => setEmail(e.target.value)}
+                className="
+                  w-full h-[52px] px-4 rounded-2xl
+                  bg-white border border-zinc-200
+                  text-sm text-zinc-800
+                  placeholder:text-zinc-400
+                  shadow-sm
+                  focus:outline-none
+                  focus:ring-4 focus:ring-amber-500/10
+                  focus:border-amber-500/50
+                  transition-all duration-200
+                "
               />
             </div>
 
+            {/* PASSWORD */}
             <div>
-              <label className="block text-[11px] font-medium text-zinc-400 mb-1.5 tracking-widest uppercase">
+              <label className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-zinc-500 mb-2">
                 Contraseña
               </label>
+
               <div className="relative">
                 <input
                   type={verPassword ? "text" : "password"}
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
+                  autoComplete="current-password"
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 pr-11 bg-zinc-900 border border-zinc-800 rounded-lg
-                             text-white text-sm placeholder:text-zinc-600
-                             focus:outline-none focus:border-amber-500/60 focus:ring-1
-                             focus:ring-amber-500/30 transition-all duration-200"
+                  required
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="
+                    w-full h-[52px] px-4 pr-12 rounded-2xl
+                    bg-white border border-zinc-200
+                    text-sm text-zinc-800
+                    placeholder:text-zinc-400
+                    shadow-sm
+                    focus:outline-none
+                    focus:ring-4 focus:ring-amber-500/10
+                    focus:border-amber-500/50
+                    transition-all duration-200
+                  "
                 />
-                <button type="button" onClick={() => setVerPassword(v => !v)} tabIndex={-1}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition">
-                  {verPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() =>
+                    setVerPassword((prev) => !prev)
+                  }
+                  className="
+                    absolute right-4 top-1/2 -translate-y-1/2
+                    text-zinc-400 hover:text-zinc-700
+                    transition-colors
+                  "
+                >
+                  {verPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
                 </button>
               </div>
             </div>
 
+            {/* ERROR */}
             <AnimatePresence>
               {error && (
                 <motion.div
-                  key="error"
-                  initial={{ opacity: 0, y: -6 }}
+                  key="login-error"
+                  initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs px-4 py-3 rounded-lg"
+                  className="
+                    rounded-2xl border border-red-500/20
+                    bg-red-500/10 px-4 py-3
+                  "
                 >
-                  {error}
+                  <p className="text-xs text-red-500">
+                    {error}
+                  </p>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <button
+            {/* BUTTON */}
+            <motion.button
+              whileTap={{ scale: 0.985 }}
               type="submit"
               disabled={cargando}
-              className="w-full py-3 mt-1 bg-amber-600 hover:bg-amber-500
-                         text-white font-semibold text-sm rounded-lg
-                         shadow-lg shadow-amber-600/25
-                         disabled:opacity-50 disabled:cursor-not-allowed
-                         transition-all duration-200 relative overflow-hidden"
+              className="
+                relative w-full h-[54px]
+                rounded-2xl
+                bg-[#ceab11]
+                hover:bg-[#b8960d]
+                text-white font-semibold text-sm
+                shadow-[0_20px_50px_-15px_rgba(206,171,17,0.6)]
+                overflow-hidden
+                disabled:opacity-60
+                disabled:cursor-not-allowed
+                transition-all duration-200
+              "
             >
               {cargando && (
-                <motion.span
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                  animate={{ x: ["-100%", "100%"] }}
-                  transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent"
+                  animate={{
+                    x: ["-100%", "100%"],
+                  }}
+                  transition={{
+                    duration: 1,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
                 />
               )}
-              <span className="relative">{cargando ? "Verificando..." : "Iniciar sesión"}</span>
-            </button>
-          </form>
 
-          <p className="text-center text-zinc-700 text-xs mt-10">
-            © {new Date().getFullYear()} Zincel · Todos los derechos reservados
-          </p>
-        </motion.div>
-      </div>
+              <span className="relative flex items-center justify-center gap-2">
+                {cargando
+                  ? "Verificando acceso..."
+                  : "Iniciar sesión"}
 
-      {/* ── Derecha: Panel 3D ──────────────────────────────────────────────── */}
-      <div className="hidden lg:flex w-[58%] bg-[#06060f] relative overflow-hidden flex-col items-center justify-center px-14">
+                {!cargando && <ArrowRight size={16} />}
+              </span>
+            </motion.button>
+          </motion.form>
 
-        {/* Dot grid */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: "radial-gradient(circle, rgba(99,102,241,0.13) 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
-          }}
-        />
-
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-600/[0.07] rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-violet-600/[0.05] rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 w-full max-w-lg">
-
-          {/* Badge */}
-          <motion.div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 mb-6"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-amber-300 text-[11px] font-medium tracking-widest">CRM INTELIGENTE</span>
-          </motion.div>
-
-          {/* Headline */}
-          <motion.h2
-            className="text-[2.6rem] font-bold text-white leading-tight tracking-tight mb-3"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-          >
-            Convierte leads.<br />
-            <span className="text-amber-400">Escala tu agencia.</span>
-          </motion.h2>
-
-          <motion.p
-            className="text-zinc-500 text-sm mb-7"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.65 }}
-          >
-            Centraliza campañas, métricas y clientes en una sola plataforma.
-          </motion.p>
-
-          {/* 3D Chart */}
-          <motion.div
-            className="w-full rounded-2xl overflow-hidden border border-white/[0.05] bg-black/25"
-            style={{ height: "230px" }}
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.7, duration: 0.5 }}
-          >
-            <Canvas camera={{ position: [0, 2.8, 6.2], fov: 44 }}>
-              <Scene />
-            </Canvas>
-          </motion.div>
-
-          {/* Labels meses */}
-          <motion.div
-            className="flex justify-between px-5 mt-2 mb-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.6 }}
-          >
-            {["Ene", "Feb", "Mar", "Abr", "May"].map(m => (
-              <span key={m} className="text-[10px] text-zinc-700 font-medium">{m}</span>
-            ))}
-          </motion.div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { Icon: TrendingUp, label: "Conversiones", value: "+3.2x", color: "text-amber-400"  },
-              { Icon: Users,      label: "Leads",        value: "+67%",  color: "text-violet-400" },
-              { Icon: Target,     label: "ROI campañas", value: "+2.8x", color: "text-blue-400"   },
-            ].map(({ Icon, label, value, color }, i) => (
-              <motion.div
-                key={i}
-                className="bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-3"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.3 + i * 0.1, duration: 0.4 }}
-              >
-                <Icon size={13} className={`${color} mb-2`} />
-                <p className={`text-lg font-bold ${color}`}>{value}</p>
-                <p className="text-zinc-600 text-[10px] mt-0.5">{label}</p>
-              </motion.div>
-            ))}
+          {/* FOOTER */}
+          <div className="mt-10 pt-6 border-t border-zinc-200">
+            <p className="text-xs text-zinc-500 text-center">
+              © {currentYear} Zincel CRM · Plataforma de
+              gestión comercial
+            </p>
           </div>
         </div>
       </div>
 
-      {/* ── Transición al CRM ──────────────────────────────────────────────── */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* RIGHT PANEL */}
+      {/* ───────────────────────────────────────────────────────────── */}
+
+      <div className="hidden lg:flex relative w-[58%] bg-[#050507] overflow-hidden items-center justify-center px-16">
+        {/* GRID */}
+        <div
+          className="absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(243, 247, 6, 0.08) 1px, transparent 1px)",
+            backgroundSize: "34px 34px",
+          }}
+        />
+
+        {/* GLOW */}
+        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full " />
+
+        <div className="absolute bottom-[-10%] left-[-10%] w-[320px] h-[320px] rounded-full blur-3xl" />
+
+        <div className="relative z-10 w-full max-w-2xl">
+          {/* BADGE */}
+          <motion.div
+            className="
+              inline-flex items-center gap-2
+              px-4 py-2 rounded-full
+              border border-white/10
+              bg-white/[0.04]
+              backdrop-blur-sm
+              mb-8
+            "
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+
+            <span className="text-[11px] tracking-[0.22em] font-semibold text-amber-100 uppercase">
+              CRM Inteligente
+            </span>
+          </motion.div>
+
+          {/* TITLE */}
+          <motion.h2
+            className="
+              text-[3.2rem]
+              leading-[1.05]
+              font-black
+              tracking-tight
+              text-white
+              max-w-2xl
+            "
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            Convierte leads en{" "}
+            <span className="text-amber-400">
+              oportunidades reales.
+            </span>
+          </motion.h2>
+
+          <motion.p
+            className="
+              mt-5
+              text-zinc-400
+              text-base
+              leading-relaxed
+              max-w-xl
+            "
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            Automatiza seguimientos, controla campañas y
+            analiza métricas comerciales en tiempo real.
+          </motion.p>
+
+          {/* CHART */}
+          <motion.div
+            className="
+              mt-10 rounded-[28px]
+              border border-white/10
+              bg-white/[0.03]
+              overflow-hidden
+              backdrop-blur-sm
+            "
+            style={{ height: 290 }}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            <Canvas
+              camera={{
+                position: [0, 3, 6.2],
+                fov: 42,
+              }}
+            >
+              <Scene />
+            </Canvas>
+          </motion.div>
+
+          {/* MONTHS */}
+          <div className="flex justify-between px-6 mt-3">
+            {["Ene", "Feb", "Mar", "Abr", "May"].map(
+              (month) => (
+                <span
+                  key={month}
+                  className="text-[11px] text-zinc-600 font-medium"
+                >
+                  {month}
+                </span>
+              )
+            )}
+          </div>
+
+          {/* STATS */}
+          <div className="grid grid-cols-3 gap-4 mt-8">
+            {[
+              {
+                Icon: TrendingUp,
+                value: "+3.2x",
+                label: "Conversiones",
+                color: "text-amber-400",
+              },
+              {
+                Icon: Users,
+                value: "+67%",
+                label: "Nuevos leads",
+                color: "text-amber-300",
+              },
+              {
+                Icon: Target,
+                value: "+2.8x",
+                label: "ROI campañas",
+                color: "text-amber-400",
+              },
+            ].map(
+              (
+                { Icon, value, label, color },
+                index
+              ) => (
+                <motion.div
+                  key={index}
+                  className="
+                    rounded-2xl
+                    border border-white/10
+                    bg-black
+                    px-5 py-4
+                    backdrop-blur-sm
+                  "
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    delay: 1 + index * 0.12,
+                  }}
+                >
+                  <Icon
+                    size={16}
+                    className={`${color} mb-3`}
+                  />
+
+                  <p
+                    className={`text-2xl font-bold ${color}`}
+                  >
+                    {value}
+                  </p>
+
+                  <p className="text-[11px] text-zinc-500 mt-1">
+                    {label}
+                  </p>
+                </motion.div>
+              )
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* TRANSITION */}
+      {/* ───────────────────────────────────────────────────────────── */}
+
       <AnimatePresence>
         {transicion && (
           <motion.div
-            className="fixed inset-0 z-50 bg-zinc-950 flex flex-col items-center justify-center"
+            className="
+              fixed inset-0 z-50
+              bg-zinc-950
+              flex flex-col items-center justify-center
+            "
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0 }}
           >
             <motion.div
-              className="w-16 h-16 bg-gradient-to-br from-amber-600 to-amber-500
-                          flex items-center justify-center rounded-xl
-                          shadow-[0_0_70px_-5px_rgba(99,102,241,0.7)]"
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.1, duration: 0.55, type: "spring", stiffness: 170, damping: 14 }}
+              className="
+                w-20 h-20 rounded-3xl
+                bg-gradient-to-br
+                from-amber-500
+                to-yellow-400
+                flex items-center justify-center
+                shadow-[0_0_80px_-10px_rgba(206,171,17,0.65)]
+              "
+              initial={{
+                scale: 0.5,
+                opacity: 0,
+              }}
+              animate={{
+                scale: 1,
+                opacity: 1,
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 180,
+                damping: 16,
+              }}
             >
               <motion.span
-                className="text-white text-3xl font-bold tracking-tighter"
-                animate={{ opacity: [1, 0.6, 1] }}
-                transition={{ delay: 0.8, duration: 0.7, repeat: 1 }}
+                className="text-white text-4xl font-black"
+                animate={{
+                  opacity: [1, 0.6, 1],
+                }}
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                }}
               >
                 Z
               </motion.span>
             </motion.div>
 
-            <motion.p
-              className="text-white text-base font-semibold mt-5 tracking-tight"
-              initial={{ opacity: 0, y: 8 }}
+            <motion.h3
+              className="mt-7 text-white text-xl font-bold tracking-tight"
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45, duration: 0.4 }}
+              transition={{ delay: 0.35 }}
             >
-              Zincel CRM
-            </motion.p>
+              Bienvenido a Zincel CRM
+            </motion.h3>
+
             <motion.p
-              className="text-zinc-500 text-sm mt-1"
+              className="text-zinc-500 text-sm mt-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.65, duration: 0.4 }}
+              transition={{ delay: 0.55 }}
             >
-              Bienvenido, {pendingData?.usuario.nombre}
+              Hola, {pendingData?.usuario.nombre}
             </motion.p>
 
             <motion.div
-              className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-amber-600 via-violet-500 to-amber-400"
+              className="
+                absolute bottom-0 left-0
+                h-[3px]
+                bg-gradient-to-r
+                from-transparent
+                via-amber-500
+                to-transparent
+              "
               initial={{ width: "0%" }}
               animate={{ width: "100%" }}
-              transition={{ delay: 0.2, duration: 1.65, ease: "easeInOut" }}
+              transition={{
+                duration: 1.7,
+                ease: "easeInOut",
+              }}
             />
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
   );
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COLORS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const COLORS = {
+  primary: "#ceab11",
+  primaryHover: "#b8960d",
+
+  primarySoft: "#f5e7a3",
+
+  dark: "#18181b",
+
+  muted: "#a1a1aa",
+  mutedDark: "#71717a",
+  mutedLight: "#d4d4d8",
+
+  surface: "#f4f4f5",
+
+  success: "#4ade80",
+  danger: "#f87171",
+  info: "#60a5fa",
+} as const;

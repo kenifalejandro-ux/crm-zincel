@@ -1,8 +1,9 @@
-/**client/src/components/dashboard/WebActivaChart.tsx */
-
+/** client/src/components/dashboard/WebActivaChart.tsx */
+import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import { Globe } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import type { Metricas } from "../../pages/DashboardPage";
+
 
 interface Props {
   metricas: Metricas;
@@ -17,30 +18,28 @@ export function WebActivaChart({ metricas }: Props) {
   const pctSinWeb  = total > 0 ? Math.round((sinWeb  / total) * 100) : 0;
 
   const datos = [
-    { name: "Con web",  value: conWeb,  color: "#3b82f6" },
-    { name: "Sin web",  value: sinWeb,  color: "#e5e7eb" },
+    { name: "Con web",  value: conWeb,  color: COLORS.dark },
+    { name: "Sin web",  value: sinWeb,  color: COLORS.primary },
   ];
 
   const datosGrafico = total > 0
     ? datos
-    : [{ name: "Sin datos", value: 1, color: "#e5e7eb" }];
+    : [{ name: "Sin datos", value: 1, color: COLORS.surface }];
 
   return (
-    <div className="bg-slate-50 rounded-xl border border-gray-100 p-5">
-      <h2 className="text-xs font-semibold text-zinc-800 mb-4 flex items-center">
-        <Globe size={16} className="mr-2" />
+    <div className={CARD_CLASS}>
+      <h2 className={HEADER_CLASS}>
+        <Globe size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
         Prospectos con Web
       </h2>
 
-      <div className="flex items-center gap-4">
-
-        {/* Donut */}
+      <div className="flex items-center gap-6">
         <div className="relative flex-shrink-0">
-          <ResponsiveContainer width={120} height={120}>
+          <ResponsiveContainer width={100} height={100}>
             <PieChart>
               <Pie data={datosGrafico} cx="50%" cy="50%"
-                innerRadius={35} outerRadius={55} paddingAngle={2}
-                dataKey="value" labelLine={false}>
+                innerRadius={35} outerRadius={46} paddingAngle={2}
+                dataKey="value" stroke="none">
                 {datosGrafico.map((entry, i) => (
                   <Cell key={i} fill={entry.color} />
                 ))}
@@ -48,37 +47,35 @@ export function WebActivaChart({ metricas }: Props) {
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-lg font-semibold text-zinc-800">{total}</span>
+            <span className="text-2xl font-light tracking-tighter text-zinc-900">{total}</span>
           </div>
         </div>
 
-        {/* Detalle */}
-        <div className="flex-1 space-y-3">
+        <div className="flex-1 space-y-4">
           {[
-            { label: "Con web",  valor: conWeb,  pct: pctConWeb,  color: "#3b82f6", bar: "bg-blue-500" },
-            { label: "Sin web",  valor: sinWeb,  pct: pctSinWeb,  color: "#d1d5db", bar: "bg-gray-300" },
+            { label: "Con web",  valor: conWeb,  pct: pctConWeb,  color: COLORS.dark },
+            { label: "Sin web",  valor: sinWeb,  pct: pctSinWeb,  color: COLORS.primary },
           ].map((item, i) => (
             <div key={i}>
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-xs gray-100">{item.label}</span>
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-[12px] font-medium text-zinc-500">{item.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-zinc-800">{item.valor}</span>
-                  <span className="text-xs text-zinc-800">({item.pct}%)</span>
+                  <span className="text-[12px] font-semibold text-zinc-900">{item.valor}</span>
+                  <span className="text-[10px] text-zinc-400 font-medium w-8 text-right">({item.pct}%)</span>
                 </div>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-1.5">
+              <div className="w-full bg-zinc-100 rounded-full h-1">
                 <div
-                  className={`${item.bar} h-1.5 rounded-full transition-all`}
-                  style={{ width: `${item.pct}%` }}
+                  className="h-1 rounded-full transition-all duration-500"
+                  style={{ width: `${item.pct}%`, backgroundColor: item.color }}
                 />
               </div>
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );

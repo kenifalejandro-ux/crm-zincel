@@ -15,7 +15,7 @@ function KpiCard({
   icon: React.ReactNode; color: string; bg: string;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4">
+    <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-4 flex items-center gap-4">
       <div className={`${bg} p-2.5 rounded-lg ${color}`}>{icon}</div>
       <div>
         <p className="text-[11px] text-zinc-400 font-medium uppercase">{label}</p>
@@ -78,7 +78,7 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
     <div className="space-y-5">
 
       {/* Tipo de cambio configurable */}
-      <div className="bg-white border border-gray-100 rounded-xl px-4 py-3 flex flex-wrap items-center gap-3 text-xs">
+      <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] px-4 py-3 flex flex-wrap items-center gap-3 text-xs">
         <span className="text-zinc-500 font-medium">Tipo de cambio USD → PEN</span>
         <div className="flex items-center gap-1.5">
           <span className="text-zinc-400">S/</span>
@@ -88,14 +88,14 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
             step={0.01}
             value={tipoCambio}
             onChange={(e) => handleGuardarManual(Number(e.target.value))}
-            className="w-20 px-2 py-1 border border-gray-200 rounded-lg text-xs text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-20 px-2 py-1 border border-zinc-200 rounded-lg text-xs text-center focus:outline-none focus:ring-2 focus:ring-zinc-400"
           />
           <span className="text-zinc-400">/ USD</span>
         </div>
         <button
           onClick={handleActualizarAPI}
           disabled={actualizando}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg transition text-xs"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition text-xs"
         >
           <RefreshCw size={12} className={actualizando ? "animate-spin" : ""} />
           {actualizando ? "Obteniendo..." : "Actualizar desde API"}
@@ -128,8 +128,8 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
           valor={fmt(utilidad)}
           sub={utilidadNegativa ? "Pérdida este período" : "Ganancia este período"}
           icon={<DollarSign size={18} />}
-          color={utilidadNegativa ? "text-red-600" : "text-blue-600"}
-          bg={utilidadNegativa ? "bg-red-50" : "bg-blue-50"}
+          color={utilidadNegativa ? "text-red-600" : "text-brand"}
+          bg={utilidadNegativa ? "bg-red-50" : "bg-brand/5"}
         />
         <KpiCard
           label="Por cobrar (total)"
@@ -164,8 +164,8 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
           valor={fmt(pasivos.posicion_real)}
           sub="Utilidad neta − Préstamos por pagar"
           icon={<DollarSign size={18} />}
-          color={pasivos.posicion_real >= 0 ? "text-blue-600" : "text-red-600"}
-          bg={pasivos.posicion_real >= 0 ? "bg-blue-50" : "bg-red-50"}
+          color={pasivos.posicion_real >= 0 ? "text-brand" : "text-red-600"}
+          bg={pasivos.posicion_real >= 0 ? "bg-brand/5" : "bg-red-50"}
         />
       </div>
 
@@ -187,8 +187,8 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
       </div>
 
       {/* Detalle ingresos acordados */}
-      <div className="bg-white rounded-xl border border-gray-100 p-4">
-        <h3 className="text-xs font-semibold text-zinc-800 mb-3">Detalle del período</h3>
+      <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-4">
+        <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Detalle del período</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
           <div className="space-y-0.5">
             <p className="text-zinc-400">Total acordado</p>
@@ -196,7 +196,7 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
           </div>
           <div className="space-y-0.5">
             <p className="text-zinc-400">Adelantos cobrados</p>
-            <p className="font-semibold text-blue-600">{fmt(ingresos.total_cobrado)}</p>
+            <p className="font-semibold text-brand">{fmt(ingresos.total_cobrado)}</p>
           </div>
           <div className="space-y-0.5">
             <p className="text-zinc-400">Saldo pendiente (período)</p>
