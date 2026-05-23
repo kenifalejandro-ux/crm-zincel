@@ -19,7 +19,7 @@ export function ActividadChart({ metricas }: Props) {
   return (
     <div className={`${CARD_CLASS} xl:col-span-3`}>
       <h2 className={HEADER_CLASS}>
-        <TrendingUp size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+        <TrendingUp size={14} className="mr-2.5 text-emerald-500" strokeWidth={2} />
         Actividad del Período
       </h2>
 
@@ -41,7 +41,7 @@ export function ActividadChart({ metricas }: Props) {
             itemStyle={{ color: "#52525b", fontWeight: 500 }}
           />
           <Bar dataKey="llamadas"  stackId="a" fill={COLORS.dark} radius={[2, 2, 0, 0]} maxBarSize={40} />
-          <Bar dataKey="brochures" stackId="a" fill="#e4e4e7" radius={[2, 2, 0, 0]} maxBarSize={40} />
+          <Bar dataKey="brochures" stackId="a" fill={COLORS.mutedDark} radius={[2, 2, 0, 0]} maxBarSize={40} />
           <Bar dataKey="reuniones" stackId="a" fill={COLORS.primary} radius={[2, 2, 0, 0]} maxBarSize={40} />
         </BarChart>
       </ResponsiveContainer>
@@ -49,12 +49,12 @@ export function ActividadChart({ metricas }: Props) {
       <div className="flex justify-center gap-6 mt-6">
         {[
           { label: "Llamadas",  color: COLORS.dark },
-          { label: "Brochures", color: "#e4e4e7" },
+          { label: "Brochures", color: COLORS.mutedDark },
           { label: "Reuniones", color: COLORS.primary },
         ].map((item, i) => (
           <div key={i} className="flex items-center gap-2.5">
             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-            <span className="text-[11px] font-medium text-zinc-500 uppercase tracking-wide">{item.label}</span>
+            <span className="text-[11px] font-medium text-zinc-700 uppercase tracking-wide">{item.label}</span>
           </div>
         ))}
       </div>

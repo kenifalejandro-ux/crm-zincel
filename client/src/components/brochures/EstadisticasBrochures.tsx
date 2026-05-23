@@ -48,12 +48,12 @@ export function EstadisticasBrochures({ estadisticas, canales, filtroPeriodo, on
       {/* Gráfico por período */}
       <div className={CARD_CLASS}>
         <h2 className={HEADER_CLASS}>
-          <BarChart2 size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+          <BarChart2 size={14} className="mr-2.5 text-violet-500" strokeWidth={2} />
           Envíos por {labelPeriodo}
         </h2>
         <div className="flex items-center justify-between mb-3">
           {totalItems > 0 && (
-            <p className="text-[11px] text-zinc-400 font-medium">
+            <p className="text-[11px] text-zinc-600 font-medium">
               {totalItems} {labelPeriodo}{totalItems !== 1 ? "s" : ""} · línea de tendencia
             </p>
           )}
@@ -70,7 +70,7 @@ export function EstadisticasBrochures({ estadisticas, canales, filtroPeriodo, on
         </div>
 
         {estadisticas.length === 0 ? (
-          <p className="text-xs text-zinc-400 text-center py-10">Sin envíos en este período</p>
+          <p className="text-xs text-zinc-600 text-center py-10">Sin envíos en este período</p>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <ComposedChart data={estadisticas} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -89,11 +89,11 @@ export function EstadisticasBrochures({ estadisticas, canales, filtroPeriodo, on
       {/* Desglose por canal + detalle */}
       <div className={CARD_CLASS}>
         <h2 className={HEADER_CLASS}>
-          <Send size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+          <Send size={14} className="mr-2.5 text-sky-500" strokeWidth={2} />
           Envíos por canal
         </h2>
         {canales.length === 0 ? (
-          <p className="text-xs text-zinc-400 text-center py-6">Sin registros aún</p>
+          <p className="text-xs text-zinc-600 text-center py-6">Sin registros aún</p>
         ) : (
           <div className="space-y-2">
             {canales.map((c, i) => (
@@ -107,11 +107,11 @@ export function EstadisticasBrochures({ estadisticas, canales, filtroPeriodo, on
 
         {estadisticas.length > 0 && (
           <div className="mt-4 pt-4 border-t border-zinc-100">
-            <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Detalle por {labelPeriodo}</h3>
+            <h3 className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest mb-2">Detalle por {labelPeriodo}</h3>
             <div className="max-h-36 overflow-y-auto space-y-1 pr-1">
               {estadisticas.map((stat, i) => (
                 <div key={i} className="flex items-center justify-between text-xs py-0.5">
-                  <span className="text-zinc-500 w-16 shrink-0">{stat.fecha}</span>
+                  <span className="text-zinc-700 w-16 shrink-0">{stat.fecha}</span>
                   <div className="flex-1 mx-2 bg-zinc-100 rounded-full h-1.5">
                     <div className="h-1.5 rounded-full bg-brand" style={{ width: `${(stat.total / maxVal) * 100}%` }} />
                   </div>

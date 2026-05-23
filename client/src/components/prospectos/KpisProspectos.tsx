@@ -1,6 +1,7 @@
 /** client/src/components/prospectos/KpisProspectos.tsx */
 
 import { Phone, Users } from "lucide-react";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import type { ResumenProspectos } from "../../services/prospectos.api";
 
 interface CardDef {
@@ -36,11 +37,7 @@ function Card({ card, valor, activo, onClick }: { card: CardDef; valor: number; 
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-start gap-1.5 px-3 py-2.5 rounded-xl border text-left transition-all
-        ${activo
-          ? `${card.bg} ring-2 ring-offset-1 ring-zinc-400 shadow-sm`
-          : `${card.bg} hover:shadow-sm hover:scale-[1.01]`
-        }`}
+      className={`${CARD_CLASS} !px-3 !py-2.5 flex flex-col items-start gap-1.5 text-left transition-all ${activo ? 'ring-2 ring-offset-1 ring-zinc-400 shadow-sm' : 'hover:shadow-sm hover:scale-[1.01]'}`}
     >
       <div className="flex items-center gap-1.5 w-full">
         <span className={`w-2 h-2 rounded-full shrink-0 ${card.dot}`} />
@@ -55,13 +52,10 @@ function Card({ card, valor, activo, onClick }: { card: CardDef; valor: number; 
 
 export function KpisProspectos({ resumen, filtroActivo, onFiltro }: Props) {
   return (
-    <div className="space-y-2">
+    <div className={`${CARD_CLASS} space-y-2`}>
 
       {/* ── Estados de leads ── */}
-      <div className="flex items-center gap-1.5 mb-1">
-        <Users size={12} className="text-zinc-400" />
-        <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Estado de leads</span>
-      </div>
+      <p className={HEADER_CLASS}><Users size={12} className="mr-1.5 text-blue-500" />Estado de leads</p>
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
         {CARDS_ESTADOS.map(card => (
           <Card
@@ -75,17 +69,14 @@ export function KpisProspectos({ resumen, filtroActivo, onFiltro }: Props) {
       </div>
 
       {/* ── Actividad de llamadas (igual al dashboard) ── */}
-      <div className="flex items-center gap-1.5 mt-1 mb-1">
-        <Phone size={12} className="text-zinc-400" />
-        <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Actividad de llamadas</span>
-      </div>
+      <p className={HEADER_CLASS}><Phone size={12} className="mr-1.5 text-green-500" />Actividad de llamadas</p>
       <div className="grid grid-cols-3 gap-2">
         {[
           { label: "Total llamadas",    valor: resumen.total_llamadas,          dot: "bg-zinc-400",   color: "text-zinc-800",  bg: "bg-zinc-50 border-zinc-200"    },
           { label: "Contestadas",       valor: resumen.llamadas_contestadas,     dot: "bg-teal-500",   color: "text-teal-700",  bg: "bg-teal-50 border-teal-200"    },
           { label: "No contestadas",    valor: resumen.llamadas_no_contestadas,  dot: "bg-gray-400",   color: "text-gray-600",  bg: "bg-gray-50 border-gray-200"    },
         ].map(({ label, valor, dot, color, bg }) => (
-          <div key={label} className={`flex flex-col items-start gap-1.5 px-3 py-2.5 rounded-xl border ${bg}`}>
+          <div key={label} className={`${CARD_CLASS} !px-3 !py-2.5 flex flex-col items-start gap-1.5`}>
             <div className="flex items-center gap-1.5">
               <span className={`w-2 h-2 rounded-full ${dot}`} />
               <span className={`text-[11px] font-medium ${color}`}>{label}</span>

@@ -129,7 +129,7 @@ export function NotificacionBell() {
             {!cargando && items.length === 0 && (
               <div className="py-8 text-center">
                 <Bell size={20} className="mx-auto text-gray-300 mb-2" />
-                <p className="text-xs text-zinc-400">Sin notificaciones</p>
+                <p className="text-xs text-zinc-600">Sin notificaciones</p>
               </div>
             )}
             {!cargando && items.map(item => (
@@ -139,16 +139,16 @@ export function NotificacionBell() {
                 className={`w-full text-left px-4 py-3 flex gap-3 transition hover:bg-gray-50
                   ${!item.leida ? "bg-amber-50/50" : ""}`}
               >
-                {ICONO[item.tipo] ?? <Bell size={13} className="text-gray-400 shrink-0 mt-0.5" />}
+                {ICONO[item.tipo] ?? <Bell size={13} className="text-gray-600 shrink-0 mt-0.5" />}
                 <div className="flex-1 min-w-0">
                   <p className={`text-xs leading-snug truncate ${!item.leida ? "font-semibold text-zinc-800" : "text-zinc-700"}`}>
                     {item.titulo}
                   </p>
                   {item.cuerpo && (
-                    <p className="text-[10px] text-zinc-400 mt-0.5 truncate">{item.cuerpo}</p>
+                    <p className="text-[10px] text-zinc-600 mt-0.5 truncate">{item.cuerpo}</p>
                   )}
                 </div>
-                <span className="text-[10px] text-zinc-300 shrink-0 mt-0.5">
+                <span className="text-[10px] text-zinc-700 shrink-0 mt-0.5">
                   {tiempoRelativo(item.creado_en)}
                 </span>
               </button>

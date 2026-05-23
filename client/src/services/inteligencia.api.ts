@@ -19,10 +19,13 @@ export interface ActividadKPIs {
 }
 
 export interface Insight {
-  tipo:   "positivo" | "alerta" | "info" | "oportunidad";
-  titulo: string;
-  texto:  string;
-  icono:  string;
+  tipo:    "positivo" | "alerta" | "info" | "oportunidad";
+  titulo:  string;
+  texto:   string;
+  icono:   string;
+  valor?:  number;
+  total?:  number;
+  unidad?: "pct" | "count";
 }
 
 export interface LeadEstancado {
@@ -208,13 +211,30 @@ export async function getForecastIngresos() {
 // ─── Tasa conversión por etapa ────────────────────────────────────────────────
 
 export interface ConversionFunnel {
-  etapas: { etapa: string; total: number; pct_conversion: number | null }[];
-  perdidos:    number;
-  descartados: number;
-  tasa_global: number;
+  etapas: { etapa: string; total: number; valor: number; pct_conversion: number | null }[];
+  perdidos:        number;
+  descartados:     number;
+  tasa_global:     number;
+  valor_pipeline:  number;
+  valor_cerrado:   number;
+  tasa_cierre:     number;
 }
 
 export async function getConversionFunnel() {
   const { data } = await api.get("/inteligencia/conversion-funnel");
   return data.data as ConversionFunnel;
+}
+
+// ─── Efectividad por canal ────────────────────────────────────────────────────
+
+export interface CanalEfectividad {
+  canal:          string;
+  total:          number;
+  interesados:    number;
+  pct_conversion: number;
+}
+
+export async function getCanalEfectividad() {
+  const { data } = await api.get("/inteligencia/canal-efectividad");
+  return data.data as CanalEfectividad[];
 }

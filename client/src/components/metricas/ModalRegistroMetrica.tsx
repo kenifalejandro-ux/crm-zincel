@@ -67,7 +67,7 @@ const CAMPOS_VIDEO = [
 // ─── Sub componentes ───────────────────────────────────────────────────────────
 const Seccion = ({ titulo, children }: { titulo: string; children: React.ReactNode }) => (
   <div className="space-y-2">
-    <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wide">{titulo}</p>
+    <p className="text-[11px] font-semibold text-zinc-600 uppercase tracking-wide">{titulo}</p>
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">{children}</div>
   </div>
 );
@@ -81,7 +81,7 @@ const Campo = ({
   calculado?: boolean;
 }) => (
   <div>
-    <label className="text-xs text-zinc-500 mb-1 block">
+    <label className="text-xs text-zinc-700 mb-1 block">
       {label}
       {calculado && (
         <span className="ml-1 text-[10px] text-blue-400 font-normal">· auto</span>
@@ -95,7 +95,7 @@ const Campo = ({
       readOnly={calculado}
       className={`w-full border rounded-lg px-3 py-2 text-xs focus:outline-none transition ${
         calculado
-          ? "border-zinc-100 bg-zinc-50 text-zinc-400 cursor-not-allowed"
+          ? "border-zinc-100 bg-zinc-50 text-zinc-600 cursor-not-allowed"
           : "border-zinc-200 focus:ring-2 focus:ring-brand/50"
       }`}
       placeholder="0"
@@ -139,11 +139,11 @@ export const ModalRegistroMetrica = ({
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
           <div>
             <h2 className="text-sm font-semibold text-zinc-800">Registrar métricas</h2>
-            <p className="text-[10px] text-zinc-400 mt-0.5">
+            <p className="text-[10px] text-zinc-600 mt-0.5">
               Los campos marcados con <span className="text-blue-400">· auto</span> se calculan solos
             </p>
           </div>
-          <button onClick={onCerrar} className="text-zinc-400 hover:text-zinc-600 text-lg">✕</button>
+          <button onClick={onCerrar} className="text-zinc-600 hover:text-zinc-600 text-lg">✕</button>
         </div>
 
         <div className="px-6 py-4 space-y-5">
@@ -151,7 +151,7 @@ export const ModalRegistroMetrica = ({
           {/* Empresa + Campaña */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-zinc-500 mb-1 block">Empresa *</label>
+              <label className="text-xs text-zinc-700 mb-1 block">Empresa *</label>
               <input
                 value={form.empresa}
                 onChange={(e) => set("empresa", e.target.value)}
@@ -160,7 +160,7 @@ export const ModalRegistroMetrica = ({
               />
             </div>
             <div>
-              <label className="text-xs text-zinc-500 mb-1 block">Nombre campaña *</label>
+              <label className="text-xs text-zinc-700 mb-1 block">Nombre campaña *</label>
               <input
                 value={form.campana_nombre}
                 onChange={(e) => set("campana_nombre", e.target.value)}
@@ -173,7 +173,7 @@ export const ModalRegistroMetrica = ({
           {/* Plataforma + Sub plataforma + Período */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
-              <label className="text-xs text-zinc-500 mb-1 block">Plataforma *</label>
+              <label className="text-xs text-zinc-700 mb-1 block">Plataforma *</label>
               <select
                 value={form.plataforma}
                 onChange={(e) =>
@@ -189,7 +189,7 @@ export const ModalRegistroMetrica = ({
 
             {form.plataforma === "meta" && (
               <div>
-                <label className="text-xs text-zinc-500 mb-1 block">Red social</label>
+                <label className="text-xs text-zinc-700 mb-1 block">Red social</label>
                 <select
                   value={form.sub_plataforma}
                   onChange={(e) => set("sub_plataforma", e.target.value)}
@@ -204,7 +204,7 @@ export const ModalRegistroMetrica = ({
             )}
 
             <div>
-              <label className="text-xs text-zinc-500 mb-1 block">Período inicio *</label>
+              <label className="text-xs text-zinc-700 mb-1 block">Período inicio *</label>
               <input
                 type="date" value={form.periodo_inicio}
                 onChange={(e) => set("periodo_inicio", e.target.value)}
@@ -212,7 +212,7 @@ export const ModalRegistroMetrica = ({
               />
             </div>
             <div>
-              <label className="text-xs text-zinc-500 mb-1 block">Período fin *</label>
+              <label className="text-xs text-zinc-700 mb-1 block">Período fin *</label>
               <input
                 type="date" value={form.periodo_fin}
                 onChange={(e) => set("periodo_fin", e.target.value)}
@@ -272,7 +272,7 @@ export const ModalRegistroMetrica = ({
 
           {/* Notas */}
           <div>
-            <label className="text-xs text-zinc-500 mb-1 block">Notas</label>
+            <label className="text-xs text-zinc-700 mb-1 block">Notas</label>
             <textarea
               value={form.notas}
               onChange={(e) => set("notas", e.target.value)}

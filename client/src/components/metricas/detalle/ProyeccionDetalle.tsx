@@ -17,7 +17,7 @@ interface FilaProps {
 
 const Fila = ({ label, actual, proyectado, color = "text-zinc-800" }: FilaProps) => (
   <div className="grid grid-cols-3 gap-2 py-2.5 border-b border-zinc-100 last:border-0">
-    <span className="text-xs text-zinc-500">{label}</span>
+    <span className="text-xs text-zinc-700">{label}</span>
     <span className="text-xs font-semibold text-zinc-700 text-center">{actual}</span>
     <span className={`text-xs font-bold text-right ${color}`}>{proyectado}</span>
   </div>
@@ -41,9 +41,9 @@ export const ProyeccionDetalle = ({ metrica: m, proyeccion: p }: Props) => (
 
       {/* Header tabla */}
       <div className="grid grid-cols-3 gap-2 pb-2 border-b border-zinc-200 mb-1">
-        <span className="text-[10px] font-semibold text-zinc-400 uppercase">Métrica</span>
-        <span className="text-[10px] font-semibold text-zinc-400 uppercase text-center">Actual</span>
-        <span className="text-[10px] font-semibold text-zinc-400 uppercase text-right">
+        <span className="text-[10px] font-semibold text-zinc-600 uppercase">Métrica</span>
+        <span className="text-[10px] font-semibold text-zinc-600 uppercase text-center">Actual</span>
+        <span className="text-[10px] font-semibold text-zinc-600 uppercase text-right">
           Proyectado 30d
         </span>
       </div>
@@ -84,12 +84,12 @@ export const ProyeccionDetalle = ({ metrica: m, proyeccion: p }: Props) => (
           <p className="text-2xl font-black text-zinc-800">
             S/ {p.presupuesto_meta.toLocaleString("es-PE")}
           </p>
-          <p className="text-[10px] text-zinc-400 mt-0.5">
+          <p className="text-[10px] text-zinc-600 mt-0.5">
             +20% sobre el gasto proyectado para escalar manteniendo el ROAS
           </p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-zinc-500">ROAS esperado</p>
+          <p className="text-xs text-zinc-700">ROAS esperado</p>
           <p className={`text-xl font-bold ${p.roas_proyectado >= 2 ? "text-green-600" : "text-red-600"}`}>
             {p.roas_proyectado}x
           </p>
@@ -99,7 +99,7 @@ export const ProyeccionDetalle = ({ metrica: m, proyeccion: p }: Props) => (
 
     {/* Aviso sin ingresos */}
     {m.ingresos === 0 && (
-      <p className="text-xs text-zinc-400 text-center">
+      <p className="text-xs text-zinc-600 text-center">
         💡 Registra los ingresos de la campaña para obtener una proyección de ROAS más precisa.
       </p>
     )}

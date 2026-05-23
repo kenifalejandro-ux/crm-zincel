@@ -54,14 +54,14 @@ export function lSidebar({ abierto, onCerrar }: Props) {
         className={({ isActive }) =>
           `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all duration-150 ${
             isActive
-              ? "bg-zinc-900 text-white font-medium shadow-sm"
-              : "text-slate-500 hover:bg-gray-100 hover:text-zinc-800"
+              ? "bg-amber-50 text-amber-800 font-semibold"
+              : "text-slate-500 hover:bg-zinc-100 hover:text-zinc-800"
           }`
         }
       >
         {({ isActive }) => (
           <>
-            <Icon size={16} className={isActive ? "text-white" : "text-slate-400"} />
+            <Icon size={16} className={isActive ? "text-amber-600" : "text-slate-500"} />
             <span className="flex-1">{label}</span>
             {badge != null && badge > 0 && (
               <span className={`px-1.5 py-0.5 text-[10px] rounded-full ${badgeColor} text-white font-bold leading-none`}>
@@ -79,7 +79,7 @@ export function lSidebar({ abierto, onCerrar }: Props) {
       {/* Overlay móvil */}
       {abierto && (
         <div
-          className="fixed inset-0 z-30 bg-black/30 lg:hidden"
+          className="fixed inset-0 z-30 lg:hidden"
           onClick={onCerrar}
         />
       )}
@@ -88,12 +88,17 @@ export function lSidebar({ abierto, onCerrar }: Props) {
       <aside
         className={`
           fixed inset-y-0 left-0 z-40 w-64 flex flex-col
-          bg-white border-r border-gray-200
+           bg-white border-r border-zinc-100
           transform transition-transform duration-300 ease-in-out
           ${abierto ? "translate-x-0" : "-translate-x-full"}
           lg:relative lg:w-56 lg:translate-x-0 lg:z-auto lg:shrink-0
         `}
       >
+              {/* ───────────────────────── */}
+      {/* BLUR BOTTOM LEFT */}
+      {/* ───────────────────────── */}
+      <div className="pointer-events-none absolute -bottom-32 right-0 h-[420px] w-[820px] rounded-full bg-yellow-400/20 blur-3xl" />
+
         {/* Logo */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100">
           <div className="flex items-center gap-3">
@@ -106,7 +111,7 @@ export function lSidebar({ abierto, onCerrar }: Props) {
 
           <button
             onClick={onCerrar}
-            className="lg:hidden p-1.5 text-slate-400 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition"
+            className="lg:hidden p-1.5 text-slate-900 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition"
           >
             <X size={16} />
           </button>
@@ -114,8 +119,8 @@ export function lSidebar({ abierto, onCerrar }: Props) {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          <NavItem label="Prospectos" to="/prospectos" icon={Users}  badge={leadsCalientes} badgeColor="bg-orange-500" />
-          <NavItem label="Pipeline"   to="/pipeline"   icon={Kanban} badge={leadsCalientes} badgeColor="bg-orange-500" />
+          <NavItem label="Prospectos" to="/prospectos" icon={Users}  badge={leadsCalientes} badgeColor="bg-red-500" />
+          <NavItem label="Pipeline"   to="/pipeline"   icon={Kanban} badge={leadsCalientes} badgeColor="bg-red-500" />
 
           {navegacion.map(({ label, to, icon }) => (
             <NavItem key={to} label={label} to={to} icon={icon} />
@@ -132,7 +137,7 @@ export function lSidebar({ abierto, onCerrar }: Props) {
 
         {/* Footer */}
         <div className="px-4 py-4 border-t border-gray-100">
-          <p className="text-[10px] text-slate-300 text-center tracking-widest uppercase">v1.0.0</p>
+          <p className="text-[10px] text-slate-500 text-center tracking-widest uppercase">v1.0.0</p>
         </div>
       </aside>
     </>

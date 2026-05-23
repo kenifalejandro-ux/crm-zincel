@@ -46,13 +46,13 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
         {/* Empresa + Tipo de servicio */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Empresa / Cliente</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Empresa / Cliente</label>
             <input type="text" value={form.empresa}
               onChange={(e) => set({ empresa: e.target.value })}
               placeholder="Ej: Empresa XYZ" className={cls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Tipo de servicio</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Tipo de servicio</label>
             <select value={form.tipo_servicio}
               onChange={(e) => set({ tipo_servicio: e.target.value as TipoServicio })}
               className={cls}>
@@ -63,7 +63,7 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
 
         {/* Descripción */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Descripción</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Descripción</label>
           <input type="text" value={form.descripcion}
             onChange={(e) => set({ descripcion: e.target.value })}
             placeholder="Ej: Gestión de redes sociales mes de mayo"
@@ -73,7 +73,7 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
         {/* Moneda + Monto total */}
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Moneda</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Moneda</label>
             <select value={form.moneda}
               onChange={(e) => set({ moneda: e.target.value as Moneda })}
               className={cls}>
@@ -82,14 +82,14 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Monto total</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Monto total</label>
             <input type="number" min={0} step="0.01" value={form.monto_total}
               onChange={(e) => set({ monto_total: e.target.value })}
               placeholder="0.00" className={cls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">
-              Cobrado <span className="text-zinc-400"></span>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">
+              Cobrado <span className="text-zinc-600"></span>
             </label>
             <input type="number" min={0} step="0.01"
               max={parseFloat(form.monto_total) || undefined}
@@ -129,7 +129,7 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
         {/* Estado + Fecha emisión */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Estado</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Estado</label>
             <select value={form.estado}
               onChange={(e) => set({ estado: e.target.value as EstadoIngreso })}
               className={cls}>
@@ -137,7 +137,7 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha de emisión</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Fecha de emisión</label>
             <input type="date" value={form.fecha}
               onChange={(e) => set({ fecha: e.target.value })}
               className={cls} />
@@ -146,8 +146,8 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
 
         {/* Fecha de vencimiento */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">
-            Fecha de vencimiento <span className="text-zinc-400">(opcional)</span>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">
+            Fecha de vencimiento <span className="text-zinc-600">(opcional)</span>
           </label>
           <input type="date" value={form.fecha_vencimiento}
             onChange={(e) => set({ fecha_vencimiento: e.target.value })}
@@ -156,7 +156,7 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
 
         {/* Notas */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
           <textarea rows={2} value={form.notas}
             onChange={(e) => set({ notas: e.target.value })}
             className={`${cls} resize-none`} />

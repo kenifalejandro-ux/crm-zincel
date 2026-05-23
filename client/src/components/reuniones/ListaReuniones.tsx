@@ -43,14 +43,14 @@ export function ListaReuniones({
 }: Props) {
   if (reuniones.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 p-12 text-center text-xs text-zinc-400">
+      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-12 text-center text-xs text-zinc-600">
         No hay reuniones. ¡Agenda la primera!
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
       <table className="w-full text-xs min-w-[860px]">
         <thead>
@@ -59,13 +59,13 @@ export function ListaReuniones({
               <TableCheckbox checked={todosSeleccionados} onChange={onToggleTodos}
               />
             </th>
-            <th className="text-left px-5 py-3 font-medium text-zinc-500 uppercase">Prospecto</th>
-            <th className="text-left px-5 py-3 font-medium text-zinc-500 uppercase"> Título</th>
-            <th className="text-left px-5 py-3 font-medium text-zinc-500 uppercase">Fecha</th>
-            <th className="text-left px-5 py-3 font-medium text-zinc-500 uppercase">Modalidad</th>
-            <th className="text-left px-5 py-3 font-medium text-zinc-500 uppercase">Enlace</th>
-            <th className="text-left px-5 py-3 font-medium text-zinc-500 uppercase">Estado</th>
-            <th className="text-left px-5 py-3 font-medium text-zinc-500 uppercase">Notas</th>
+            <th className="text-left px-5 py-3 font-medium text-zinc-700 uppercase">Prospecto</th>
+            <th className="text-left px-5 py-3 font-medium text-zinc-700 uppercase"> Título</th>
+            <th className="text-left px-5 py-3 font-medium text-zinc-700 uppercase">Fecha</th>
+            <th className="text-left px-5 py-3 font-medium text-zinc-700 uppercase">Modalidad</th>
+            <th className="text-left px-5 py-3 font-medium text-zinc-700 uppercase">Enlace</th>
+            <th className="text-left px-5 py-3 font-medium text-zinc-700 uppercase">Estado</th>
+            <th className="text-left px-5 py-3 font-medium text-zinc-700 uppercase">Notas</th>
             <th className="px-5 py-3" /></tr></thead>
 
         <tbody className="divide-y divide-gray-50">
@@ -80,10 +80,10 @@ export function ListaReuniones({
               </td>
 
               {/* Prospecto */}
-              <td className="px-5 py-3.5 text-zinc-500">
+              <td className="px-5 py-3.5 text-zinc-700">
                {/* ✅ Cámbialo por */}
   <p className="font-medium text-zinc-800">{r.empresa || "-"}</p>
-  <p className="text-xs text-zinc-400">{r.nombre_contacto || ""}</p>
+  <p className="text-xs text-zinc-600">{r.nombre_contacto || ""}</p>
 </td>
 
               {/* Título */}
@@ -93,7 +93,7 @@ export function ListaReuniones({
                     {r.titulo}
                   </p>
 
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-zinc-600">
                     {r.empresa} · {r.nombre_contacto}
                   </p>
                 </div>
@@ -110,7 +110,7 @@ export function ListaReuniones({
                     })}
                   </p>
 
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-zinc-600">
                     {new Date(r.fecha_hora).toLocaleTimeString("es-PE", {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -121,7 +121,7 @@ export function ListaReuniones({
 
               {/* Modalidad */}
               <td className="px-5 py-3.5">
-                <span className="text-zinc-500 capitalize flex items-center gap-1">
+                <span className="text-zinc-700 capitalize flex items-center gap-1">
                   {r.modalidad === "presencial" ? (
                     <MapPin size={12} />
                   ) : (
@@ -144,7 +144,7 @@ export function ListaReuniones({
                     {r.enlace}
                   </a>
                 ) : (
-                  <span className="text-zinc-300">-</span>
+                  <span className="text-zinc-700">-</span>
                 )}
               </td>
 
@@ -178,7 +178,7 @@ export function ListaReuniones({
               </td>
 
               {/* Notas */}
-              <td className="px-5 py-3.5 text-zinc-500 max-w-[240px]">
+              <td className="px-5 py-3.5 text-zinc-700 max-w-[240px]">
                 {r.notas || "-"}
               </td>
 
@@ -187,7 +187,7 @@ export function ListaReuniones({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => onEditar(r)}
-                    className="text-zinc-400 hover:text-brand transition"
+                    className="text-zinc-600 hover:text-brand transition"
                     title="Editar reunión"
                   >
                     <Pencil size={14} />

@@ -1,8 +1,9 @@
 /** client/src/components/inteligencia/PrioridadOperacional.tsx */
 
 import { useState } from "react";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import { useNavigate } from "react-router-dom";
-import { X, Phone, Building2, MapPin, ChevronRight, Loader2 } from "lucide-react";
+import { X, Phone, Building2, MapPin, ChevronRight, Loader2, Flame } from "lucide-react";
 import type { AccionPrioridad, LeadPrioridad } from "../../services/inteligencia.api";
 import { getLeadsPrioridad } from "../../services/inteligencia.api";
 import { getProspecto } from "../../services/prospectos.api";
@@ -57,10 +58,10 @@ export function PrioridadOperacional({ acciones }: Props) {
   const cerrarDetalle = () => setProspectoDetalle(null);
 
   if (!acciones.length) return (
-    <div className="bg-white border border-gray-100 rounded-xl p-5">
+    <div className={CARD_CLASS}>
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-lg">🎯</span>
-        <h3 className="text-sm font-semibold text-zinc-800">Prioridad operacional</h3>
+        <Flame size={16} className="text-orange-500" />
+        <h3 className={HEADER_CLASS}>Prioridad operacional</h3>
       </div>
       <div className="flex items-center justify-center py-6 text-xs text-emerald-600 font-medium gap-2">
         <span>✅</span> Todo al día — no hay acciones urgentes pendientes
@@ -73,13 +74,13 @@ export function PrioridadOperacional({ acciones }: Props) {
 
   return (
     <>
-      <div className="bg-white border border-gray-100 rounded-xl p-5 space-y-4">
+      <div className={`${CARD_CLASS} space-y-4`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-lg">🎯</span>
+            <Flame size={16} className="text-orange-500" />
             <div>
-              <h3 className="text-sm font-semibold text-zinc-800">Haz esto primero</h3>
-              <p className="text-xs text-zinc-400 mt-0.5">Acciones ordenadas por impacto en ventas</p>
+              <h3 className={HEADER_CLASS}>Haz esto primero</h3>
+              <p className="text-xs text-zinc-600 mt-0.5">Acciones ordenadas por impacto en ventas</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -102,7 +103,7 @@ export function PrioridadOperacional({ acciones }: Props) {
             return (
               <button key={i} onClick={() => abrirModal(acc)}
                 className={`w-full text-left flex items-start gap-3 rounded-xl border p-3.5 transition-all hover:shadow-sm hover:brightness-95 cursor-pointer ${s.bg} ${s.borde}`}>
-                <div className="shrink-0 w-6 h-6 rounded-full bg-white/70 flex items-center justify-center text-[10px] font-bold text-zinc-500 mt-0.5">
+                <div className="shrink-0 w-6 h-6 rounded-full bg-white/70 flex items-center justify-center text-[10px] font-bold text-zinc-700 mt-0.5">
                   {i + 1}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -113,7 +114,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                       {NIVEL_LABEL[acc.nivel]}
                     </span>
                     <span className="ml-auto text-xs font-bold text-zinc-700 shrink-0 flex items-center gap-1">
-                      {acc.cantidad} <ChevronRight size={12} className="text-zinc-400" />
+                      {acc.cantidad} <ChevronRight size={12} className="text-zinc-600" />
                     </span>
                   </div>
                   <p className="text-[11px] text-zinc-600 leading-relaxed">{acc.descripcion}</p>
@@ -136,11 +137,11 @@ export function PrioridadOperacional({ acciones }: Props) {
                 <span className="text-xl">{accionActiva.icono}</span>
                 <div>
                   <p className="text-sm font-semibold text-zinc-800">{accionActiva.titulo}</p>
-                  <p className="text-xs text-zinc-500 mt-0.5">{accionActiva.cantidad} leads · clic para gestionar</p>
+                  <p className="text-xs text-zinc-700 mt-0.5">{accionActiva.cantidad} leads · clic para gestionar</p>
                 </div>
               </div>
               <button onClick={cerrarModal} className="p-1.5 rounded-lg hover:bg-black/10 transition">
-                <X size={16} className="text-zinc-500" />
+                <X size={16} className="text-zinc-700" />
               </button>
             </div>
 
@@ -151,25 +152,25 @@ export function PrioridadOperacional({ acciones }: Props) {
                   <div className="w-6 h-6 rounded-full border-2 border-brand border-t-transparent animate-spin" />
                 </div>
               ) : leads.length === 0 ? (
-                <p className="text-xs text-zinc-400 text-center py-8">Sin leads disponibles</p>
+                <p className="text-xs text-zinc-600 text-center py-8">Sin leads disponibles</p>
               ) : (
                 leads.map((lead) => (
                   <button key={lead.id} onClick={() => abrirDetalle(lead)}
                     className="w-full text-left flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-brand/30 hover:bg-brand/5 transition group">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <Building2 size={11} className="text-zinc-400 shrink-0" />
+                        <Building2 size={11} className="text-zinc-600 shrink-0" />
                         <p className="text-xs font-semibold text-zinc-800 truncate">{lead.empresa}</p>
                       </div>
-                      <p className="text-[11px] text-zinc-500 truncate">{lead.nombre_contacto}</p>
+                      <p className="text-[11px] text-zinc-700 truncate">{lead.nombre_contacto}</p>
                       <div className="flex items-center gap-3 mt-1 flex-wrap">
                         {lead.telefono && (
-                          <span className="flex items-center gap-1 text-[10px] text-zinc-400">
+                          <span className="flex items-center gap-1 text-[10px] text-zinc-600">
                             <Phone size={9} /> {lead.telefono}
                           </span>
                         )}
                         {lead.ciudad && (
-                          <span className="flex items-center gap-1 text-[10px] text-zinc-400">
+                          <span className="flex items-center gap-1 text-[10px] text-zinc-600">
                             <MapPin size={9} /> {lead.ciudad}
                           </span>
                         )}
@@ -181,7 +182,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                     {cargandoDetalle === lead.id ? (
                       <Loader2 size={14} className="shrink-0 text-blue-500 animate-spin" />
                     ) : (
-                      <ChevronRight size={14} className="shrink-0 text-zinc-300 group-hover:text-brand transition" />
+                      <ChevronRight size={14} className="shrink-0 text-zinc-700 group-hover:text-brand transition" />
                     )}
                   </button>
                 ))

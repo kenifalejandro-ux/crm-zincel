@@ -21,7 +21,7 @@ export function PreviewImportacion({ preview, importando, onCancelar, onConfirma
           <h2 className="text-xs font-semibold text-zinc-800">
             Vista previa — {preview.length} registros detectados
           </h2>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-zinc-600 mt-0.5">
             Revisa los datos antes de confirmar la importación
           </p>
         </div>
@@ -48,38 +48,38 @@ export function PreviewImportacion({ preview, importando, onCancelar, onConfirma
         <table className="min-w-[1400px] text-xs">
           <thead>
             <tr className="border-b border-gray-100 bg-gray-50">
-              <th className="text-left px-3 py-2 text-zinc-500 font-medium">#</th>
-              <th className="text-left px-3 py-2 text-zinc-500 font-medium">Empresa</th>
-              <th className="text-left px-3 py-2 text-zinc-500 font-medium">Contacto</th>
-              <th className="text-left px-3 py-2 text-zinc-500 font-medium">Teléfono</th>
-              <th className="text-left px-3 py-2 text-zinc-500 font-medium">Email</th>
-              <th className="text-left px-3 py-2 text-zinc-500 font-medium">Estado</th>
-              <th className="text-left px-3 py-2 text-zinc-500 font-medium">Ciudad</th>
-              <th className="text-left px-3 py-2 text-zinc-500 font-medium">País</th>
-              <th className="text-left px-3 py-2 text-zinc-500 font-medium">Llamadas</th>
+              <th className="text-left px-3 py-2 text-zinc-700 font-medium">#</th>
+              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Empresa</th>
+              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Contacto</th>
+              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Teléfono</th>
+              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Email</th>
+              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Estado</th>
+              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Ciudad</th>
+              <th className="text-left px-3 py-2 text-zinc-700 font-medium">País</th>
+              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Llamadas</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {preview.slice(0, 400).map((p, i) => (
               <tr key={i} className="hover:bg-gray-50">
-                <td className="px-3 py-2 text-zinc-400">{i + 1}</td>
+                <td className="px-3 py-2 text-zinc-600">{i + 1}</td>
                 <td className="px-3 py-2 font-medium text-zinc-800">{p.empresa}</td>
                 <td className="px-3 py-2 text-gray-600">{p.nombre_contacto || "-"}</td>
                 <td className="px-3 py-2 text-gray-600">{p.telefono || "-"}</td>
                 <td className="px-3 py-2 text-gray-600 max-w-[180px] truncate">{p.email_contacto || "-"}</td>
                 <td className="px-3 py-2">
-                  <span className={`inline-flex px-1.5 py-0.5 rounded-full text-xs font-medium ${COLOR_ESTADO[p.estado_lead] || "bg-gray-100 text-gray-500"}`}>
+                  <span className={`inline-flex px-1.5 py-0.5 rounded-full text-xs font-medium ${COLOR_ESTADO[p.estado_lead] || "bg-gray-100 text-gray-700"}`}>
                     {p.estado_lead}
                   </span>
                 </td>
-                <td className="px-3 py-2 text-zinc-500">{p.ciudad || "-"}</td>
-                <td className="px-3 py-2 text-zinc-500">{p.pais || "-"}</td>
-                <td className="px-3 py-2 text-zinc-500">
+                <td className="px-3 py-2 text-zinc-700">{p.ciudad || "-"}</td>
+                <td className="px-3 py-2 text-zinc-700">{p.pais || "-"}</td>
+                <td className="px-3 py-2 text-zinc-700">
                   {p.llamadas && p.llamadas.length > 0 ? (
                     <div className="text-xs">
                       {p.llamadas.length} llamada{p.llamadas.length > 1 ? "s" : ""}
                       {p.llamadas.length <= 2 && (
-                        <div className="text-zinc-400 mt-0.5">
+                        <div className="text-zinc-600 mt-0.5">
                           {p.llamadas.map((ll: any, idx: number) => (
                             <div key={idx}>
                               {new Date(ll.fecha).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
@@ -94,7 +94,7 @@ export function PreviewImportacion({ preview, importando, onCancelar, onConfirma
             ))}
             {preview.length > 400 && (
               <tr>
-                <td colSpan={9} className="px-3 py-2 text-xs text-zinc-400 text-center">
+                <td colSpan={9} className="px-3 py-2 text-xs text-zinc-600 text-center">
                   Mostrando 400 de {preview.length} registros — todos se importarán
                 </td>
               </tr>

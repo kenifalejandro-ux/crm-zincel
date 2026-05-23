@@ -70,7 +70,7 @@ export default function TareasPage() {
             <CheckSquare size={20} className="text-amber-500" />
             Tareas de seguimiento
           </h1>
-          <p className="text-xs text-zinc-400 mt-0.5">Recordatorios y pendientes de tus prospectos</p>
+          <p className="text-xs text-zinc-600 mt-0.5">Recordatorios y pendientes de tus prospectos</p>
         </div>
         <button
           onClick={() => setMostrarForm(v => !v)}
@@ -99,9 +99,9 @@ export default function TareasPage() {
             <p className="text-[10px] text-brand/70 font-medium uppercase tracking-wide">Próximas</p>
           </div>
           <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 text-center">
-            <CheckSquare size={16} className="mx-auto text-zinc-400 mb-1" />
+            <CheckSquare size={16} className="mx-auto text-zinc-600 mb-1" />
             <p className="text-xl font-bold text-zinc-600">{resumen.total}</p>
-            <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-wide">Total</p>
+            <p className="text-[10px] text-zinc-600 font-medium uppercase tracking-wide">Total</p>
           </div>
         </div>
       )}

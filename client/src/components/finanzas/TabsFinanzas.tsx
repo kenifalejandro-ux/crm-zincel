@@ -24,7 +24,7 @@ export function TabsFinanzas({ tab, onChange }: Props) {
           className={`px-4 py-1.5 text-xs rounded-md transition ${
             tab === t.value
               ? "bg-white shadow-sm text-zinc-800 font-medium"
-              : "text-zinc-500 hover:text-gray-700"
+              : "text-zinc-700 hover:text-gray-700"
           }`}
         >
           {t.label}

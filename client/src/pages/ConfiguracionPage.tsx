@@ -154,7 +154,7 @@ export default function ConfiguracionPage() {
       {/* Header */}
       <div>
         <h1 className="text-xl font-semibold text-zinc-800">Configuración</h1>
-        <p className="text-xs text-zinc-400 mt-0.5">Gestiona las cuentas publicitarias conectadas al CRM</p>
+        <p className="text-xs text-zinc-600 mt-0.5">Gestiona las cuentas publicitarias conectadas al CRM</p>
       </div>
 
       {/* Alertas de tokens por vencer */}
@@ -194,7 +194,7 @@ export default function ConfiguracionPage() {
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
           <div>
             <p className="text-sm font-semibold text-zinc-800">Cuentas publicitarias</p>
-            <p className="text-[11px] text-zinc-400">Meta Ads · TikTok Ads · Google Ads</p>
+            <p className="text-[11px] text-zinc-600">Meta Ads · TikTok Ads · Google Ads</p>
           </div>
           <div className="flex gap-2">
             {(["meta", "tiktok", "google"] as PlataformaAPI[]).map(p => (
@@ -211,7 +211,7 @@ export default function ConfiguracionPage() {
           {([["todas", "Todas"], ["meta", "Meta"], ["tiktok", "TikTok"], ["google", "Google"]] as const).map(([val, lbl]) => (
             <button key={val} onClick={() => setTabPlat(val)}
               className={`px-3 py-1.5 text-xs rounded-lg transition ${
-                tabPlat === val ? "bg-zinc-900 text-white font-medium" : "text-zinc-500 hover:bg-zinc-100"
+                tabPlat === val ? "bg-zinc-900 text-white font-medium" : "text-zinc-700 hover:bg-zinc-100"
               }`}>
               {lbl} {val !== "todas" && `(${cuentas.filter(c => c.plataforma === val).length})`}
             </button>
@@ -221,8 +221,8 @@ export default function ConfiguracionPage() {
         {/* Lista */}
         {cuentasFiltradas.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <p className="text-sm text-zinc-400">No hay cuentas configuradas</p>
-            <p className="text-xs text-zinc-300 mt-1">
+            <p className="text-sm text-zinc-600">No hay cuentas configuradas</p>
+            <p className="text-xs text-zinc-700 mt-1">
               Agrega las credenciales de cada plataforma para sincronizar campañas automáticamente
             </p>
           </div>
@@ -244,27 +244,27 @@ export default function ConfiguracionPage() {
                         </span>
                         <SemaforoToken fecha={c.token_vence_en} />
                       </div>
-                      <p className="text-[11px] text-zinc-400 font-mono mt-0.5">{c.account_id}</p>
+                      <p className="text-[11px] text-zinc-600 font-mono mt-0.5">{c.account_id}</p>
                       {c.token_vence_en && (
-                        <p className="text-[11px] text-zinc-400 mt-0.5">
+                        <p className="text-[11px] text-zinc-600 mt-0.5">
                           Vence: {new Date(c.token_vence_en).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })}
                         </p>
                       )}
-                      {c.notas && <p className="text-[11px] text-zinc-400">{c.notas}</p>}
+                      {c.notas && <p className="text-[11px] text-zinc-600">{c.notas}</p>}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                      c.activo ? "bg-green-50 text-green-600" : "bg-zinc-100 text-zinc-400"
+                      c.activo ? "bg-green-50 text-green-600" : "bg-zinc-100 text-zinc-600"
                     }`}>
                       {c.activo ? "Activo" : "Inactivo"}
                     </span>
                     <button onClick={() => abrirEditar(c)}
-                      className="p-1.5 text-zinc-400 hover:text-brand hover:bg-brand/5 rounded-lg transition">
+                      className="p-1.5 text-zinc-600 hover:text-brand hover:bg-brand/5 rounded-lg transition">
                       <Pencil size={13} />
                     </button>
                     <button onClick={() => handleEliminar(c)}
-                      className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+                      className="p-1.5 text-zinc-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
                       <Trash2 size={13} />
                     </button>
                   </div>
@@ -276,7 +276,7 @@ export default function ConfiguracionPage() {
 
         {/* Info */}
         <div className="px-6 py-3 border-t border-zinc-50 bg-zinc-50/50 rounded-b-2xl mt-2">
-          <p className="text-[11px] text-zinc-400">
+          <p className="text-[11px] text-zinc-600">
             Al importar métricas, el CRM usa automáticamente las credenciales registradas aquí según la empresa y plataforma.
             Si no hay cuenta configurada, usa las del archivo <code className="bg-zinc-100 px-1 rounded">.env</code>.
           </p>
@@ -297,7 +297,7 @@ export default function ConfiguracionPage() {
                   {editando ? `Editar cuenta · ${cfg.label}` : `Nueva cuenta · ${cfg.label}`}
                 </h2>
               </div>
-              <button onClick={() => setModal(false)} className="text-zinc-400 hover:text-zinc-600 text-lg leading-none">✕</button>
+              <button onClick={() => setModal(false)} className="text-zinc-600 hover:text-zinc-600 text-lg leading-none">✕</button>
             </div>
 
             <div className="px-6 py-5 space-y-4">
@@ -326,7 +326,7 @@ export default function ConfiguracionPage() {
                 <input value={form.empresa} onChange={e => set("empresa", e.target.value)}
                   placeholder="Ej: Codeli, Zincel Ideas"
                   className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50" />
-                <p className="text-[10px] text-zinc-400 mt-1">Debe coincidir exactamente con el nombre en las métricas</p>
+                <p className="text-[10px] text-zinc-600 mt-1">Debe coincidir exactamente con el nombre en las métricas</p>
               </div>
 
               <div>
@@ -334,7 +334,7 @@ export default function ConfiguracionPage() {
                 <input value={form.account_id} onChange={e => set("account_id", e.target.value)}
                   placeholder={cfg.accountPlaceholder}
                   className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand/50" />
-                <p className="text-[10px] text-zinc-400 mt-1">{cfg.accountHint}</p>
+                <p className="text-[10px] text-zinc-600 mt-1">{cfg.accountHint}</p>
               </div>
 
               <div>
@@ -347,7 +347,7 @@ export default function ConfiguracionPage() {
                     placeholder={editando ? "••••••• (sin cambios si está vacío)" : "Token de acceso..."}
                     className="w-full border border-zinc-200 rounded-lg px-3 py-2 pr-10 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand/50" />
                   <button type="button" onClick={() => setVerToken(v => !v)} tabIndex={-1}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-600">
                     {verToken ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
@@ -364,7 +364,7 @@ export default function ConfiguracionPage() {
                   onChange={e => set("token_vence_en", e.target.value)}
                   className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
                 />
-                <p className="text-[10px] text-zinc-400 mt-1">
+                <p className="text-[10px] text-zinc-600 mt-1">
                   El CRM te alertará 5 días antes del vencimiento
                 </p>
               </div>
@@ -378,7 +378,7 @@ export default function ConfiguracionPage() {
 
               <button type="button" onClick={() => set("activo", !form.activo)}
                 className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition ${
-                  form.activo ? "bg-green-50 border-green-200 text-green-700" : "bg-zinc-50 border-zinc-200 text-zinc-500"
+                  form.activo ? "bg-green-50 border-green-200 text-green-700" : "bg-zinc-50 border-zinc-200 text-zinc-700"
                 }`}>
                 {form.activo ? <><CheckCircle size={13} /> Activo</> : <><XCircle size={13} /> Inactivo</>}
               </button>

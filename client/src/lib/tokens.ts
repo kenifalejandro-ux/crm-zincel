@@ -10,10 +10,11 @@
 export const COLORS = {
   primary:      "#ceab11",  // debe coincidir con --color-brand en globals.css
   primaryHover: "#b08d47",  // gold oscuro para hover
+  ejemplo:      "#fcf8ec",  // gold oscuro para hover
   primaryLight: "#b8cbe8",  // gold muy claro (barras de fondo, fills suaves)
   dark:         "#27272a",  // zinc-800 (negro suave, contraste fuerte)
-  muted:        "#a1a1aa",  // zinc-400 (gris medio)
-  mutedDark:    "#71717a",  // zinc-600 (gris oscuro)
+  muted:        "#52525b",  // zinc-600 (gris legible)
+  mutedDark:    "#3f3f46",  // zinc-700 (gris oscuro legible)
   mutedLight:   "#ceab11",  // debe coincidir con --color-brand en globals.css
   danger:       "#f87171",  // red-400 (errores, cancelaciones)
   surface:      "#f4f4f5",  // zinc-100 (grids, fondos de gráfico)
@@ -34,7 +35,7 @@ export const CHART_PALETTE: string[] = [
 
 // ── Clases Tailwind reutilizables ─────────────────────────────────────────────
 export const CARD_CLASS =
-  "bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6";
+  "bg-white rounded-2xl border border-zinc-100 shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_6px_20px_rgba(0,0,0,0.06)] p-6"
 
 export const HEADER_CLASS =
-  "text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-6 flex items-center";
+  "text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-5 flex items-center gap-0";

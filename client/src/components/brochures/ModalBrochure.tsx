@@ -30,7 +30,7 @@ export function ModalBrochure({
 
         {/* Prospecto */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Prospecto</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Prospecto</label>
           <select
             value={form.prospecto_id}
             onChange={(e) => set({ prospecto_id: e.target.value })}
@@ -47,7 +47,7 @@ export function ModalBrochure({
 
         {/* Canal */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Canal de envío</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Canal de envío</label>
           <select
             value={form.canal}
             onChange={(e) => set({ canal: e.target.value })}
@@ -61,7 +61,7 @@ export function ModalBrochure({
 
         {/* Fecha de envío */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha de envío</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Fecha de envío</label>
           <input
             type="date"
             value={form.fecha_envio}
@@ -72,7 +72,7 @@ export function ModalBrochure({
 
         {/* Notas */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
           <textarea
             rows={2}
             value={form.notas}

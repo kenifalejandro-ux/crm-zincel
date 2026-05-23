@@ -12,7 +12,7 @@ export function lHeader({ onToggleSidebar }: Props) {
   const { usuario, logout } = useAuth();
 
   return (
-    <header className=" border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shrink-0 ">
+    <header className="bg-white border-b border-zinc-100 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shrink-0 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
 
       {/* Izquierda: hamburger (móvil/tablet) + fecha */}
       <div className="flex items-center gap-3 min-w-0">
@@ -27,7 +27,7 @@ export function lHeader({ onToggleSidebar }: Props) {
         </button>
 
         <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="text-[9px] uppercase tracking-[0.15em] text-zinc-400 font-semibold hidden sm:block">
+          <span className="text-[9px] uppercase tracking-[0.15em] text-zinc-600 font-semibold hidden sm:block">
             Resumen Diario
           </span>
           <p className="text-xs font-medium text-slate-500 capitalize truncate">

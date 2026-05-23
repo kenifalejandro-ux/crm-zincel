@@ -64,13 +64,13 @@ export const ModalDetalleMetrica = ({ metrica, onCerrar, onSincronizado }: Props
                   {LABEL_PLATAFORMA[metrica.plataforma]}
                 </span>
                 {metrica.sub_plataforma && (
-                  <span className="text-[11px] text-zinc-400 capitalize">
+                  <span className="text-[11px] text-zinc-600 capitalize">
                     {LABEL_SUB[metrica.sub_plataforma] ?? metrica.sub_plataforma}
                   </span>
                 )}
               </div>
               <h2 className="text-sm font-bold text-zinc-800">{metrica.campana_nombre}</h2>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-zinc-600">
                 {metrica.empresa} · {new Date(metrica.periodo_inicio).toLocaleDateString("es-PE")} → {new Date(metrica.periodo_fin).toLocaleDateString("es-PE")}
               </p>
             </div>
@@ -87,7 +87,7 @@ export const ModalDetalleMetrica = ({ metrica, onCerrar, onSincronizado }: Props
               )}
               <button
                 onClick={onCerrar}
-                className="text-zinc-400 hover:text-zinc-600 transition"
+                className="text-zinc-600 hover:text-zinc-600 transition"
               >
                 <X size={18} />
               </button>

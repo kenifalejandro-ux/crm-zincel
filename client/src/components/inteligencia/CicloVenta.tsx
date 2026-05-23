@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { Clock, TrendingUp, AlertTriangle, CheckCircle, Loader2, ArrowRight } from "lucide-react";
 import { getCicloVenta } from "../../services/prospectos.api";
 import type { CicloVentaData, ProspectoEnRiesgo, CicloVentaTendencia, CicloVentaDetalle } from "../../services/prospectos.api";
-import { COLORS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 
-const CARD = "bg-white rounded-xl border border-zinc-100 p-4 shadow-sm";
+const CARD = "bg-white rounded-2xl border border-zinc-100 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_6px_20px_rgba(0,0,0,0.06)]";
 
 const ETAPA_LABEL: Record<string, string> = {
   nuevo:             "Nuevo",
@@ -22,7 +22,7 @@ function BarRubroRow({ rubro, total, promedio_dias, max }: { rubro: string; tota
     <div className="space-y-1">
       <div className="flex justify-between text-xs">
         <span className="text-zinc-700 truncate max-w-[180px]">{rubro}</span>
-        <span className="text-zinc-400 shrink-0 ml-2">{promedio_dias}d · {total} cierre{total !== 1 ? "s" : ""}</span>
+        <span className="text-zinc-600 shrink-0 ml-2">{promedio_dias}d · {total} cierre{total !== 1 ? "s" : ""}</span>
       </div>
       <div className="h-1.5 bg-zinc-100 rounded-full overflow-hidden">
         <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: COLORS.primary }} />
@@ -33,7 +33,7 @@ function BarRubroRow({ rubro, total, promedio_dias, max }: { rubro: string; tota
 
 function TendenciaChart({ data }: { data: CicloVentaTendencia[] }) {
   if (data.length === 0) return (
-    <p className="text-xs text-zinc-400 text-center py-4">Sin datos de tendencia aún</p>
+    <p className="text-xs text-zinc-600 text-center py-4">Sin datos de tendencia aún</p>
   );
   const maxDias = Math.max(...data.map(d => d.promedio_dias), 1);
   return (
@@ -46,7 +46,7 @@ function TendenciaChart({ data }: { data: CicloVentaTendencia[] }) {
               className="w-full rounded-t transition-colors cursor-default"
               style={{ height: `${h}px`, backgroundColor: COLORS.mutedLight }}
             />
-            <span className="text-[9px] text-zinc-400">{d.mes.slice(5)}</span>
+            <span className="text-[9px] text-zinc-600">{d.mes.slice(5)}</span>
             <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-10">
               {d.promedio_dias}d · {d.cerrados} cierre{d.cerrados !== 1 ? "s" : ""}
             </div>
@@ -58,12 +58,12 @@ function TendenciaChart({ data }: { data: CicloVentaTendencia[] }) {
 }
 
 function RiesgoRow({ p }: { p: ProspectoEnRiesgo }) {
-  const urgencia = p.dias_en_pipeline > 90 ? "text-red-500" : "text-zinc-500";
+  const urgencia = p.dias_en_pipeline > 90 ? "text-red-500" : "text-zinc-700";
   return (
     <div className="flex items-center justify-between py-2 border-b border-zinc-50 last:border-0">
       <div className="min-w-0">
         <p className="text-xs font-medium text-zinc-800 truncate">{p.empresa}</p>
-        <p className="text-[10px] text-zinc-400">{ETAPA_LABEL[p.etapa_pipeline] ?? p.etapa_pipeline}</p>
+        <p className="text-[10px] text-zinc-600">{ETAPA_LABEL[p.etapa_pipeline] ?? p.etapa_pipeline}</p>
       </div>
       <div className="flex items-center gap-1.5 shrink-0 ml-2">
         <AlertTriangle size={11} className={urgencia} />
@@ -98,7 +98,7 @@ export function CicloVenta() {
 
   if (cargando) return (
     <div className="flex justify-center items-center py-12">
-      <Loader2 size={20} className="animate-spin text-zinc-400" />
+      <Loader2 size={20} className="animate-spin text-zinc-600" />
     </div>
   );
 
@@ -113,34 +113,34 @@ export function CicloVenta() {
       {/* KPIs — fila 1: totales */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Ventas cerradas",   value: sinDatos ? "—" : String(kpis.total_cerrados), icon: <CheckCircle size={14} className="text-zinc-400" />, sub: "" },
+          { label: "Ventas cerradas",   value: sinDatos ? "—" : String(kpis.total_cerrados), icon: <CheckCircle size={14} className="text-emerald-500" />, sub: "" },
           { label: "Ciclo total prom.", value: kpis.promedio_dias != null ? `${kpis.promedio_dias}d` : "—", icon: <Clock size={14} className="text-brand" />, sub: "contacto → cierre" },
-          { label: "Cierre más rápido", value: kpis.min_dias != null ? `${kpis.min_dias}d` : "—", icon: <TrendingUp size={14} className="text-zinc-400" />, sub: "" },
-          { label: "Cierre más largo",  value: kpis.max_dias != null ? `${kpis.max_dias}d` : "—", icon: <Clock size={14} className="text-zinc-400" />, sub: "" },
+          { label: "Cierre más rápido", value: kpis.min_dias != null ? `${kpis.min_dias}d` : "—", icon: <TrendingUp size={14} className="text-zinc-600" />, sub: "" },
+          { label: "Cierre más largo",  value: kpis.max_dias != null ? `${kpis.max_dias}d` : "—", icon: <Clock size={14} className="text-zinc-600" />, sub: "" },
         ].map(k => (
           <div key={k.label} className={CARD}>
-            <div className="flex items-center gap-1.5 mb-1">{k.icon}<span className="text-[10px] text-zinc-400">{k.label}</span></div>
+            <div className="flex items-center gap-1.5 mb-1">{k.icon}<span className="text-[10px] text-zinc-600">{k.label}</span></div>
             <p className="text-xl font-bold text-zinc-800">{k.value}</p>
-            {k.sub && <p className="text-[9px] text-zinc-400 mt-0.5">{k.sub}</p>}
+            {k.sub && <p className="text-[9px] text-zinc-600 mt-0.5">{k.sub}</p>}
           </div>
         ))}
       </div>
 
       {/* KPIs — fila 2: desglose de fases */}
       {(kpis.promedio_contacto_propuesta != null || kpis.promedio_propuesta_cierre != null) && (
-        <div className={CARD}>
-          <p className="text-xs font-semibold text-zinc-600 mb-3">Desglose promedio del ciclo de venta</p>
+        <div className={CARD_CLASS}>
+          <p className={HEADER_CLASS}><Clock size={14} className="mr-2.5 text-blue-500" strokeWidth={2} />Desglose promedio del ciclo de venta</p>
           <div className="flex items-center gap-2 flex-wrap">
             {/* Fase 1 */}
             <div className="flex-1 min-w-[130px] bg-zinc-50 rounded-xl p-3 text-center">
-              <p className="text-[10px] text-zinc-500 font-medium mb-0.5">Contacto → Propuesta</p>
+              <p className="text-[10px] text-zinc-700 font-medium mb-0.5">Contacto → Propuesta</p>
               <p className="text-2xl font-bold text-zinc-800">
                 {kpis.promedio_contacto_propuesta != null ? `${kpis.promedio_contacto_propuesta}d` : "—"}
               </p>
-              <p className="text-[9px] text-zinc-400 mt-0.5">tiempo de prospección</p>
+              <p className="text-[9px] text-zinc-600 mt-0.5">tiempo de prospección</p>
             </div>
 
-            <ArrowRight size={16} className="text-zinc-300 shrink-0" />
+            <ArrowRight size={16} className="text-zinc-700 shrink-0" />
 
             {/* Fase 2 */}
             <div className="flex-1 min-w-[130px] bg-brand/5 rounded-xl p-3 text-center">
@@ -148,25 +148,25 @@ export function CicloVenta() {
               <p className="text-2xl font-bold text-zinc-800">
                 {kpis.promedio_propuesta_cierre != null ? `${kpis.promedio_propuesta_cierre}d` : "—"}
               </p>
-              <p className="text-[9px] text-zinc-400 mt-0.5">tiempo de negociación</p>
+              <p className="text-[9px] text-zinc-600 mt-0.5">tiempo de negociación</p>
             </div>
 
-            <ArrowRight size={16} className="text-zinc-300 shrink-0" />
+            <ArrowRight size={16} className="text-zinc-700 shrink-0" />
 
             {/* Total */}
             <div className="flex-1 min-w-[130px] bg-zinc-800 rounded-xl p-3 text-center">
-              <p className="text-[10px] text-zinc-400 font-medium mb-0.5">Total ciclo</p>
+              <p className="text-[10px] text-zinc-600 font-medium mb-0.5">Total ciclo</p>
               <p className="text-2xl font-bold text-white">
                 {kpis.promedio_dias != null ? `${kpis.promedio_dias}d` : "—"}
               </p>
-              <p className="text-[9px] text-zinc-400 mt-0.5">ciclo completo</p>
+              <p className="text-[9px] text-zinc-600 mt-0.5">ciclo completo</p>
             </div>
           </div>
 
           {kpis.promedio_dias != null && kpis.promedio_dias > 0 && (
             <div className="mt-3 space-y-1">
               <FaseBar f1={kpis.promedio_contacto_propuesta} f2={kpis.promedio_propuesta_cierre} total={kpis.promedio_dias} />
-              <div className="flex gap-3 text-[9px] text-zinc-400">
+              <div className="flex gap-3 text-[9px] text-zinc-600">
                 <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: COLORS.mutedLight }} /> Prospección</span>
                 <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: COLORS.primary }} /> Negociación</span>
               </div>
@@ -177,9 +177,9 @@ export function CicloVenta() {
 
       {sinDatos && (
         <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 text-center">
-          <Clock size={24} className="mx-auto mb-2 text-zinc-300" />
-          <p className="text-xs text-zinc-500 font-medium">Aún no hay ventas cerradas</p>
-          <p className="text-[11px] text-zinc-400 mt-0.5">
+          <Clock size={24} className="mx-auto mb-2 text-zinc-700" />
+          <p className="text-xs text-zinc-700 font-medium">Aún no hay ventas cerradas</p>
+          <p className="text-[11px] text-zinc-600 mt-0.5">
             El ciclo de venta se calculará automáticamente cuando muevas un lead a "Cerrado ganado"
           </p>
         </div>
@@ -190,7 +190,7 @@ export function CicloVenta() {
         <div className={CARD}>
           <p className="text-xs font-semibold text-zinc-600 mb-3">Ciclo por empresa</p>
           {detalle.length === 0
-            ? <p className="text-xs text-zinc-400 text-center py-4">Sin datos aún</p>
+            ? <p className="text-xs text-zinc-600 text-center py-4">Sin datos aún</p>
             : <div className="space-y-2.5">
                 {[...detalle]
                   .sort((a, b) => a.dias_ciclo - b.dias_ciclo)
@@ -201,7 +201,7 @@ export function CicloVenta() {
                       <div key={d.id} className="space-y-1">
                         <div className="flex justify-between text-xs">
                           <span className="text-zinc-700 truncate max-w-[180px]">{d.empresa}</span>
-                          <span className="text-zinc-400 shrink-0 ml-2">{d.dias_ciclo}d</span>
+                          <span className="text-zinc-600 shrink-0 ml-2">{d.dias_ciclo}d</span>
                         </div>
                         <div className="h-1.5 bg-zinc-100 rounded-full overflow-hidden">
                           <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: COLORS.muted }} />
@@ -236,13 +236,13 @@ export function CicloVenta() {
       {en_riesgo.length > 0 && (
         <div className={CARD}>
           <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle size={14} className="text-zinc-400" />
+            <AlertTriangle size={14} className="text-zinc-600" />
             <p className="text-xs font-semibold text-zinc-600">
               Leads que superaron el ciclo promedio ({kpis.promedio_dias}d)
             </p>
           </div>
           <div>{en_riesgo.map(p => <RiesgoRow key={p.id} p={p} />)}</div>
-          <p className="text-[10px] text-zinc-400 mt-2">
+          <p className="text-[10px] text-zinc-600 mt-2">
             Estos leads llevan más días en el pipeline que el promedio de cierre.
           </p>
         </div>
@@ -250,15 +250,15 @@ export function CicloVenta() {
 
       {/* Tabla de cierres con fases */}
       {detalle.length > 0 && (
-        <div className="bg-white rounded-xl border border-zinc-100 shadow-sm overflow-hidden">
+        <div className={`${CARD_CLASS} !p-0 overflow-hidden`}>
           <div className="px-4 py-3 border-b border-zinc-100 flex items-center gap-2">
-            <CheckCircle size={14} className="text-zinc-400" />
-            <p className="text-xs font-semibold text-zinc-600">Historial de ventas cerradas</p>
+            <CheckCircle size={14} className="text-emerald-500" />
+            <p className={HEADER_CLASS}>Historial de ventas cerradas</p>
           </div>
           <div className="overflow-x-auto">
             <table className="text-xs" style={{ minWidth: "780px", width: "100%" }}>
               <thead>
-                <tr className="bg-zinc-50 text-zinc-400 uppercase text-[10px] tracking-wide">
+                <tr className="bg-zinc-50 text-zinc-600 uppercase text-[10px] tracking-wide">
                   <th className="text-left px-4 py-2 font-medium">Empresa</th>
                   <th className="text-left px-4 py-2 font-medium">Industria</th>
                   <th className="text-center px-3 py-2 font-medium">Contacto → Prop.</th>
@@ -275,19 +275,19 @@ export function CicloVenta() {
                       <td className="px-4 py-2.5 font-medium text-zinc-800">
                         {d.empresa}
                         {d.nombre_contacto && (
-                          <span className="block text-[10px] text-zinc-400 font-normal">{d.nombre_contacto}</span>
+                          <span className="block text-[10px] text-zinc-600 font-normal">{d.nombre_contacto}</span>
                         )}
                       </td>
-                      <td className="px-4 py-2.5 text-zinc-500">{d.rubro ?? "—"}</td>
+                      <td className="px-4 py-2.5 text-zinc-700">{d.rubro ?? "—"}</td>
                       <td className="px-3 py-2.5 text-center">
                         {d.dias_contacto_propuesta != null && d.dias_contacto_propuesta >= 0
                           ? <span className="px-1.5 py-0.5 rounded-md bg-zinc-100 text-zinc-700 font-semibold">{d.dias_contacto_propuesta}d</span>
-                          : <span className="text-zinc-300">—</span>}
+                          : <span className="text-zinc-700">—</span>}
                       </td>
                       <td className="px-3 py-2.5 text-center">
                         {d.dias_propuesta_cierre != null && d.dias_propuesta_cierre >= 0
                           ? <span className="px-1.5 py-0.5 rounded-md bg-brand/10 text-zinc-700 font-semibold">{d.dias_propuesta_cierre}d</span>
-                          : <span className="text-zinc-300">—</span>}
+                          : <span className="text-zinc-700">—</span>}
                       </td>
                       <td className="px-3 py-2.5 text-center">
                         <span className={`px-1.5 py-0.5 rounded-md font-semibold ${

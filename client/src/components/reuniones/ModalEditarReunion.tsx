@@ -52,14 +52,14 @@ export function ModalEditarReunion({ reunion, guardando, error, onGuardar, onCer
       <div className="space-y-3">
 
         {reunion.empresa && (
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-zinc-600">
             Prospecto: <span className="font-medium text-zinc-600">{reunion.empresa}</span>
             {reunion.nombre_contacto && ` — ${reunion.nombre_contacto}`}
           </p>
         )}
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Título</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Título</label>
           <input type="text" value={form.titulo}
             onChange={(e) => set({ titulo: e.target.value })}
             className={cls} placeholder="Ej: Presentación de servicios" />
@@ -67,13 +67,13 @@ export function ModalEditarReunion({ reunion, guardando, error, onGuardar, onCer
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha y hora</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Fecha y hora</label>
             <input type="datetime-local" value={form.fecha_hora}
               onChange={(e) => set({ fecha_hora: e.target.value })}
               className={cls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Modalidad</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Modalidad</label>
             <select value={form.modalidad} onChange={(e) => set({ modalidad: e.target.value })} className={cls}>
               {MODALIDADES.map((m) => (
                 <option key={m} value={m}>{m.replace(/_/g, " ")}</option>
@@ -83,7 +83,7 @@ export function ModalEditarReunion({ reunion, guardando, error, onGuardar, onCer
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Estado</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Estado</label>
           <select value={form.estado} onChange={(e) => set({ estado: e.target.value })} className={cls}>
             {ESTADOS.map((e) => (
               <option key={e} value={e} className="capitalize">{e}</option>
@@ -92,14 +92,14 @@ export function ModalEditarReunion({ reunion, guardando, error, onGuardar, onCer
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Enlace (opcional)</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Enlace (opcional)</label>
           <input type="url" value={form.enlace}
             onChange={(e) => set({ enlace: e.target.value })}
             className={cls} placeholder="https://meet.google.com/..." />
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
           <textarea value={form.notas} onChange={(e) => set({ notas: e.target.value })} rows={2}
             className={`${cls} resize-none`} placeholder="Observaciones..." />
         </div>

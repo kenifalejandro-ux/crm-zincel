@@ -25,7 +25,7 @@ export function TasaConversion({ metricas }: Props) {
   return (
     <div className={CARD_CLASS}>
       <h2 className={HEADER_CLASS}>
-        <Target size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+        <Target size={14} className="mr-2.5 text-amber-500" strokeWidth={2} />
         Tasa de Conversión
       </h2>
 
@@ -55,7 +55,7 @@ export function TasaConversion({ metricas }: Props) {
           <span className="text-3xl font-light tracking-tighter text-zinc-900 leading-none">
             {tasa}%
           </span>
-          <span className="text-[11px] font-semibold text-zinc-400 mt-2 uppercase tracking-wide">
+          <span className="text-[11px] font-semibold text-zinc-600 mt-2 uppercase tracking-wide">
             {label}
           </span>
         </div>
@@ -63,15 +63,15 @@ export function TasaConversion({ metricas }: Props) {
 
       <div className="space-y-3 mt-6 pt-5 border-t border-zinc-100/60">
         <div className="flex justify-between items-center">
-          <span className="text-[12px] font-medium text-zinc-500">Interesados</span>
+          <span className="text-[12px] font-medium text-zinc-700">Interesados</span>
           <span className="text-[13px] font-semibold text-zinc-900">{interesados}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-[12px] font-medium text-zinc-500">Total prospectos</span>
+          <span className="text-[12px] font-medium text-zinc-700">Total prospectos</span>
           <span className="text-[13px] font-semibold text-zinc-900">{total}</span>
         </div>
 
-        <div className="flex justify-between text-[10px] font-medium text-zinc-400 pt-2 px-1">
+        <div className="flex justify-between text-[10px] font-medium text-zinc-600 pt-2 px-1">
           <span>0%</span>
           <span>15%</span>
           <span>30%</span>

@@ -79,7 +79,7 @@ export function TablaPrestamos({
           <span className="text-red-700 font-medium">
             Total por pagar: <strong>S/ {totalPorPagar.toLocaleString("es-PE", { minimumFractionDigits: 2 })}</strong>
           </span>
-          <span className="text-zinc-500">
+          <span className="text-zinc-700">
             {pendientes.length} préstamo(s) pendiente(s)
           </span>
           {vencidos > 0 && (
@@ -90,28 +90,28 @@ export function TablaPrestamos({
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-100 overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-gray-100 bg-gray-50">
               <th className="px-3 py-2 w-[40px]">
                 <TableCheckbox checked={todosSeleccionados} onChange={onToggleTodos} />
               </th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Categoría</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Descripción</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Prestamista</th>
-              <th className="text-right px-4 py-3 font-medium text-zinc-500 uppercase">Monto</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Estado</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Fecha préstamo</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Vencimiento</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Fecha pago</th>
+              <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Categoría</th>
+              <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Descripción</th>
+              <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Prestamista</th>
+              <th className="text-right px-4 py-3 font-medium text-zinc-700 uppercase">Monto</th>
+              <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Estado</th>
+              <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Fecha préstamo</th>
+              <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Vencimiento</th>
+              <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Fecha pago</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {prestamos.length === 0 ? (
               <tr>
-                <td colSpan={10} className="text-center py-12 text-xs text-zinc-400">
+                <td colSpan={10} className="text-center py-12 text-xs text-zinc-600">
                   Sin préstamos registrados
                 </td>
               </tr>
@@ -132,32 +132,32 @@ export function TablaPrestamos({
                   <td className="px-4 py-3 text-zinc-700 font-medium max-w-[180px] truncate">
                     {p.descripcion}
                   </td>
-                  <td className="px-4 py-3 text-zinc-500">{p.prestamista || "—"}</td>
+                  <td className="px-4 py-3 text-zinc-700">{p.prestamista || "—"}</td>
                   <td className="px-4 py-3 text-right font-semibold text-red-600">
                     {fmt(p.monto, p.moneda)}
                   </td>
                   <td className="px-4 py-3">
                     <BadgePrestamo estado={p.estado} />
                   </td>
-                  <td className="px-4 py-3 text-zinc-500">{fmtFecha(p.fecha)}</td>
-                  <td className="px-4 py-3 text-zinc-500">
+                  <td className="px-4 py-3 text-zinc-700">{fmtFecha(p.fecha)}</td>
+                  <td className="px-4 py-3 text-zinc-700">
                     {p.fecha_vencimiento
                       ? <span className={p.estado === "vencido" ? "text-red-600 font-medium" : ""}>
                           {fmtFecha(p.fecha_vencimiento)}
                         </span>
                       : "—"}
                   </td>
-                  <td className="px-4 py-3 text-zinc-500">
+                  <td className="px-4 py-3 text-zinc-700">
                     {p.fecha_pago ? fmtFecha(p.fecha_pago) : "—"}
                   </td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center gap-2">
                       <button onClick={() => onEditar(p)}
-                        className="text-zinc-400 hover:text-brand transition" title="Editar">
+                        className="text-zinc-600 hover:text-brand transition" title="Editar">
                         <Pencil size={14} />
                       </button>
                       <button onClick={() => onBorrar(p.id)}
-                        className="text-zinc-400 hover:text-red-500 transition" title="Eliminar">
+                        className="text-zinc-600 hover:text-red-500 transition" title="Eliminar">
                         <Trash2 size={14} />
                       </button>
                     </div>

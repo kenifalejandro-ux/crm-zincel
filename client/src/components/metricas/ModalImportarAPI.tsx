@@ -94,7 +94,7 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
           <div className="flex items-center gap-2">
             {(paso === "plataforma" || paso === "preview") && (
               <button onClick={() => { setPaso(paso === "preview" ? "plataforma" : "empresa"); setError(null); setPreview(null); }}
-                className="p-1 text-zinc-400 hover:text-zinc-600 transition">
+                className="p-1 text-zinc-600 hover:text-zinc-600 transition">
                 <ChevronLeft size={16} />
               </button>
             )}
@@ -105,7 +105,7 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
               {paso === "exito"     && "Importación completada"}
             </h2>
           </div>
-          <button onClick={onCerrar} className="text-zinc-400 hover:text-zinc-600 transition">
+          <button onClick={onCerrar} className="text-zinc-600 hover:text-zinc-600 transition">
             <X size={18} />
           </button>
         </div>
@@ -115,17 +115,17 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
           {/* PASO 1: Elegir empresa */}
           {paso === "empresa" && (
             <>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-zinc-700">
                 Selecciona la empresa cuyos datos quieres importar. Solo aparecen las que tienen credenciales de API configuradas.
               </p>
               {cargando ? (
                 <div className="flex justify-center py-6">
-                  <RefreshCw size={20} className="animate-spin text-zinc-300" />
+                  <RefreshCw size={20} className="animate-spin text-zinc-700" />
                 </div>
               ) : empresas.length === 0 ? (
                 <div className="text-center py-6">
-                  <p className="text-sm text-zinc-500">No hay empresas configuradas</p>
-                  <p className="text-xs text-zinc-400 mt-1">Ve a <strong>Configuración</strong> y agrega las credenciales de API</p>
+                  <p className="text-sm text-zinc-700">No hay empresas configuradas</p>
+                  <p className="text-xs text-zinc-600 mt-1">Ve a <strong>Configuración</strong> y agrega las credenciales de API</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -133,7 +133,7 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
                     <button key={emp} onClick={() => seleccionarEmpresa(emp)}
                       className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-zinc-200 hover:border-blue-400 hover:bg-blue-50 transition text-left group">
                       <span className="text-sm font-medium text-zinc-700 group-hover:text-blue-700">{emp}</span>
-                      <ChevronLeft size={14} className="text-zinc-400 rotate-180 group-hover:text-brand" />
+                      <ChevronLeft size={14} className="text-zinc-600 rotate-180 group-hover:text-brand" />
                     </button>
                   ))}
                 </div>
@@ -158,7 +158,7 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
           {/* PASO 2: Elegir plataforma */}
           {paso === "plataforma" && (
             <>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-zinc-700">
                 Plataformas con credenciales configuradas para <strong>{empresa}</strong>:
               </p>
               <div className="space-y-2">
@@ -182,7 +182,7 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-medium text-zinc-800">{cfg.label}</p>
-                        <p className="text-[11px] text-zinc-400">
+                        <p className="text-[11px] text-zinc-600">
                           {esGoogle ? "Próximamente" : disponible ? cfg.description : "Sin credenciales configuradas"}
                         </p>
                       </div>
@@ -226,7 +226,7 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
                     <span className="text-zinc-700 font-medium truncate flex-1">
                       {c.campaign_name ?? c.name}
                     </span>
-                    <span className="text-zinc-400 shrink-0 ml-3">
+                    <span className="text-zinc-600 shrink-0 ml-3">
                       S/ {parseFloat(c.spend || "0").toLocaleString("es-PE", { minimumFractionDigits: 2 })}
                     </span>
                   </div>
@@ -258,7 +258,7 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
               <div className="text-center py-4">
                 <CheckCircle size={40} className="text-green-500 mx-auto mb-3" />
                 <p className="text-sm font-semibold text-zinc-800 mb-1">¡Importación completada!</p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-zinc-700">
                   {resultado.insertados} campaña{resultado.insertados !== 1 ? "s" : ""} importada{resultado.insertados !== 1 ? "s" : ""}
                   {resultado.duplicados > 0 ? ` · ${resultado.duplicados} duplicada${resultado.duplicados !== 1 ? "s" : ""} omitida${resultado.duplicados !== 1 ? "s" : ""}` : ""}
                 </p>

@@ -15,7 +15,7 @@ export function FiltrosProspectos({ busqueda, estadoFiltro, onBusqueda, onEstado
     <div className="flex gap-3">
       {/* Buscador */}
       <div className="relative flex-1 max-w-sm">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600" />
         <input
           type="text"
           placeholder="Buscar empresa, contacto, teléfono..."

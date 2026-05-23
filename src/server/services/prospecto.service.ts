@@ -684,7 +684,10 @@ export async function scoreLeadsService(): Promise<ScoreLead[]> {
             ELSE 0
           END
         + COALESCE(CASE pr.nivel WHEN 2 THEN 15 WHEN 1 THEN 5 ELSE 0 END, 0)
-      ))::int AS score
+      ))::int AS score,
+      p.empresa,
+      p.etapa_pipeline,
+      COALESCE((CURRENT_DATE - p.fecha_primer_contacto)::int, 0) AS dias_en_pipeline
     FROM prospectos p
     LEFT JOIN act7     ON act7.prospecto_id = p.id
     LEFT JOIN act30    ON act30.prospecto_id = p.id
@@ -693,8 +696,11 @@ export async function scoreLeadsService(): Promise<ScoreLead[]> {
   `);
 
   const leads = result.rows.map(r => ({
-    id:    r.id,
-    score: r.score,
+    id:              r.id,
+    score:           r.score,
+    empresa:         r.empresa as string,
+    etapa_pipeline:  r.etapa_pipeline as string,
+    dias_en_pipeline: r.dias_en_pipeline as number,
     nivel: (r.score >= 75 ? "caliente"
           : r.score >= 50 ? "activo"
           : r.score >= 25 ? "tibio"

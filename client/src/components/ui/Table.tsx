@@ -20,7 +20,7 @@ interface TableProps<T> {
 
 export function Table<T>({ columns, data, loading, empty = "Sin registros", rowKey, onRowClick }: TableProps<T>) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-2xl border border-zinc-100 shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_6px_20px_rgba(0,0,0,0.06)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>

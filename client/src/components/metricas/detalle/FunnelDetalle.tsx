@@ -68,9 +68,9 @@ export const FunnelDetalle = ({ funnel }: Props) => (
 
     {/* Tasa global */}
     <div className="text-center bg-zinc-50 rounded-xl p-3">
-      <p className="text-xs text-zinc-400">Tasa de conversión global</p>
+      <p className="text-xs text-zinc-600">Tasa de conversión global</p>
       <p className="text-2xl font-black text-zinc-800">{funnel.tasa_global}%</p>
-      <p className="text-[10px] text-zinc-400">Impresiones → Conversiones</p>
+      <p className="text-[10px] text-zinc-600">Impresiones → Conversiones</p>
     </div>
 
     {/* Etapas del funnel */}
@@ -115,7 +115,7 @@ export const FunnelDetalle = ({ funnel }: Props) => (
           </div>
 
           {/* Descripción */}
-          <p className="text-[10px] text-zinc-400">
+          <p className="text-[10px] text-zinc-600">
             {DESCRIPCION_ETAPA[etapa.nombre]}
           </p>
 

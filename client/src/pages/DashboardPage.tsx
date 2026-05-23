@@ -1,6 +1,8 @@
 /**client/src/pages/DashboardPage.tsx */
 
 import { useEffect, useState } from "react";
+import { Flame, TrendingUp, MoveRight, Snowflake } from 'lucide-react';
+import { CARD_CLASS, HEADER_CLASS } from "../lib/tokens";
 import { ChevronDown, ChevronLeft, ChevronRight, CheckSquare, AlertCircle, Clock, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getMetricasDashboard } from "../services/dashboard.api";
@@ -173,12 +175,12 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-lg sm:text-xl font-semibold text-zinc-800">Dashboard</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">Dashboard</h1>
             {actualizando && (
               <div className="w-3.5 h-3.5 rounded-full border-2 border-brand border-t-transparent animate-spin" />
             )}
           </div>
-          <p className="text-xs text-zinc-500 mt-0.5">Resumen de tu actividad comercial</p>
+          <p className="text-xs text-zinc-700 mt-0.5">Resumen de tu actividad comercial</p>
         </div>
 
         <div className="flex flex-wrap gap-2 items-center relative">
@@ -243,7 +245,7 @@ export default function DashboardPage() {
                         }}
                         className={`py-1.5 text-xs rounded-lg transition capitalize ${
                           esActual  ? "bg-brand text-white font-semibold" :
-                          esFuturo  ? "text-zinc-300 cursor-not-allowed" :
+                          esFuturo  ? "text-zinc-700 cursor-not-allowed" :
                                       "text-zinc-600 hover:bg-brand/5 hover:text-brand"
                         }`}>
                         {m}
@@ -305,7 +307,7 @@ export default function DashboardPage() {
                 {/* Cabecera días */}
                 <div className="grid grid-cols-7 mb-1">
                   {DIAS_SEMANA.map(d => (
-                    <div key={d} className="text-center text-[10px] font-semibold text-zinc-400 py-1">{d}</div>
+                    <div key={d} className="text-center text-[10px] font-semibold text-zinc-600 py-1">{d}</div>
                   ))}
                 </div>
 
@@ -343,8 +345,15 @@ export default function DashboardPage() {
 
         </div>
       </div>
+      {/* Fila 1 — Actividades de hoy */}
+ {metricas && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <ActividadHoy metricas={metricas} />
+          <ActividadMes metricas={metricas} />
+        </div>
+      )}
 
-      {/* Fila 1 — Charts principales */}
+      {/* Fila 2 — Charts principales */}
       {metricas && (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           <LlamadasChart      metricas={metricas} />
@@ -356,49 +365,63 @@ export default function DashboardPage() {
       {/* Temperatura de Leads */}
       {scoreStats && (
         <div
-          className="bg-white border border-gray-100 rounded-2xl p-4 cursor-pointer hover:shadow-md transition-shadow"
+          className={`${CARD_CLASS} cursor-pointer hover:shadow-md transition-shadow`}
           onClick={() => navigate("/prospectos")}
         >
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-sm font-semibold text-zinc-800">Temperatura de Leads</p>
-              <p className="text-[11px] text-zinc-400 mt-0.5">Score automático — ordenados por prioridad de cierre</p>
+              <p className={HEADER_CLASS}>Temperatura de Leads</p>
+              <p className="text-[11px] text-zinc-600 mt-0.5">Score automático — ordenados por prioridad de cierre</p>
             </div>
             <span className="text-xs text-brand hover:underline">Ver prospectos →</span>
           </div>
-          <div className="grid grid-cols-4 gap-3">
-            <div className="bg-red-50 rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-red-600">{scoreStats.caliente}</p>
-              <p className="text-[11px] text-red-400 mt-0.5 font-medium">🔥 Calientes</p>
-              <p className="text-[10px] text-red-300">Score 75+</p>
-            </div>
-            <div className="bg-amber-50 rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-amber-600">{scoreStats.activo}</p>
-              <p className="text-[11px] text-amber-400 mt-0.5 font-medium">⬆ Activos</p>
-              <p className="text-[10px] text-amber-300">Score 50–74</p>
-            </div>
-            <div className="bg-yellow-50 rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-yellow-600">{scoreStats.tibio}</p>
-              <p className="text-[11px] text-yellow-500 mt-0.5 font-medium">→ Tibios</p>
-              <p className="text-[10px] text-yellow-300">Score 25–49</p>
-            </div>
-            <div className="bg-gray-50 rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-gray-400">{scoreStats.frio}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5 font-medium">❄ Fríos</p>
-              <p className="text-[10px] text-gray-300">Score 0–24</p>
-            </div>
+         
+
+{(() => {
+  const totalLeads = (scoreStats.caliente + scoreStats.activo + scoreStats.tibio + scoreStats.frio) || 1;
+  const pct = (n: number) => Math.round((n / totalLeads) * 100);
+  const grupos = [
+    { label: "Calientes", valor: scoreStats.caliente, pct: pct(scoreStats.caliente), icon: <Flame className="w-3.5 h-3.5 text-red-500" />,        color: "text-red-600",    bg: "bg-red-50",    bar: "bg-red-400",    score: "75+" },
+    { label: "Activos",   valor: scoreStats.activo,   pct: pct(scoreStats.activo),   icon: <TrendingUp className="w-3.5 h-3.5 text-amber-500" />,  color: "text-amber-600",  bg: "bg-amber-50",  bar: "bg-amber-400",  score: "50–74" },
+    { label: "Tibios",    valor: scoreStats.tibio,    pct: pct(scoreStats.tibio),    icon: <MoveRight className="w-3.5 h-3.5 text-emerald-500" />, color: "text-emerald-600",bg: "bg-emerald-50",bar: "bg-emerald-400",score: "25–49" },
+    { label: "Fríos",     valor: scoreStats.frio,     pct: pct(scoreStats.frio),     icon: <Snowflake className="w-3.5 h-3.5 text-blue-400" />,   color: "text-blue-600",   bg: "bg-blue-50",   bar: "bg-blue-300",   score: "0–24" },
+  ];
+  return (
+    <div className="grid grid-cols-4 gap-3">
+      {grupos.map(g => (
+        <div key={g.label} className={`${g.bg} rounded-2xl p-4 flex flex-col gap-2`}>
+          <div className="flex items-center gap-1.5">
+            {g.icon}
+            <span className="text-[11px] font-semibold text-zinc-700">{g.label}</span>
           </div>
+          <div className="flex items-end justify-between">
+            <p className={`text-3xl font-bold leading-none ${g.color}`}>{g.valor}</p>
+            <p className="text-[11px] font-semibold text-zinc-500">{g.pct}%</p>
+          </div>
+          <div className="w-full bg-white/60 rounded-full h-1.5">
+            <div className={`h-1.5 rounded-full transition-all duration-500 ${g.bar}`} style={{ width: `${Math.max(g.pct, 2)}%` }} />
+          </div>
+          <p className="text-[10px] text-zinc-500">Score {g.score}</p>
+        </div>
+      ))}
+    </div>
+  );
+})()}
+
+          
         </div>
       )}
 
       {/* Fila 2 — Nuevos KPIs */}
       {metricas && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
           <ResumenEstadosPropuestas />
-          <FasesCicloVenta />
-          <TasaConversion   metricas={metricas} />
-          <BrochuresChart   metricas={metricas} />
-          <VentasChart      metricas={metricas} />
+          <div className="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <FasesCicloVenta />
+            <TasaConversion metricas={metricas} />
+            <BrochuresChart metricas={metricas} />
+            <VentasChart    metricas={metricas} />
+          </div>
         </div>
       )}
 
@@ -463,12 +486,7 @@ export default function DashboardPage() {
 
       <ProximasReuniones reuniones={reuniones} />
 
-      {metricas && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-          <ActividadHoy metricas={metricas} />
-          <ActividadMes metricas={metricas} />
-        </div>
-      )}
+     
 
     </div>
   );

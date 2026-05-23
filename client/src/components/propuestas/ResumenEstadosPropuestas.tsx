@@ -1,6 +1,7 @@
 /** client/src/components/propuestas/ResumenEstadosPropuestas.tsx */
 
-import { COLORS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { ClipboardList } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getResumenEstadosPropuestas } from "../../services/propuestas.api";
 import type { ResumenEstadoPropuesta } from "../../services/propuestas.api";
@@ -45,12 +46,13 @@ export function ResumenEstadosPropuestas() {
   const montoTotal = data.reduce((s, d) => s + d.monto_total, 0);
 
   return (
-  <div className="bg-white border border-zinc-200/60 rounded-3xl p-5 shadow-sm">
-    
+  <div className={CARD_CLASS}>
+
     {/* HEADER */}
     <div className="flex items-start justify-between gap-4 mb-6">
       <div>
-        <p className="text-sm font-semibold text-zinc-800">
+        <p className={HEADER_CLASS}>
+          <ClipboardList size={14} className="mr-2.5 text-amber-500" strokeWidth={2} />
           Estado de propuestas
         </p>
 
@@ -64,7 +66,7 @@ export function ResumenEstadosPropuestas() {
           </span>
         </div>
 
-        <p className="text-xs text-zinc-500 mt-1">
+        <p className="text-xs text-zinc-700 mt-1">
           Valor total {fmt(montoTotal)}
         </p>
       </div>
@@ -72,7 +74,7 @@ export function ResumenEstadosPropuestas() {
       {/* MINI KPI */}
       <div className="grid grid-cols-2 gap-2 min-w-[180px]">
         <div className="rounded-2xl border border-zinc-100 bg-zinc-50 px-3 py-2">
-          <p className="text-[10px] uppercase tracking-wide text-zinc-400">
+          <p className="text-[10px] uppercase tracking-wide text-zinc-600">
             Ganadas
           </p>
 
@@ -82,7 +84,7 @@ export function ResumenEstadosPropuestas() {
         </div>
 
         <div className="rounded-2xl border border-zinc-100 bg-zinc-50 px-3 py-2">
-          <p className="text-[10px] uppercase tracking-wide text-zinc-400">
+          <p className="text-[10px] uppercase tracking-wide text-zinc-600">
             Negociación
           </p>
 
@@ -119,7 +121,7 @@ export function ResumenEstadosPropuestas() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs text-zinc-400">
+                <span className="text-xs text-zinc-600">
                   {item.pct}%
                 </span>
 
@@ -149,7 +151,7 @@ export function ResumenEstadosPropuestas() {
 
             {/* FOOTER */}
             <div className="flex items-center justify-between mt-3">
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-zinc-700">
                 {item.total} propuesta
                 {item.total !== 1 ? "s" : ""}
               </p>
@@ -172,7 +174,7 @@ export function ResumenEstadosPropuestas() {
     {/* FOOTER */}
     <div className="flex items-center justify-between mt-6 pt-4 border-t border-zinc-100">
       <div>
-        <p className="text-[11px] text-zinc-400 uppercase tracking-wide">
+        <p className="text-[11px] text-zinc-600 uppercase tracking-wide">
           Conversión
         </p>
 
@@ -191,7 +193,7 @@ export function ResumenEstadosPropuestas() {
       </div>
 
       <div className="text-right">
-        <p className="text-[11px] text-zinc-400 uppercase tracking-wide">
+        <p className="text-[11px] text-zinc-600 uppercase tracking-wide">
           Pipeline total
         </p>
 

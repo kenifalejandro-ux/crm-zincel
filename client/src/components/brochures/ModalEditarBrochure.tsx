@@ -38,7 +38,7 @@ export function ModalEditarBrochure({ brochure, guardando, error, onGuardar, onC
     >
       <div className="space-y-3">
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha de envío</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Fecha de envío</label>
           <input
             type="date"
             value={fecha_envio}
@@ -48,7 +48,7 @@ export function ModalEditarBrochure({ brochure, guardando, error, onGuardar, onC
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Canal de envío</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Canal de envío</label>
           <select
             value={canal}
             onChange={(e) => setCanal(e.target.value)}
@@ -61,7 +61,7 @@ export function ModalEditarBrochure({ brochure, guardando, error, onGuardar, onC
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
           <textarea
             rows={3}
             value={notas}

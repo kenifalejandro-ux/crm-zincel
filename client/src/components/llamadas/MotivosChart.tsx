@@ -27,10 +27,10 @@ export function MotivosChart({ data }: Props) {
   return (
     <div className={CARD_CLASS}>
       <h3 className={HEADER_CLASS}>¿Por qué no cierran?</h3>
-      <p className="text-[11px] text-zinc-400 font-medium mb-4">Motivos de pérdida registrados</p>
+      <p className="text-[11px] text-zinc-600 font-medium mb-4">Motivos de pérdida registrados</p>
 
       {data.length === 0 ? (
-        <div className="flex items-center justify-center h-24 text-xs text-zinc-400">
+        <div className="flex items-center justify-center h-24 text-xs text-zinc-600">
           Sin motivos registrados aún — márcalos al editar un prospecto perdido
         </div>
       ) : (
@@ -42,7 +42,7 @@ export function MotivosChart({ data }: Props) {
               <div key={d.motivo_perdida}>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs text-zinc-600">{LABELS[d.motivo_perdida] ?? d.motivo_perdida}</span>
-                  <span className="text-xs font-semibold text-zinc-700">{d.total} <span className="text-zinc-400 font-normal">({pct}%)</span></span>
+                  <span className="text-xs font-semibold text-zinc-700">{d.total} <span className="text-zinc-600 font-normal">({pct}%)</span></span>
                 </div>
                 <div className="w-full bg-zinc-100 rounded-full h-1.5">
                   <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
@@ -50,7 +50,7 @@ export function MotivosChart({ data }: Props) {
               </div>
             );
           })}
-          <p className="text-[10px] text-zinc-400 pt-1">{total} prospectos perdidos en total</p>
+          <p className="text-[10px] text-zinc-600 pt-1">{total} prospectos perdidos en total</p>
         </div>
       )}
     </div>

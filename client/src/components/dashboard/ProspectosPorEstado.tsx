@@ -10,12 +10,12 @@ interface Props {
 }
 
 const ESTADOS = [
-  { key: "prospectos_interesados",     label: "Interesado",       color: "#ceab11" },
+  { key: "prospectos_interesados",     label: "Interesado",       color: COLORS.primary },
   { key: "prospectos_volver_llamar",   label: "Volver a llamar",  color: COLORS.dark },
-  { key: "prospectos_no_contesta",     label: "No contesta",      color: "#71717a" },
-  { key: "prospectos_tiene_proveedor", label: "Ya tiene proveedor", color: "#f87171" },
-  { key: "prospectos_buzon",           label: "Buzón de voz",     color: "#d4d4d8" },
-  { key: "prospectos_no_interesados",  label: "No interesado",    color: "#f87171" },
+  { key: "prospectos_no_contesta",     label: "No contesta",      color: COLORS.mutedDark },
+  { key: "prospectos_tiene_proveedor", label: "Ya tiene proveedor", color: COLORS.danger },
+  { key: "prospectos_buzon",           label: "Buzón de voz",     color: COLORS.mutedDark },
+  { key: "prospectos_no_interesados",  label: "No interesado",    color: COLORS.danger },
 ];
 
 export function ProspectosPorEstado({ metricas }: Props) {
@@ -24,7 +24,7 @@ export function ProspectosPorEstado({ metricas }: Props) {
   return (
     <div className={CARD_CLASS}>
       <h2 className={HEADER_CLASS}>
-        <Users size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+        <Users size={14} className="mr-2.5 text-blue-500" strokeWidth={2} />
         Prospectos por Estado
       </h2>
 
@@ -36,10 +36,10 @@ export function ProspectosPorEstado({ metricas }: Props) {
           return (
             <div key={i}>
               <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[12px] font-medium text-zinc-500">{item.label}</span>
+                <span className="text-[12px] font-medium text-zinc-700">{item.label}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-[12px] font-semibold text-zinc-900">{valor}</span>
-                  <span className="text-[10px] text-zinc-400 font-medium w-8 text-right">{pct}%</span>
+                  <span className="text-[10px] text-zinc-600 font-medium w-8 text-right">{pct}%</span>
                 </div>
               </div>
               <div className="w-full bg-zinc-100 rounded-full h-1.5">
@@ -54,7 +54,7 @@ export function ProspectosPorEstado({ metricas }: Props) {
       </div>
 
       <div className="mt-6 pt-4 border-t border-zinc-100/60 flex justify-between items-center">
-        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Total prospectos</span>
+        <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Total prospectos</span>
         <span className="text-[14px] font-bold text-zinc-900">{total}</span>
       </div>
     </div>

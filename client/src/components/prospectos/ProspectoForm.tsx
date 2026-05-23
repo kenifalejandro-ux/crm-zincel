@@ -355,7 +355,7 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide">Contacto 2</p>
             {contacto2.id && !contacto2.nombre && (
-              <span className="text-[10px] text-zinc-400">Deja el nombre vacío para eliminar</span>
+              <span className="text-[10px] text-zinc-600">Deja el nombre vacío para eliminar</span>
             )}
           </div>
           <div className="grid grid-cols-2 gap-3 p-3 rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50">

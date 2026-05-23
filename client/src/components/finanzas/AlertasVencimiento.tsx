@@ -102,7 +102,7 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
                 {alertas.length} vencimiento{alertas.length !== 1 ? "s" : ""} próximo{alertas.length !== 1 ? "s" : ""}
               </p>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-zinc-500">Alertar con</span>
+                <span className="text-xs text-zinc-700">Alertar con</span>
                 <select
                   value={diasAnticipacion}
                   onChange={e => setDiasAnticipacion(Number(e.target.value))}
@@ -141,10 +141,10 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
                       {a.tipo === "egreso" ? "Egreso" : "Préstamo"}
                     </span>
                     <span className="text-zinc-800 font-medium">{a.descripcion}</span>
-                    <span className="text-zinc-400">{fmtMonto(a.monto, a.moneda)}</span>
+                    <span className="text-zinc-600">{fmtMonto(a.monto, a.moneda)}</span>
                     <span className={`${diasColor} flex items-center gap-1`}>
                       {etiquetaDias}
-                      <span className="text-zinc-400 font-normal">
+                      <span className="text-zinc-600 font-normal">
                         ({fmtFechaCorta(a.fecha_vencimiento)})
                       </span>
                     </span>
@@ -157,7 +157,7 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
 
         <button
           onClick={() => setCerrado(true)}
-          className="shrink-0 text-zinc-400 hover:text-zinc-600 transition"
+          className="shrink-0 text-zinc-600 hover:text-zinc-600 transition"
           title="Cerrar"
         >
           <X size={16} />

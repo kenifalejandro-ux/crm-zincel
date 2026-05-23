@@ -29,16 +29,16 @@ export function WebActivaChart({ metricas }: Props) {
   return (
     <div className={CARD_CLASS}>
       <h2 className={HEADER_CLASS}>
-        <Globe size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+        <Globe size={14} className="mr-2.5 text-cyan-500" strokeWidth={2} />
         Prospectos con Web
       </h2>
 
       <div className="flex items-center gap-6">
         <div className="relative flex-shrink-0">
-          <ResponsiveContainer width={100} height={100}>
+          <ResponsiveContainer width={110} height={110}>
             <PieChart>
               <Pie data={datosGrafico} cx="50%" cy="50%"
-                innerRadius={35} outerRadius={46} paddingAngle={2}
+                innerRadius={36} outerRadius={50} paddingAngle={3}
                 dataKey="value" stroke="none">
                 {datosGrafico.map((entry, i) => (
                   <Cell key={i} fill={entry.color} />
@@ -46,8 +46,9 @@ export function WebActivaChart({ metricas }: Props) {
               </Pie>
             </PieChart>
           </ResponsiveContainer>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-2xl font-light tracking-tighter text-zinc-900">{total}</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-2xl font-bold tracking-tight text-zinc-900 leading-none">{total}</span>
+            <span className="text-[9px] text-zinc-400 uppercase tracking-widest mt-0.5">total</span>
           </div>
         </div>
 
@@ -60,11 +61,11 @@ export function WebActivaChart({ metricas }: Props) {
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-[12px] font-medium text-zinc-500">{item.label}</span>
+                  <span className="text-[12px] font-medium text-zinc-700">{item.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[12px] font-semibold text-zinc-900">{item.valor}</span>
-                  <span className="text-[10px] text-zinc-400 font-medium w-8 text-right">({item.pct}%)</span>
+                  <span className="text-[10px] text-zinc-600 font-medium w-8 text-right">({item.pct}%)</span>
                 </div>
               </div>
               <div className="w-full bg-zinc-100 rounded-full h-1">

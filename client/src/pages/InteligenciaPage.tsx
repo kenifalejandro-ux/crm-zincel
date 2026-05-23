@@ -1,9 +1,9 @@
 /** client/src/pages/InteligenciaPage.tsx */
 
-import { COLORS } from "../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS } from "../lib/tokens";
 import { useEffect, useState } from "react";
 import { TrendingUp, Phone, CalendarDays, FileText, Package, AlertTriangle, CheckCircle, Info, Lightbulb, ChevronDown, Pencil, X, Check } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from "recharts";
+import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { getFunnelPipeline, getAnalisisRegion, getMotivosPerdida, getProspecto } from "../services/prospectos.api";
 import { getHeatmapLlamadas }  from "../services/llamadas.api";
 import { getMetricasDashboard } from "../services/dashboard.api";
@@ -19,8 +19,9 @@ import { CicloVenta }          from "../components/inteligencia/CicloVenta";
 import { AbandonoPipelineChart }       from "../components/inteligencia/AbandonoPipeline";
 import { TiempoPrimeraRespuestaChart } from "../components/inteligencia/TiempoPrimeraRespuesta";
 import { ForecastIngresosChart }       from "../components/inteligencia/ForecastIngresos";
-import { ConversionFunnelChart }       from "../components/inteligencia/ConversionFunnel";
 import { RechazosDualesChart }         from "../components/inteligencia/RechazosDuales";
+import { LeadScatterChart }            from "../components/inteligencia/LeadScatterChart";
+import { CanalEfectividadChart }      from "../components/inteligencia/CanalEfectividad";
 import { HeatmapHoras }        from "../components/llamadas/HeatmapHoras";
 import { MotivosChart }        from "../components/llamadas/MotivosChart";
 import { ResumenEstadosPropuestas } from "../components/propuestas/ResumenEstadosPropuestas";
@@ -58,10 +59,6 @@ function periodoLabel(p: FiltroPeriodo, fecha: string): string {
   return "";
 }
 
-function calcTrend(curr: number, prev: number): number | null {
-  if (prev === 0) return curr > 0 ? 100 : null;
-  return Math.round(((curr - prev) / prev) * 100);
-}
 
 const ETAPA_LABEL: Record<string, string> = {
   nuevo: "Nuevo", contactado: "Contactado", interesado: "Interesado",
@@ -69,17 +66,54 @@ const ETAPA_LABEL: Record<string, string> = {
   cerrado_ganado: "Cerrado", perdido: "Perdido",
 };
 
-const INSIGHT_STYLES: Record<string, { bg: string; border: string; icon: React.ReactNode }> = {
-  positivo:    { bg: "bg-zinc-50",  border: "border-zinc-200",  icon: <CheckCircle  size={14} className="text-zinc-400 shrink-0" /> },
-  alerta:      { bg: "bg-red-50",   border: "border-red-200",   icon: <AlertTriangle size={14} className="text-red-500 shrink-0" /> },
-  info:        { bg: "bg-brand/5",  border: "border-brand/20",  icon: <Info         size={14} className="text-brand shrink-0" /> },
-  oportunidad: { bg: "bg-brand/5",  border: "border-brand/20",  icon: <Lightbulb    size={14} className="text-brand shrink-0" /> },
+const INSIGHT_STYLES: Record<string, { icon: React.ReactNode; chartColor: string; countColor: string }> = {
+  positivo:    { icon: <CheckCircle   size={13} className="text-zinc-500 shrink-0" />, chartColor: COLORS.primary, countColor: "text-brand"    },
+  alerta:      { icon: <AlertTriangle size={13} className="text-red-500 shrink-0"  />, chartColor: COLORS.danger,  countColor: "text-red-500"  },
+  info:        { icon: <Info          size={13} className="text-zinc-500 shrink-0" />, chartColor: COLORS.dark,    countColor: "text-zinc-800" },
+  oportunidad: { icon: <Lightbulb     size={13} className="text-brand shrink-0"    />, chartColor: COLORS.primary, countColor: "text-brand"    },
 };
+
+// ─── Mini gauge para insights con porcentaje ──────────────────────────────────
+function MiniGauge({ valor, color }: { valor: number; color: string }) {
+  const pct  = Math.min(Math.max(valor, 0), 100);
+  const data = [{ value: pct }, { value: 100 - pct }];
+  return (
+    <div className="relative shrink-0" style={{ width: 72, height: 72 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%" cy="50%"
+            innerRadius={26} outerRadius={34}
+            startAngle={90} endAngle={-270}
+            dataKey="value" stroke="none" paddingAngle={0}
+          >
+            <Cell fill={color} />
+            <Cell fill={COLORS.surface} />
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-[13px] font-bold text-zinc-900 leading-none">{pct}%</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Mini contador para insights con cantidad ─────────────────────────────────
+function MiniCount({ valor, color, label = "total" }: { valor: number; color: string; label?: string }) {
+  return (
+    <div className="shrink-0 flex flex-col items-center justify-center bg-zinc-50 rounded-2xl px-4 py-3 min-w-[64px]">
+      <span className={`text-2xl font-bold leading-none ${color}`}>{valor}</span>
+      <span className="text-[9px] text-zinc-400 uppercase tracking-widest mt-1">{label}</span>
+    </div>
+  );
+}
 
 // ─── Componente leads estancados acordeón ────────────────────────────────────
 
 function gravedadDias(dias: number | null): { label: string; cls: string } {
-  if (dias === null || dias < 7)  return { label: "Bajo",    cls: "bg-zinc-100 text-zinc-500"       };
+  if (dias === null || dias < 7)  return { label: "Bajo",    cls: "bg-zinc-100 text-zinc-700"       };
   if (dias < 14)                  return { label: "Medio",   cls: "bg-zinc-200 text-zinc-600"       };
   if (dias < 30)                  return { label: "Alto",    cls: "bg-brand/10 text-zinc-700"       };
   return                                 { label: "Crítico", cls: "bg-red-100 text-red-700 font-bold" };
@@ -113,10 +147,10 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
           className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition text-left"
         >
           <div className="flex items-center gap-3">
-            <AlertTriangle size={14} className="text-zinc-400 shrink-0" />
+            <AlertTriangle size={14} className="text-zinc-600 shrink-0" />
             <div>
               <p className="text-sm font-semibold text-zinc-800">Leads sin actividad (+14 días)</p>
-              <p className="text-xs text-zinc-400 mt-0.5">
+              <p className="text-xs text-zinc-600 mt-0.5">
                 {leads.length} leads sin actividad reciente{criticos > 0 ? ` · ${criticos} críticos` : ""} · clic para gestionar
               </p>
             </div>
@@ -130,7 +164,7 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
             <span className="text-xs bg-zinc-100 text-zinc-700 font-semibold px-2 py-0.5 rounded-full">
               {leads.length}
             </span>
-            <ChevronDown size={15} className={`text-zinc-400 transition-transform duration-200 ${abierto ? "rotate-180" : ""}`} />
+            <ChevronDown size={15} className={`text-zinc-600 transition-transform duration-200 ${abierto ? "rotate-180" : ""}`} />
           </div>
         </button>
 
@@ -139,10 +173,10 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
             <table className="w-full text-xs">
               <thead className="sticky top-0 bg-white z-10">
                 <tr className="border-b border-gray-100">
-                  <th className="text-left py-2 px-5 text-zinc-400 font-medium">Empresa</th>
-                  <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Etapa</th>
-                  <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Riesgo</th>
-                  <th className="text-left py-2 pr-5 text-zinc-400 font-medium">Sin actividad</th>
+                  <th className="text-left py-2 px-5 text-zinc-600 font-medium">Empresa</th>
+                  <th className="text-left py-2 pr-4 text-zinc-600 font-medium">Etapa</th>
+                  <th className="text-left py-2 pr-4 text-zinc-600 font-medium">Riesgo</th>
+                  <th className="text-left py-2 pr-5 text-zinc-600 font-medium">Sin actividad</th>
                 </tr>
               </thead>
               <tbody>
@@ -160,10 +194,10 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
                     >
                       <td className="py-2 px-5">
                         <p className="font-medium text-zinc-800 truncate max-w-[160px] group-hover:text-brand">{lead.empresa}</p>
-                        <p className="text-zinc-400 truncate max-w-[160px]">{lead.nombre_contacto}</p>
+                        <p className="text-zinc-600 truncate max-w-[160px]">{lead.nombre_contacto}</p>
                       </td>
                       <td className="py-2 pr-4">
-                        <span className="px-2 py-0.5 rounded-full bg-gray-100 text-zinc-600 text-[10px]">
+                        <span className="px-2 py-0.5 rounded-full bg-gray-100 text-zinc-800 text-[10px]">
                           {ETAPA_LABEL[lead.etapa_pipeline] ?? lead.etapa_pipeline}
                         </span>
                       </td>
@@ -173,8 +207,8 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
                       <td className="py-2 pr-5">
                         <div className="flex items-center gap-2">
                           {dias !== null
-                            ? <span className="text-[10px] text-zinc-500">{dias} días</span>
-                            : <span className="text-[10px] text-zinc-300">Sin actividad</span>
+                            ? <span className="text-[10px] text-zinc-700">{dias} días</span>
+                            : <span className="text-[10px] text-zinc-700">Sin actividad</span>
                           }
                           {cargando && (
                             <div className="w-3 h-3 rounded-full border-2 border-brand border-t-transparent animate-spin" />
@@ -201,46 +235,31 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
   );
 }
 
-// ─── Componente KPI card ──────────────────────────────────────────────────────
-
-function KpiCard({ icon, label, value, sub, color = "text-zinc-800", trend }: {
-  icon: React.ReactNode; label: string; value: string | number; sub?: string; color?: string; trend?: number | null;
-}) {
-  return (
-    <div className="bg-white border border-gray-100 rounded-xl p-4 flex items-start gap-3">
-      <div className="p-2 rounded-lg bg-gray-50 shrink-0">{icon}</div>
-      <div className="min-w-0">
-        <p className="text-[11px] text-zinc-400 truncate">{label}</p>
-        <p className={`text-xl font-bold ${color}`}>{value}</p>
-        {trend !== null && trend !== undefined && (
-          <p className={`text-[10px] font-medium mt-0.5 ${trend >= 0 ? "text-zinc-500" : "text-red-500"}`}>
-            {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}% vs período anterior
-          </p>
-        )}
-        {sub && <p className="text-[10px] text-zinc-400 mt-0.5">{sub}</p>}
-      </div>
-    </div>
-  );
-}
 
 // ─── Forecast panel ──────────────────────────────────────────────────────────
 
 const TENDENCIA_STYLE = {
-  subiendo: { text: "text-zinc-600", label: "↑ Subiendo", bg: "bg-zinc-100" },
-  estable:  { text: "text-brand",   label: "→ Estable",  bg: "bg-brand/5"  },
+  subiendo: { text: "text-zinc-700", label: "↑ Subiendo", bg: "bg-zinc-100" },
+  estable:  { text: "text-brand",   label: "→ Estable",  bg: "bg-brand/10" },
   bajando:  { text: "text-red-500", label: "↓ Bajando",  bg: "bg-red-50"   },
 };
 
 function ForecastPanel({ f }: { f: Forecast }) {
-  const t = TENDENCIA_STYLE[f.tendencia];
+  const t       = TENDENCIA_STYLE[f.tendencia];
+  const progPct = f.cierres_proyectados > 0
+    ? Math.min(100, Math.round((f.cierres_mes_actual / f.cierres_proyectados) * 100))
+    : 0;
+
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-5">
-      <div className="flex items-center justify-between mb-4">
+    <div className={CARD_CLASS}>
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          <span className="text-lg">📈</span>
+          <TrendingUp size={14} className="text-zinc-500 shrink-0" strokeWidth={2} />
           <div>
-            <h3 className="text-sm font-semibold text-zinc-800">Pronóstico comercial</h3>
-            <p className="text-xs text-zinc-400 mt-0.5">Proyección basada en tu ritmo actual</p>
+            <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Pronóstico comercial</p>
+            <p className="text-[10px] text-zinc-400 mt-0.5">Proyección basada en ritmo actual</p>
           </div>
         </div>
         <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${t.bg} ${t.text}`}>
@@ -248,39 +267,63 @@ function ForecastPanel({ f }: { f: Forecast }) {
         </span>
       </div>
 
-      {/* Main projection */}
-      <div className="bg-brand/5 border border-brand/20 rounded-xl p-4 mb-4 flex items-center justify-between gap-4">
-        <div>
-          <p className="text-xs text-brand font-medium">Cierres proyectados este mes</p>
-          <p className="text-3xl font-bold text-zinc-800 mt-1">{f.cierres_proyectados}</p>
-          <p className="text-xs text-zinc-400 mt-0.5">{f.cierres_mes_actual} ya cerrados · {f.ciclo_promedio_dias}d ciclo promedio</p>
+      {/* Cierres progress bar */}
+      <div className="mb-5">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[11px] font-semibold text-zinc-700">Cierres este mes</span>
+          <span className="text-[11px] text-zinc-500">{progPct}% del objetivo</span>
         </div>
-        <div className="text-right shrink-0">
-          <p className="text-xs text-zinc-400">Tasa de conversión</p>
-          <p className="text-2xl font-bold text-zinc-800">{f.tasa_conversion_pct}%</p>
-          <p className="text-xs text-zinc-400">últimos 90 días</p>
-        </div>
-      </div>
-
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: "Llamadas / semana",     value: f.llamadas_semana_prom, color: "text-brand"    },
-          { label: "Leads activos",          value: f.leads_activos,        color: "text-zinc-700" },
-          { label: "Leads calientes",        value: f.leads_calientes,      color: "text-zinc-700" },
-          { label: "Contactos necesarios",   value: f.contactos_necesarios > 0 ? f.contactos_necesarios : "—", color: "text-zinc-700" },
-        ].map(s => (
-          <div key={s.label} className="bg-gray-50 rounded-lg p-3 text-center">
-            <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-[10px] text-zinc-400 mt-0.5 leading-tight">{s.label}</p>
+        <div className="relative h-8 bg-zinc-100 rounded-xl overflow-hidden">
+          <div
+            className="h-full rounded-xl transition-all duration-700 flex items-center justify-end pr-3"
+            style={{ width: `${Math.max(progPct, f.cierres_mes_actual > 0 ? 6 : 0)}%`, backgroundColor: COLORS.primary }}
+          >
+            {progPct > 18 && (
+              <span className="text-[11px] font-bold text-white">{f.cierres_mes_actual}</span>
+            )}
           </div>
-        ))}
+        </div>
+        <div className="flex items-center justify-between mt-1.5">
+          <span className="text-[10px] text-zinc-500">{f.cierres_mes_actual} cerrados</span>
+          <span className="text-[10px] text-zinc-500">{f.cierres_proyectados} proyectados · {f.ciclo_promedio_dias}d ciclo</span>
+        </div>
       </div>
 
+      {/* Stats + Conversión gauge */}
+      <div className="flex items-start gap-4">
+        <div className="flex-1 grid grid-cols-2 gap-2">
+          {[
+            { label: "Llamadas / sem.",   value: f.llamadas_semana_prom,                                       icon: <Phone size={11} className="text-zinc-400" />       },
+            { label: "Leads activos",     value: f.leads_activos,                                              icon: <TrendingUp size={11} className="text-zinc-400" />  },
+            { label: "Leads calientes",   value: f.leads_calientes,                                            icon: <Lightbulb size={11} className="text-zinc-400" />   },
+            { label: "Contactos neces.",  value: f.contactos_necesarios > 0 ? f.contactos_necesarios : "—",   icon: <CalendarDays size={11} className="text-zinc-400" /> },
+          ].map(s => (
+            <div key={s.label} className="border border-zinc-100 rounded-xl p-3 flex items-center gap-2">
+              <span className="shrink-0">{s.icon}</span>
+              <div className="min-w-0">
+                <p className="text-[13px] font-bold text-zinc-800 leading-none">{s.value}</p>
+                <p className="text-[9px] text-zinc-500 mt-0.5 leading-tight">{s.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Gauge tasa conversión */}
+        <div className="shrink-0 flex flex-col items-center gap-1 pt-1">
+          <MiniGauge valor={f.tasa_conversion_pct} color={COLORS.primary} />
+          <p className="text-[9px] text-zinc-400 text-center leading-tight">Tasa<br/>conversión</p>
+          <p className="text-[8px] text-zinc-400">90 días</p>
+        </div>
+      </div>
+
+      {/* Mensaje accionable */}
       {f.contactos_necesarios > 0 && (
-        <p className="text-[11px] text-zinc-500 mt-3 text-center">
-          Necesitas {f.contactos_necesarios} contactos más para cerrar {Math.max(5, f.cierres_mes_actual + 2)} clientes este mes
-        </p>
+        <div className="mt-4 pt-3 border-t border-zinc-100">
+          <p className="text-[11px] text-zinc-700 text-center">
+            Necesitas <span className="font-bold text-zinc-900">{f.contactos_necesarios}</span> contactos más
+            para cerrar <span className="font-bold">{Math.max(5, f.cierres_mes_actual + 2)}</span> clientes este mes
+          </p>
+        </div>
       )}
     </div>
   );
@@ -305,11 +348,11 @@ function ObjetivoBar({ label, real, meta, fillCls, trackCls, textCls, icon }: Ob
     <div className="flex-1 min-w-0">
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5">
-          <span className="text-zinc-400">{icon}</span>
+          <span className="text-zinc-600">{icon}</span>
           <span className="text-xs font-medium text-zinc-700">{label}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          {cumplido && <Check size={11} className="text-zinc-400" />}
+          {cumplido && <Check size={11} className="text-zinc-600" />}
           <span className={`text-xs font-bold ${cumplido ? "text-zinc-600" : textCls}`}>
             {real} / {meta}
           </span>
@@ -321,7 +364,7 @@ function ObjetivoBar({ label, real, meta, fillCls, trackCls, textCls, icon }: Ob
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="text-[10px] text-zinc-400 mt-1">{pct}% de la meta diaria</p>
+      <p className="text-[10px] text-zinc-600 mt-1">{pct}% de la meta diaria</p>
     </div>
   );
 }
@@ -356,18 +399,18 @@ function ObjetivosPanel({
   const inputCls = "w-16 text-center px-2 py-1 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
 
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-5">
+    <div className={CARD_CLASS}>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-zinc-800 flex items-center gap-2">
+          <h3 className={`${HEADER_CLASS} gap-2`}>
             <span className="text-base">🎯</span> Objetivos del día
           </h3>
-          <p className="text-xs text-zinc-400 mt-0.5">Meta vs real de hoy</p>
+          <p className="text-xs text-zinc-600 mt-0.5">Meta vs real de hoy</p>
         </div>
         {!editando ? (
           <button
             onClick={() => setEditando(true)}
-            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-brand transition"
+            className="flex items-center gap-1.5 text-xs text-zinc-700 hover:text-brand transition"
           >
             <Pencil size={12} /> Editar metas
           </button>
@@ -375,7 +418,7 @@ function ObjetivosPanel({
           <div className="flex items-center gap-2">
             <button
               onClick={handleCancelar}
-              className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-600 transition"
+              className="flex items-center gap-1 text-xs text-zinc-600 hover:text-zinc-600 transition"
             >
               <X size={12} /> Cancelar
             </button>
@@ -399,7 +442,7 @@ function ObjetivosPanel({
           ].map(({ key, label, icon }) => (
             <div key={key} className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs text-zinc-600">
-                <span className="text-zinc-400">{icon}</span>
+                <span className="text-zinc-600">{icon}</span>
                 {label}
               </div>
               <input
@@ -467,6 +510,7 @@ export default function InteligenciaPage() {
   const [tendencias, setTendencias] = useState<Tendencias | null>(null);
   const [cargando,        setCargando]        = useState(true);
   const [cargandoPeriodo, setCargandoPeriodo] = useState(false);
+  const [analisisAbierto, setAnalisisAbierto] = useState(false);
 
   // Carga estática — funnel, región, insights, estancados, motivos (una vez)
   useEffect(() => {
@@ -546,19 +590,24 @@ export default function InteligenciaPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-lg font-semibold text-zinc-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight flex items-center gap-2">
             <TrendingUp size={20} className="text-brand" />
             Inteligencia comercial
           </h1>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-zinc-600 mt-0.5">
             KPIs de actividad · Funnel · Insights automáticos · Región · Ciclo de venta
           </p>
         </div>
-        <FiltroPeriodoBotones
-          periodo={periodo}
-          filtroFecha={filtroFecha}
-          onChange={handleFiltroPeriodo}
-        />
+        <div className="flex items-center gap-3">
+          {cargandoPeriodo && (
+            <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-brand" />
+          )}
+          <FiltroPeriodoBotones
+            periodo={periodo}
+            filtroFecha={filtroFecha}
+            onChange={handleFiltroPeriodo}
+          />
+        </div>
       </div>
 
       {cargando ? (
@@ -569,198 +618,199 @@ export default function InteligenciaPage() {
 
         <div className="space-y-6">
 
-          {/* ── Gráficos KPI ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-            {/* Chart 1 — Actividad comercial */}
-            <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Actividad comercial</p>
-                  <p className="text-[11px] text-zinc-400 mt-1">
-                    {periodoLabel(periodo, filtroFecha)}
-                  </p>
+          {/* ━━━ ZONA 1: Hero KPI tiles ━━━ */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {(() => {
+              const tiles = [
+                {
+                  label: "Llamadas",
+                  value: metricas?.llamadas?.total_llamadas ?? 0,
+                  sub: `${metricas?.llamadas?.llamadas_contestadas ?? 0} contestadas · ${
+                    (metricas?.llamadas?.total_llamadas ?? 0) > 0
+                      ? Math.round(((metricas?.llamadas?.llamadas_contestadas ?? 0) / metricas.llamadas.total_llamadas) * 100)
+                      : 0
+                  }% tasa`,
+                  icon: <Phone size={13} className="text-zinc-500" />,
+                  delta: tendencias?.llamadas?.pct ?? null,
+                },
+                {
+                  label: "Reuniones",
+                  value: metricas?.reuniones?.total_reuniones ?? 0,
+                  sub: `${periodoLabel(periodo, filtroFecha)}`,
+                  icon: <CalendarDays size={13} className="text-zinc-500" />,
+                  delta: tendencias?.reuniones?.pct ?? null,
+                },
+                {
+                  label: "Brochures",
+                  value: metricas?.brochures?.total_brochures ?? 0,
+                  sub: `${periodoLabel(periodo, filtroFecha)}`,
+                  icon: <FileText size={13} className="text-zinc-500" />,
+                  delta: tendencias?.brochures?.pct ?? null,
+                },
+                {
+                  label: "Valor activo",
+                  value: fmtSolKpi(valorPipeline),
+                  sub: `${totalPipeline - cerrados} leads en pipeline`,
+                  icon: <TrendingUp size={13} className="text-zinc-500" />,
+                  delta: null,
+                },
+              ];
+              return tiles.map(tile => (
+                <div key={tile.label} className={CARD_CLASS}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="p-1.5 rounded-lg bg-zinc-100 shrink-0">{tile.icon}</div>
+                    {tile.delta !== null && (
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
+                        tile.delta > 0  ? "bg-zinc-800 text-white"
+                        : tile.delta < 0 ? "bg-red-100 text-red-600"
+                        : "bg-zinc-100 text-zinc-500"
+                      }`}>
+                        {tile.delta > 0 ? `▲${tile.delta}%` : tile.delta < 0 ? `▼${Math.abs(tile.delta)}%` : "="}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-3xl font-bold text-zinc-900 leading-none">{tile.value}</p>
+                  <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-2">{tile.label}</p>
+                  <p className="text-[10px] text-zinc-500 mt-1 leading-tight">{tile.sub}</p>
                 </div>
-                {cargandoPeriodo && <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-brand" />}
-              </div>
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart
-                  layout="vertical"
-                  data={[
-                    { name: "Llamadas",    value: metricas?.llamadas?.total_llamadas ?? 0,              color: COLORS.dark },
-                    { name: "Prospectos",  value: metricas?.prospectos?.prospectos_interesados ?? 0,    color: COLORS.primary },
-                    { name: "Brochures",   value: metricas?.brochures?.total_brochures ?? 0,            color: COLORS.muted },
-                    { name: "Reuniones",   value: metricas?.reuniones?.total_reuniones ?? 0,            color: COLORS.mutedDark },
-                  ]}
-                  margin={{ left: 16, right: 24, top: 0, bottom: 0 }}
-                >
-                  <XAxis type="number" hide />
-                  <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 11, fill: "#71717a" }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    cursor={{ fill: "#f4f4f5" }}
-                    contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e5e7eb", padding: "4px 10px" }}
-                    formatter={(v: any) => [v, ""]}
-                  />
-                  <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={18}>
-                    {[
-                      { color: COLORS.dark },
-                      { color: COLORS.primary },
-                      { color: COLORS.muted },
-                      { color: COLORS.mutedDark },
-                    ].map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-              {/* Sub-stats */}
-              <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-zinc-100">
-                <p className="text-[10px] text-zinc-400">
-                  <span className="font-semibold text-zinc-800">{metricas?.llamadas?.llamadas_contestadas ?? 0}</span> llamadas contestadas
-                  · <span className="font-semibold">{metricas?.llamadas?.total_llamadas > 0 ? Math.round((metricas.llamadas.llamadas_contestadas / metricas.llamadas.total_llamadas) * 100) : 0}%</span> tasa
-                </p>
-                <p className="text-[10px] text-zinc-400">
-                  <span className="font-semibold text-brand">{metricas?.tasa_conversion ?? 0}%</span> conversión prospectos
-                </p>
-              </div>
-            </div>
-
-            {/* Chart 2 — Pipeline */}
-            <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6">
-              <div className="mb-4">
-                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Estado del pipeline</p>
-                <p className="text-[11px] text-zinc-400 mt-1">Distribución de leads y valor activo</p>
-              </div>
-              <div className="flex items-center gap-4">
-                {/* Donut */}
-                <div className="shrink-0">
-                  <ResponsiveContainer width={130} height={130}>
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: "Cerrados",        value: cerrados,                                              fill: COLORS.dark },
-                          { name: "No contesta",     value: metricas?.prospectos?.prospectos_no_contesta ?? 0,    fill: COLORS.danger },
-                          { name: "Volver a llamar", value: metricas?.prospectos?.prospectos_volver_llamar ?? 0,  fill: COLORS.primary },
-                          { name: "Resto",           value: Math.max(0, totalPipeline - cerrados - (metricas?.prospectos?.prospectos_no_contesta ?? 0) - (metricas?.prospectos?.prospectos_volver_llamar ?? 0)), fill: "#e4e4e7" },
-                        ]}
-                        cx="50%" cy="50%"
-                        innerRadius={35} outerRadius={58}
-                        dataKey="value" strokeWidth={0}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                {/* Leyenda + stats */}
-                <div className="flex-1 space-y-2">
-                  {[
-                    { label: "Total leads",       value: totalPipeline,          color: "text-zinc-800", dot: "bg-zinc-300",  dotStyle: undefined },
-                    { label: "Valor activo",      value: fmtSolKpi(valorPipeline), color: "text-brand",   dot: "bg-brand",     dotStyle: undefined },
-                    { label: "Cerrados",           value: cerrados,                                                                 color: "text-zinc-800",  dot: "",  dotStyle: COLORS.dark   },
-                    { label: "No contesta",        value: metricas?.prospectos?.prospectos_no_contesta ?? 0,                       color: "text-red-500",   dot: "bg-red-400", dotStyle: undefined },
-                    { label: "Volver a llamar",    value: metricas?.prospectos?.prospectos_volver_llamar ?? 0,                     color: "text-zinc-500",  dot: "",  dotStyle: COLORS.muted  },
-                  ].map(s => (
-                    <div key={s.label} className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <div
-                          className={`w-2 h-2 rounded-full shrink-0 ${s.dot}`}
-                          style={s.dotStyle ? { backgroundColor: s.dotStyle } : undefined}
-                        />
-                        <p className="text-[11px] text-zinc-500 truncate">{s.label}</p>
-                      </div>
-                      <p className={`text-xs font-bold shrink-0 ${s.color}`}>{s.value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
+              ));
+            })()}
           </div>
 
-          {/* ── Estado de propuestas ── */}
-          <ResumenEstadosPropuestas />
+          {/* ━━━ Divider ━━━ */}
+          <div className="flex items-center gap-3 pt-2">
+            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest shrink-0">Diagnóstico del día</span>
+            <div className="flex-1 border-t border-zinc-100" />
+          </div>
 
-          {/* ── Objetivos del día ── */}
-          {objetivos && (
-            <ObjetivosPanel obj={objetivos} onActualizar={handleActualizarObjetivos} />
-          )}
+          {/* ━━━ ZONA 2: Diagnóstico del día ━━━ */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <PrioridadOperacional acciones={prioridad} />
+            {objetivos && (
+              <ObjetivosPanel obj={objetivos} onActualizar={handleActualizarObjetivos} />
+            )}
+          </div>
 
-          {/* ── Prioridad operacional ── */}
-          <PrioridadOperacional acciones={prioridad} />
+          {/* ━━━ Divider ━━━ */}
+          <div className="flex items-center gap-3 pt-2">
+            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest shrink-0">Pipeline & Conversión</span>
+            <div className="flex-1 border-t border-zinc-100" />
+          </div>
 
-          {/* ── Pronóstico comercial ── */}
-          {forecast && <ForecastPanel f={forecast} />}
-
-          {/* ── Insights automáticos ── */}
-          {insights.length > 0 && (
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">
-                Insights automáticos
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {insights.map((ins, i) => {
-                  const style = INSIGHT_STYLES[ins.tipo];
-                  return (
-                    <div key={i} className={`rounded-xl border p-4 ${style.bg} ${style.border}`}>
-                      <div className="flex items-start gap-2 mb-1">
-                        {style.icon}
-                        <p className="text-xs font-semibold text-zinc-800">{ins.icono} {ins.titulo}</p>
-                      </div>
-                      <p className="text-xs text-zinc-600 leading-relaxed pl-5">{ins.texto}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* ── Leads estancados (acordeón) ── */}
-          {estancados.length > 0 && (
-            <LeadsEstancadosPanel leads={estancados} />
-          )}
-
-          {/* ── Funnel ── */}
+          {/* ━━━ ZONA 3: Pipeline & Canal ━━━ */}
           <FunnelConversion data={funnel} />
 
-          {/* ── Heatmap + Motivos ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <HeatmapHoras data={heatmap} />
-            <MotivosChart data={motivos} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <CanalEfectividadChart />
+            {forecast && <ForecastPanel f={forecast} />}
           </div>
 
-          {/* ── Región ── */}
-          <RegionChart data={regiones} />
+          {/* ━━━ Divider ━━━ */}
+          <div className="flex items-center gap-3 pt-2">
+            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest shrink-0">Inteligencia automática</span>
+            <div className="flex-1 border-t border-zinc-100" />
+          </div>
 
-          {/* ── Análisis avanzado ── */}
-          <div>
-            <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">
-              Análisis estratégico avanzado
-            </p>
-            <div className="space-y-4">
-              {/* Fila 1: conversión funnel + primera respuesta */}
+          {/* ━━━ ZONA 4: Insights & Alertas ━━━ */}
+          {insights.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {insights.map((ins, i) => {
+                const style      = INSIGHT_STYLES[ins.tipo];
+                const tieneVizual = ins.valor !== undefined;
+                return (
+                  <div key={i} className={`${CARD_CLASS} flex items-center gap-4`}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        {style.icon}
+                        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider leading-none">
+                          {ins.titulo}
+                        </p>
+                      </div>
+                      <p className="text-xs text-zinc-600 leading-relaxed">{ins.texto}</p>
+                    </div>
+                    {tieneVizual && (
+                      ins.unidad === "pct"
+                        ? <MiniGauge valor={ins.valor!} color={style.chartColor} />
+                        : <MiniCount
+                            valor={ins.valor!}
+                            color={style.countColor}
+                            label={
+                              ins.titulo.includes("propuesta") || ins.titulo.includes("Propuesta") ? "propuestas"
+                              : ins.titulo.includes("Negociaci") ? "en neg."
+                              : "leads"
+                            }
+                          />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {estancados.length > 0 && <LeadsEstancadosPanel leads={estancados} />}
+
+          {/* ━━━ ZONA 5: Análisis profundo (colapsable) ━━━ */}
+          <button
+            onClick={() => setAnalisisAbierto(v => !v)}
+            className="w-full flex items-center gap-3 pt-2 group"
+          >
+            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest shrink-0 group-hover:text-zinc-600 transition">
+              Análisis profundo
+            </span>
+            <div className="flex-1 border-t border-zinc-100" />
+            <span className="text-[10px] text-zinc-400 flex items-center gap-1 shrink-0 group-hover:text-zinc-600 transition">
+              {analisisAbierto ? "Ocultar" : "Expandir"}
+              <ChevronDown
+                size={12}
+                className={`transition-transform duration-200 ${analisisAbierto ? "rotate-180" : ""}`}
+              />
+            </span>
+          </button>
+
+          {analisisAbierto && (
+            <div className="space-y-5">
+
+              {/* Heatmap + Motivos */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <ConversionFunnelChart />
-                <TiempoPrimeraRespuestaChart />
+                <HeatmapHoras data={heatmap} />
+                <MotivosChart data={motivos} />
               </div>
-              {/* Fila 2: forecast ingresos */}
-              <ForecastIngresosChart />
-              {/* Fila 3: rechazos duales primer contacto + propuestas */}
-              <RechazosDualesChart />
-              {/* Fila 4: abandono pipeline */}
-              <AbandonoPipelineChart />
-            </div>
-          </div>
 
-          {/* ── Ciclo de venta ── */}
-          <div className="bg-zinc-50 rounded-2xl p-4">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-500"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              {/* Región */}
+              <RegionChart data={regiones} />
+
+              {/* Propuestas + Ciclo */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <ResumenEstadosPropuestas />
+                <div className={CARD_CLASS}>
+                  <div className="flex items-center gap-2 mb-4">
+                    <CalendarDays size={14} className="text-zinc-500" strokeWidth={2} />
+                    <div>
+                      <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Ciclo de venta</p>
+                      <p className="text-[10px] text-zinc-400 mt-0.5">Tiempo promedio desde primer contacto hasta cierre</p>
+                    </div>
+                  </div>
+                  <CicloVenta />
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-zinc-800">Ciclo de venta</p>
-                <p className="text-[10px] text-zinc-400">Tiempo promedio desde primer contacto hasta cierre</p>
+
+              {/* Tiempo primera respuesta */}
+              <TiempoPrimeraRespuestaChart />
+
+              {/* Rechazos duales */}
+              <RechazosDualesChart />
+
+              {/* Forecast ingresos + Abandono */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <ForecastIngresosChart />
+                <AbandonoPipelineChart />
               </div>
+
+              {/* Scatter score vs días */}
+              <LeadScatterChart />
+
             </div>
-            <CicloVenta />
-          </div>
+          )}
 
         </div>
       )}

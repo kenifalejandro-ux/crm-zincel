@@ -51,7 +51,7 @@ export default function PerfilPage() {
       </div>
 
       {/* Info usuario */}
-      <div className="bg-white rounded-xl border border-gray-100 p-6">
+      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-6">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 bg-zinc-100 rounded-full flex items-center justify-center">
             <User size={24} className="text-zinc-600" />
@@ -67,7 +67,7 @@ export default function PerfilPage() {
       </div>
 
       {/* Cambiar contraseña */}
-      <div className="bg-white rounded-xl border border-gray-100 p-6">
+      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-6">
         <div className="flex items-center gap-2 mb-5">
           <Lock size={18} className="text-zinc-800" />
           <h2 className="text-base font-semibold text-zinc-800">Cambiar contraseña</h2>

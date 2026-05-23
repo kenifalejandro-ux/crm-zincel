@@ -34,7 +34,7 @@ export function ModalReunion({
 
         {/* Prospecto */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Prospecto</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Prospecto</label>
           <select
             value={form.prospecto_id}
             onChange={(e) => set({ prospecto_id: e.target.value })}
@@ -51,7 +51,7 @@ export function ModalReunion({
 
         {/* Título */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Título</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Título</label>
           <input
             type="text"
             value={form.titulo}
@@ -64,7 +64,7 @@ export function ModalReunion({
         {/* Fecha + Modalidad */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha y hora</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Fecha y hora</label>
             <input
               type="datetime-local"
               value={form.fecha_hora}
@@ -73,7 +73,7 @@ export function ModalReunion({
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Modalidad</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Modalidad</label>
             <select
               value={form.modalidad}
               onChange={(e) => set({ modalidad: e.target.value })}
@@ -90,7 +90,7 @@ export function ModalReunion({
 
         {/* Enlace */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Enlace (opcional)</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Enlace (opcional)</label>
           <input
             type="url"
             value={form.enlace}
@@ -102,7 +102,7 @@ export function ModalReunion({
 
         {/* Notas */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
           <textarea
             value={form.notas}
             onChange={(e) => set({ notas: e.target.value })}

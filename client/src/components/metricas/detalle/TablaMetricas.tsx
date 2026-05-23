@@ -45,10 +45,10 @@ export const TablaMetricas = ({
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-zinc-100 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
-            <thead className="bg-zinc-50 text-zinc-500 uppercase tracking-wide">
+            <thead className="bg-zinc-50 text-zinc-700 uppercase tracking-wide">
               <tr>
                 <th className="px-4 py-3">
                   <TableHeaderCheckbox
@@ -72,7 +72,7 @@ export const TablaMetricas = ({
             <tbody className="divide-y divide-zinc-50">
               {metricas.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="text-center py-10 text-zinc-400">
+                  <td colSpan={12} className="text-center py-10 text-zinc-600">
                     No hay métricas registradas
                   </td>
                 </tr>
@@ -108,7 +108,7 @@ export const TablaMetricas = ({
                         {LABEL[m.plataforma]}
                       </span>
                       {m.sub_plataforma && (
-                        <span className="text-[10px] text-zinc-400 pl-1">
+                        <span className="text-[10px] text-zinc-600 pl-1">
                           {LABEL_SUB[m.sub_plataforma] ?? m.sub_plataforma}
                         </span>
                       )}
@@ -133,7 +133,7 @@ export const TablaMetricas = ({
                     S/ {Number(m.cpa).toLocaleString("es-PE")}
                   </td>
 
-                  <td className="px-4 py-3 text-zinc-500">
+                  <td className="px-4 py-3 text-zinc-700">
                     {new Date(m.periodo_inicio).toLocaleDateString("es-PE")} →{" "}
                     {new Date(m.periodo_fin).toLocaleDateString("es-PE")}
                   </td>
@@ -146,14 +146,14 @@ export const TablaMetricas = ({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => onEditar(m)}
-                        className="text-zinc-400 hover:text-brand transition"
+                        className="text-zinc-600 hover:text-brand transition"
                         title="Editar"
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={() => onBorrar(m.id)}
-                        className="text-zinc-400 hover:text-red-500 transition"
+                        className="text-zinc-600 hover:text-red-500 transition"
                         title="Eliminar"
                       >
                         <Trash2 size={14} />

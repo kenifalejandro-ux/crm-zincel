@@ -113,7 +113,15 @@ export async function actividadKPIsService(filters?: { fecha_inicio?: string; fe
 // ─── Insights automáticos ─────────────────────────────────────────────────────
 
 type TipoInsight = "positivo" | "alerta" | "info" | "oportunidad";
-interface Insight { tipo: TipoInsight; titulo: string; texto: string; icono: string; }
+interface Insight {
+  tipo:    TipoInsight;
+  titulo:  string;
+  texto:   string;
+  icono:   string;
+  valor?:  number;
+  total?:  number;
+  unidad?: "pct" | "count";
+}
 
 const DIAS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
 
@@ -144,6 +152,7 @@ export async function insightsAutomaticosService(): Promise<Insight[]> {
       tipo: "positivo", icono: "🕐",
       titulo: "Mejor franja de contacto",
       texto: `Alrededor de las ${horaLabel(hora)} logras ${tasa}% de respuesta (${total} llamadas). A esa hora los prospectos están menos ocupados — concentra tus llamadas ahí.`,
+      valor: tasa, total: 100, unidad: "pct",
     });
   }
 
@@ -164,6 +173,7 @@ export async function insightsAutomaticosService(): Promise<Insight[]> {
       tipo: "positivo", icono: "📅",
       titulo: "Mejor día para llamar",
       texto: `Los ${DIAS[dow]} tienes ${tasa}% de contactabilidad sobre ${total} llamadas. Los prospectos son más receptivos ese día — agenda tus llamadas más importantes para entonces.`,
+      valor: tasa, total: 100, unidad: "pct",
     });
   }
 
@@ -185,6 +195,7 @@ export async function insightsAutomaticosService(): Promise<Insight[]> {
       tipo: "info", icono: "📲",
       titulo: "Canal más efectivo",
       texto: `${canal.charAt(0).toUpperCase() + canal.slice(1)} convierte ${pct}% de contactos en interesados (${interesados} de ${total}). Probablemente porque permite mayor personalización — prioriza este canal para prospectos de alta prioridad.`,
+      valor: pct, total: 100, unidad: "pct",
     });
   }
 
@@ -208,6 +219,7 @@ export async function insightsAutomaticosService(): Promise<Insight[]> {
       tipo: "alerta", icono: "⚠️",
       titulo: "Leads olvidados",
       texto: `${nSinAct} lead${nSinAct > 1 ? "s activos llevan" : " activo lleva"} más de 14 días sin contacto. Sin seguimiento, los prospectos enfrian su interés y buscan otras opciones — contáctalos esta semana.`,
+      valor: nSinAct, unidad: "count",
     });
   }
 
@@ -224,6 +236,7 @@ export async function insightsAutomaticosService(): Promise<Insight[]> {
       tipo: "alerta", icono: "🔴",
       titulo: "Negociaciones estancadas",
       texto: `${nNeg} lead${nNeg > 1 ? "s llevan" : " lleva"} más de 14 días en Negociación sin moverse. Las negociaciones que no avanzan suelen caerse — clarifica objeciones o propone un cierre parcial esta semana.`,
+      valor: nNeg, unidad: "count",
     });
   }
 
@@ -240,6 +253,7 @@ export async function insightsAutomaticosService(): Promise<Insight[]> {
       tipo: "alerta", icono: "📋",
       titulo: "Propuestas sin respuesta",
       texto: `${nProp} propuesta${nProp > 1 ? "s llevan" : " lleva"} más de 7 días sin respuesta. El silencio suele significar dudas, no rechazo — un mensaje de seguimiento corto puede desbloquear la decisión.`,
+      valor: nProp, unidad: "count",
     });
   }
 
@@ -256,6 +270,7 @@ export async function insightsAutomaticosService(): Promise<Insight[]> {
       tipo: "oportunidad", icono: "💡",
       titulo: "Oportunidad de propuesta",
       texto: `${nSinProp} lead${nSinProp > 1 ? "s están" : " está"} en interés o negociación sin propuesta enviada. Ya mostraron intención de compra — no hacerles llegar una propuesta es dejar dinero sobre la mesa.`,
+      valor: nSinProp, unidad: "count",
     });
   }
 
@@ -276,12 +291,14 @@ export async function insightsAutomaticosService(): Promise<Insight[]> {
         tipo: "positivo", icono: "📞",
         titulo: "Buena contactabilidad",
         texto: `${tasa}% de tus llamadas del último mes fueron contestadas (${ct.contestadas} de ${ct.total}). Indica que estás llamando en buenos horarios y a prospectos con interés real — mantén ese ritmo.`,
+        valor: tasa, total: 100, unidad: "pct",
       });
     } else if (tasa < 30) {
       insights.push({
         tipo: "alerta", icono: "📞",
         titulo: "Baja contactabilidad",
         texto: `Solo ${tasa}% de tus llamadas del último mes fueron contestadas (${ct.contestadas} de ${ct.total}). Puede deberse a horarios inadecuados o lista sin calificar — prueba llamar entre 10am–12pm o enviar un WhatsApp previo.`,
+        valor: tasa, total: 100, unidad: "pct",
       });
     }
   }
@@ -331,12 +348,11 @@ export async function prioridadOperacionalService(): Promise<AccionPrioridad[]> 
       WHERE estado_lead = 'volver_a_llamar'
         AND etapa_pipeline NOT IN ('cerrado_ganado','perdido')
     `),
-    // 5. Leads sin ninguna actividad (nueva captación sin contacto)
+    // 5. Leads por gestionar — misma definición que ProspectosPage
     pool.query(`
-      SELECT COUNT(*)::int AS n FROM prospectos p
-      WHERE etapa_pipeline = 'nuevo'
-        AND NOT EXISTS (SELECT 1 FROM llamadas WHERE prospecto_id = p.id)
-        AND NOT EXISTS (SELECT 1 FROM reuniones WHERE prospecto_id = p.id)
+      SELECT COUNT(*)::int AS n FROM prospectos
+      WHERE estado_lead::text = 'por_gestionar'
+        AND etapa_pipeline NOT IN ('cerrado_ganado', 'perdido')
     `),
   ]);
 
@@ -701,9 +717,8 @@ export async function leadesPrioridadService(tipo: string) {
   } else if (tipo === "sin_contacto") {
     query = `${SELECT_BASE}
       FROM prospectos p
-      WHERE p.etapa_pipeline = 'nuevo'
-        AND NOT EXISTS (SELECT 1 FROM llamadas WHERE prospecto_id = p.id)
-        AND NOT EXISTS (SELECT 1 FROM reuniones WHERE prospecto_id = p.id)
+      WHERE p.estado_lead::text = 'por_gestionar'
+        AND p.etapa_pipeline NOT IN ('cerrado_ganado', 'perdido')
       ORDER BY p.actualizado_en DESC
       LIMIT 100`;
 
@@ -979,28 +994,43 @@ const ORDEN_ETAPAS = [
 
 export async function tasaConversionFunnelService() {
   const rows = await pool.query(`
-    SELECT etapa_pipeline AS etapa, COUNT(*)::int AS total
+    SELECT
+      etapa_pipeline AS etapa,
+      COUNT(*)::int  AS total,
+      COALESCE(SUM(
+        CASE WHEN moneda = 'USD'
+          THEN COALESCE(monto_propuesto, 0) * COALESCE(tipo_cambio, 3.7)
+          ELSE COALESCE(monto_propuesto, 0)
+        END
+      ), 0)::numeric AS valor
     FROM prospectos
     GROUP BY etapa_pipeline
   `);
 
-  const mapa: Record<string, number> = {};
-  for (const r of rows.rows) mapa[r.etapa] = r.total;
+  const mapa:  Record<string, number> = {};
+  const valor: Record<string, number> = {};
+  for (const r of rows.rows) {
+    mapa[r.etapa]  = r.total;
+    valor[r.etapa] = parseFloat(r.valor);
+  }
 
-  // Etapas activas (en pipeline) — excluyendo perdido/descartado
-  const activos = ORDEN_ETAPAS.map((e) => ({ etapa: e, total: mapa[e] ?? 0 }));
+  const activos = ORDEN_ETAPAS.map((e) => ({
+    etapa: e,
+    total: mapa[e]  ?? 0,
+    valor: valor[e] ?? 0,
+  }));
 
-  // Conversion rate between consecutive stages
   const etapas = activos.map((e, i) => {
     const prev = i > 0 ? activos[i - 1].total : null;
     const pct  = prev !== null && prev > 0
       ? Math.round((e.total / prev) * 100)
       : null;
-    return { etapa: e.etapa, total: e.total, pct_conversion: pct };
+    return { etapa: e.etapa, total: e.total, valor: e.valor, pct_conversion: pct };
   });
 
   const perdidos    = mapa["perdido"]    ?? 0;
   const descartados = mapa["descartado"] ?? 0;
+
   const totalEntrada = activos[0].total + perdidos + descartados +
     activos.slice(1).reduce((s, e) => s + e.total, 0);
 
@@ -1008,10 +1038,47 @@ export async function tasaConversionFunnelService() {
     ? Math.round(((mapa["cerrado_ganado"] ?? 0) / totalEntrada) * 100)
     : 0;
 
+  // KPIs financieros
+  const etapasActivas = ["nuevo","contactado","interesado","propuesta_enviada","negociacion"];
+  const valorPipeline = etapasActivas.reduce((s, e) => s + (valor[e] ?? 0), 0);
+  const valorCerrado  = valor["cerrado_ganado"] ?? 0;
+  const tasaCierre    = (perdidos + (mapa["cerrado_ganado"] ?? 0)) > 0
+    ? Math.round(((mapa["cerrado_ganado"] ?? 0) / (perdidos + (mapa["cerrado_ganado"] ?? 0))) * 100)
+    : 0;
+
   return {
     etapas,
     perdidos,
     descartados,
-    tasa_global: tasaGlobal,
+    tasa_global:     tasaGlobal,
+    valor_pipeline:  valorPipeline,
+    valor_cerrado:   valorCerrado,
+    tasa_cierre:     tasaCierre,
   };
+}
+
+// ─── Efectividad por canal ────────────────────────────────────────────────────
+
+export async function canalEfectividadService() {
+  const result = await pool.query(`
+    SELECT
+      canal,
+      COUNT(*)::int                                                   AS total,
+      COUNT(*) FILTER (WHERE resultado = 'interesado')::int          AS interesados,
+      ROUND(
+        COUNT(*) FILTER (WHERE resultado = 'interesado')::numeric
+        / NULLIF(COUNT(*), 0) * 100
+      )::int AS pct_conversion
+    FROM llamadas
+    WHERE fecha >= CURRENT_DATE - INTERVAL '90 days'
+    GROUP BY canal
+    HAVING COUNT(*) >= 3
+    ORDER BY pct_conversion DESC NULLS LAST
+  `);
+  return result.rows as {
+    canal:          string;
+    total:          number;
+    interesados:    number;
+    pct_conversion: number;
+  }[];
 }

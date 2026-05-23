@@ -145,7 +145,7 @@ export function FiltroPeriodoBotones({ periodo, filtroFecha, onChange }: Props) 
                     }}
                     className={`py-1.5 text-xs rounded-lg transition capitalize ${
                       esActual  ? "bg-zinc-900 text-white font-semibold" :
-                      esFuturo  ? "text-zinc-300 cursor-not-allowed"  :
+                      esFuturo  ? "text-zinc-700 cursor-not-allowed"  :
                                   "text-zinc-600 hover:bg-zinc-900/5 hover:text-zinc-900"
                     }`}
                   >
@@ -213,7 +213,7 @@ export function FiltroPeriodoBotones({ periodo, filtroFecha, onChange }: Props) 
 
             <div className="grid grid-cols-7 mb-1">
               {DIAS_SEMANA.map(d => (
-                <div key={d} className="text-center text-[10px] font-semibold text-zinc-400 py-1">{d}</div>
+                <div key={d} className="text-center text-[10px] font-semibold text-zinc-600 py-1">{d}</div>
               ))}
             </div>
 

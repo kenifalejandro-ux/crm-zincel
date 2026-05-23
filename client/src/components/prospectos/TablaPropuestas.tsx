@@ -65,9 +65,9 @@ function TimelinePropuesta({ p }: { p: Propuesta }) {
       {/* → Negociación */}
       {p.fecha_negociacion && (
         <>
-          <div className="flex flex-col items-center text-zinc-300">
+          <div className="flex flex-col items-center text-zinc-700">
             <ArrowRight size={10} />
-            {dNeg !== null && <span className="text-[9px] text-zinc-400">{dNeg}d</span>}
+            {dNeg !== null && <span className="text-[9px] text-zinc-600">{dNeg}d</span>}
           </div>
           <Paso icono="⚖️" label="Negociación" fecha={p.fecha_negociacion} color="bg-amber-50 text-amber-700" />
         </>
@@ -76,22 +76,22 @@ function TimelinePropuesta({ p }: { p: Propuesta }) {
       {/* → Cierre */}
       {p.fecha_cierre && (
         <>
-          <div className="flex flex-col items-center text-zinc-300">
+          <div className="flex flex-col items-center text-zinc-700">
             <ArrowRight size={10} />
-            {dCierre !== null && <span className="text-[9px] text-zinc-400">{dCierre}d</span>}
+            {dCierre !== null && <span className="text-[9px] text-zinc-600">{dCierre}d</span>}
           </div>
           <Paso
             icono={esGanada ? "✅" : esPerdida ? "❌" : "🔒"}
             label={esGanada ? "Cerrada ganada" : esPerdida ? "Cerrada perdida" : "Vencida"}
             fecha={p.fecha_cierre}
-            color={esGanada ? "bg-green-50 text-green-700" : esPerdida ? "bg-red-50 text-red-700" : "bg-zinc-50 text-zinc-500"}
+            color={esGanada ? "bg-green-50 text-green-700" : esPerdida ? "bg-red-50 text-red-700" : "bg-zinc-50 text-zinc-700"}
           />
         </>
       )}
 
       {/* Total */}
       {dTotal !== null && (
-        <span className="ml-1 text-[9px] text-zinc-400 font-medium self-end mb-1">
+        <span className="ml-1 text-[9px] text-zinc-600 font-medium self-end mb-1">
           = {dTotal}d total
         </span>
       )}
@@ -112,23 +112,23 @@ export function TablaPropuestas({ propuestas, onEditar, onEliminar }: Props) {
         onEliminar={() => { setVista(null); onEliminar(vista.id); }}
       />
     )}
-    <div className="bg-white rounded-xl border border-gray-100 overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin">
+    <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-x-auto max-h-[600px] overflow-y-auto scrollbar-thin">
       <table className="text-xs" style={{ minWidth: "900px", width: "100%" }}>
         <thead>
           <tr className="border-b border-gray-100 bg-gray-50">
-            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase w-[120px]">Servicio</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase w-[150px]">Descripción</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase w-[110px]">Propuesto</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase w-[110px]">Cerrado</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase w-[110px]">Estado</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase">Línea de tiempo</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase w-[120px]">Servicio</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase w-[150px]">Descripción</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase w-[110px]">Propuesto</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase w-[110px]">Cerrado</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase w-[110px]">Estado</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase">Línea de tiempo</th>
             <th className="px-3 py-3 w-[70px]" />
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
           {propuestas.length === 0 ? (
             <tr>
-              <td colSpan={7} className="text-center py-10 text-xs text-zinc-400">
+              <td colSpan={7} className="text-center py-10 text-xs text-zinc-600">
                 Sin propuestas registradas
               </td>
             </tr>
@@ -142,7 +142,7 @@ export function TablaPropuestas({ propuestas, onEditar, onEliminar }: Props) {
                 <td className="px-5 py-3.5 font-medium text-zinc-800">
                   {LABEL_SERVICIO[p.servicio as keyof typeof LABEL_SERVICIO] ?? p.servicio}
                 </td>
-                <td className="px-5 py-3.5 text-zinc-500 max-w-[160px] truncate">
+                <td className="px-5 py-3.5 text-zinc-700 max-w-[160px] truncate">
                   {p.descripcion}
                 </td>
                 <td className="px-5 py-3.5 font-semibold text-zinc-800 whitespace-nowrap">
@@ -159,7 +159,7 @@ export function TablaPropuestas({ propuestas, onEditar, onEliminar }: Props) {
                       )}
                     </span>
                   ) : (
-                    <span className="text-zinc-400">—</span>
+                    <span className="text-zinc-600">—</span>
                   )}
                 </td>
                 <td className="px-5 py-3.5">
@@ -174,13 +174,13 @@ export function TablaPropuestas({ propuestas, onEditar, onEliminar }: Props) {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => onEditar(p)}
-                      className="p-1.5 rounded-md text-zinc-400 hover:text-brand hover:bg-brand/5 transition"
+                      className="p-1.5 rounded-md text-zinc-600 hover:text-brand hover:bg-brand/5 transition"
                     >
                       <Pencil size={13} />
                     </button>
                     <button
                       onClick={() => onEliminar(p.id)}
-                      className="p-1.5 rounded-md text-zinc-400 hover:text-red-600 hover:bg-red-50 transition"
+                      className="p-1.5 rounded-md text-zinc-600 hover:text-red-600 hover:bg-red-50 transition"
                     >
                       <Trash2 size={13} />
                     </button>

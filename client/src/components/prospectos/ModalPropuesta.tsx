@@ -24,7 +24,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
 
         {/* Servicio */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Tipo de servicio</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Tipo de servicio</label>
           <select
             value={form.servicio}
             onChange={(e) => set({ servicio: e.target.value as ServicioPropuesta })}
@@ -38,7 +38,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
 
         {/* Descripción */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Descripción</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Descripción</label>
           <input
             type="text"
             value={form.descripcion}
@@ -51,7 +51,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
         {/* Moneda + Monto propuesto */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Moneda</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Moneda</label>
             <select
               value={form.moneda}
               onChange={(e) => set({ moneda: e.target.value as "PEN" | "USD" })}
@@ -62,7 +62,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Monto propuesto</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Monto propuesto</label>
             <input
               type="number"
               min="0"
@@ -78,7 +78,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
         {/* Tipo de cambio (solo si USD) */}
         {form.moneda === "USD" && (
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Tipo de cambio (USD → PEN)</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Tipo de cambio (USD → PEN)</label>
             <input
               type="number"
               min="1"
@@ -93,7 +93,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
 
         {/* Estado */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Estado</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Estado</label>
           <select
             value={form.estado}
             onChange={(e) => set({ estado: e.target.value as EstadoPropuesta })}
@@ -107,7 +107,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
 
         {/* Fecha propuesta */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha de propuesta</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Fecha de propuesta</label>
           <input
             type="date"
             value={form.fecha_propuesta}
@@ -118,7 +118,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
 
         {/* Notas */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
           <textarea
             rows={2}
             value={form.notas}

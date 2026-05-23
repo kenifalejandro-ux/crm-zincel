@@ -74,8 +74,8 @@ function AnimatedBar({
 
 const BARS = [
   { x: -2.4, targetH: 0.9, color: "#ffffff", delay: 0.0 },
-  { x: -1.2, targetH: 1.35, color: "#0fbd35", delay: 0.15 },
-  { x: 0, targetH: 1.15, color: "#ff004c", delay: 0.3 },
+  { x: -1.2, targetH: 1.35, color: "#a19d9d", delay: 0.3 },
+  { x: 0, targetH: 1.15, color: "#000000", delay: 0.3 },
   { x: 1.2, targetH: 2.15, color: "#07d4f8", delay: 0.45 },
   { x: 2.4, targetH: 3.1, color: "#f1da06", delay: 0.6 },
 ];
@@ -225,7 +225,7 @@ export default function LoginPage() {
               Zincel CRM
             </h1>
 
-            <p className="text-sm text-zinc-500 mt-2 leading-relaxed">
+            <p className="text-sm text-zinc-700 mt-2 leading-relaxed">
               Gestiona clientes, campañas y ventas desde una
               sola plataforma moderna.
             </p>
@@ -264,7 +264,7 @@ export default function LoginPage() {
           >
             {/* EMAIL */}
             <div>
-              <label className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-zinc-500 mb-2">
+              <label className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-zinc-700 mb-2">
                 Correo electrónico
               </label>
 
@@ -279,7 +279,7 @@ export default function LoginPage() {
                   w-full h-[52px] px-4 rounded-2xl
                   bg-white border border-zinc-200
                   text-sm text-zinc-800
-                  placeholder:text-zinc-400
+                  placeholder:text-zinc-600
                   shadow-sm
                   focus:outline-none
                   focus:ring-4 focus:ring-amber-500/10
@@ -291,7 +291,7 @@ export default function LoginPage() {
 
             {/* PASSWORD */}
             <div>
-              <label className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-zinc-500 mb-2">
+              <label className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-zinc-700 mb-2">
                 Contraseña
               </label>
 
@@ -307,7 +307,7 @@ export default function LoginPage() {
                     w-full h-[52px] px-4 pr-12 rounded-2xl
                     bg-white border border-zinc-200
                     text-sm text-zinc-800
-                    placeholder:text-zinc-400
+                    placeholder:text-zinc-600
                     shadow-sm
                     focus:outline-none
                     focus:ring-4 focus:ring-amber-500/10
@@ -324,7 +324,7 @@ export default function LoginPage() {
                   }
                   className="
                     absolute right-4 top-1/2 -translate-y-1/2
-                    text-zinc-400 hover:text-zinc-700
+                    text-zinc-600 hover:text-zinc-700
                     transition-colors
                   "
                 >
@@ -401,7 +401,7 @@ export default function LoginPage() {
 
           {/* FOOTER */}
           <div className="mt-10 pt-6 border-t border-zinc-200">
-            <p className="text-xs text-zinc-500 text-center">
+            <p className="text-xs text-zinc-700 text-center">
               © {currentYear} Zincel CRM · Plataforma de
               gestión comercial
             </p>
@@ -474,7 +474,7 @@ export default function LoginPage() {
           <motion.p
             className="
               mt-5
-              text-zinc-400
+              text-zinc-600
               text-base
               leading-relaxed
               max-w-xl
@@ -577,7 +577,7 @@ export default function LoginPage() {
                     {value}
                   </p>
 
-                  <p className="text-[11px] text-zinc-500 mt-1">
+                  <p className="text-[11px] text-zinc-700 mt-1">
                     {label}
                   </p>
                 </motion.div>
@@ -650,7 +650,7 @@ export default function LoginPage() {
             </motion.h3>
 
             <motion.p
-              className="text-zinc-500 text-sm mt-2"
+              className="text-zinc-700 text-sm mt-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.55 }}

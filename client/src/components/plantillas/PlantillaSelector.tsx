@@ -66,8 +66,8 @@ export function PlantillaSelector({ empresa, nombre, telefono }: Props) {
 
   if (plantillas.length === 0) return (
     <div className="text-center py-10 space-y-3">
-      <MessageSquare size={28} className="mx-auto text-zinc-300" />
-      <p className="text-xs text-zinc-400">Aún no tienes plantillas creadas</p>
+      <MessageSquare size={28} className="mx-auto text-zinc-700" />
+      <p className="text-xs text-zinc-600">Aún no tienes plantillas creadas</p>
       <button
         onClick={() => navigate("/plantillas")}
         className="text-xs text-amber-500 hover:text-amber-700 underline"
@@ -81,9 +81,9 @@ export function PlantillaSelector({ empresa, nombre, telefono }: Props) {
     <div className="space-y-4">
       {/* Datos del prospecto */}
       <div className="bg-gray-50 rounded-xl p-3 flex gap-4 text-xs text-zinc-600 flex-wrap">
-        <span><span className="text-zinc-400">Empresa:</span> <strong>{empresa ?? "—"}</strong></span>
-        <span><span className="text-zinc-400">Contacto:</span> <strong>{nombre ?? "—"}</strong></span>
-        <span><span className="text-zinc-400">Teléfono:</span> <strong>{telefono ?? "—"}</strong></span>
+        <span><span className="text-zinc-600">Empresa:</span> <strong>{empresa ?? "—"}</strong></span>
+        <span><span className="text-zinc-600">Contacto:</span> <strong>{nombre ?? "—"}</strong></span>
+        <span><span className="text-zinc-600">Teléfono:</span> <strong>{telefono ?? "—"}</strong></span>
       </div>
 
       {/* Grid de plantillas */}

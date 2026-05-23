@@ -56,12 +56,12 @@ export function ModalVistaPropuesta({ propuesta: p, onEditar, onEliminar, onCerr
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[11px] text-zinc-400 mb-0.5">
+            <p className="text-[11px] text-zinc-600 mb-0.5">
               {LABEL_SERVICIO[p.servicio as keyof typeof LABEL_SERVICIO] ?? p.servicio}
             </p>
             <p className="text-sm font-semibold text-zinc-800 leading-snug">{p.descripcion}</p>
           </div>
-          <button onClick={onCerrar} className="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-gray-100 transition shrink-0">
+          <button onClick={onCerrar} className="p-1 rounded-lg text-zinc-600 hover:text-zinc-600 hover:bg-gray-100 transition shrink-0">
             <X size={16} />
           </button>
         </div>
@@ -74,15 +74,15 @@ export function ModalVistaPropuesta({ propuesta: p, onEditar, onEliminar, onCerr
         {/* Montos */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-gray-50 rounded-xl p-3">
-            <p className="text-[10px] text-zinc-400 mb-0.5">Monto propuesto</p>
+            <p className="text-[10px] text-zinc-600 mb-0.5">Monto propuesto</p>
             <p className="text-sm font-bold text-zinc-800">{fmt(p.monto_propuesto, p.moneda)}</p>
             {p.moneda === "USD" && (
-              <p className="text-[10px] text-zinc-400">TC: {p.tipo_cambio}</p>
+              <p className="text-[10px] text-zinc-600">TC: {p.tipo_cambio}</p>
             )}
           </div>
           {p.monto_cerrado != null && (
             <div className="bg-gray-50 rounded-xl p-3">
-              <p className="text-[10px] text-zinc-400 mb-0.5">Monto cerrado</p>
+              <p className="text-[10px] text-zinc-600 mb-0.5">Monto cerrado</p>
               <p className={`text-sm font-bold ${diferencia! < 0 ? "text-red-600" : "text-green-600"}`}>
                 {fmt(p.monto_cerrado, p.moneda)}
               </p>
@@ -97,7 +97,7 @@ export function ModalVistaPropuesta({ propuesta: p, onEditar, onEliminar, onCerr
 
         {/* Línea de tiempo */}
         <div className="border border-dashed border-gray-200 rounded-xl p-3 space-y-2">
-          <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Línea de tiempo</p>
+          <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wide">Línea de tiempo</p>
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
@@ -111,9 +111,9 @@ export function ModalVistaPropuesta({ propuesta: p, onEditar, onEliminar, onCerr
             {p.fecha_negociacion && (
               <>
                 <div className="flex items-center gap-2 pl-3">
-                  <ArrowRight size={11} className="text-zinc-300" />
+                  <ArrowRight size={11} className="text-zinc-700" />
                   {dNeg !== null && (
-                    <span className="text-[10px] text-zinc-400 bg-zinc-50 px-1.5 py-0.5 rounded-md">{dNeg} días</span>
+                    <span className="text-[10px] text-zinc-600 bg-zinc-50 px-1.5 py-0.5 rounded-md">{dNeg} días</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
@@ -129,15 +129,15 @@ export function ModalVistaPropuesta({ propuesta: p, onEditar, onEliminar, onCerr
             {p.fecha_cierre && (
               <>
                 <div className="flex items-center gap-2 pl-3">
-                  <ArrowRight size={11} className="text-zinc-300" />
+                  <ArrowRight size={11} className="text-zinc-700" />
                   {dCierre !== null && (
-                    <span className="text-[10px] text-zinc-400 bg-zinc-50 px-1.5 py-0.5 rounded-md">{dCierre} días</span>
+                    <span className="text-[10px] text-zinc-600 bg-zinc-50 px-1.5 py-0.5 rounded-md">{dCierre} días</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-6 text-center text-sm">{esGanada ? "✅" : esPerdida ? "❌" : "🔒"}</span>
                   <div>
-                    <p className={`text-[10px] font-semibold ${esGanada ? "text-green-700" : esPerdida ? "text-red-700" : "text-zinc-500"}`}>
+                    <p className={`text-[10px] font-semibold ${esGanada ? "text-green-700" : esPerdida ? "text-red-700" : "text-zinc-700"}`}>
                       {esGanada ? "Cerrada ganada" : esPerdida ? "Cerrada perdida" : "Vencida"}
                     </p>
                     <p className="text-xs text-zinc-600">{fmtFecha(p.fecha_cierre)}</p>
@@ -148,7 +148,7 @@ export function ModalVistaPropuesta({ propuesta: p, onEditar, onEliminar, onCerr
 
             {dTotal !== null && (
               <div className="mt-1 pt-2 border-t border-gray-100 flex items-center gap-2">
-                <span className="text-[10px] text-zinc-400">Proceso total:</span>
+                <span className="text-[10px] text-zinc-600">Proceso total:</span>
                 <span className="text-xs font-bold text-zinc-700">{dTotal} días</span>
               </div>
             )}
@@ -158,7 +158,7 @@ export function ModalVistaPropuesta({ propuesta: p, onEditar, onEliminar, onCerr
         {/* Notas */}
         {p.notas && (
           <div>
-            <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide mb-1">Notas</p>
+            <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wide mb-1">Notas</p>
             <p className="text-xs text-zinc-600 bg-gray-50 rounded-lg p-3">{p.notas}</p>
           </div>
         )}
@@ -167,7 +167,7 @@ export function ModalVistaPropuesta({ propuesta: p, onEditar, onEliminar, onCerr
         <div className="flex gap-2 pt-1">
           <button
             onClick={onEliminar}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs border border-gray-200 rounded-lg hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-gray-500 transition"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs border border-gray-200 rounded-lg hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-gray-700 transition"
           >
             <Trash2 size={13} /> Eliminar
           </button>

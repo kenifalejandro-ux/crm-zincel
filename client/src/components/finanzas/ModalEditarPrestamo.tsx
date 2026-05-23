@@ -70,7 +70,7 @@ export function ModalEditarPrestamo({ prestamo, guardando, error, onGuardar, onC
       <div className="space-y-3">
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">¿Para qué fue el préstamo?</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">¿Para qué fue el préstamo?</label>
           <select value={form.categoria}
             onChange={(e) => set({ categoria: e.target.value as CategoriaPrestamo })}
             className={cls}>
@@ -79,14 +79,14 @@ export function ModalEditarPrestamo({ prestamo, guardando, error, onGuardar, onC
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Detalle del préstamo</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Detalle del préstamo</label>
           <input type="text" value={form.descripcion}
             onChange={(e) => set({ descripcion: e.target.value })}
             className={cls} />
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">¿A quién le debes?</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">¿A quién le debes?</label>
           <input type="text" value={form.prestamista}
             onChange={(e) => set({ prestamista: e.target.value })}
             className={cls} placeholder="Opcional" />
@@ -94,7 +94,7 @@ export function ModalEditarPrestamo({ prestamo, guardando, error, onGuardar, onC
 
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Moneda</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Moneda</label>
             <select value={form.moneda}
               onChange={(e) => set({ moneda: e.target.value as Moneda })}
               className={cls}>
@@ -103,7 +103,7 @@ export function ModalEditarPrestamo({ prestamo, guardando, error, onGuardar, onC
             </select>
           </div>
           <div className="col-span-2">
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Monto</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Monto</label>
             <input type="number" min={0} step="0.01" value={form.monto}
               onChange={(e) => set({ monto: e.target.value })}
               className={cls} />
@@ -124,7 +124,7 @@ export function ModalEditarPrestamo({ prestamo, guardando, error, onGuardar, onC
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Estado</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Estado</label>
             <select value={form.estado}
               onChange={(e) => set({ estado: e.target.value as EstadoPrestamo })}
               className={cls}>
@@ -133,7 +133,7 @@ export function ModalEditarPrestamo({ prestamo, guardando, error, onGuardar, onC
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha del préstamo</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Fecha del préstamo</label>
             <input type="date" value={form.fecha}
               onChange={(e) => set({ fecha: e.target.value })}
               className={cls} />
@@ -141,8 +141,8 @@ export function ModalEditarPrestamo({ prestamo, guardando, error, onGuardar, onC
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">
-            Fecha de vencimiento <span className="text-zinc-400">(¿cuándo debes devolverlo?)</span>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">
+            Fecha de vencimiento <span className="text-zinc-600">(¿cuándo debes devolverlo?)</span>
           </label>
           <input type="date" value={form.fecha_vencimiento}
             onChange={(e) => set({ fecha_vencimiento: e.target.value })}
@@ -150,8 +150,8 @@ export function ModalEditarPrestamo({ prestamo, guardando, error, onGuardar, onC
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">
-            Fecha de pago <span className="text-zinc-400">(opcional — si ya lo pagaste)</span>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">
+            Fecha de pago <span className="text-zinc-600">(opcional — si ya lo pagaste)</span>
           </label>
           <input type="date" value={form.fecha_pago}
             onChange={(e) => set({ fecha_pago: e.target.value })}
@@ -159,7 +159,7 @@ export function ModalEditarPrestamo({ prestamo, guardando, error, onGuardar, onC
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
           <textarea value={form.notas} onChange={(e) => set({ notas: e.target.value })}
             rows={2} className={`${cls} resize-none`} />
         </div>

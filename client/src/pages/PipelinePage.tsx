@@ -170,13 +170,13 @@ export default function PipelinePage() {
           <Kanban size={20} className="text-amber-500" />
           <div>
             <h1 className="text-lg font-semibold text-zinc-900">Pipeline de ventas</h1>
-            <p className="text-xs text-zinc-400">{totalProspectos} prospectos en el pipeline</p>
+            <p className="text-xs text-zinc-600">{totalProspectos} prospectos en el pipeline</p>
           </div>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           {/* Pipeline activo — desglose por moneda */}
           <div className="text-right border-r border-gray-100 pr-3">
-            <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Pipeline activo</p>
+            <p className="text-[10px] text-zinc-600 uppercase tracking-wide">Pipeline activo</p>
             <div className="flex items-center gap-2">
               {valorActivoPen > 0 && (
                 <span className="text-sm font-bold text-amber-600">
@@ -189,13 +189,13 @@ export default function PipelinePage() {
                 </span>
               )}
             </div>
-            <p className="text-[10px] text-zinc-400">
+            <p className="text-[10px] text-zinc-600">
               Total S/ {valorActivo.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
             </p>
           </div>
           {/* Cerrado — desglose por moneda */}
           <div className="text-right">
-            <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Cerrado</p>
+            <p className="text-[10px] text-zinc-600 uppercase tracking-wide">Cerrado</p>
             <div className="flex items-center gap-2">
               {valorCerradoPen > 0 && (
                 <span className="text-sm font-bold text-green-600">
@@ -208,12 +208,12 @@ export default function PipelinePage() {
                 </span>
               )}
             </div>
-            <p className="text-[10px] text-zinc-400">
+            <p className="text-[10px] text-zinc-600">
               Total S/ {valorCerrado.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
             </p>
           </div>
           <button onClick={cargar}
-            className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition text-zinc-500"
+            className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition text-zinc-700"
             title="Actualizar">
             <RefreshCw size={14} className={cargando ? "animate-spin" : ""} />
           </button>

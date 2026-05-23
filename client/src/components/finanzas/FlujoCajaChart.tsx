@@ -33,31 +33,31 @@ export function FlujoCajaChart({ flujo }: Props) {
   return (
     <div className={CARD_CLASS}>
       <h3 className={HEADER_CLASS}>
-        <TrendingUp size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+        <TrendingUp size={14} className="mr-2.5 text-emerald-500" strokeWidth={2} />
         Flujo de caja — últimos 6 meses
       </h3>
       <ResponsiveContainer width="100%" height={220}>
         <AreaChart data={flujo} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id="gradIngresos" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor={COLORS.dark} stopOpacity={0.12} />
-              <stop offset="95%" stopColor={COLORS.dark} stopOpacity={0} />
+              <stop offset="5%"  stopColor={COLORS.dark}   stopOpacity={0.35} />
+              <stop offset="95%" stopColor={COLORS.dark}   stopOpacity={0.08} />
             </linearGradient>
             <linearGradient id="gradEgresos" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor={COLORS.danger} stopOpacity={0.12} />
-              <stop offset="95%" stopColor={COLORS.danger} stopOpacity={0} />
+              <stop offset="5%"  stopColor={COLORS.danger} stopOpacity={0.35} />
+              <stop offset="95%" stopColor={COLORS.danger} stopOpacity={0.08} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} />
+          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} vertical={false} />
           <XAxis dataKey="etiqueta" tick={{ fontSize: 11, fill: COLORS.muted }} tickLine={false} axisLine={false} />
           <YAxis tick={{ fontSize: 11, fill: COLORS.muted }} tickLine={false} axisLine={false}
             tickFormatter={(v) => `S/${(v / 1000).toFixed(0)}k`} />
           <Tooltip content={<TooltipCustom />} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Area type="monotone" dataKey="ingresos" name="Ingresos"
-            stroke={COLORS.dark} strokeWidth={2} fill="url(#gradIngresos)" />
-          <Area type="monotone" dataKey="egresos" name="Egresos"
-            stroke={COLORS.primary} strokeWidth={2} fill="url(#gradEgresos)" />
+          <Area type="monotone" dataKey="ingresos" name="Ingresos" stackId="flujo"
+            stroke={COLORS.dark}   strokeWidth={2} fill="url(#gradIngresos)" />
+          <Area type="monotone" dataKey="egresos"  name="Egresos"  stackId="flujo"
+            stroke={COLORS.danger} strokeWidth={2} fill="url(#gradEgresos)"  />
         </AreaChart>
       </ResponsiveContainer>
     </div>

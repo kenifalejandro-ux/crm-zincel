@@ -25,7 +25,7 @@ export const TabsPlataforma = ({ activa, onChange }: Props) => (
         className={`px-4 py-1.5 rounded-lg text-xs font-medium transition ${
           activa === tab.value
             ? `bg-white shadow-sm ${tab.color}`
-            : "text-zinc-400 hover:text-zinc-600"
+            : "text-zinc-600 hover:text-zinc-600"
         }`}
       >
         {tab.label}

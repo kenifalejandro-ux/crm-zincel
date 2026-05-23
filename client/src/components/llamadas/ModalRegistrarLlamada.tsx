@@ -44,7 +44,7 @@ export function ModalRegistrarLlamada({ form, prospectos, cargando, onFormChange
 
         {/* Prospecto */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Prospecto</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Prospecto</label>
           <select value={form.prospecto_id} onChange={(e) => set({ prospecto_id: e.target.value })} className={cls}>
             <option value="">Selecciona un prospecto</option>
             {prospectos.map((p) => (
@@ -56,11 +56,11 @@ export function ModalRegistrarLlamada({ form, prospectos, cargando, onFormChange
         {/* Fecha + Canal */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Fecha</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Fecha</label>
             <input type="date" value={form.fecha} onChange={(e) => set({ fecha: e.target.value })} className={cls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Canal</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Canal</label>
             <select value={form.canal} onChange={(e) => set({ canal: e.target.value })} className={cls}>
               {CANALES.map((c) => <option key={c} value={c} className="capitalize">{c}</option>)}
             </select>
@@ -70,18 +70,18 @@ export function ModalRegistrarLlamada({ form, prospectos, cargando, onFormChange
         {/* Hora inicio + Hora fin */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Hora inicio</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Hora inicio</label>
             <input type="time" value={form.hora_inicio} onChange={(e) => set({ hora_inicio: e.target.value })} className={cls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Hora fin <span className="text-gray-400">(opcional)</span></label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Hora fin <span className="text-gray-600">(opcional)</span></label>
             <input type="time" value={form.hora_fin} onChange={(e) => set({ hora_fin: e.target.value })} className={cls} />
           </div>
         </div>
 
         {/* Resultado */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Resultado</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Resultado</label>
           <select value={form.resultado} onChange={(e) => set({ resultado: e.target.value })} className={cls}>
             <option value="">Sin resultado</option>
             {RESULTADOS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -97,7 +97,7 @@ export function ModalRegistrarLlamada({ form, prospectos, cargando, onFormChange
 
         {/* Notas */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
           <textarea value={form.notas} onChange={(e) => set({ notas: e.target.value })} rows={3}
             className={`${cls} resize-none`} placeholder="Observaciones de la llamada..." />
         </div>

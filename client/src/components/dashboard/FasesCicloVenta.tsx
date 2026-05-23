@@ -1,19 +1,31 @@
 /** client/src/components/dashboard/FasesCicloVenta.tsx */
 import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import { useEffect, useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { TrendingUp } from "lucide-react";
 import { getCicloVenta } from "../../services/prospectos.api";
+import {
+  ComposedChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, Cell, ResponsiveContainer, LabelList,
+} from "recharts";
 
+interface WaterfallRow {
+  name:    string;
+  sub:     string;
+  offset:  number;
+  value:   number;
+  fill:    string;
+  isTotal: boolean;
+}
 
-const TooltipPersonalizado = ({ active, payload }: any) => {
+const TooltipWaterfall = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
-  const d = payload[0].payload;
+  const row: WaterfallRow = payload[0]?.payload;
+  if (!row) return null;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm p-3 text-xs">
-      <p className="font-semibold text-zinc-900">{d.label}</p>
-      <p className="text-zinc-500 text-[10px] mt-0.5">{d.subLabel}</p>
-      <p className="text-zinc-900 mt-2 font-medium">{d.dias}d promedio</p>
+    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-2 text-xs">
+      <p className="font-semibold text-zinc-800 mb-0.5">{row.name}</p>
+      <p className="text-zinc-500 text-[10px] mb-1">{row.sub}</p>
+      <p className="font-bold text-zinc-900">{row.value} días</p>
     </div>
   );
 };
@@ -28,81 +40,101 @@ export function FasesCicloVenta() {
 
   useEffect(() => {
     getCicloVenta()
-      .then((d) => setKpis(d.kpis))
+      .then(d => setKpis(d.kpis))
       .catch(() => {});
   }, []);
 
   if (!kpis || kpis.total_cerrados === 0) return null;
 
-  const chartData = [
-    { key: "prospeccion", label: "Prospección", subLabel: "contacto → propuesta", dias: kpis.promedio_contacto_propuesta ?? 0, color: COLORS.primary },
-    { key: "negociacion", label: "Negociación", subLabel: "propuesta → cierre",   dias: kpis.promedio_propuesta_cierre   ?? 0, color: COLORS.muted },
-    { key: "total",       label: "Ciclo total", subLabel: "contacto → cierre",    dias: kpis.promedio_dias               ?? 0, color: COLORS.dark },
-  ];
+  const prosp = kpis.promedio_contacto_propuesta ?? 0;
+  const neg   = kpis.promedio_propuesta_cierre   ?? 0;
+  const total = kpis.promedio_dias               ?? 0;
 
-  const maxDias = Math.max(...chartData.map((d) => d.dias), 1);
+  const data: WaterfallRow[] = [
+    {
+      name:    "Prospección",
+      sub:     "contacto → propuesta",
+      offset:  0,
+      value:   prosp,
+      fill:    COLORS.primary,
+      isTotal: false,
+    },
+    {
+      name:    "Negociación",
+      sub:     "propuesta → cierre",
+      offset:  prosp,
+      value:   neg,
+      fill:    COLORS.mutedDark,
+      isTotal: false,
+    },
+    {
+      name:    "Ciclo total",
+      sub:     "contacto → cierre",
+      offset:  0,
+      value:   total,
+      fill:    COLORS.dark,
+      isTotal: true,
+    },
+  ];
 
   return (
     <div className={CARD_CLASS}>
       <h2 className={HEADER_CLASS}>
-        <TrendingUp size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+        <TrendingUp size={14} className="mr-2.5 text-emerald-500" strokeWidth={2} />
         Ciclo de Venta Promedio
       </h2>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <p className="text-[11px] text-zinc-400 font-medium">
-            Basado en {kpis.total_cerrados} venta{kpis.total_cerrados !== 1 ? "s" : ""} cerrada{kpis.total_cerrados !== 1 ? "s" : ""}
-          </p>
-        </div>
-        <span className="text-[11px] font-bold text-zinc-900 bg-zinc-100 px-3 py-1.5 rounded-full uppercase tracking-wide">
-          {kpis.promedio_dias}d total
-        </span>
-      </div>
+      <p className="text-[11px] text-zinc-500 -mt-3 mb-4">
+        Basado en {kpis.total_cerrados} venta{kpis.total_cerrados !== 1 ? "s" : ""} cerrada{kpis.total_cerrados !== 1 ? "s" : ""}
+      </p>
 
-      <ResponsiveContainer width="100%" height={140}>
-        <BarChart
-          data={chartData}
-          layout="vertical"
-          margin={{ top: 0, right: 30, left: 0, bottom: 0 }}
-          barSize={20}
-        >
+      {/* ── Waterfall chart ── */}
+      <ResponsiveContainer width="100%" height={200}>
+        <ComposedChart data={data} margin={{ top: 20, right: 8, bottom: 0, left: -20 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} vertical={false} />
           <XAxis
-            type="number"
-            domain={[0, maxDias * 1.2]}
+            dataKey="name"
+            tick={{ fontSize: 11, fill: COLORS.muted }}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
             tick={{ fontSize: 10, fill: COLORS.muted }}
             tickLine={false}
             axisLine={false}
-            unit="d"
+            tickFormatter={v => `${v}d`}
+            domain={[0, Math.ceil((total + 5) / 10) * 10]}
           />
-          <YAxis
-            type="category"
-            dataKey="label"
-            tick={{ fontSize: 11, fill: "#52525b", fontWeight: 500 }}
-            tickLine={false}
-            axisLine={false}
-            width={85}
-          />
-          <Tooltip content={<TooltipPersonalizado />} cursor={{ fill: "#fafafa" }} />
-          <Bar dataKey="dias" radius={[0, 4, 4, 0]}>
-            {chartData.map((entry) => (
-              <Cell key={entry.key} fill={entry.color} />
+          <Tooltip content={<TooltipWaterfall />} cursor={{ fill: "#f4f4f5", radius: 6 }} />
+
+          {/* Barra espaciadora invisible */}
+          <Bar dataKey="offset" stackId="wf" fill="transparent" legendType="none" isAnimationActive={false} />
+
+          {/* Barra de valor visible */}
+          <Bar dataKey="value" stackId="wf" radius={[6, 6, 0, 0]} legendType="none">
+            {data.map((entry, i) => (
+              <Cell key={i} fill={entry.fill} />
             ))}
             <LabelList
-              dataKey="dias"
-              position="right"
-              style={{ fontSize: 11, fontWeight: 600, fill: "#18181b" }}
-              formatter={(v: number) => `${v}d`}
+              dataKey="value"
+              position="top"
+              formatter={(v: any) => `${v}d`}
+              style={{ fontSize: 11, fontWeight: 700, fill: COLORS.dark }}
             />
           </Bar>
-        </BarChart>
+        </ComposedChart>
       </ResponsiveContainer>
 
-      <div className="flex justify-between text-[10px] text-zinc-400 mt-4 px-1 pt-4 border-t border-zinc-100/60">
-        {chartData.map((d) => (
-          <span key={d.key} className="flex items-center gap-1.5 font-medium">
-            <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: d.color }} />
-            {d.subLabel}
-          </span>
+      {/* ── KPI tiles resumen ── */}
+      <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-zinc-100">
+        {[
+          { label: "Prospección", dias: prosp, color: COLORS.primary,   textCls: "text-amber-600" },
+          { label: "Negociación", dias: neg,   color: COLORS.mutedDark, textCls: "text-zinc-600"  },
+          { label: "Ciclo total", dias: total,  color: COLORS.dark,      textCls: "text-zinc-900"  },
+        ].map((f, i) => (
+          <div key={i} className="text-center">
+            <p className={`text-xl font-bold ${f.textCls}`}>{f.dias}d</p>
+            <p className="text-[10px] text-zinc-400 mt-0.5">{f.label}</p>
+          </div>
         ))}
       </div>
     </div>

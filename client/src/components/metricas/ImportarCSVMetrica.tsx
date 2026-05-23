@@ -293,11 +293,11 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
           <div>
             <h2 className="text-sm font-semibold text-zinc-800">Importar CSV</h2>
-            <p className="text-xs text-zinc-400 mt-0.5">
+            <p className="text-xs text-zinc-600 mt-0.5">
               Compatible con Meta Ads, Google Ads y TikTok Ads
             </p>
           </div>
-          <button onClick={onCerrar} className="text-zinc-400 hover:text-zinc-600">
+          <button onClick={onCerrar} className="text-zinc-600 hover:text-zinc-600">
             <X size={16} />
           </button>
         </div>
@@ -307,7 +307,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           {/* Empresa + Plataforma */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-zinc-500 mb-1 block">Empresa *</label>
+              <label className="text-xs text-zinc-700 mb-1 block">Empresa *</label>
               <input
                 value={empresa}
                 onChange={(e) => setEmpresa(e.target.value)}
@@ -316,7 +316,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               />
             </div>
             <div>
-              <label className="text-xs text-zinc-500 mb-1 block">Plataforma *</label>
+              <label className="text-xs text-zinc-700 mb-1 block">Plataforma *</label>
               <select
                 value={plataforma}
                 onChange={(e) => {
@@ -335,7 +335,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           {/* Sub plataforma solo si Meta */}
           {plataforma === "meta" && (
             <div>
-              <label className="text-xs text-zinc-500 mb-1 block">Red social</label>
+              <label className="text-xs text-zinc-700 mb-1 block">Red social</label>
               <select
                 value={subPlat}
                 onChange={(e) => setSubPlat(e.target.value)}
@@ -352,7 +352,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           {/* Período */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-zinc-500 mb-1 block">Período inicio *</label>
+              <label className="text-xs text-zinc-700 mb-1 block">Período inicio *</label>
               <input
                 type="date" value={periodoI}
                 onChange={(e) => setPeriodoI(e.target.value)}
@@ -360,7 +360,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               />
             </div>
             <div>
-              <label className="text-xs text-zinc-500 mb-1 block">Período fin *</label>
+              <label className="text-xs text-zinc-700 mb-1 block">Período fin *</label>
               <input
                 type="date" value={periodoF}
                 onChange={(e) => setPeriodoF(e.target.value)}
@@ -374,11 +374,11 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
             onClick={() => inputRef.current?.click()}
             className="border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition"
           >
-            <Upload size={20} className="mx-auto text-zinc-400 mb-2" />
-            <p className="text-xs text-zinc-500 font-medium">
+            <Upload size={20} className="mx-auto text-zinc-600 mb-2" />
+            <p className="text-xs text-zinc-700 font-medium">
               Haz clic para seleccionar tu archivo CSV
             </p>
-            <p className="text-[10px] text-zinc-400 mt-1">
+            <p className="text-[10px] text-zinc-600 mt-1">
               Exporta el reporte directamente desde Meta Ads, Google Ads o TikTok Ads
             </p>
             <input
@@ -396,7 +396,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               estado === "ok"      ? "bg-green-50 text-green-700" :
               estado === "error"   ? "bg-red-50   text-red-700"   :
               estado === "preview" ? "bg-blue-50  text-blue-700"  :
-                                     "bg-zinc-50  text-zinc-500"
+                                     "bg-zinc-50  text-zinc-700"
             }`}>
               {estado === "ok"    && <Check       size={13} />}
               {estado === "error" && <AlertCircle size={13} />}
@@ -407,7 +407,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           {/* Preview campos detectados */}
           {estado === "preview" && filas.length > 0 && (
             <div className="bg-zinc-50 rounded-lg p-3 space-y-1 max-h-32 overflow-y-auto">
-              <p className="text-[10px] font-semibold text-zinc-400 uppercase mb-2">
+              <p className="text-[10px] font-semibold text-zinc-600 uppercase mb-2">
                 Campos detectados en el CSV
               </p>
               {Object.keys(filas[0]).map((campo) => (

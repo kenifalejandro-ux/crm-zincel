@@ -44,7 +44,7 @@ export function KanbanColumn({
             <div className={`w-2.5 h-2.5 rounded-full ${color}`} />
             <p className="text-xs font-semibold text-zinc-700">{label}</p>
           </div>
-          <span className="text-[10px] bg-white border border-gray-200 text-zinc-500 px-1.5 py-0.5 rounded-full font-medium">
+          <span className="text-[10px] bg-white border border-gray-200 text-zinc-700 px-1.5 py-0.5 rounded-full font-medium">
             {prospectos.length}
           </span>
         </div>
@@ -58,7 +58,7 @@ export function KanbanColumn({
         {prospectos.length === 0 && (
           <div className={`rounded-xl border-2 border-dashed h-20 flex items-center justify-center transition-colors
             ${isDragOver ? "border-amber-300" : "border-gray-200"}`}>
-            <p className="text-[10px] text-zinc-400">Arrastra aquí</p>
+            <p className="text-[10px] text-zinc-600">Arrastra aquí</p>
           </div>
         )}
         {prospectos.map(p => (

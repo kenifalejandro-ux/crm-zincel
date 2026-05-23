@@ -19,7 +19,7 @@ export function ResumenCanales({ resumen }: Props) {
               {canal}
             </span>
             <p className="text-2xl font-semibold text-zinc-800">{dato?.total || 0}</p>
-            <p className="text-xs text-zinc-400 mt-0.5">este mes: {dato?.este_mes || 0}</p>
+            <p className="text-xs text-zinc-600 mt-0.5">este mes: {dato?.este_mes || 0}</p>
           </div>
         );
       })}

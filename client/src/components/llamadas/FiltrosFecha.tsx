@@ -20,11 +20,11 @@ export function FiltrosFecha({
   const anios = aniosDisponibles();
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-5 grid gap-4 md:grid-cols-[1fr_auto] items-end">
+    <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-5 grid gap-4 md:grid-cols-[1fr_auto] items-end">
       <div className="grid gap-3 sm:grid-cols-3">
         {/* Selector de período */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Periodo</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Periodo</label>
           <select
             value={filtroPeriodo}
             onChange={(e) => onPeriodoChange(e.target.value)}
@@ -39,7 +39,7 @@ export function FiltrosFecha({
 
         {/* Selector de fecha / año */}
         <div className="sm:col-span-2">
-          <label className="text-xs font-medium text-gray-500 mb-1 block">
+          <label className="text-xs font-medium text-gray-700 mb-1 block">
             {filtroPeriodo === "anio" ? "Seleccionar año" : "Seleccionar fecha"}
           </label>
 

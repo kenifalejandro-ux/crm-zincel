@@ -33,7 +33,7 @@ const TIPO_CONFIG: Record<TipoActividad, { icon: React.ReactNode; dot: string; b
   pipeline:      { icon: <GitBranch size={13} />,    dot: "bg-amber-500", bg: "bg-amber-100", color: "text-amber-600" },
   score:         { icon: <Zap size={13} />,          dot: "bg-yellow-500", bg: "bg-yellow-100", color: "text-yellow-600" },
   automatizacion:{ icon: <Zap size={13} />,          dot: "bg-rose-500",   bg: "bg-rose-100",   color: "text-rose-600"   },
-  nota:          { icon: <StickyNote size={13} />,   dot: "bg-zinc-400",   bg: "bg-zinc-100",   color: "text-zinc-500"   },
+  nota:          { icon: <StickyNote size={13} />,   dot: "bg-zinc-400",   bg: "bg-zinc-100",   color: "text-zinc-700"   },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -138,7 +138,7 @@ export function TimelineDetalle({ prospectoId, llamadas, reuniones, brochures, p
   );
 
   if (sorted.length === 0) return (
-    <div className="text-center py-10 text-xs text-zinc-400">
+    <div className="text-center py-10 text-xs text-zinc-600">
       <Clock size={28} className="mx-auto mb-2 opacity-40" />
       Sin actividad registrada
     </div>
@@ -156,14 +156,14 @@ export function TimelineDetalle({ prospectoId, llamadas, reuniones, brochures, p
   return (
     <div className="space-y-4">
       {esFallback && (
-        <p className="text-[10px] text-zinc-400 italic text-center">
+        <p className="text-[10px] text-zinc-600 italic text-center">
           Mostrando historial anterior al sistema de timeline
         </p>
       )}
 
       {grupos.map(g => (
         <div key={g.fecha}>
-          <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-2 sticky top-0 bg-white py-1">
+          <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wider mb-2 sticky top-0 bg-white py-1">
             {g.fecha}
           </p>
           <div className="relative pl-6 space-y-3">
@@ -179,10 +179,10 @@ export function TimelineDetalle({ prospectoId, llamadas, reuniones, brochures, p
                   <div className="flex-1 min-w-0 pb-1">
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-xs font-medium text-zinc-800 leading-snug">{log.titulo}</p>
-                      <span className="text-[10px] text-zinc-400 shrink-0">{formatHora(log.creado_en)}</span>
+                      <span className="text-[10px] text-zinc-600 shrink-0">{formatHora(log.creado_en)}</span>
                     </div>
                     {log.descripcion && (
-                      <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">{log.descripcion}</p>
+                      <p className="text-[11px] text-zinc-600 mt-0.5 leading-relaxed">{log.descripcion}</p>
                     )}
                   </div>
                 </div>
@@ -203,7 +203,7 @@ export function TimelineDetalle({ prospectoId, llamadas, reuniones, brochures, p
           return (
             <div key={t} className="flex items-center gap-1.5">
               <div className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-              <span className="text-[10px] text-zinc-400">{label[t]}</span>
+              <span className="text-[10px] text-zinc-600">{label[t]}</span>
             </div>
           );
         })}

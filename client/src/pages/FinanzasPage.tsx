@@ -364,7 +364,7 @@ export default function FinanzasPage() {
       label: "Préstamos por pagar",
       valor: `S/ ${totalPorPagarPrestamos.toLocaleString("es-PE")}`,
       icon:  <AlertCircle size={18} />,
-      color: totalPorPagarPrestamos > 0 ? "text-orange-500" : "text-zinc-400",
+      color: totalPorPagarPrestamos > 0 ? "text-orange-500" : "text-zinc-600",
       bg:    totalPorPagarPrestamos > 0 ? "bg-orange-50"    : "bg-gray-50",
     },
   ] : [];
@@ -376,16 +376,19 @@ export default function FinanzasPage() {
       <div className="flex flex-col gap-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-xl font-semibold text-zinc-800">Finanzas</h1>
-            <p className="text-xs text-zinc-400 mt-0.5">Sistema contable digital personal</p>
+            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Finanzas</h1>
+            <p className="text-xs text-zinc-600 mt-0.5">Sistema contable digital personal</p>
           </div>
           <div className="flex gap-2">
             {(ingresos.length > 0 || egresos.length > 0 || prestamos.length > 0) && (
               <button
                 onClick={exportarExcel}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs bg-zinc-800 hover:bg-zinc-900 text-white rounded-lg transition"
+                className="relative group p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white transition"
               >
-                <FileDown size={15} /> Exportar Excel
+                <FileDown size={17} />
+                <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+                  Exportar Excel
+                </span>
               </button>
             )}
             {tab !== "resumen" && (
@@ -475,7 +478,7 @@ export default function FinanzasPage() {
         />
       )}
       {tab === "resumen" && !resumen && (
-        <div className="text-center py-12 text-xs text-zinc-400">Cargando resumen…</div>
+        <div className="text-center py-12 text-xs text-zinc-600">Cargando resumen…</div>
       )}
 
       {/* Modales editar */}

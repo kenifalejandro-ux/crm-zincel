@@ -27,8 +27,8 @@ const TooltipPersonalizado = ({ active, payload, label }: any) => {
   return (
     <div className="bg-white border border-zinc-200 rounded-lg shadow-sm p-3 text-xs min-w-[140px]">
       <p className="font-semibold text-zinc-800 mb-2">Día {label}</p>
-      <p className="text-zinc-700">Llamadas: <span className="font-medium">{d.llamadas}</span> <span className="text-zinc-400">({d.contestadas} contest.)</span></p>
-      <p className="text-zinc-700">Reuniones: <span className="font-medium">{d.reuniones}</span> <span className="text-zinc-400">({d.realizadas} realiz.)</span></p>
+      <p className="text-zinc-700">Llamadas: <span className="font-medium">{d.llamadas}</span> <span className="text-zinc-600">({d.contestadas} contest.)</span></p>
+      <p className="text-zinc-700">Reuniones: <span className="font-medium">{d.reuniones}</span> <span className="text-zinc-600">({d.realizadas} realiz.)</span></p>
       <p className="text-zinc-700">Brochures: <span className="font-medium">{d.brochures}</span></p>
     </div>
   );
@@ -64,12 +64,12 @@ export function ActividadMensualDiaria() {
   return (
     <div className={CARD_CLASS}>
       <h2 className={HEADER_CLASS}>
-        <Calendar size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+        <Calendar size={14} className="mr-2.5 text-blue-500" strokeWidth={2} />
         Comparativa diaria
       </h2>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-        <p className="text-[11px] text-zinc-400 font-medium">Actividad por día del mes · barras + tendencia</p>
+        <p className="text-[11px] text-zinc-600 font-medium">Actividad por día del mes · barras + tendencia</p>
 
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex gap-1 flex-wrap">
@@ -80,7 +80,7 @@ export function ActividadMensualDiaria() {
                 className={`px-2.5 py-1 text-xs rounded-full border transition ${
                   series.includes(s.key)
                     ? "text-white border-transparent"
-                    : "bg-white text-zinc-400 border-zinc-200"
+                    : "bg-white text-zinc-600 border-zinc-200"
                 }`}
                 style={series.includes(s.key) ? { background: s.color, borderColor: s.color } : {}}
               >
@@ -113,11 +113,11 @@ export function ActividadMensualDiaria() {
 
       {cargando ? (
         <div className="h-[240px] flex items-center justify-center">
-          <p className="text-xs text-zinc-400">Cargando...</p>
+          <p className="text-xs text-zinc-600">Cargando...</p>
         </div>
       ) : !hayDatos ? (
         <div className="h-[240px] flex items-center justify-center">
-          <p className="text-xs text-zinc-400">Sin actividad en {MESES[mesSel - 1]} {anioSel}</p>
+          <p className="text-xs text-zinc-600">Sin actividad en {MESES[mesSel - 1]} {anioSel}</p>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={240}>

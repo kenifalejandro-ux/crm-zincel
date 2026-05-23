@@ -61,7 +61,7 @@ export function LlamadaHistorial({ prospectoId }: LlamadaHistorialProps) {
                   {LABELS[l.resultado] ?? l.resultado}
                 </Badge>
               )}
-              <span className="flex items-center gap-1 text-xs text-zinc-500">
+              <span className="flex items-center gap-1 text-xs text-zinc-700">
                 <Clock size={11} />
                 {new Date(l.fecha).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
                 {l.hora_fin && <> – {l.hora_fin.slice(0, 5)}</>}

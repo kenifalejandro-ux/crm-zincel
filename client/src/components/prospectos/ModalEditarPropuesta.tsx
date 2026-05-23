@@ -40,7 +40,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
 
         {/* Servicio */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Tipo de servicio</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Tipo de servicio</label>
           <select
             value={form.servicio}
             onChange={(e) => set({ servicio: e.target.value as ServicioPropuesta })}
@@ -54,7 +54,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
 
         {/* Descripción */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Descripción</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Descripción</label>
           <input
             type="text"
             value={form.descripcion}
@@ -66,7 +66,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
         {/* Moneda + Monto propuesto */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Moneda</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Moneda</label>
             <select
               value={form.moneda}
               onChange={(e) => set({ moneda: e.target.value as "PEN" | "USD" })}
@@ -77,7 +77,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Monto propuesto</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Monto propuesto</label>
             <input
               type="number"
               min="0"
@@ -92,9 +92,9 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
         {/* Monto cerrado (solo si estado cerrado) */}
         {esCerrada && (
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">
+            <label className="text-xs font-medium text-gray-700 mb-1 block">
               Monto cerrado
-              <span className="ml-1 text-zinc-400 font-normal">(lo que realmente se cobró)</span>
+              <span className="ml-1 text-zinc-600 font-normal">(lo que realmente se cobró)</span>
             </label>
             <input
               type="number"
@@ -111,7 +111,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
         {/* Tipo de cambio */}
         {form.moneda === "USD" && (
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Tipo de cambio</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Tipo de cambio</label>
             <input
               type="number"
               min="1"
@@ -125,7 +125,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
 
         {/* Estado */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Estado</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Estado</label>
           <select
             value={form.estado}
             onChange={(e) => set({ estado: e.target.value as EstadoPropuesta })}
@@ -139,11 +139,11 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
 
         {/* Fechas — una por cada etapa relevante */}
         <div className="space-y-3 border border-dashed border-gray-200 rounded-xl p-3 bg-gray-50">
-          <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Fechas del proceso</p>
+          <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wide">Fechas del proceso</p>
 
           {/* Enviada — siempre visible */}
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">
+            <label className="text-xs font-medium text-gray-700 mb-1 block">
               📤 Enviada — fecha de propuesta
             </label>
             <input
@@ -157,7 +157,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
           {/* Negociación — cuando el estado es en_negociacion o más avanzado */}
           {(esNegociacion || esFinalizada) && (
             <div>
-              <label className="text-xs font-medium text-gray-500 mb-1 block">
+              <label className="text-xs font-medium text-gray-700 mb-1 block">
                 ⚖️ En negociación — fecha de inicio
               </label>
               <input
@@ -172,7 +172,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
           {/* Cierre — solo si está cerrada */}
           {esCerrada && (
             <div>
-              <label className="text-xs font-medium text-gray-500 mb-1 block">
+              <label className="text-xs font-medium text-gray-700 mb-1 block">
                 {form.estado === "cerrada_ganada" ? "✅ Cerrada ganada" : "❌ Cerrada perdida"} — fecha de cierre
               </label>
               <input
@@ -206,7 +206,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
 
         {/* Notas */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
           <textarea
             rows={2}
             value={form.notas}

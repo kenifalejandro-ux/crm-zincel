@@ -4,74 +4,67 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { PhoneCall } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
 
-
 interface Props {
   metricas: Metricas;
 }
 
 export function LlamadasChart({ metricas }: Props) {
-  const datos = [
-    { name: "Contestadas",    value: metricas.llamadas.llamadas_contestadas,    color: COLORS.dark },
-    { name: "No contestadas", value: metricas.llamadas.llamadas_no_contestadas, color: COLORS.primary },
-  ];
+  const { total_llamadas, llamadas_contestadas, llamadas_no_contestadas } = metricas.llamadas;
 
-  const datosGrafico = datos.some(d => d.value > 0)
-    ? datos
-    : [{ name: "Sin datos", value: 1, color: COLORS.surface }];
-
-  const tasaContacto = metricas.llamadas.total_llamadas > 0
-    ? Math.round((metricas.llamadas.llamadas_contestadas / metricas.llamadas.total_llamadas) * 100)
+  const tasaContacto = total_llamadas > 0
+    ? Math.round((llamadas_contestadas / total_llamadas) * 100)
     : 0;
+
+  const gaugeData = total_llamadas > 0
+    ? [
+        { value: llamadas_contestadas,    fill: COLORS.dark    },
+        { value: llamadas_no_contestadas, fill: COLORS.primary },
+      ]
+    : [{ value: 1, fill: COLORS.surface }];
 
   return (
     <div className={CARD_CLASS}>
       <h2 className={HEADER_CLASS}>
-        <PhoneCall size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+        <PhoneCall size={14} className="mr-2.5 text-green-500" strokeWidth={2} />
         Llamadas
       </h2>
-      <div className="flex items-center gap-6">
-        <div className="relative flex-shrink-0">
-          <ResponsiveContainer width={100} height={100}>
-            <PieChart>
-              <Pie data={datosGrafico} cx="50%" cy="50%"
-                innerRadius={35} outerRadius={46} paddingAngle={2}
-                dataKey="value" stroke="none">
-                {datosGrafico.map((entry, i) => (
-                  <Cell key={i} fill={entry.color} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-2xl font-light tracking-tighter text-zinc-900">
-              {metricas.llamadas.total_llamadas}
-            </span>
-          </div>
-        </div>
 
-        <div className="flex-1 space-y-3">
-          {datos.map((item, i) => (
-            <div key={i} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="text-[12px] font-medium text-zinc-500">{item.name}</span>
-              </div>
-              <span className="text-[13px] font-semibold text-zinc-900">{item.value}</span>
-            </div>
-          ))}
-          {metricas.llamadas.total_llamadas > 0 && (
-            <div className="mt-4 pt-4 border-t border-zinc-100/60">
-              <div className="flex justify-between items-end mb-1.5">
-                <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Tasa de contacto</p>
-                <p className="text-[11px] font-semibold text-zinc-900">{tasaContacto}%</p>
-              </div>
-              <div className="w-full bg-zinc-100 rounded-full h-1">
-                <div className="h-1 rounded-full transition-all duration-500"
-                  style={{ width: `${tasaContacto}%`, backgroundColor: '#27272a' }} />
-              </div>
-            </div>
-          )}
+      {/* Gauge semicírculo */}
+      <div className="relative" style={{ height: 104 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={gaugeData}
+              cx="50%" cy="90%"
+              startAngle={180} endAngle={0}
+              innerRadius={54} outerRadius={72}
+              dataKey="value" stroke="none"
+              paddingAngle={total_llamadas > 0 ? 2 : 0}
+            >
+              {gaugeData.map((entry, i) => (
+                <Cell key={i} fill={entry.fill} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center">
+          <span className="text-3xl font-bold text-zinc-900 leading-none">{tasaContacto}%</span>
+          <span className="text-[9px] text-zinc-500 uppercase tracking-widest mt-0.5">tasa de contacto</span>
         </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-2 mt-4">
+        {[
+          { label: "Total",          valor: total_llamadas,          color: "text-zinc-900" },
+          { label: "Contestadas",    valor: llamadas_contestadas,    color: "text-zinc-900" },
+          { label: "No contest.",    valor: llamadas_no_contestadas, color: "text-brand"    },
+        ].map((item, i) => (
+          <div key={i} className="text-center bg-zinc-50 rounded-xl py-2.5 px-1">
+            <p className={`text-xl font-bold leading-none ${item.color}`}>{item.valor}</p>
+            <p className="text-[9px] text-zinc-500 mt-1 leading-tight">{item.label}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

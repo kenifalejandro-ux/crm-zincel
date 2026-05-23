@@ -195,12 +195,12 @@ function ScoreGauge({ score, nivel, prob }: { score: number; nivel: NivelScore; 
       </svg>
       {/* Probabilidad debajo del gauge */}
       <div className="flex items-center justify-between w-full px-1 -mt-1">
-        <span className="text-[10px] text-zinc-400">0%</span>
+        <span className="text-[10px] text-zinc-600">0%</span>
         <div className="text-center">
-          <p className="text-[10px] text-zinc-400">Prob. de cierre</p>
+          <p className="text-[10px] text-zinc-600">Prob. de cierre</p>
           <p className="text-base font-black" style={{ color }}>{prob}%</p>
         </div>
-        <span className="text-[10px] text-zinc-400">100%</span>
+        <span className="text-[10px] text-zinc-600">100%</span>
       </div>
     </div>
   );
@@ -254,7 +254,7 @@ const SCORE_CONFIG = {
     urgencia: "Lead en progreso",                plazo: "Mantener ritmo de contacto" },
   tibio:    { label: "→ Tibio",    cls: "bg-yellow-100 text-yellow-700", border: "border-yellow-200",
     urgencia: "Requiere seguimiento antes de 72h", plazo: "Riesgo de enfriamiento si no se actúa" },
-  frio:     { label: "❄ Frío",     cls: "bg-gray-100 text-gray-500",     border: "border-gray-200",
+  frio:     { label: "❄ Frío",     cls: "bg-gray-100 text-gray-700",     border: "border-gray-200",
     urgencia: "Lead inactivo",                   plazo: "Evaluar si vale la pena reactivar" },
 };
 
@@ -339,21 +339,21 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
           </div>
 
           {/* Tabla de factores */}
-          <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide mb-2">Por qué tiene este score</p>
+          <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wide mb-2">Por qué tiene este score</p>
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-left pb-1.5 text-zinc-400 font-medium">Factor</th>
-                <th className="text-left pb-1.5 text-zinc-400 font-medium">Valor</th>
-                <th className="text-right pb-1.5 text-zinc-400 font-medium">Pts</th>
+                <th className="text-left pb-1.5 text-zinc-600 font-medium">Factor</th>
+                <th className="text-left pb-1.5 text-zinc-600 font-medium">Valor</th>
+                <th className="text-right pb-1.5 text-zinc-600 font-medium">Pts</th>
               </tr>
             </thead>
             <tbody>
               {breakdown.map(f => (
                 <tr key={f.factor} className="border-b border-gray-50">
                   <td className="py-1.5 text-zinc-600 pr-2">{f.factor}</td>
-                  <td className="py-1.5 text-zinc-500 pr-2 truncate max-w-[90px]">{f.valor}</td>
-                  <td className={`py-1.5 text-right font-semibold ${f.puntos > 0 ? "text-emerald-600" : f.puntos < 0 ? "text-red-500" : "text-zinc-400"}`}>
+                  <td className="py-1.5 text-zinc-700 pr-2 truncate max-w-[90px]">{f.valor}</td>
+                  <td className={`py-1.5 text-right font-semibold ${f.puntos > 0 ? "text-emerald-600" : f.puntos < 0 ? "text-red-500" : "text-zinc-600"}`}>
                     {f.puntos > 0 ? `+${f.puntos}` : f.puntos === 0 ? "—" : f.puntos}
                   </td>
                 </tr>
@@ -379,13 +379,13 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
           {/* Historial de score */}
           {historial.length > 0 && (
             <div className="mt-3">
-              <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide mb-2">Historial de score</p>
+              <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wide mb-2">Historial de score</p>
               <table className="w-full text-[11px] mb-2">
                 <thead>
                   <tr className="border-b border-gray-100">
-                    <th className="text-left pb-1 text-zinc-400 font-medium">Fecha</th>
-                    <th className="text-right pb-1 text-zinc-400 font-medium">Score</th>
-                    <th className="text-right pb-1 text-zinc-400 font-medium">Nivel</th>
+                    <th className="text-left pb-1 text-zinc-600 font-medium">Fecha</th>
+                    <th className="text-right pb-1 text-zinc-600 font-medium">Score</th>
+                    <th className="text-right pb-1 text-zinc-600 font-medium">Nivel</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -394,7 +394,7 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
                     const dif   = prev !== undefined ? h.score - prev : null;
                     return (
                       <tr key={h.registrado_en} className="border-b border-gray-50">
-                        <td className="py-1 text-zinc-500">
+                        <td className="py-1 text-zinc-700">
                           {new Date(h.registrado_en).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
                         </td>
                         <td className="py-1 text-right font-semibold text-zinc-700">
@@ -405,7 +405,7 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
                             </span>
                           )}
                         </td>
-                        <td className="py-1 text-right text-zinc-400">
+                        <td className="py-1 text-right text-zinc-600">
                           {h.nivel === "caliente" ? "🔥" : h.nivel === "activo" ? "⬆" : h.nivel === "tibio" ? "→" : "❄"}
                         </td>
                       </tr>
@@ -916,7 +916,7 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
         {tab === "propuestas" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-zinc-700">
                 {propuestas.length} propuesta{propuestas.length !== 1 ? "s" : ""} registrada{propuestas.length !== 1 ? "s" : ""}
               </p>
               <Button size="sm" onClick={() => { setFormPropuesta(FORM_PROPUESTA_VACIO); setModalNuevaPropuesta(true); }}>

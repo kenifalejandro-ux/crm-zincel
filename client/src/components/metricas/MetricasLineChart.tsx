@@ -1,10 +1,11 @@
 /** src/components/metricas/MetricasLineChart.tsx */
 
-import { COLORS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
+import { TrendingUp } from "lucide-react";
 import { Metrica } from "../../types/metricas.types";
 
 interface Props { metricas: Metrica[] }
@@ -12,7 +13,7 @@ interface Props { metricas: Metrica[] }
 const COLORES: Record<string, string> = {
   meta:   COLORS.dark,
   google: COLORS.primary,
-  tiktok: COLORS.muted,
+  tiktok: COLORS.mutedDark,
 };
 
 export const MetricasLineChart = ({ metricas }: Props) => {
@@ -33,14 +34,14 @@ export const MetricasLineChart = ({ metricas }: Props) => {
   const plataformas = [...new Set(metricas.map((m) => m.plataforma))];
 
   if (!data.length) return (
-    <div className="flex items-center justify-center h-40 text-xs text-zinc-400">
+    <div className="flex items-center justify-center h-40 text-xs text-zinc-600">
       Sin datos para graficar
     </div>
   );
 
   return (
-    <div className="bg-white/85 backdrop-blur-xl rounded-xl border border-zinc-200/50 shadow-[0_4px_24px_rgba(0,0,0,0.02)] p-6">
-      <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-6">Evolución de gasto por plataforma</h3>
+    <div className={CARD_CLASS}>
+      <h3 className={HEADER_CLASS}><TrendingUp size={14} className="mr-2.5 text-emerald-500" strokeWidth={2} />Evolución de gasto por plataforma</h3>
       <ResponsiveContainer width="100%" height={240}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} />
@@ -58,7 +59,7 @@ export const MetricasLineChart = ({ metricas }: Props) => {
               key={p}
               type="monotone"
               dataKey={p}
-              stroke={COLORES[p] ?? "#94a3b8"}
+              stroke={COLORES[p] ?? COLORS.mutedDark}
               strokeWidth={2}
               dot={{ r: 3 }}
               name={p === "meta" ? "Meta Ads" : p === "google" ? "Google Ads" : "TikTok Ads"}

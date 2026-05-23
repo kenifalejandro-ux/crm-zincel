@@ -129,9 +129,12 @@ export async function getAnalisisRegion() {
 }
 
 export interface ScoreLead {
-  id:    string;
-  score: number;
-  nivel: "caliente" | "activo" | "tibio" | "frio";
+  id:               string;
+  score:            number;
+  nivel:            "caliente" | "activo" | "tibio" | "frio";
+  empresa:          string;
+  etapa_pipeline:   string;
+  dias_en_pipeline: number;
 }
 
 export async function getScoresLeads() {

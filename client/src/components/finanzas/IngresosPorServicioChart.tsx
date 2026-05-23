@@ -3,7 +3,7 @@
 import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Cell,
+  Tooltip, ResponsiveContainer, Cell, LabelList,
 } from "recharts";
 import { DollarSign } from "lucide-react";
 import type { ResumenFinanciero, TipoServicio } from "../../types/finanzas.types";
@@ -30,7 +30,7 @@ const TooltipCustom = ({ active, payload, label }: any) => {
   );
 };
 
-const COLORES = [COLORS.primary, COLORS.dark, COLORS.muted, COLORS.mutedLight, COLORS.mutedDark, COLORS.primaryLight, "#52525b"];
+const COLORES = [COLORS.primary, COLORS.dark, COLORS.mutedDark, COLORS.primary, COLORS.dark, COLORS.mutedDark, COLORS.primary];
 
 interface Props {
   por_servicio: ResumenFinanciero["por_servicio"];
@@ -49,7 +49,7 @@ export function IngresosPorServicioChart({ por_servicio }: Props) {
   return (
     <div className={CARD_CLASS}>
       <h3 className={HEADER_CLASS}>
-        <DollarSign size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+        <DollarSign size={14} className="mr-2.5 text-emerald-500" strokeWidth={2} />
         Ingresos por tipo de servicio
       </h3>
       <ResponsiveContainer width="100%" height={220}>
@@ -61,6 +61,7 @@ export function IngresosPorServicioChart({ por_servicio }: Props) {
           <Tooltip content={<TooltipCustom />} />
           <Bar dataKey="total" name="Total" radius={[4, 4, 0, 0]}>
             {data.map((_, i) => <Cell key={i} fill={COLORES[i % COLORES.length]} />)}
+            <LabelList dataKey="total" position="top" style={{ fontSize: 9, fill: "#52525b", fontWeight: 600 }} formatter={(v: any) => `S/${(Number(v)/1000).toFixed(0)}k`} />
           </Bar>
         </BarChart>
       </ResponsiveContainer>

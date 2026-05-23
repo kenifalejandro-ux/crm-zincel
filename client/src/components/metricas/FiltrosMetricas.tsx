@@ -72,7 +72,7 @@ export const FiltrosMetricas = ({ filtros, empresas, onChange }: Props) => (
 
     {/* Desde */}
     <div className="flex items-center gap-1.5">
-      <span className="text-xs text-zinc-400">Desde</span>
+      <span className="text-xs text-zinc-600">Desde</span>
       <input
         type="date"
         value={filtros.desde ?? ""}
@@ -83,7 +83,7 @@ export const FiltrosMetricas = ({ filtros, empresas, onChange }: Props) => (
 
     {/* Hasta */}
     <div className="flex items-center gap-1.5">
-      <span className="text-xs text-zinc-400">Hasta</span>
+      <span className="text-xs text-zinc-600">Hasta</span>
       <input
         type="date"
         value={filtros.hasta ?? ""}
@@ -96,7 +96,7 @@ export const FiltrosMetricas = ({ filtros, empresas, onChange }: Props) => (
     {(filtros.desde || filtros.hasta) && (
       <button
         onClick={() => onChange({ ...filtros, desde: undefined, hasta: undefined })}
-        className="text-xs text-zinc-400 hover:text-zinc-600 underline"
+        className="text-xs text-zinc-600 hover:text-zinc-600 underline"
       >
         Limpiar fechas
       </button>

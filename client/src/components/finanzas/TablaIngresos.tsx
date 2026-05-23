@@ -43,29 +43,29 @@ export function TablaIngresos({
   seleccionados, todosSeleccionados, onToggleUno, onToggleTodos,
 }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-x-auto">
+    <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-x-auto">
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-gray-100 bg-gray-50">
             <th className="px-3 py-2 w-[40px]">
               <TableCheckbox checked={todosSeleccionados} onChange={onToggleTodos} />
             </th>
-            <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Empresa</th>
-            <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Servicio</th>
-            <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Descripción</th>
-            <th className="text-right px-4 py-3 font-medium text-zinc-500 uppercase">Total</th>
-            <th className="text-right px-4 py-3 font-medium text-zinc-500 uppercase">Cobrado</th>
-            <th className="text-right px-4 py-3 font-medium text-zinc-500 uppercase">Saldo</th>
-            <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Estado</th>
-            <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Fecha</th>
-            <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase">Vence</th>
+            <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Empresa</th>
+            <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Servicio</th>
+            <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Descripción</th>
+            <th className="text-right px-4 py-3 font-medium text-zinc-700 uppercase">Total</th>
+            <th className="text-right px-4 py-3 font-medium text-zinc-700 uppercase">Cobrado</th>
+            <th className="text-right px-4 py-3 font-medium text-zinc-700 uppercase">Saldo</th>
+            <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Estado</th>
+            <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Fecha</th>
+            <th className="text-left px-4 py-3 font-medium text-zinc-700 uppercase">Vence</th>
             <th className="px-4 py-3" />
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
           {ingresos.length === 0 ? (
             <tr>
-              <td colSpan={11} className="text-center py-12 text-xs text-zinc-400">
+              <td colSpan={11} className="text-center py-12 text-xs text-zinc-600">
                 Sin ingresos registrados
               </td>
             </tr>
@@ -88,7 +88,7 @@ export function TablaIngresos({
                     )}
                   </div>
                 </td>
-                <td className="px-4 py-3 text-zinc-500">{TIPO_LABEL[ing.tipo_servicio] ?? ing.tipo_servicio}</td>
+                <td className="px-4 py-3 text-zinc-700">{TIPO_LABEL[ing.tipo_servicio] ?? ing.tipo_servicio}</td>
                 <td className="px-4 py-3 text-zinc-600 max-w-[180px] truncate">{ing.descripcion}</td>
                 <td className="px-4 py-3 text-right font-medium text-zinc-800">
                   {fmt(ing.monto_total, ing.moneda)}
@@ -102,18 +102,18 @@ export function TablaIngresos({
                 <td className="px-4 py-3">
                   <BadgeEstadoIngreso estado={ing.estado} />
                 </td>
-                <td className="px-4 py-3 text-zinc-500">{fmtFecha(ing.fecha)}</td>
-                <td className="px-4 py-3 text-zinc-500">
+                <td className="px-4 py-3 text-zinc-700">{fmtFecha(ing.fecha)}</td>
+                <td className="px-4 py-3 text-zinc-700">
                   {ing.fecha_vencimiento ? fmtFecha(ing.fecha_vencimiento) : "—"}
                 </td>
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-2">
                     <button onClick={() => onEditar(ing)}
-                      className="text-zinc-400 hover:text-brand transition" title="Editar">
+                      className="text-zinc-600 hover:text-brand transition" title="Editar">
                       <Pencil size={14} />
                     </button>
                     <button onClick={() => onBorrar(ing.id)}
-                      className="text-zinc-400 hover:text-red-500 transition" title="Eliminar">
+                      className="text-zinc-600 hover:text-red-500 transition" title="Eliminar">
                       <Trash2 size={14} />
                     </button>
                   </div>

@@ -43,7 +43,7 @@ const SCORE_STYLE = {
   caliente: { dot: "bg-red-500",    text: "text-red-600",    label: "🔥" },
   activo:   { dot: "bg-amber-500", text: "text-amber-600", label: "⬆" },
   tibio:    { dot: "bg-yellow-400", text: "text-yellow-600", label: "→" },
-  frio:     { dot: "bg-gray-300",   text: "text-gray-400",   label: "❄" },
+  frio:     { dot: "bg-gray-300",   text: "text-gray-600",   label: "❄" },
 };
 
 // Solo estas 4 etapas tienen color + desglose
@@ -103,19 +103,19 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
             <div className={`w-2 h-2 rounded-full shrink-0 ${PRIORIDAD_DOT[p.prioridad]}`} />
             <p className="text-xs font-semibold text-zinc-800 truncate leading-tight">{p.empresa}</p>
           </div>
-          <GripVertical size={13} className="text-gray-300 group-hover:text-gray-400 shrink-0 mt-0.5 transition-colors" />
+          <GripVertical size={13} className="text-gray-300 group-hover:text-gray-600 shrink-0 mt-0.5 transition-colors" />
         </div>
 
         {p.nombre_contacto && (
           <div className="flex items-center gap-1.5 mb-1.5">
-            <User size={11} className="text-zinc-400 shrink-0" />
-            <p className="text-[11px] text-zinc-500 truncate">{p.nombre_contacto}</p>
+            <User size={11} className="text-zinc-600 shrink-0" />
+            <p className="text-[11px] text-zinc-700 truncate">{p.nombre_contacto}</p>
           </div>
         )}
         {p.telefono && (
           <div className="flex items-center gap-1.5 mb-2">
-            <Phone size={11} className="text-zinc-400 shrink-0" />
-            <p className="text-[11px] text-zinc-500">{p.telefono}</p>
+            <Phone size={11} className="text-zinc-600 shrink-0" />
+            <p className="text-[11px] text-zinc-700">{p.telefono}</p>
           </div>
         )}
 
@@ -130,7 +130,7 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
               return (
                 <div className="flex flex-col items-end">
                   <span className={`text-[10px] font-bold ${s.text}`}>{s.label} {score}</span>
-                  <span className="text-[9px] text-zinc-400">{prob}% cierre</span>
+                  <span className="text-[9px] text-zinc-600">{prob}% cierre</span>
                 </div>
               );
             })()}
@@ -168,10 +168,10 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
           {montoFmt && (
             <span className="text-[10px] font-semibold text-green-600">{montoFmt}</span>
           )}
-          <GripVertical size={12} className="text-gray-300 group-hover:text-gray-400 transition-colors cursor-grab active:cursor-grabbing" />
+          <GripVertical size={12} className="text-gray-300 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
           {expandido
-            ? <ChevronUp  size={12} className="text-gray-400" />
-            : <ChevronDown size={12} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
+            ? <ChevronUp  size={12} className="text-gray-600" />
+            : <ChevronDown size={12} className="text-gray-300 group-hover:text-gray-600 transition-colors" />
           }
         </div>
       </div>
@@ -189,14 +189,14 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
 
           {p.nombre_contacto && (
             <div className="flex items-center gap-1.5">
-              <User size={11} className="text-zinc-400 shrink-0" />
-              <p className="text-[11px] text-zinc-500 truncate">{p.nombre_contacto}</p>
+              <User size={11} className="text-zinc-600 shrink-0" />
+              <p className="text-[11px] text-zinc-700 truncate">{p.nombre_contacto}</p>
             </div>
           )}
           {p.telefono && (
             <div className="flex items-center gap-1.5">
-              <Phone size={11} className="text-zinc-400 shrink-0" />
-              <p className="text-[11px] text-zinc-500">{p.telefono}</p>
+              <Phone size={11} className="text-zinc-600 shrink-0" />
+              <p className="text-[11px] text-zinc-700">{p.telefono}</p>
             </div>
           )}
 
@@ -211,7 +211,7 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
                 return (
                   <div className="flex flex-col items-end">
                     <span className={`text-[10px] font-bold ${s.text}`}>{s.label} {score}</span>
-                    <span className="text-[9px] text-zinc-400">{prob}% cierre</span>
+                    <span className="text-[9px] text-zinc-600">{prob}% cierre</span>
                   </div>
                 );
               })()}

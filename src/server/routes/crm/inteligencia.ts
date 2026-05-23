@@ -17,6 +17,7 @@ import {
   tiempoPrimeraRespuestaService,
   forecastIngresosService,
   tasaConversionFunnelService,
+  canalEfectividadService,
 } from "../../services/inteligencia.service";
 
 export const inteligenciaRouter = Router();
@@ -167,6 +168,16 @@ inteligenciaRouter.get("/forecast-ingresos", async (_req, res) => {
 inteligenciaRouter.get("/conversion-funnel", async (_req, res) => {
   try {
     const data = await tasaConversionFunnelService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/canal-efectividad
+inteligenciaRouter.get("/canal-efectividad", async (_req, res) => {
+  try {
+    const data = await canalEfectividadService();
     res.json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

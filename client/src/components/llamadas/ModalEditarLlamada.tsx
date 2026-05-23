@@ -79,7 +79,7 @@ export function ModalEditarLlamada({ llamada, guardando, error, onGuardar, onCer
       <div className="space-y-3">
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Canal</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Canal</label>
           <select value={form.canal} onChange={(e) => set({ canal: e.target.value })} className={cls}>
             {CANALES.map((c) => <option key={c} value={c} className="capitalize">{c}</option>)}
           </select>
@@ -87,13 +87,13 @@ export function ModalEditarLlamada({ llamada, guardando, error, onGuardar, onCer
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Hora inicio</label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Hora inicio</label>
             <input type="time" value={form.hora_inicio}
               onChange={(e) => set({ hora_inicio: e.target.value })}
               className={cls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Hora fin <span className="text-gray-400">(opc.)</span></label>
+            <label className="text-xs font-medium text-gray-700 mb-1 block">Hora fin <span className="text-gray-600">(opc.)</span></label>
             <input type="time" value={form.hora_fin}
               onChange={(e) => set({ hora_fin: e.target.value })}
               className={cls} />
@@ -101,7 +101,7 @@ export function ModalEditarLlamada({ llamada, guardando, error, onGuardar, onCer
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Resultado</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Resultado</label>
           <select value={form.resultado} onChange={(e) => set({ resultado: e.target.value, motivo_no_interes: "" })} className={cls}>
             <option value="">Sin resultado</option>
             {RESULTADOS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -126,7 +126,7 @@ export function ModalEditarLlamada({ llamada, guardando, error, onGuardar, onCer
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">Notas</label>
+          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
           <textarea value={form.notas} onChange={(e) => set({ notas: e.target.value })} rows={3}
             className={`${cls} resize-none`} placeholder="Observaciones de la llamada..." />
         </div>

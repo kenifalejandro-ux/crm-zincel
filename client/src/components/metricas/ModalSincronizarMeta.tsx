@@ -73,7 +73,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
             </div>
             <h2 className="text-sm font-semibold text-zinc-800">Sincronizar Meta Ads</h2>
           </div>
-          <button onClick={onCerrar} className="text-zinc-400 hover:text-zinc-600 transition">
+          <button onClick={onCerrar} className="text-zinc-600 hover:text-zinc-600 transition">
             <X size={18} />
           </button>
         </div>
@@ -83,7 +83,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
           {/* PASO: formulario */}
           {paso === "form" && (
             <>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-zinc-700">
                 Importa las métricas de tus campañas directamente desde tu cuenta de Meta Ads.
               </p>
 
@@ -154,7 +154,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
                 {preview.campanas.map((c: any, i: number) => (
                   <div key={i} className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg text-xs">
                     <span className="text-zinc-700 font-medium truncate flex-1">{c.campaign_name}</span>
-                    <span className="text-zinc-400 shrink-0 ml-3">
+                    <span className="text-zinc-600 shrink-0 ml-3">
                       S/ {parseFloat(c.spend || "0").toLocaleString("es-PE", { minimumFractionDigits: 2 })}
                     </span>
                   </div>
@@ -191,7 +191,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
               <div className="text-center py-4">
                 <CheckCircle size={40} className="text-green-500 mx-auto mb-3" />
                 <p className="text-sm font-semibold text-zinc-800 mb-1">¡Sincronización completada!</p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-zinc-700">
                   {resultado.insertados} campaña{resultado.insertados !== 1 ? "s" : ""} importada{resultado.insertados !== 1 ? "s" : ""}
                   {resultado.duplicados > 0 ? ` · ${resultado.duplicados} duplicada${resultado.duplicados !== 1 ? "s" : ""} omitida${resultado.duplicados !== 1 ? "s" : ""}` : ""}
                 </p>

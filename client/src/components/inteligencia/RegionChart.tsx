@@ -1,5 +1,7 @@
 /** client/src/components/inteligencia/RegionChart.tsx */
 
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { MapPin } from "lucide-react";
 import type { RegionEtapa } from "../../services/prospectos.api";
 
 interface Props {
@@ -23,7 +25,7 @@ function fmt(n: number) {
 
 export function RegionChart({ data }: Props) {
   if (!data.length) return (
-    <div className="flex items-center justify-center h-32 text-xs text-zinc-400">
+    <div className="flex items-center justify-center h-32 text-xs text-zinc-600">
       Sin datos de región — completa los campos "región" o "ciudad" en los prospectos
     </div>
   );
@@ -36,23 +38,23 @@ export function RegionChart({ data }: Props) {
   );
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-4">
+    <div className={`${CARD_CLASS} space-y-4`}>
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h3 className="text-sm font-semibold text-zinc-800">Análisis por región</h3>
-          <p className="text-xs text-zinc-400 mt-0.5">Distribución geográfica de prospectos</p>
+          <h3 className={HEADER_CLASS}><MapPin size={14} className="mr-2.5 text-rose-500" strokeWidth={2} />Análisis por región</h3>
+          <p className="text-xs text-zinc-600 mt-0.5">Distribución geográfica de prospectos</p>
         </div>
         <div className="flex gap-4">
           <div className="text-right">
-            <p className="text-[10px] text-zinc-400">Mayor volumen</p>
+            <p className="text-[10px] text-zinc-600">Mayor volumen</p>
             <p className="text-sm font-bold text-zinc-800">{topRegion.zona}</p>
-            <p className="text-[10px] text-zinc-500">{topRegion.total} prospectos</p>
+            <p className="text-[10px] text-zinc-700">{topRegion.total} prospectos</p>
           </div>
           {mejorConversion.cerrados > 0 && (
             <div className="text-right">
-              <p className="text-[10px] text-zinc-400">Mejor conversión</p>
+              <p className="text-[10px] text-zinc-600">Mejor conversión</p>
               <p className="text-sm font-bold text-emerald-600">{mejorConversion.zona}</p>
-              <p className="text-[10px] text-zinc-500">{tasaCierre(mejorConversion)}% cierre</p>
+              <p className="text-[10px] text-zinc-700">{tasaCierre(mejorConversion)}% cierre</p>
             </div>
           )}
         </div>
@@ -74,10 +76,10 @@ export function RegionChart({ data }: Props) {
                   )}
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-[10px] text-zinc-400">{fmt(d.valor)}</span>
+                  <span className="text-[10px] text-zinc-600">{fmt(d.valor)}</span>
                   <div className="text-right">
                     <span className="text-xs font-semibold text-zinc-700">{d.total}</span>
-                    <span className="text-[10px] text-zinc-400 ml-1">total</span>
+                    <span className="text-[10px] text-zinc-600 ml-1">total</span>
                   </div>
                 </div>
               </div>
@@ -88,7 +90,7 @@ export function RegionChart({ data }: Props) {
                 />
               </div>
               <div className="flex gap-3 mt-0.5">
-                <span className="text-[9px] text-zinc-400">{d.activos} activos</span>
+                <span className="text-[9px] text-zinc-600">{d.activos} activos</span>
                 <span className="text-[9px] text-emerald-600">{d.cerrados} cerrados</span>
               </div>
             </div>
@@ -104,7 +106,7 @@ export function RegionChart({ data }: Props) {
           { color: "bg-amber-400",   label: "2–5%" },
           { color: "bg-slate-300",   label: "<2%" },
         ].map(({ color, label }) => (
-          <span key={label} className="flex items-center gap-1 text-[10px] text-zinc-500">
+          <span key={label} className="flex items-center gap-1 text-[10px] text-zinc-700">
             <span className={`w-2.5 h-2.5 rounded-sm ${color} inline-block`} />
             {label}
           </span>

@@ -62,7 +62,7 @@ const RECOMENDACIONES: Record<string, Record<string, string>> = {
 export const AnalisisDetalle = ({ metrica: m, calculado: c }: Props) => (
   <div className="space-y-4">
 
-    <p className="text-xs text-zinc-400">
+    <p className="text-xs text-zinc-600">
       Análisis detallado de cada métrica con lectura en lenguaje simple y recomendaciones accionables.
     </p>
 
@@ -93,7 +93,7 @@ export const AnalisisDetalle = ({ metrica: m, calculado: c }: Props) => (
 
         {/* Separador */}
         <div className="border-t border-zinc-200 pt-2">
-          <p className="text-[10px] font-semibold text-zinc-500 uppercase mb-1">
+          <p className="text-[10px] font-semibold text-zinc-700 uppercase mb-1">
             💡 Recomendación
           </p>
           <p className="text-xs text-zinc-600 leading-relaxed">
@@ -143,7 +143,7 @@ export const AnalisisDetalle = ({ metrica: m, calculado: c }: Props) => (
     {/* Aviso si faltan ingresos */}
     {m.ingresos === 0 && (
       <div className="border border-zinc-200 bg-zinc-50 rounded-xl p-4 text-center">
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-zinc-600">
           💡 Agrega los ingresos generados por esta campaña para calcular ROAS, ROI y margen neto.
         </p>
       </div>

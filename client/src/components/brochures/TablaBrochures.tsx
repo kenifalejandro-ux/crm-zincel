@@ -17,25 +17,25 @@ export function TablaBrochures({
   brochures, seleccionados, todosSeleccionados, onToggleUno, onToggleTodos, onEditar,
 }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-x-auto max-h-[700px] overflow-y-auto scrollbar-thin">
+    <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-x-auto max-h-[700px] overflow-y-auto scrollbar-thin">
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-gray-100 bg-gray-50">
             <th className="px-3 py-2 w-[40px]">
               <TableCheckbox checked={todosSeleccionados} onChange={onToggleTodos} />
             </th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase">Empresa</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase">Contacto</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase">Canal</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase">Fecha</th>
-            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-500 uppercase">Notas</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase">Empresa</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase">Contacto</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase">Canal</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase">Fecha</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase">Notas</th>
             <th className="px-3 py-3 w-[50px]" />
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
           {brochures.length === 0 ? (
             <tr>
-              <td colSpan={7} className="text-center py-10 text-xs text-zinc-400">
+              <td colSpan={7} className="text-center py-10 text-xs text-zinc-600">
                 Sin envíos registrados
               </td>
             </tr>
@@ -45,20 +45,20 @@ export function TablaBrochures({
                 <TableCheckbox checked={seleccionados.includes(b.id)} onChange={() => onToggleUno(b.id)} />
               </td>
               <td className="px-5 py-3.5 font-medium text-zinc-800">{b.empresa || "-"}</td>
-              <td className="px-5 py-3.5 text-gray-500">{b.nombre_contacto || "-"}</td>
+              <td className="px-5 py-3.5 text-gray-700">{b.nombre_contacto || "-"}</td>
               <td className="px-5 py-3.5">
                 <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${COLOR_CANAL[b.canal]}`}>
                   {b.canal}
                 </span>
               </td>
-              <td className="px-5 py-3.5 text-zinc-500">
+              <td className="px-5 py-3.5 text-zinc-700">
                 {new Date(b.fecha_envio).toLocaleDateString("es-PE")}
               </td>
-              <td className="px-5 py-3.5 text-zinc-500">{b.notas || "-"}</td>
+              <td className="px-5 py-3.5 text-zinc-700">{b.notas || "-"}</td>
               <td className="px-3 py-3.5" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => onEditar(b)}
-                  className="p-1.5 rounded-md text-zinc-400 hover:text-brand hover:bg-brand/5 transition"
+                  className="p-1.5 rounded-md text-zinc-600 hover:text-brand hover:bg-brand/5 transition"
                 >
                   <Pencil size={13} />
                 </button>

@@ -75,7 +75,7 @@ export function FiltrosFinanzas({
       {filtroCategoria && (
         <button
           onClick={() => onCategoriaChange("")}
-          className="text-xs text-zinc-400 hover:text-zinc-600 underline transition"
+          className="text-xs text-zinc-600 hover:text-zinc-600 underline transition"
         >
           Limpiar
         </button>

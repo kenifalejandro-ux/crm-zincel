@@ -1,72 +1,91 @@
 /** client/src/components/dashboard/ReunionesChart.tsx */
 import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import {
+  RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer, Tooltip,
+} from "recharts";
 import { Video } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
 
-
 const REUNIONES_ITEMS = [
-  { label: "Programadas",   key: "reuniones_programadas",   color: COLORS.primary },
-  { label: "Realizadas",    key: "reuniones_realizadas",    color: COLORS.dark },
-  { label: "Canceladas",    key: "reuniones_canceladas",    color: "#e4e4e7" },
-  { label: "Reprogramadas", key: "reuniones_reprogramadas", color: COLORS.muted },
+  { label: "Reprogramadas", key: "reuniones_reprogramadas", fill: COLORS.mutedDark },
+  { label: "Canceladas",    key: "reuniones_canceladas",    fill: COLORS.danger    },
+  { label: "Realizadas",    key: "reuniones_realizadas",    fill: COLORS.dark      },
+  { label: "Programadas",   key: "reuniones_programadas",   fill: COLORS.primary   },
 ];
+
+const TooltipReuniones = ({ active, payload }: any) => {
+  if (!active || !payload?.length) return null;
+  const d = payload[0].payload;
+  return (
+    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-1.5 text-xs">
+      <p className="font-semibold text-zinc-800">{d.name}</p>
+      <p className="text-zinc-600">{d.value} reunión{d.value !== 1 ? "es" : ""}</p>
+    </div>
+  );
+};
 
 interface Props {
   metricas: Metricas;
 }
 
 export function ReunionesChart({ metricas }: Props) {
-  const datos = REUNIONES_ITEMS
-    .map(item => ({
-      name:  item.label,
-      value: (metricas.reuniones as any)[item.key],
-      color: item.color,
-    }))
-    .filter(d => d.value > 0);
+  const total = metricas.reuniones.total_reuniones;
 
-  const datosGrafico = datos.length > 0
-    ? datos
-    : [{ name: "Sin datos", value: 1, color: COLORS.surface }];
+  const data = REUNIONES_ITEMS.map(item => ({
+    name:  item.label,
+    value: (metricas.reuniones as any)[item.key] as number,
+    fill:  item.fill,
+  }));
+
+  const maxVal = Math.max(...data.map(d => d.value), 1);
 
   return (
     <div className={CARD_CLASS}>
       <h2 className={HEADER_CLASS}>
-        <Video size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />
+        <Video size={14} className="mr-2.5 text-purple-500" strokeWidth={2} />
         Reuniones
       </h2>
-      <div className="flex items-center gap-6">
-        <div className="relative flex-shrink-0">
-          <ResponsiveContainer width={100} height={100}>
-            <PieChart>
-              <Pie data={datosGrafico} cx="50%" cy="50%"
-                innerRadius={35} outerRadius={46} paddingAngle={2}
-                dataKey="value" stroke="none">
-                {datosGrafico.map((entry, i) => (
-                  <Cell key={i} fill={entry.color} />
-                ))}
-              </Pie>
-            </PieChart>
+
+      <div className="flex items-center gap-4">
+        {/* RadialBarChart — 4 anillos concéntricos */}
+        <div className="shrink-0" style={{ width: 130, height: 130 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <RadialBarChart
+              innerRadius={18}
+              outerRadius={62}
+              data={data}
+              startAngle={90}
+              endAngle={-270}
+            >
+              <PolarAngleAxis type="number" domain={[0, maxVal]} angleAxisId={0} tick={false} />
+              <RadialBar
+                background={{ fill: "#f4f4f5" }}
+                dataKey="value"
+                cornerRadius={4}
+              />
+              <Tooltip content={<TooltipReuniones />} />
+            </RadialBarChart>
           </ResponsiveContainer>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-2xl font-light tracking-tighter text-zinc-900">
-              {metricas.reuniones.total_reuniones}
-            </span>
-          </div>
         </div>
 
+        {/* Leyenda + conteos */}
         <div className="flex-1 space-y-3">
-          {REUNIONES_ITEMS.map((item, i) => (
-            <div key={i} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="text-[12px] font-medium text-zinc-500">{item.label}</span>
+          <div className="text-center mb-2">
+            <p className="text-2xl font-bold text-zinc-900 leading-none">{total}</p>
+            <p className="text-[9px] text-zinc-400 uppercase tracking-widest mt-0.5">total</p>
+          </div>
+          {[...REUNIONES_ITEMS].reverse().map((item, i) => {
+            const valor = (metricas.reuniones as any)[item.key] as number;
+            return (
+              <div key={i} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.fill }} />
+                  <span className="text-[12px] font-medium text-zinc-700">{item.label}</span>
+                </div>
+                <span className="text-[13px] font-semibold text-zinc-900">{valor}</span>
               </div>
-              <span className="text-[13px] font-semibold text-zinc-900">
-                {(metricas.reuniones as any)[item.key]}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

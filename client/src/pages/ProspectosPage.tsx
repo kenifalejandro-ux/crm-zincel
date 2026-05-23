@@ -212,8 +212,8 @@ const eliminarSeleccionados = async () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-zinc-800">Prospectos</h1>
-          <p className="text-xs text-zinc-400 mt-0.5">{total} registros en total</p>
+          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Prospectos</h1>
+          <p className="text-xs text-zinc-600 mt-0.5">{total} registros en total</p>
         </div>
         <div className="flex gap-2">
 
@@ -223,16 +223,22 @@ const eliminarSeleccionados = async () => {
             onDelete={eliminarSeleccionados}
           />
 
-          <label className="flex items-center gap-1.5 px-3 py-2 text-xs border border-gray-200 rounded-lg bg-zinc-800 hover:bg-zinc-900 text-white transition cursor-pointer">
-            <Upload size={15} /> Importar Excel
+          <label className="relative group p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white transition cursor-pointer">
+            <Upload size={17} />
             <input type="file" accept=".xlsx,.xls" onChange={handleFile} className="hidden" />
+            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+              Importar Excel
+            </span>
           </label>
           {prospectos.length > 0 && (
             <button
               onClick={exportarExcel}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition"
+              className="relative group p-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white transition"
             >
-              <FileDown size={15} /> Exportar Excel
+              <FileDown size={17} />
+              <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+                Exportar Excel
+              </span>
             </button>
           )}
           <button

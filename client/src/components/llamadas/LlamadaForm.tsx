@@ -93,11 +93,11 @@ export function LlamadaForm({ abierto, onCerrar, prospectoId, onGuardado }: Llam
         {/* Fecha + Canal */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-500">Fecha</label>
+            <label className="text-xs font-medium text-gray-700">Fecha</label>
             <input type="date" value={form.fecha} onChange={e => set("fecha", e.target.value)} className={cls} />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-500">Canal</label>
+            <label className="text-xs font-medium text-gray-700">Canal</label>
             <select value={form.canal} onChange={e => set("canal", e.target.value)} className={cls}>
               {CANALES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -107,18 +107,18 @@ export function LlamadaForm({ abierto, onCerrar, prospectoId, onGuardado }: Llam
         {/* Hora inicio + Hora fin */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-500">Hora inicio</label>
+            <label className="text-xs font-medium text-gray-700">Hora inicio</label>
             <input type="time" value={form.hora_inicio} onChange={e => set("hora_inicio", e.target.value)} className={cls} />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-500">Hora fin <span className="text-gray-400">(opcional)</span></label>
+            <label className="text-xs font-medium text-gray-700">Hora fin <span className="text-gray-600">(opcional)</span></label>
             <input type="time" value={form.hora_fin} onChange={e => set("hora_fin", e.target.value)} className={cls} />
           </div>
         </div>
 
         {/* Resultado */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-500">Resultado</label>
+          <label className="text-xs font-medium text-gray-700">Resultado</label>
           <select value={form.resultado} onChange={e => { set("resultado", e.target.value); set("motivo_no_interes", ""); }} className={cls}>
             <option value="">Sin resultado</option>
             {RESULTADOS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -146,7 +146,7 @@ export function LlamadaForm({ abierto, onCerrar, prospectoId, onGuardado }: Llam
 
         {/* Notas */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-500">Notas</label>
+          <label className="text-xs font-medium text-gray-700">Notas</label>
           <textarea value={form.notas} onChange={e => set("notas", e.target.value)} rows={3}
             placeholder="Observaciones de la llamada..."
             className={`${cls} resize-none`} />

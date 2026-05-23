@@ -24,7 +24,7 @@ export const TabsDetalle = ({ activa, onChange }: Props) => (
           className={`shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition ${
             activa === tab.value
               ? "bg-white shadow-sm text-zinc-800"
-              : "text-zinc-400 hover:text-zinc-600"
+              : "text-zinc-600 hover:text-zinc-600"
           }`}
         >
           <span>{tab.emoji}</span>
