@@ -1,7 +1,7 @@
 /**client/src/types/reunion.types.ts*/
 
 export type EstadoReunion = "programada" | "realizada" | "cancelada" | "reprogramada" | "en_proceso";
-export type ModalidadReunion = "zoom" | "google_meet" | "presencial" | "teams" | "whatsapp_video";
+export type ModalidadReunion = "zoom" | "google_meet" | "presencial" | "teams" | "whatsapp_video" | "llamada";
 
 export interface Reunion {
   id:            string;

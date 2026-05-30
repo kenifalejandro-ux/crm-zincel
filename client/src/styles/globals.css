@@ -11,6 +11,27 @@ body {
   overflow-x: clip;
 }
 
+/* ── Fondo animado estilo Gemini ─────────────────────────────── */
+@keyframes crm-gradient {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.crm-bg-animated {
+  background: linear-gradient(
+    -45deg,
+    #fff8dc,
+    #dceeff,
+    #fde8d8,
+    #d8f5e8,
+    #eedcff,
+    #fff0d8
+  );
+  background-size: 400% 400%;
+  animation: crm-gradient 10s ease infinite;
+}
+
 /*animación scroll indicator*/
 @keyframes scrollWheel {
   0% {

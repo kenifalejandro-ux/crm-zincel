@@ -254,11 +254,11 @@ export const mapearExcelACRM = (rows: any[]) => {
 
     const fila: any = {
       empresa,
-      rubro:             String(row["RUBRO"] || row["Rubro"] || "").trim().slice(0, 100),
+      rubro:             String(row["RUBRO"] || row["Rubro"] || "").trim().slice(0, 300),
       web_activa:        webActiva,
       pagina_web:        paginaWeb || undefined,
-      proveedor_web:     String(row["Proveedor"] || row["Proveedor web"] || "").trim().slice(0, 150),
-      region:            String(row["Region"] || row["Región"] || "").trim().slice(0, 100),
+      proveedor_web:     String(row["Proveedor"] || row["Proveedor web"] || "").trim().slice(0, 200),
+      region:            String(row["Region"] || row["Región"] || "").trim().slice(0, 200),
       pais,
       nombre_contacto:   nombreContacto,
       llamada_realizada: String(row["Llamada realizada"] || row["llamada realizada?"] || row["Llamada"] || "").trim(),
@@ -354,18 +354,20 @@ export const mapearExcelACRM = (rows: any[]) => {
 // ── CONSTANTES ─────────────────────────────────────────────────────────────
 
 export const ESTADOS_LEAD = [
-  { value: "",                   label: "Todos los estados" },
-  { value: "nuevo",              label: "Nuevo (última carga)" },
-  { value: "por_gestionar",      label: "Por gestionar" },
-  { value: "contestada",         label: "Contestadas" },
-  { value: "interesado",         label: "Interesado" },
-  { value: "no_interesado",      label: "No interesado" },
-  { value: "no_contesta",        label: "No contesta" },
-  { value: "volver_a_llamar",    label: "Volver a llamar" },
-  { value: "buzon_de_voz",       label: "Buzón de voz" },
-  { value: "fuera_de_servicio",  label: "Fuera de servicio" },
-  { value: "numero_equivocado",  label: "Número equivocado" },
-  { value: "ya_tiene_proveedor", label: "Ya tiene proveedor" },
+  { value: "",                    label: "Todos los estados" },
+  { value: "nuevo",               label: "Nuevo (última carga)" },
+  { value: "por_gestionar",       label: "Por gestionar" },
+  { value: "interesado",          label: "Interesado" },
+  { value: "solicita_informacion", label: "Solicita información" },
+  { value: "no_interesado",       label: "No interesado" },
+  { value: "no_contesta",         label: "No contesta" },
+  { value: "volver_a_llamar",     label: "Volver a llamar" },
+  { value: "buzon_de_voz",        label: "Buzón de voz" },
+  { value: "fuera_de_servicio",   label: "Fuera de servicio" },
+  { value: "numero_equivocado",   label: "Número equivocado" },
+  { value: "ya_tiene_proveedor",  label: "Empresa con página web" },
+  { value: "baja_de_oficio",      label: "Baja de oficio" },
+  { value: "suspension_temporal", label: "Suspensión temporal" },
 ];
 
 export const COLOR_ESTADO: Record<string, string> = {
@@ -378,7 +380,10 @@ export const COLOR_ESTADO: Record<string, string> = {
   buzon_de_voz:       "bg-orange-100 text-orange-700",
   fuera_de_servicio:  "bg-red-100 text-red-600",
   numero_equivocado:  "bg-pink-100 text-pink-700",
-  ya_tiene_proveedor: "bg-purple-100 text-purple-700",
+  ya_tiene_proveedor:  "bg-purple-100 text-purple-700",
+  baja_de_oficio:      "bg-slate-100 text-slate-600",
+  solicita_informacion:"bg-sky-100 text-sky-700",
+  suspension_temporal: "bg-amber-100 text-amber-700",
 };
 
 export const COLOR_PRIORIDAD: Record<string, string> = {

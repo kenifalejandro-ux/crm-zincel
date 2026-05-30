@@ -13,6 +13,7 @@ import { createPublicRouter } from "./routes/public";
 import { createSystemRouter } from "./routes/system";
 import { createApiRouter } from "./routes";
 import { getRequestId } from "./shared/utils/request";
+import { initScoreListener } from "./shared/listeners/scoreListener";
 
 
 const requestLogger = pinoHttp({
@@ -105,6 +106,9 @@ export function createApp() {
 
 // Rutas del CRM (con prefijo /api)
 app.use("/api", createApiRouter());
+
+// Listeners de eventos — score en tiempo real
+initScoreListener();
 
   // Manejo de rutas no encontradas
   app.use("/api", notFoundApiHandler);

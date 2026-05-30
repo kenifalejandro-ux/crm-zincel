@@ -7,7 +7,7 @@ import {
 import { MessageSquare } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
 
-const MATTE_COLORS = [COLORS.dark, COLORS.primary, COLORS.mutedDark, COLORS.dark, COLORS.primary];
+const MATTE_COLORS = [COLORS.primary, COLORS.primary, COLORS.mutedDark, COLORS.dark, COLORS.dark];
 
 const TooltipCanal = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;

@@ -1,12 +1,13 @@
 /** client/src/pages/ConfiguracionPage.tsx */
 
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Eye, EyeOff, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, CheckCircle, XCircle, AlertTriangle, RefreshCw, ExternalLink } from "lucide-react";
 import { PlataformaCuenta, PlataformaCuentaForm, PlataformaAPI } from "../types/plataformaCuentas.types";
 import {
   getPlataformaCuentas, createPlataformaCuenta,
   updatePlataformaCuenta, deletePlataformaCuenta,
 } from "../services/plataformaCuentas.api";
+import api from "../services/api";
 
 // ── Semáforo de token ─────────────────────────────────────────────────────────
 function diasParaVencer(fecha?: string | null): number | null {
@@ -83,6 +84,10 @@ export default function ConfiguracionPage() {
   const [error,     setError]     = useState<string | null>(null);
   const [verToken,  setVerToken]  = useState(false);
   const [tabPlat,   setTabPlat]   = useState<PlataformaAPI | "todas">("todas");
+  const [modalRenovar, setModalRenovar] = useState<PlataformaCuenta | null>(null);
+  const [urlRedireccion, setUrlRedireccion] = useState("");
+  const [renovando, setRenovando] = useState(false);
+  const [authUrl, setAuthUrl] = useState("");
 
   const cargar = async () => {
     try { setCuentas(await getPlataformaCuentas()); } catch {}
@@ -129,6 +134,29 @@ export default function ConfiguracionPage() {
     } catch (err: any) {
       setError(err.response?.data?.message || "Error al guardar");
     } finally { setGuardando(false); }
+  };
+
+  const abrirRenovar = async (c: PlataformaCuenta) => {
+    setUrlRedireccion("");
+    setModalRenovar(c);
+    try {
+      const { data } = await api.get("/tiktok-ads/auth-url");
+      setAuthUrl(data.url);
+    } catch { setAuthUrl(""); }
+  };
+
+  const handleRenovar = async () => {
+    if (!modalRenovar || !urlRedireccion) return;
+    const match = urlRedireccion.match(/auth_code=([^&]+)/);
+    if (!match) { alert("No se encontró auth_code en la URL. Asegúrate de pegar la URL completa después de autorizar."); return; }
+    setRenovando(true);
+    try {
+      await api.post("/tiktok-ads/renew", { empresa: modalRenovar.empresa, auth_code: match[1] });
+      setModalRenovar(null);
+      cargar();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Error al renovar token");
+    } finally { setRenovando(false); }
   };
 
   const handleEliminar = async (c: PlataformaCuenta) => {
@@ -259,6 +287,13 @@ export default function ConfiguracionPage() {
                     }`}>
                       {c.activo ? "Activo" : "Inactivo"}
                     </span>
+                    {c.plataforma === "tiktok" && (
+                      <button onClick={() => abrirRenovar(c)}
+                        title="Renovar token TikTok"
+                        className="p-1.5 text-pink-600 hover:bg-pink-50 rounded-lg transition">
+                        <RefreshCw size={13} />
+                      </button>
+                    )}
                     <button onClick={() => abrirEditar(c)}
                       className="p-1.5 text-zinc-600 hover:text-brand hover:bg-brand/5 rounded-lg transition">
                       <Pencil size={13} />
@@ -396,6 +431,72 @@ export default function ConfiguracionPage() {
               <button onClick={handleGuardar} disabled={guardando}
                 className={`flex-1 py-2 text-xs text-white font-semibold rounded-lg transition disabled:opacity-50 ${cfg.bg} hover:opacity-90`}>
                 {guardando ? "Guardando..." : editando ? "Guardar cambios" : "Agregar cuenta"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal renovar token TikTok */}
+      {modalRenovar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-pink-500 flex items-center justify-center">
+                  <RefreshCw size={13} className="text-white" />
+                </div>
+                <h2 className="text-sm font-semibold text-zinc-800">Renovar Token · TikTok Ads</h2>
+              </div>
+              <button onClick={() => setModalRenovar(null)} className="text-zinc-600 hover:text-zinc-600 text-lg leading-none">✕</button>
+            </div>
+
+            <div className="px-6 py-5 space-y-4">
+              <div className="bg-pink-50 border border-pink-100 rounded-xl px-4 py-3 text-xs text-pink-800 space-y-1">
+                <p className="font-semibold">Cuenta: {modalRenovar.empresa}</p>
+                <p>El token de TikTok vence cada 24 horas. Sigue estos pasos para renovarlo:</p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                  <div>
+                    <p className="text-xs text-zinc-700 font-medium">Autoriza la app en TikTok</p>
+                    <p className="text-[11px] text-zinc-600 mt-0.5">Abre el enlace y acepta los permisos con tu cuenta.</p>
+                    {authUrl && (
+                      <a href={authUrl} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 mt-1.5 text-xs font-semibold text-pink-600 hover:text-pink-700">
+                        <ExternalLink size={11} /> Abrir TikTok Authorization
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                  <div className="flex-1">
+                    <p className="text-xs text-zinc-700 font-medium">Pega la URL de redirección</p>
+                    <p className="text-[11px] text-zinc-600 mt-0.5">Después de autorizar, copia la URL completa del navegador y pégala aquí.</p>
+                    <textarea
+                      value={urlRedireccion}
+                      onChange={e => setUrlRedireccion(e.target.value)}
+                      placeholder="https://www.zincelideas.com/?auth_code=..."
+                      rows={2}
+                      className="w-full mt-2 border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 px-6 py-4 border-t border-zinc-100">
+              <button onClick={() => setModalRenovar(null)}
+                className="flex-1 py-2 text-xs text-zinc-600 border border-zinc-200 rounded-lg hover:bg-zinc-50 transition">
+                Cancelar
+              </button>
+              <button onClick={handleRenovar} disabled={renovando || !urlRedireccion}
+                className="flex-1 py-2 text-xs text-white font-semibold rounded-lg transition disabled:opacity-50 bg-pink-500 hover:bg-pink-600">
+                {renovando ? "Renovando..." : "Renovar Token"}
               </button>
             </div>
           </div>

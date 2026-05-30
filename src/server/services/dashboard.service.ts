@@ -115,7 +115,7 @@ export async function metricasDashboardService(
 
       pool.query(`
         SELECT
-          COUNT(*)::int                                                                 AS total_prospectos,
+          (SELECT COUNT(*)::int FROM prospectos)                                        AS total_prospectos,
           COUNT(*) FILTER (WHERE estado_lead = 'interesado')::int                      AS prospectos_interesados,
           COUNT(*) FILTER (WHERE estado_lead = 'no_interesado')::int                   AS prospectos_no_interesados,
           COUNT(*) FILTER (WHERE estado_lead = 'no_contesta')::int                     AS prospectos_no_contesta,
@@ -124,14 +124,19 @@ export async function metricasDashboardService(
           COUNT(*) FILTER (WHERE estado_lead = 'ya_tiene_proveedor')::int              AS prospectos_tiene_proveedor,
           COUNT(*) FILTER (WHERE web_activa = true)::int                               AS prospectos_con_web,
           COUNT(*) FILTER (WHERE web_activa = false)::int                              AS prospectos_sin_web,
+          COUNT(*) FILTER (WHERE web_activa = true AND estado_web = 'actualizada')::int                  AS web_actualizada,
+          COUNT(*) FILTER (WHERE web_activa = true AND estado_web = 'por_actualizar')::int               AS web_por_actualizar,
+          COUNT(*) FILTER (WHERE web_activa = true AND estado_web = 'vencida')::int                      AS web_vencida,
+          COUNT(*) FILTER (WHERE web_activa = true AND estado_web = 'en_mantenimiento')::int             AS web_en_mantenimiento,
+          COUNT(*) FILTER (WHERE web_activa = true AND (estado_web = 'sin_informacion' OR estado_web IS NULL))::int AS web_sin_informacion,
           COUNT(*) FILTER (WHERE estado_venta = 'si')::int                             AS ventas_cerradas,
           COUNT(*) FILTER (WHERE estado_venta = 'en_proceso')::int                     AS ventas_en_proceso,
           COUNT(*) FILTER (WHERE estado_venta = 'no')::int                             AS ventas_no,
           CASE
-            WHEN COUNT(*) = 0 THEN 0
+            WHEN (SELECT COUNT(*) FROM prospectos) = 0 THEN 0
             ELSE ROUND(
               COUNT(*) FILTER (WHERE estado_lead = 'interesado')::numeric * 100 /
-              COUNT(*)::numeric, 1
+              (SELECT COUNT(*)::numeric FROM prospectos), 1
             )
           END AS tasa_conversion
         FROM prospectos
@@ -147,13 +152,11 @@ export async function metricasDashboardService(
 
       pool.query(`
         SELECT
-          COALESCE(ciudad, 'Sin ciudad') AS ciudad,
+          COALESCE(NULLIF(TRIM(region), ''), 'Sin región') AS region,
           COUNT(*)::int AS total
         FROM prospectos
-        WHERE ${filtroProspectos}
-        GROUP BY ciudad
+        GROUP BY region
         ORDER BY total DESC
-        LIMIT 10
       `).catch(() => ({ rows: [] })),
 
       pool.query(`
@@ -174,13 +177,14 @@ export async function metricasDashboardService(
         rows: [{ ingresos_mes: 0 }]
       })),
 
-      // Ventas filtradas por fecha_cierre (no por creado_en)
+      // Ventas: cerradas desde propuestas, en_proceso y no_venta desde prospectos filtrados por período
       pool.query(`
         SELECT
-          COUNT(*) FILTER (WHERE estado_venta = 'si'  AND fecha_cierre IS NOT NULL AND ${filtroVentas})::int AS cerradas,
-          COUNT(*) FILTER (WHERE estado_venta = 'en_proceso')::int                                           AS en_proceso,
-          COUNT(*) FILTER (WHERE estado_venta = 'no')::int                                                   AS no_venta
+          (SELECT COUNT(*)::int FROM propuestas WHERE estado = 'cerrada_ganada' AND fecha_cierre IS NOT NULL AND ${filtroVentas}) AS cerradas,
+          COUNT(*) FILTER (WHERE estado_venta = 'en_proceso')::int AS en_proceso,
+          COUNT(*) FILTER (WHERE estado_venta = 'no')::int         AS no_venta
         FROM prospectos
+        WHERE ${filtroProspectos}
       `).catch(() => ({ rows: [{ cerradas: 0, en_proceso: 0, no_venta: 0 }] })),
 
       // Ventas cerradas por tipo de servicio en el período
@@ -246,6 +250,11 @@ export async function metricasDashboardService(
         prospectos_tiene_proveedor: pr.prospectos_tiene_proveedor,
         prospectos_con_web:         pr.prospectos_con_web,
         prospectos_sin_web:         pr.prospectos_sin_web,
+        web_actualizada:            pr.web_actualizada,
+        web_por_actualizar:         pr.web_por_actualizar,
+        web_vencida:                pr.web_vencida,
+        web_en_mantenimiento:       pr.web_en_mantenimiento,
+        web_sin_informacion:        pr.web_sin_informacion,
         prospectos_hoy:             pr.total_prospectos,
         prospectos_mes:             pr.total_prospectos,
       },
@@ -259,7 +268,7 @@ export async function metricasDashboardService(
 
       tasa_conversion: Number(pr.tasa_conversion),
 
-      prospectos_por_ciudad: prospectosPorCiudadResult.rows,
+      prospectos_por_ciudad: prospectosPorCiudadResult.rows as Array<{ region: string; total: number }>,
       prospectos_por_estado: prospectosPorEstadoResult.rows,
 
       finanzas: {
@@ -279,7 +288,7 @@ export async function metricasDashboardService(
       brochures_por_canal:   [],
       brochures:             { total_brochures: 0, brochures_correo: 0, brochures_whatsapp: 0, brochures_hoy: 0, brochures_mes: 0 },
       reuniones:             { total_reuniones: 0, reuniones_programadas: 0, reuniones_realizadas: 0, reuniones_canceladas: 0, reuniones_descartadas: 0, reuniones_reprogramadas: 0, reuniones_hoy: 0, reuniones_mes: 0 },
-      prospectos:            { total_prospectos: 0, prospectos_interesados: 0, prospectos_no_interesados: 0, prospectos_no_contesta: 0, prospectos_volver_llamar: 0, prospectos_buzon: 0, prospectos_tiene_proveedor: 0, prospectos_con_web: 0, prospectos_sin_web: 0, prospectos_hoy: 0, prospectos_mes: 0 },
+      prospectos:            { total_prospectos: 0, prospectos_interesados: 0, prospectos_no_interesados: 0, prospectos_no_contesta: 0, prospectos_volver_llamar: 0, prospectos_buzon: 0, prospectos_tiene_proveedor: 0, prospectos_con_web: 0, prospectos_sin_web: 0, web_actualizada: 0, web_por_actualizar: 0, web_vencida: 0, web_en_mantenimiento: 0, web_sin_informacion: 0, prospectos_hoy: 0, prospectos_mes: 0 },
       ventas:                { cerradas: 0, en_proceso: 0, no: 0 },
       ventas_por_servicio:   [],
       tasa_conversion:       0,

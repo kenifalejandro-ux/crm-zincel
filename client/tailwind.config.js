@@ -10,9 +10,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand:       "#ceab11",  // color de marca — cambia aquí
+        brand:       "#ceab11",
         "brand-hover":  "#b08d47",
         "brand-light":  "#e8d9b8",
+      },
+      keyframes: {
+        "gradient-shift": {
+          "0%":   { backgroundPosition: "0% 50%" },
+          "50%":  { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
+        },
+      },
+      animation: {
+        "gradient-shift": "gradient-shift 12s ease infinite",
       },
     },
   },

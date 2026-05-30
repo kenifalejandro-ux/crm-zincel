@@ -11,6 +11,7 @@ import { getScoresLeads } from "../../services/prospectos.api";
 
 const navegacion = [
   { label: "Dashboard",      to: "/",               icon: LayoutDashboard },
+  { label: "Inicio",         to: "/inicio",         icon: BarChart2 },
   { label: "Llamadas",       to: "/llamadas",       icon: Phone },
   { label: "Reuniones",      to: "/reuniones",      icon: CalendarDays },
   { label: "Finanzas",       to: "/finanzas",       icon: DollarSign },
@@ -55,13 +56,13 @@ export function lSidebar({ abierto, onCerrar }: Props) {
           `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all duration-150 ${
             isActive
               ? "bg-amber-50 text-amber-800 font-semibold"
-              : "text-slate-500 hover:bg-zinc-100 hover:text-zinc-800"
+              : "text-zinc-700 hover:bg-white/40 hover:text-zinc-900"
           }`
         }
       >
         {({ isActive }) => (
           <>
-            <Icon size={16} className={isActive ? "text-amber-600" : "text-slate-500"} />
+            <Icon size={16} className={isActive ? "text-amber-600" : "text-zinc-600"} />
             <span className="flex-1">{label}</span>
             {badge != null && badge > 0 && (
               <span className={`px-1.5 py-0.5 text-[10px] rounded-full ${badgeColor} text-white font-bold leading-none`}>
@@ -88,7 +89,7 @@ export function lSidebar({ abierto, onCerrar }: Props) {
       <aside
         className={`
           fixed inset-y-0 left-0 z-40 w-64 flex flex-col
-           bg-white border-r border-zinc-100
+          bg-white/20 backdrop-blur-2xl border-r border-white/20
           transform transition-transform duration-300 ease-in-out
           ${abierto ? "translate-x-0" : "-translate-x-full"}
           lg:relative lg:w-56 lg:translate-x-0 lg:z-auto lg:shrink-0
@@ -97,7 +98,7 @@ export function lSidebar({ abierto, onCerrar }: Props) {
               {/* ───────────────────────── */}
       {/* BLUR BOTTOM LEFT */}
       {/* ───────────────────────── */}
-      <div className="pointer-events-none absolute -bottom-32 right-0 h-[420px] w-[820px] rounded-full bg-yellow-400/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 right-0 h-[420px] w-[820px] rounded-full  blur-3xl" />
 
         {/* Logo */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-gray-100">
@@ -137,7 +138,7 @@ export function lSidebar({ abierto, onCerrar }: Props) {
 
         {/* Footer */}
         <div className="px-4 py-4 border-t border-gray-100">
-          <p className="text-[10px] text-slate-500 text-center tracking-widest uppercase">v1.0.0</p>
+          <p className="text-[10px] text-zinc-600 text-center tracking-widest uppercase">v1.0.0</p>
         </div>
       </aside>
     </>

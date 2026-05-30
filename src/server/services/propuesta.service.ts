@@ -304,7 +304,28 @@ export async function eliminarPropuestaService(id: string) {
   return { eliminado: true };
 }
 
-export async function resumenEstadosPropuestasService() {
+export async function resumenEstadosPropuestasService(
+  periodo: string = "todo",
+  mes?: number,
+  anio?: number,
+  fecha?: string
+) {
+  const buildFiltro = () => {
+    if (periodo === "dia" && fecha) return `fecha_propuesta::date = '${fecha}'`;
+    if (periodo === "mes" && mes && anio)
+      return `EXTRACT(MONTH FROM fecha_propuesta) = ${mes} AND EXTRACT(YEAR FROM fecha_propuesta) = ${anio}`;
+    switch (periodo) {
+      case "hoy":     return `fecha_propuesta::date = CURRENT_DATE`;
+      case "semana":  return `fecha_propuesta >= CURRENT_DATE - INTERVAL '7 days'`;
+      case "mes":     return `fecha_propuesta >= CURRENT_DATE - INTERVAL '30 days'`;
+      case "trimestre": return `fecha_propuesta >= CURRENT_DATE - INTERVAL '90 days'`;
+      case "anio":    return `fecha_propuesta >= CURRENT_DATE - INTERVAL '365 days'`;
+      default:        return `1=1`;
+    }
+  };
+
+  const filtro = buildFiltro();
+
   const result = await pool.query(`
     SELECT
       estado,
@@ -313,6 +334,7 @@ export async function resumenEstadosPropuestasService() {
         CASE WHEN moneda = 'USD' THEN monto_propuesto * tipo_cambio ELSE monto_propuesto END
       ), 0)::float                                                           AS monto_total
     FROM propuestas
+    WHERE ${filtro}
     GROUP BY estado
     ORDER BY
       CASE estado

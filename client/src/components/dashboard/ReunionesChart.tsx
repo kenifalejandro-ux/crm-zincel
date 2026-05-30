@@ -9,7 +9,7 @@ import type { Metricas } from "../../pages/DashboardPage";
 const REUNIONES_ITEMS = [
   { label: "Reprogramadas", key: "reuniones_reprogramadas", fill: COLORS.mutedDark },
   { label: "Canceladas",    key: "reuniones_canceladas",    fill: COLORS.danger    },
-  { label: "Realizadas",    key: "reuniones_realizadas",    fill: COLORS.dark      },
+  { label: "Realizadas",    key: "reuniones_realizadas",    fill: COLORS.primary      },
   { label: "Programadas",   key: "reuniones_programadas",   fill: COLORS.primary   },
 ];
 

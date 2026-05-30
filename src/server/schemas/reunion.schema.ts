@@ -7,7 +7,7 @@ export const crearReunionSchema = z.object({
   titulo:       z.string().min(1, "El título es obligatorio").max(200),
 // ✅ Acepta el formato que envía el input datetime-local
   fecha_hora: z.string().min(1, "La fecha es obligatoria"),  
-  modalidad:    z.enum(["zoom","google_meet","presencial","teams","whatsapp_video"]).default("google_meet"),
+  modalidad:    z.enum(["zoom","google_meet","presencial","teams","whatsapp_video","llamada"]).default("google_meet"),
   enlace:       z.string().url("URL inválida").max(500).optional().or(z.literal("")),
   estado:       z.enum(["programada","realizada","cancelada","reprogramada","en_proceso"]).default("programada"),
   notas:        z.string().optional(),

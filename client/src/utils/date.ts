@@ -1,3 +1,13 @@
+/** Construye un ISO string con el offset local para evitar desfase UTC al guardar en BD */
+export function toLocalISOString(fecha: string, hora: string): string {
+  const offset = new Date().getTimezoneOffset(); // minutos detrás de UTC (p.ej. 300 para UTC-5)
+  const sign = offset <= 0 ? "+" : "-";
+  const abs  = Math.abs(offset);
+  const hh   = String(Math.floor(abs / 60)).padStart(2, "0");
+  const mm   = String(abs % 60).padStart(2, "0");
+  return `${fecha}T${hora}:00${sign}${hh}:${mm}`;
+}
+
 /** Retorna la fecha de hoy en formato YYYY-MM-DD en zona horaria local (evita el desfase UTC) */
 export function fechaHoy(): string {
   const d = new Date();

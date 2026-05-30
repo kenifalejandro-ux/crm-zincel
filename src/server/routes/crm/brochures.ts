@@ -12,6 +12,7 @@ import {
   resumenBrochuresFiltradoService,
 } from "../../services/brochure.service";
 import { invalidarCacheCRM } from "../../config/cache";
+import { eventBus, CRM_EVENTS } from "../../shared/events/eventBus";
 
 export const brochuresRouter = Router();
 
@@ -80,6 +81,7 @@ brochuresRouter.post("/", async (req, res) => {
     }
     const data = await crearBrochureService({ prospecto_id, canal, notas, fecha_envio }, usuario.id);
     void invalidarCacheCRM();
+    eventBus.publish(CRM_EVENTS.BROCHURE_ENVIADO, { prospecto_id });
     res.status(201).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
@@ -94,6 +96,16 @@ brochuresRouter.put("/:id", async (req, res) => {
     if (!data) return res.status(404).json({ ok: false, message: "Brochure no encontrado" });
     void invalidarCacheCRM();
     res.status(200).json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// DELETE /api/crm/brochures/:id
+brochuresRouter.delete("/:id", async (req, res) => {
+  try {
+    await eliminarBrochuresMasivoService([req.params.id]);
+    res.status(200).json({ ok: true });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
   }

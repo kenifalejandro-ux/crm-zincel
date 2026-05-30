@@ -81,15 +81,32 @@ export async function getLeadsPrioridad(tipo: string) {
 }
 
 export interface Forecast {
-  llamadas_semana_prom:  number;
-  tendencia:             "subiendo" | "estable" | "bajando";
-  tasa_conversion_pct:   number;
-  leads_activos:         number;
-  leads_calientes:       number;
-  cierres_mes_actual:    number;
-  cierres_proyectados:   number;
-  ciclo_promedio_dias:   number;
-  contactos_necesarios:  number;
+  llamadas_semana_prom:     number;
+  tendencia:                "subiendo" | "estable" | "bajando";
+  tasa_conversion_pct:      number;
+  leads_activos:            number;
+  leads_calientes:          number;
+  cierres_mes_actual:       number;
+  cierres_proyectados:      number;
+  ciclo_promedio_dias:      number;
+  contactos_necesarios:     number;
+  velocidad_comercial:      number;
+  pipeline_cobertura_meses: number;
+  valor_promedio_propuesta: number;
+  aging_promedio_dias:      number;
+  escenario_pesimista:      number;
+  escenario_realista:       number;
+  escenario_optimista:      number;
+  logrado_ingresos_mes:     number;
+  meta_ingresos:            number;
+  gap_ingresos:             number;
+  predicted_ingresos:       number;
+}
+
+export interface ForecastHistoricoMes {
+  mes:      string;
+  cerrado:  number;
+  cantidad: number;
 }
 
 export async function getForecast() {
@@ -97,13 +114,24 @@ export async function getForecast() {
   return data.data as Forecast;
 }
 
+export async function getForecastHistorico() {
+  const { data } = await api.get("/inteligencia/forecast-historico");
+  return data.data as ForecastHistoricoMes[];
+}
+
+export async function getForecastLeads(tipo: "calientes" | "activos" | "cierres") {
+  const { data } = await api.get("/inteligencia/forecast/leads", { params: { tipo } });
+  return data.data as LeadPrioridad[];
+}
+
 export interface ObjetivosDiarios {
-  llamadas_meta:  number;
-  reuniones_meta: number;
-  brochures_meta: number;
-  llamadas_hoy:   number;
-  reuniones_hoy:  number;
-  brochures_hoy:  number;
+  llamadas_meta:          number;
+  reuniones_meta:         number;
+  brochures_meta:         number;
+  meta_ingresos_mensual:  number;
+  llamadas_hoy:           number;
+  reuniones_hoy:          number;
+  brochures_hoy:          number;
 }
 
 export interface Tendencias {
@@ -126,6 +154,7 @@ export async function actualizarObjetivos(metas: {
   llamadas_meta: number;
   reuniones_meta: number;
   brochures_meta: number;
+  meta_ingresos_mensual?: number;
 }) {
   const { data } = await api.put("/inteligencia/objetivos", metas);
   return data.data as ObjetivosDiarios;
@@ -193,6 +222,7 @@ export async function getTiempoPrimeraRespuesta() {
 export interface ForecastIngresos {
   total_ponderado:    number;
   total_sin_ponderar: number;
+  tasa_cierre_real:   number | null;
   desglose: {
     estado:      string;
     label:       string;
@@ -237,4 +267,47 @@ export interface CanalEfectividad {
 export async function getCanalEfectividad() {
   const { data } = await api.get("/inteligencia/canal-efectividad");
   return data.data as CanalEfectividad[];
+}
+
+// ─── Inteligencia de conversación ─────────────────────────────────────────────
+
+export interface InteligenciaConversacion {
+  acciones_acordadas:      { accion_acordada: string; total: number }[];
+  duracion_por_resultado:  { resultado: string; duracion_prom: number; total: number }[];
+  resultados_contestadas:  { resultado: string; total: number }[];
+}
+
+export async function getInteligenciaConversacion(filters?: { fecha_inicio?: string; fecha_fin?: string }) {
+  const { data } = await api.get("/inteligencia/conversacion", { params: filters });
+  return data.data as InteligenciaConversacion;
+}
+
+// ─── Drill-down endpoints ─────────────────────────────────────────────────────
+
+export interface LeadContacto {
+  id:              string;
+  empresa:         string;
+  nombre_contacto: string | null;
+  telefono:        string | null;
+  ciudad:          string | null;
+  etapa_pipeline:  string;
+  estado_lead:     string | null;
+  score?:          number;
+  estado_propuesta?: string;
+  monto_propuesto?:  number;
+}
+
+export async function getLeadsScoreNivel(niveles: string[]) {
+  const { data } = await api.get("/inteligencia/leads-score", { params: { niveles: niveles.join(",") } });
+  return data.data as LeadContacto[];
+}
+
+export async function getLeadsPorEstado(estado: string) {
+  const { data } = await api.get("/inteligencia/leads-estado", { params: { estado } });
+  return data.data as LeadContacto[];
+}
+
+export async function getLeadsPorPaqueteWeb(paquete: string) {
+  const { data } = await api.get("/inteligencia/leads-paquete-web", { params: { paquete } });
+  return data.data as LeadContacto[];
 }

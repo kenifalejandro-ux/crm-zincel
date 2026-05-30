@@ -1,7 +1,7 @@
 /**client/src/components/pipeline/KanbanCard.tsx */
 
 import { useState, useRef } from "react";
-import { Phone, User, DollarSign, GripVertical, ChevronDown, ChevronUp, ExternalLink, Briefcase } from "lucide-react";
+import { Phone, User, DollarSign, GripVertical, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import type { Prospecto } from "../../types/prospecto.types";
 
 function calcularProbabilidad(score: number): number {
@@ -31,6 +31,24 @@ const LABEL_ESTADO: Record<string, string> = {
   ya_tiene_proveedor: "Tiene proveedor",
   fuera_de_servicio:  "Fuera servicio",
   numero_equivocado:  "N° equivocado",
+};
+
+const LABEL_SERVICIO: Record<string, string> = {
+  desarrollo_web:      "Web",
+  redes_sociales:      "Redes sociales",
+  publicidad_digital:  "Publicidad",
+  branding:            "Branding",
+  fotografia_video:    "Foto/Video",
+  consultoria:         "Consultoría",
+  otro:                "Otro",
+};
+
+const ESTADO_PROPUESTA: Record<string, { label: string; cls: string }> = {
+  enviada:         { label: "Enviada",       cls: "bg-yellow-50 text-yellow-700 border-yellow-200" },
+  en_negociacion:  { label: "Negociación",   cls: "bg-blue-50 text-blue-700 border-blue-200"       },
+  cerrada_ganada:  { label: "Ganada",        cls: "bg-green-50 text-green-700 border-green-200"     },
+  cerrada_perdida: { label: "Perdida",       cls: "bg-red-50 text-red-600 border-red-200"           },
+  vencida:         { label: "Vencida",       cls: "bg-zinc-100 text-zinc-500 border-zinc-200"       },
 };
 
 const PRIORIDAD_DOT: Record<string, string> = {
@@ -178,54 +196,69 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
 
       {/* Contenido expandido */}
       {expandido && (
-        <div className="px-3 pb-3 border-t border-gray-50 pt-2 space-y-1.5">
+        <div className="px-3 pb-3 border-t border-gray-50 pt-2 space-y-2">
 
-          {p.servicio_propuesta && (
-            <div className="flex items-center gap-1.5 bg-amber-50 rounded-lg px-2 py-1.5">
-              <Briefcase size={11} className="text-amber-500 shrink-0" />
-              <p className="text-[11px] font-medium text-amber-700 truncate">{p.servicio_propuesta}</p>
-            </div>
-          )}
-
+          {/* Contacto */}
           {p.nombre_contacto && (
             <div className="flex items-center gap-1.5">
-              <User size={11} className="text-zinc-600 shrink-0" />
-              <p className="text-[11px] text-zinc-700 truncate">{p.nombre_contacto}</p>
+              <User size={11} className="text-zinc-400 shrink-0" />
+              <p className="text-[11px] text-zinc-600 truncate">{p.nombre_contacto}</p>
             </div>
           )}
           {p.telefono && (
             <div className="flex items-center gap-1.5">
-              <Phone size={11} className="text-zinc-600 shrink-0" />
-              <p className="text-[11px] text-zinc-700">{p.telefono}</p>
+              <Phone size={11} className="text-zinc-400 shrink-0" />
+              <p className="text-[11px] text-zinc-600">{p.telefono}</p>
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-gray-50">
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium truncate ${COLOR_ESTADO[p.estado_lead] ?? "bg-gray-100 text-gray-600"}`}>
-              {LABEL_ESTADO[p.estado_lead] ?? p.estado_lead}
-            </span>
-            <div className="flex items-center gap-1.5 shrink-0">
-              {score !== undefined && nivel && (() => {
-                const s = SCORE_STYLE[nivel];
-                const prob = calcularProbabilidad(score);
+          {/* Propuestas */}
+          {p.propuestas_list && p.propuestas_list.length > 0 && (
+            <div className="space-y-1 pt-1">
+              <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
+                {p.propuestas_list.length} propuesta{p.propuestas_list.length > 1 ? "s" : ""}
+              </p>
+              {p.propuestas_list.map(pr => {
+                const est = ESTADO_PROPUESTA[pr.estado] ?? { label: pr.estado, cls: "bg-zinc-100 text-zinc-500 border-zinc-200" };
                 return (
-                  <div className="flex flex-col items-end">
-                    <span className={`text-[10px] font-bold ${s.text}`}>{s.label} {score}</span>
-                    <span className="text-[9px] text-zinc-600">{prob}% cierre</span>
+                  <div key={pr.id} className="flex items-center justify-between gap-2 rounded-lg bg-zinc-50 px-2 py-1.5 border border-zinc-100">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] font-semibold text-zinc-800 truncate">
+                        {LABEL_SERVICIO[pr.servicio] ?? pr.servicio}
+                      </p>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full border font-medium ${est.cls}`}>
+                        {est.label}
+                      </span>
+                    </div>
+                    <p className="text-[11px] font-bold text-zinc-900 shrink-0">
+                      S/ {Number(pr.monto).toLocaleString("es-PE", { maximumFractionDigits: 0 })}
+                    </p>
                   </div>
                 );
-              })()}
+              })}
             </div>
-          </div>
+          )}
 
-          <button
-            onClick={e => { e.stopPropagation(); onClick(p); }}
-            className="w-full mt-1 flex items-center justify-center gap-1.5 text-[11px] font-medium
-                       text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg py-1.5 transition-colors"
-          >
-            <ExternalLink size={11} />
-            Ver detalle completo
-          </button>
+          {/* Score + botón */}
+          <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-gray-50">
+            {score !== undefined && nivel && (() => {
+              const s = SCORE_STYLE[nivel];
+              const prob = calcularProbabilidad(score);
+              return (
+                <div className="flex items-center gap-1">
+                  <span className={`text-[10px] font-bold ${s.text}`}>{s.label} {score}</span>
+                  <span className="text-[9px] text-zinc-500">{prob}% cierre</span>
+                </div>
+              );
+            })()}
+            <button
+              onClick={e => { e.stopPropagation(); onClick(p); }}
+              className="flex items-center gap-1 text-[10px] font-medium text-zinc-500
+                         hover:text-zinc-800 hover:bg-zinc-100 rounded-lg px-2 py-1 transition-colors ml-auto"
+            >
+              <ExternalLink size={10} /> Detalle
+            </button>
+          </div>
         </div>
       )}
     </div>

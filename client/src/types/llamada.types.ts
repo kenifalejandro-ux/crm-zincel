@@ -9,6 +9,7 @@ export interface Llamada {
   contestada:        boolean;
   resultado?:        string;
   motivo_no_interes?: string;
+  accion_acordada?:  string;
   notas?:            string;
   creado_por?:       string;
   creado_en:         string;
@@ -22,5 +23,6 @@ export interface CrearLlamadaPayload {
   contestada:        boolean;
   resultado?:        string;
   motivo_no_interes?: string;
+  accion_acordada?:  string;
   notas?:            string;
 }

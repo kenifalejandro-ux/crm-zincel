@@ -63,6 +63,8 @@ export const env = {
   metaAdAccountId:     process.env.META_AD_ACCOUNT_ID    || "",
   metaEmpresaNombre:   process.env.META_EMPRESA_NOMBRE   || "",
   // --- TIKTOK ADS ---
+  tiktokAppId:         process.env.TIKTOK_APP_ID         || "",
+  tiktokAppSecret:     process.env.TIKTOK_APP_SECRET     || "",
   tiktokAccessToken:   process.env.TIKTOK_ACCESS_TOKEN   || "",
   tiktokAdvertiserId:  process.env.TIKTOK_ADVERTISER_ID  || "",
   // --- VARIABLES DEL CRM ---

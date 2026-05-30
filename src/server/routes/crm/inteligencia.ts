@@ -8,6 +8,7 @@ import {
   leadsEstancadosService,
   prioridadOperacionalService,
   forecastingService,
+  forecastLeadsService,
   getObjetivosService,
   actualizarObjetivosService,
   tendenciasService,
@@ -18,6 +19,11 @@ import {
   forecastIngresosService,
   tasaConversionFunnelService,
   canalEfectividadService,
+  inteligenciaConversacionService,
+  leadsScoreNivelService,
+  leadsPorEstadoService,
+  leadsPorPaqueteWebService,
+  forecastHistoricoService,
 } from "../../services/inteligencia.service";
 
 export const inteligenciaRouter = Router();
@@ -69,7 +75,34 @@ inteligenciaRouter.get("/prioridad-leads", async (req, res) => {
 // GET /api/crm/inteligencia/forecast
 inteligenciaRouter.get("/forecast", async (req, res) => {
   try {
-    const data = await forecastingService();
+    const usuarioId = (req as any).usuario?.id;
+    const [forecast, objetivos] = await Promise.all([
+      forecastingService(),
+      getObjetivosService(usuarioId),
+    ]);
+
+    const meta      = objetivos.meta_ingresos_mensual ?? 5000;
+    const logrado   = forecast.logrado_ingresos_mes;
+    const predicted = Math.round(logrado + forecast.escenario_realista);
+    const gap       = Math.max(0, meta - logrado);
+
+    const data = {
+      ...forecast,
+      meta_ingresos:      meta,
+      gap_ingresos:       gap,
+      predicted_ingresos: predicted,
+    };
+
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/forecast-historico
+inteligenciaRouter.get("/forecast-historico", async (_req, res) => {
+  try {
+    const data = await forecastHistoricoService();
     res.json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
@@ -111,11 +144,12 @@ inteligenciaRouter.get("/objetivos", async (req: any, res) => {
 // PUT /api/crm/inteligencia/objetivos
 inteligenciaRouter.put("/objetivos", async (req: any, res) => {
   try {
-    const { llamadas_meta, reuniones_meta, brochures_meta } = req.body;
+    const { llamadas_meta, reuniones_meta, brochures_meta, meta_ingresos_mensual } = req.body;
     await actualizarObjetivosService(req.usuario.id, {
-      llamadas_meta:  Math.max(1, parseInt(llamadas_meta)  || 10),
-      reuniones_meta: Math.max(1, parseInt(reuniones_meta) || 2),
-      brochures_meta: Math.max(1, parseInt(brochures_meta) || 5),
+      llamadas_meta:         Math.max(1,    parseInt(llamadas_meta)         || 10),
+      reuniones_meta:        Math.max(1,    parseInt(reuniones_meta)        || 2),
+      brochures_meta:        Math.max(1,    parseInt(brochures_meta)        || 5),
+      meta_ingresos_mensual: Math.max(100,  parseFloat(meta_ingresos_mensual) || 5000),
     });
     const data = await getObjetivosService(req.usuario.id);
     res.json({ ok: true, data });
@@ -154,6 +188,17 @@ inteligenciaRouter.get("/primera-respuesta", async (_req, res) => {
   }
 });
 
+// GET /api/crm/inteligencia/forecast/leads?tipo=calientes|activos|cierres
+inteligenciaRouter.get("/forecast/leads", async (req, res) => {
+  try {
+    const tipo = (req.query.tipo as string) || "calientes";
+    const data = await forecastLeadsService(tipo as "calientes" | "activos" | "cierres");
+    res.json({ data });
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener leads del forecast" });
+  }
+});
+
 // GET /api/crm/inteligencia/forecast-ingresos
 inteligenciaRouter.get("/forecast-ingresos", async (_req, res) => {
   try {
@@ -178,6 +223,53 @@ inteligenciaRouter.get("/conversion-funnel", async (_req, res) => {
 inteligenciaRouter.get("/canal-efectividad", async (_req, res) => {
   try {
     const data = await canalEfectividadService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/conversacion?fecha_inicio=&fecha_fin=
+inteligenciaRouter.get("/conversacion", async (req, res) => {
+  try {
+    const { fecha_inicio, fecha_fin } = req.query as Record<string, string>;
+    const data = await inteligenciaConversacionService({ fecha_inicio, fecha_fin });
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/leads-score?niveles=caliente,activo
+inteligenciaRouter.get("/leads-score", async (req, res) => {
+  try {
+    const { niveles } = req.query as Record<string, string>;
+    if (!niveles) return res.status(400).json({ ok: false, message: "niveles requerido" });
+    const data = await leadsScoreNivelService(niveles.split(",").map(n => n.trim()));
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/leads-estado?estado=no_contesta
+inteligenciaRouter.get("/leads-estado", async (req, res) => {
+  try {
+    const { estado } = req.query as Record<string, string>;
+    if (!estado) return res.status(400).json({ ok: false, message: "estado requerido" });
+    const data = await leadsPorEstadoService(estado);
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/inteligencia/leads-paquete-web?paquete=Gold — Web Pro
+inteligenciaRouter.get("/leads-paquete-web", async (req, res) => {
+  try {
+    const { paquete } = req.query as Record<string, string>;
+    if (!paquete) return res.status(400).json({ ok: false, message: "paquete requerido" });
+    const data = await leadsPorPaqueteWebService(paquete);
     res.json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

@@ -57,6 +57,11 @@ interface ReunionesFiltros {
   hasta?:        string;
 }
 
+export async function eliminarReunion(id: string) {
+  const { data } = await api.delete(`/reuniones/${id}`);
+  return data;
+}
+
 export async function eliminarReunionesMasivoService(ids: string[]) {
   const { data } = await api.delete("/reuniones", {
     data: { ids },

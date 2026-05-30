@@ -40,13 +40,22 @@ export function ForecastIngresosChart() {
         </div>
       </div>
 
-      {/* Total ponderado KPI */}
-      <div className="text-center bg-amber-50 border border-amber-100 rounded-2xl py-4 mb-5">
-        <p className="text-[10px] text-amber-600 uppercase tracking-widest font-semibold">Ingreso esperado</p>
-        <p className="text-3xl font-bold text-amber-700 mt-1">{fmt(data.total_ponderado)}</p>
-        <p className="text-[10px] text-amber-500 mt-0.5">
-          Pipeline real: {fmt(data.total_sin_ponderar)}
-        </p>
+      {/* Total KPI */}
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="text-center bg-zinc-900 rounded-2xl py-4">
+          <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-semibold">Pipeline total</p>
+          <p className="text-3xl font-bold text-white mt-1">{fmt(data.total_sin_ponderar)}</p>
+          <p className="text-[10px] text-zinc-500 mt-0.5">Monto real en juego</p>
+        </div>
+        <div className="text-center bg-amber-50 border border-amber-100 rounded-2xl py-4">
+          <p className="text-[10px] text-amber-600 uppercase tracking-widest font-semibold">Ingreso esperado</p>
+          <p className="text-3xl font-bold text-amber-700 mt-1">{fmt(data.total_ponderado)}</p>
+          <p className="text-[10px] text-amber-500 mt-0.5">
+            {data.tasa_cierre_real != null
+              ? `Tu tasa real de cierre: ${data.tasa_cierre_real}%`
+              : "Sin historial de cierre aún"}
+          </p>
+        </div>
       </div>
 
       {/* Tiles por etapa */}
@@ -55,11 +64,11 @@ export function ForecastIngresosChart() {
           const cfg = STAGE_CONFIG[d.estado] ?? { bg: "bg-zinc-50", num: "text-zinc-800", badge: "bg-zinc-200", badgeText: "text-zinc-600" };
           const isWhite = d.estado === "cerrada_ganada";
           return (
-            <div key={d.estado} className={`${cfg.bg} rounded-2xl p-3 flex flex-col items-center gap-2 text-center`}>
+            <div key={d.estado} className={`${cfg.bg} rounded-2xl p-3 flex flex-col items-center gap-1.5 text-center`}>
               <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${cfg.badge} ${cfg.badgeText}`}>
                 {d.prob}%
               </span>
-              <p className={`text-xl font-bold leading-none ${cfg.num}`}>{fmt(d.ponderado)}</p>
+              <p className={`text-xl font-bold leading-none ${cfg.num}`}>{fmt(d.monto_total)}</p>
               <p className={`text-[11px] font-medium ${isWhite ? "text-zinc-300" : "text-zinc-600"}`}>{d.label}</p>
               <p className={`text-[10px] ${isWhite ? "text-zinc-500" : "text-zinc-400"}`}>
                 {d.cantidad} prop.

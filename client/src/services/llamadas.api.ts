@@ -36,6 +36,14 @@ export async function actualizarLlamada(id: string, payload: Partial<CrearLlamad
   return data.data;
 }
 
+export async function eliminarLlamada(id: string): Promise<void> {
+  await api.delete(`/llamadas/${id}`);
+}
+
+export async function eliminarLlamadasMasivo(ids: string[]): Promise<void> {
+  await api.delete("/llamadas/masivo", { data: { ids } });
+}
+
 export async function getHeatmapLlamadas(filters?: { fecha_inicio?: string; fecha_fin?: string }) {
   const { data } = await api.get("/llamadas/heatmap", { params: filters });
   return data.data as Array<{ hora: number; total: number; contestadas: number; tasa: number }>;

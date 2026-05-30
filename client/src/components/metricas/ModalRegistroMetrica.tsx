@@ -66,8 +66,8 @@ const CAMPOS_VIDEO = [
 
 // ─── Sub componentes ───────────────────────────────────────────────────────────
 const Seccion = ({ titulo, children }: { titulo: string; children: React.ReactNode }) => (
-  <div className="space-y-2">
-    <p className="text-[11px] font-semibold text-zinc-600 uppercase tracking-wide">{titulo}</p>
+  <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 space-y-3">
+    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{titulo}</p>
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">{children}</div>
   </div>
 );
@@ -80,12 +80,10 @@ const Campo = ({
   onChange:   (v: string) => void;
   calculado?: boolean;
 }) => (
-  <div>
-    <label className="text-xs text-zinc-700 mb-1 block">
+  <div className="space-y-1.5">
+    <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">
       {label}
-      {calculado && (
-        <span className="ml-1 text-[10px] text-blue-400 font-normal">· auto</span>
-      )}
+      {calculado && <span className="ml-1 text-brand font-bold">· auto</span>}
     </label>
     <input
       type="number"
@@ -93,10 +91,10 @@ const Campo = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       readOnly={calculado}
-      className={`w-full border rounded-lg px-3 py-2 text-xs focus:outline-none transition ${
+      className={`w-full rounded-xl px-3 py-2 text-xs focus:outline-none transition [color-scheme:dark] ${
         calculado
-          ? "border-zinc-100 bg-zinc-50 text-zinc-600 cursor-not-allowed"
-          : "border-zinc-200 focus:ring-2 focus:ring-brand/50"
+          ? "bg-zinc-900/60 border border-zinc-700 text-zinc-500 cursor-not-allowed"
+          : "bg-zinc-900/60 border border-zinc-600 text-zinc-100 focus:ring-2 focus:ring-brand/25 focus:border-brand/50"
       }`}
       placeholder="0"
     />
@@ -132,55 +130,48 @@ export const ModalRegistroMetrica = ({
   ]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
-          <div>
-            <h2 className="text-sm font-semibold text-zinc-800">Registrar métricas</h2>
-            <p className="text-[10px] text-zinc-600 mt-0.5">
-              Los campos marcados con <span className="text-blue-400">· auto</span> se calculan solos
-            </p>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-700">
+          <div className="flex items-center gap-2.5">
+            <span className="w-1 h-4 rounded-full bg-brand block shrink-0" />
+            <div>
+              <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">Registrar métricas</h2>
+              <p className="text-[10px] text-zinc-500 mt-0.5">
+                Campos marcados con <span className="text-brand font-bold">· auto</span> se calculan solos
+              </p>
+            </div>
           </div>
-          <button onClick={onCerrar} className="text-zinc-600 hover:text-zinc-600 text-lg">✕</button>
+          <button onClick={onCerrar} className="text-zinc-500 hover:text-zinc-200 text-lg transition">✕</button>
         </div>
 
-        <div className="px-6 py-4 space-y-5">
+        <div className="px-6 py-4 space-y-4">
 
           {/* Empresa + Campaña */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-zinc-700 mb-1 block">Empresa *</label>
-              <input
-                value={form.empresa}
-                onChange={(e) => set("empresa", e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
-                placeholder="Nombre de empresa"
-              />
+          <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Empresa *</label>
+              <input value={form.empresa} onChange={(e) => set("empresa", e.target.value)}
+                className="w-full bg-zinc-900/60 border border-zinc-600 rounded-xl px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/50"
+                placeholder="Nombre de empresa" />
             </div>
-            <div>
-              <label className="text-xs text-zinc-700 mb-1 block">Nombre campaña *</label>
-              <input
-                value={form.campana_nombre}
-                onChange={(e) => set("campana_nombre", e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
-                placeholder="Ej: Black Friday 2026"
-              />
+            <div className="space-y-1.5">
+              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Nombre campaña *</label>
+              <input value={form.campana_nombre} onChange={(e) => set("campana_nombre", e.target.value)}
+                className="w-full bg-zinc-900/60 border border-zinc-600 rounded-xl px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/50"
+                placeholder="Ej: Black Friday 2026" />
             </div>
           </div>
 
           {/* Plataforma + Sub plataforma + Período */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div>
-              <label className="text-xs text-zinc-700 mb-1 block">Plataforma *</label>
-              <select
-                value={form.plataforma}
-                onChange={(e) =>
-                  onFormChange({ ...form, plataforma: e.target.value as Plataforma, sub_plataforma: "" })
-                }
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
-              >
+          <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Plataforma *</label>
+              <select value={form.plataforma}
+                onChange={(e) => onFormChange({ ...form, plataforma: e.target.value as Plataforma, sub_plataforma: "" })}
+                className="w-full bg-zinc-800 border border-yellow-300/30 rounded-xl px-3 py-2.5 text-xs text-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/25">
                 <option value="meta">Meta Ads</option>
                 <option value="google">Google Ads</option>
                 <option value="tiktok">TikTok Ads</option>
@@ -188,13 +179,10 @@ export const ModalRegistroMetrica = ({
             </div>
 
             {form.plataforma === "meta" && (
-              <div>
-                <label className="text-xs text-zinc-700 mb-1 block">Red social</label>
-                <select
-                  value={form.sub_plataforma}
-                  onChange={(e) => set("sub_plataforma", e.target.value)}
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
-                >
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Red social</label>
+                <select value={form.sub_plataforma} onChange={(e) => set("sub_plataforma", e.target.value)}
+                  className="w-full bg-zinc-800 border border-yellow-300/30 rounded-xl px-3 py-2.5 text-xs text-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/25">
                   <option value="">Ambas</option>
                   <option value="facebook">Facebook</option>
                   <option value="instagram">Instagram</option>
@@ -203,21 +191,15 @@ export const ModalRegistroMetrica = ({
               </div>
             )}
 
-            <div>
-              <label className="text-xs text-zinc-700 mb-1 block">Período inicio *</label>
-              <input
-                type="date" value={form.periodo_inicio}
-                onChange={(e) => set("periodo_inicio", e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
-              />
+            <div className="space-y-1.5">
+              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Período inicio *</label>
+              <input type="date" value={form.periodo_inicio} onChange={(e) => set("periodo_inicio", e.target.value)}
+                className="w-full bg-zinc-900/60 border border-zinc-600 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/25 [color-scheme:dark]" />
             </div>
-            <div>
-              <label className="text-xs text-zinc-700 mb-1 block">Período fin *</label>
-              <input
-                type="date" value={form.periodo_fin}
-                onChange={(e) => set("periodo_fin", e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
-              />
+            <div className="space-y-1.5">
+              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Período fin *</label>
+              <input type="date" value={form.periodo_fin} onChange={(e) => set("periodo_fin", e.target.value)}
+                className="w-full bg-zinc-900/60 border border-zinc-600 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/25 [color-scheme:dark]" />
             </div>
           </div>
 

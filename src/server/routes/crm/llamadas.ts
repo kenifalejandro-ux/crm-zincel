@@ -4,6 +4,7 @@ import { Router } from "express";
 import { validate } from "../../middleware/validate";
 import { authMiddleware } from "../../shared/middlewares/auth.middleware";
 import { crearLlamadaSchema } from "../../schemas/llamada.schema";
+import { eventBus, CRM_EVENTS } from "../../shared/events/eventBus";
 import {
   crearLlamadaService,
   obtenerLlamadasService,
@@ -12,6 +13,8 @@ import {
   estadisticasLlamadasPorPeriodoService,
   actualizarLlamadaService,
   heatmapLlamadasService,
+  eliminarLlamadaService,
+  eliminarLlamadasMasivoService,
 } from "../../services/llamada.service";
 import { invalidarCacheCRM } from "../../config/cache";
 
@@ -92,12 +95,39 @@ llamadasRouter.put("/:id", async (req, res) => {
   }
 });
 
+// DELETE /api/crm/llamadas/masivo
+llamadasRouter.delete("/masivo", async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0)
+      return res.status(400).json({ ok: false, message: "IDs inválidos" });
+    const eliminados = await eliminarLlamadasMasivoService(ids);
+    void invalidarCacheCRM();
+    res.json({ ok: true, eliminados });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// DELETE /api/crm/llamadas/:id
+llamadasRouter.delete("/:id", async (req, res) => {
+  try {
+    const ok = await eliminarLlamadaService(req.params.id);
+    if (!ok) return res.status(404).json({ ok: false, message: "Llamada no encontrada" });
+    void invalidarCacheCRM();
+    res.json({ ok: true });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
 // POST /api/crm/llamadas
 llamadasRouter.post("/", validate(crearLlamadaSchema), async (req, res) => {
   try {
     const usuario = (req as any).usuario;
     const data = await crearLlamadaService(req.body, usuario.id);
     void invalidarCacheCRM();
+    eventBus.publish(CRM_EVENTS.LLAMADA_REGISTRADA, { prospecto_id: data.prospecto_id });
     res.status(201).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

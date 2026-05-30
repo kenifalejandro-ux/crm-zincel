@@ -13,13 +13,14 @@ interface Props {
   form: FormBrochure;
   prospectos: any[];
   cargando: boolean;
+  error?: string | null;
   onFormChange: (form: FormBrochure) => void;
   onGuardar: () => void;
   onCerrar: () => void;
 }
 
 export function ModalBrochure({
-  form, prospectos, cargando, onFormChange, onGuardar, onCerrar,
+  form, prospectos, cargando, error, onFormChange, onGuardar, onCerrar,
 }: Props) {
   const set = (campo: Partial<FormBrochure>) => onFormChange({ ...form, ...campo });
 
@@ -81,6 +82,10 @@ export function ModalBrochure({
             className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
           />
         </div>
+
+        {error && (
+          <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+        )}
 
         {/* Botones */}
         <div className="flex gap-2 pt-1">

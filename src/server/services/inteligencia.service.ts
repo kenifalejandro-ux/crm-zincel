@@ -500,20 +500,29 @@ export async function tendenciasService(periodo: string, mes?: number, anio?: nu
 // ─── Objetivos diarios ───────────────────────────────────────────────────────
 
 export interface ObjetivosDiarios {
-  llamadas_meta:  number;
-  reuniones_meta: number;
-  brochures_meta: number;
-  llamadas_hoy:   number;
-  reuniones_hoy:  number;
-  brochures_hoy:  number;
+  llamadas_meta:          number;
+  reuniones_meta:         number;
+  brochures_meta:         number;
+  meta_ingresos_mensual:  number;
+  llamadas_hoy:           number;
+  reuniones_hoy:          number;
+  brochures_hoy:          number;
 }
 
 export async function getObjetivosService(usuarioId: string): Promise<ObjetivosDiarios> {
   const [metas, actuals] = await Promise.all([
     pool.query(
-      `SELECT llamadas_meta, reuniones_meta, brochures_meta
+      `SELECT llamadas_meta, reuniones_meta, brochures_meta,
+              COALESCE(meta_ingresos_mensual, 5000) AS meta_ingresos_mensual
        FROM objetivos_diarios WHERE usuario_id = $1`,
       [usuarioId]
+    ).catch(() =>
+      // Fallback si la columna aún no fue migrada
+      pool.query(
+        `SELECT llamadas_meta, reuniones_meta, brochures_meta
+         FROM objetivos_diarios WHERE usuario_id = $1`,
+        [usuarioId]
+      )
     ),
     pool.query(
       `SELECT
@@ -531,72 +540,107 @@ export async function getObjetivosService(usuarioId: string): Promise<ObjetivosD
   const a = actuals.rows[0];
 
   return {
-    llamadas_meta:  m?.llamadas_meta  ?? 10,
-    reuniones_meta: m?.reuniones_meta ?? 2,
-    brochures_meta: m?.brochures_meta ?? 5,
-    llamadas_hoy:   a?.llamadas_hoy   ?? 0,
-    reuniones_hoy:  a?.reuniones_hoy  ?? 0,
-    brochures_hoy:  a?.brochures_hoy  ?? 0,
+    llamadas_meta:         m?.llamadas_meta         ?? 10,
+    reuniones_meta:        m?.reuniones_meta        ?? 2,
+    brochures_meta:        m?.brochures_meta        ?? 5,
+    meta_ingresos_mensual: m?.meta_ingresos_mensual ?? 5000,
+    llamadas_hoy:          a?.llamadas_hoy          ?? 0,
+    reuniones_hoy:         a?.reuniones_hoy         ?? 0,
+    brochures_hoy:         a?.brochures_hoy         ?? 0,
   };
 }
 
 export async function actualizarObjetivosService(
   usuarioId: string,
-  metas: { llamadas_meta: number; reuniones_meta: number; brochures_meta: number }
+  metas: { llamadas_meta: number; reuniones_meta: number; brochures_meta: number; meta_ingresos_mensual?: number }
 ): Promise<void> {
   await pool.query(
-    `INSERT INTO objetivos_diarios (usuario_id, llamadas_meta, reuniones_meta, brochures_meta, actualizado_en)
-     VALUES ($1, $2, $3, $4, NOW())
+    `INSERT INTO objetivos_diarios
+       (usuario_id, llamadas_meta, reuniones_meta, brochures_meta, meta_ingresos_mensual, actualizado_en)
+     VALUES ($1, $2, $3, $4, $5, NOW())
      ON CONFLICT (usuario_id)
-     DO UPDATE SET llamadas_meta = $2, reuniones_meta = $3, brochures_meta = $4, actualizado_en = NOW()`,
-    [usuarioId, metas.llamadas_meta, metas.reuniones_meta, metas.brochures_meta]
+     DO UPDATE SET
+       llamadas_meta         = $2,
+       reuniones_meta        = $3,
+       brochures_meta        = $4,
+       meta_ingresos_mensual = $5,
+       actualizado_en        = NOW()`,
+    [
+      usuarioId,
+      metas.llamadas_meta,
+      metas.reuniones_meta,
+      metas.brochures_meta,
+      metas.meta_ingresos_mensual ?? 5000,
+    ]
   );
 }
 
 // ─── Pronóstico comercial ─────────────────────────────────────────────────────
 
 export interface Forecast {
-  llamadas_semana_prom:   number;
-  tendencia:              "subiendo" | "estable" | "bajando";
-  tasa_conversion_pct:    number;
-  leads_activos:          number;
-  leads_calientes:        number;
-  cierres_mes_actual:     number;
-  cierres_proyectados:    number;
-  ciclo_promedio_dias:    number;
-  contactos_necesarios:   number;
+  llamadas_semana_prom:     number;
+  tendencia:                "subiendo" | "estable" | "bajando";
+  tasa_conversion_pct:      number;
+  leads_activos:            number;
+  leads_calientes:          number;
+  cierres_mes_actual:       number;
+  cierres_proyectados:      number;
+  ciclo_promedio_dias:      number;
+  contactos_necesarios:     number;
+  velocidad_comercial:      number;
+  pipeline_cobertura_meses: number;
+  valor_promedio_propuesta: number;
+  aging_promedio_dias:      number;
+  escenario_pesimista:      number;
+  escenario_realista:       number;
+  escenario_optimista:      number;
+  // Quota-based (Zoho-style)
+  logrado_ingresos_mes:     number;
+  meta_ingresos:            number;
+  gap_ingresos:             number;
+  predicted_ingresos:       number;
 }
 
 export async function forecastingService(): Promise<Forecast> {
   const cached = await cacheGet<Forecast>("inteligencia:forecast");
   if (cached) return cached;
 
-  const [r1, r2, r3, r4, r5, r6] = await Promise.all([
+  const [r1, r2, r3, r4, r5, r6, r7, r8, r9] = await Promise.all([
     // Llamadas últimas 4 semanas (promedio semanal)
     pool.query(`
-      SELECT ROUND(COUNT(*)::float / 4, 1) AS prom
+      SELECT ROUND(COUNT(*)::numeric / 4, 1) AS prom
       FROM llamadas WHERE fecha >= CURRENT_DATE - INTERVAL '28 days'
     `),
     // Llamadas semanas 5-8 (para tendencia)
     pool.query(`
-      SELECT ROUND(COUNT(*)::float / 4, 1) AS prom
+      SELECT ROUND(COUNT(*)::numeric / 4, 1) AS prom
       FROM llamadas
       WHERE fecha >= CURRENT_DATE - INTERVAL '56 days'
         AND fecha  <  CURRENT_DATE - INTERVAL '28 days'
     `),
-    // Tasa conversión: leads creados últimos 90 días → cerrado_ganado
+    // Tasa cierre real: propuestas ganadas / (ganadas + perdidas + vencidas)
     pool.query(`
       SELECT
-        COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE etapa_pipeline = 'cerrado_ganado')::int AS cerrados
-      FROM prospectos
-      WHERE creado_en >= CURRENT_DATE - INTERVAL '90 days'
+        COUNT(*) FILTER (WHERE estado = 'cerrada_ganada')::float  AS ganadas,
+        COUNT(*) FILTER (WHERE estado IN ('cerrada_perdida','vencida','cerrada_ganada'))::float AS resueltas
+      FROM propuestas
     `),
-    // Leads calientes: propuesta_enviada + negociacion
+    // Propuestas activas: count + aging + montos por etapa para escenarios
     pool.query(`
-      SELECT COUNT(*)::int AS n
-      FROM prospectos
-      WHERE etapa_pipeline IN ('propuesta_enviada','negociacion')
+      SELECT
+        COUNT(*)::int AS n,
+        COALESCE(AVG(
+          CASE WHEN moneda='USD' THEN monto_propuesto*tipo_cambio ELSE monto_propuesto END
+        ), 0)::float AS monto_promedio,
+        COALESCE(ROUND(AVG(CURRENT_DATE - fecha_propuesta)), 0)::int AS aging_prom,
+        COALESCE(SUM(
+          CASE WHEN moneda='USD' THEN monto_propuesto*tipo_cambio ELSE monto_propuesto END
+        ) FILTER (WHERE estado='enviada'), 0)::float AS monto_enviada,
+        COALESCE(SUM(
+          CASE WHEN moneda='USD' THEN monto_propuesto*tipo_cambio ELSE monto_propuesto END
+        ) FILTER (WHERE estado='en_negociacion'), 0)::float AS monto_negociacion
+      FROM propuestas
+      WHERE estado IN ('enviada', 'en_negociacion')
     `),
     // Ciclo promedio de venta (días creación → cerrado)
     pool.query(`
@@ -611,18 +655,60 @@ export async function forecastingService(): Promise<Forecast> {
       WHERE etapa_pipeline = 'cerrado_ganado'
         AND actualizado_en >= DATE_TRUNC('month', CURRENT_DATE)
     `),
+    // Promedio mensual cerrado últimos 6 meses con meses con datos (para cobertura)
+    pool.query(`
+      SELECT COALESCE(
+        SUM(CASE WHEN moneda='USD'
+          THEN COALESCE(monto_cerrado,monto_propuesto)*tipo_cambio
+          ELSE COALESCE(monto_cerrado,monto_propuesto) END
+        ) / NULLIF(COUNT(DISTINCT DATE_TRUNC('month', fecha_cierre)), 0),
+        0
+      )::float AS prom_mensual
+      FROM propuestas
+      WHERE estado = 'cerrada_ganada'
+        AND fecha_cierre >= CURRENT_DATE - INTERVAL '6 months'
+    `),
+    // Leads activos (no cerrado ni perdido)
+    pool.query(`
+      SELECT COUNT(*)::int AS n FROM prospectos
+      WHERE etapa_pipeline NOT IN ('cerrado_ganado','perdido')
+    `),
+    // Ingresos cerrados este mes (propuestas cerradas_ganadas con fecha_cierre en el mes)
+    pool.query(`
+      SELECT COALESCE(SUM(
+        CASE WHEN moneda='USD'
+          THEN COALESCE(monto_cerrado, monto_propuesto) * tipo_cambio
+          ELSE COALESCE(monto_cerrado, monto_propuesto)
+        END
+      ), 0)::float AS logrado
+      FROM propuestas
+      WHERE estado = 'cerrada_ganada'
+        AND fecha_cierre >= DATE_TRUNC('month', CURRENT_DATE)
+    `),
   ]);
 
-  const llamadasProm    = parseFloat(r1.rows[0]?.prom ?? 0);
-  const llamadasPrev    = parseFloat(r2.rows[0]?.prom ?? 0);
-  const totalLeads      = r3.rows[0]?.total  ?? 0;
-  const cerradosHist    = r3.rows[0]?.cerrados ?? 0;
-  const leadsCalientes  = r4.rows[0]?.n ?? 0;
-  const cicloDias       = r5.rows[0]?.dias ?? 30;
-  const cierresActuales = r6.rows[0]?.n ?? 0;
+  const llamadasProm     = parseFloat(r1.rows[0]?.prom ?? 0);
+  const llamadasPrev     = parseFloat(r2.rows[0]?.prom ?? 0);
+  const ganadas          = parseFloat(r3.rows[0]?.ganadas   ?? 0);
+  const resueltas        = parseFloat(r3.rows[0]?.resueltas ?? 0);
 
-  // Tasa de conversión histórica
-  const tasaPct = totalLeads > 0 ? Math.round((cerradosHist / totalLeads) * 100) : 0;
+  const propActivas      = r4.rows[0] ?? {};
+  const leadsCalientes   = propActivas.n            ?? 0;
+  const montoPromedio    = parseFloat(propActivas.monto_promedio ?? 0);
+  const agingProm        = propActivas.aging_prom   ?? 0;
+  const montoEnviada     = parseFloat(propActivas.monto_enviada    ?? 0);
+  const montoNegociacion = parseFloat(propActivas.monto_negociacion ?? 0);
+  const montoActivo      = montoEnviada + montoNegociacion;
+
+  const cicloDias        = r5.rows[0]?.dias          ?? 30;
+  const cierresActuales  = r6.rows[0]?.n             ?? 0;
+  const promMensual      = parseFloat(r7.rows[0]?.prom_mensual ?? 0);
+  const leadsActivos     = r8.rows[0]?.n             ?? 0;
+  const logradoMes       = parseFloat(r9.rows[0]?.logrado ?? 0);
+
+  // Tasa de cierre real basada en propuestas resueltas
+  const tasaPct     = resueltas > 0 ? Math.round((ganadas / resueltas) * 100) : 0;
+  const tasaDec     = tasaPct / 100;
 
   // Tendencia de actividad
   const tendencia: Forecast["tendencia"] =
@@ -635,33 +721,56 @@ export async function forecastingService(): Promise<Forecast> {
   const diasRest  = diasMes - hoy.getDate();
   const semanasR  = diasRest / 7;
   const contactosR = Math.round(llamadasProm * semanasR);
-  const proyAdd    = tasaPct > 0 ? contactosR * (tasaPct / 100) : 0;
+  const proyAdd    = tasaPct > 0 ? contactosR * tasaDec : 0;
   const cierresProyectados = Math.round(cierresActuales + proyAdd);
 
-  // Contactos necesarios para cerrar 5 (meta base)
+  // Contactos necesarios para cerrar meta base
   const metaCierres = Math.max(5, cierresActuales + 2);
   const cierresFaltantes = Math.max(0, metaCierres - cierresActuales);
   const contactosNecesarios = tasaPct > 0
-    ? Math.ceil(cierresFaltantes / (tasaPct / 100))
+    ? Math.ceil(cierresFaltantes / tasaDec)
     : 0;
 
-  // Leads activos (no cerrado ni perdido)
-  const leadsActivosRes = await pool.query(`
-    SELECT COUNT(*)::int AS n FROM prospectos
-    WHERE etapa_pipeline NOT IN ('cerrado_ganado','perdido')
-  `);
-  const leadsActivos = leadsActivosRes.rows[0]?.n ?? 0;
+  // Velocidad comercial: (deals × tasa × monto_prom) / ciclo_dias → S/ por día
+  const velocidadComercial = cicloDias > 0 && leadsCalientes > 0 && montoPromedio > 0
+    ? Math.round((leadsCalientes * tasaDec * montoPromedio) / cicloDias)
+    : 0;
+
+  // Cobertura de pipeline en meses respecto al promedio mensual histórico
+  const pipelineCoberturaMeses = promMensual > 0
+    ? Math.round((montoActivo / promMensual) * 10) / 10
+    : 0;
+
+  // Escenarios sobre el pipeline activo (pesimista / realista / optimista)
+  const escenarioPesimista = Math.round(montoEnviada * 0.20 + montoNegociacion * 0.45);
+  const escenarioRealista  = Math.round(montoActivo  * tasaDec);
+  const escenarioOptimista = Math.round(
+    montoEnviada     * Math.min(tasaDec * 1.5, 0.90) +
+    montoNegociacion * Math.min(tasaDec * 1.8, 0.95)
+  );
 
   const result: Forecast = {
-    llamadas_semana_prom:  llamadasProm,
+    llamadas_semana_prom:     llamadasProm,
     tendencia,
-    tasa_conversion_pct:   tasaPct,
-    leads_activos:         leadsActivos,
-    leads_calientes:       leadsCalientes,
-    cierres_mes_actual:    cierresActuales,
-    cierres_proyectados:   cierresProyectados,
-    ciclo_promedio_dias:   cicloDias,
-    contactos_necesarios:  contactosNecesarios,
+    tasa_conversion_pct:      tasaPct,
+    leads_activos:            leadsActivos,
+    leads_calientes:          leadsCalientes,
+    cierres_mes_actual:       cierresActuales,
+    cierres_proyectados:      cierresProyectados,
+    ciclo_promedio_dias:      cicloDias,
+    contactos_necesarios:     contactosNecesarios,
+    velocidad_comercial:      velocidadComercial,
+    pipeline_cobertura_meses: pipelineCoberturaMeses,
+    valor_promedio_propuesta: Math.round(montoPromedio),
+    aging_promedio_dias:      agingProm,
+    escenario_pesimista:      escenarioPesimista,
+    escenario_realista:       escenarioRealista,
+    escenario_optimista:      escenarioOptimista,
+    // Quota — meta_ingresos se inyecta en la ruta desde objetivos_diarios
+    logrado_ingresos_mes: Math.round(logradoMes),
+    meta_ingresos:        0,   // sobreescrito en la ruta
+    gap_ingresos:         0,
+    predicted_ingresos:   0,
   };
   await cacheSet("inteligencia:forecast", result, 3600); // 1 hora
   return result;
@@ -932,31 +1041,33 @@ export async function tiempoPrimeraRespuestaService() {
 
 // ─── 3. Forecast de ingresos ponderado ───────────────────────────────────────
 
-const PROB_POR_ESTADO: Record<string, number> = {
-  enviada:         0.20,
-  en_negociacion:  0.60,
-  cerrada_ganada:  1.00,
-};
-
 export async function forecastIngresosService() {
-  const rows = await pool.query(`
-    SELECT
-      estado,
-      COUNT(*)::int AS cantidad,
-      COALESCE(SUM(
-        CASE WHEN moneda = 'USD'
-          THEN COALESCE(monto_cerrado, monto_propuesto) * tipo_cambio
-          ELSE COALESCE(monto_cerrado, monto_propuesto)
-        END
-      ), 0)::float AS monto_total
-    FROM propuestas
-    WHERE estado IN ('enviada','en_negociacion','cerrada_ganada')
-    GROUP BY estado
-  `);
+  const [etapas, tasaReal] = await Promise.all([
+    pool.query(`
+      SELECT
+        estado,
+        COUNT(*)::int AS cantidad,
+        COALESCE(SUM(
+          CASE WHEN moneda = 'USD'
+            THEN COALESCE(monto_cerrado, monto_propuesto) * tipo_cambio
+            ELSE COALESCE(monto_cerrado, monto_propuesto)
+          END
+        ), 0)::float AS monto_total
+      FROM propuestas
+      WHERE estado IN ('enviada','en_negociacion','cerrada_ganada')
+      GROUP BY estado
+    `),
+    // Tasa de cierre real: cerradas_ganadas / (cerradas_ganadas + cerradas_perdidas + vencidas)
+    pool.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE estado = 'cerrada_ganada')::float AS ganadas,
+        COUNT(*) FILTER (WHERE estado IN ('cerrada_perdida','vencida','cerrada_ganada'))::float AS resueltas
+      FROM propuestas
+    `),
+  ]);
 
-  let totalPonderado = 0;
-  let totalSinPonderar = 0;
-  const desglose: { estado: string; label: string; cantidad: number; monto_total: number; prob: number; ponderado: number }[] = [];
+  const { ganadas, resueltas } = tasaReal.rows[0];
+  const tasa_cierre_real = resueltas > 0 ? Math.round((ganadas / resueltas) * 100) : null;
 
   const LABELS: Record<string, string> = {
     enviada:        "Enviadas",
@@ -964,24 +1075,33 @@ export async function forecastIngresosService() {
     cerrada_ganada: "Cerradas ganadas",
   };
 
-  for (const row of rows.rows) {
-    const prob       = PROB_POR_ESTADO[row.estado] ?? 0;
-    const ponderado  = row.monto_total * prob;
-    totalPonderado  += ponderado;
-    totalSinPonderar += row.monto_total;
+  let pipeline_activo = 0;
+  let total_cerrado   = 0;
+  const desglose: { estado: string; label: string; cantidad: number; monto_total: number; prob: number; ponderado: number }[] = [];
+
+  for (const row of etapas.rows) {
+    const monto = row.monto_total as number;
+    if (row.estado === 'cerrada_ganada') {
+      total_cerrado += monto;
+    } else {
+      pipeline_activo += monto;
+    }
     desglose.push({
-      estado:     row.estado,
-      label:      LABELS[row.estado] ?? row.estado,
-      cantidad:   row.cantidad,
-      monto_total: row.monto_total,
-      prob:        prob * 100,
-      ponderado,
+      estado:      row.estado,
+      label:       LABELS[row.estado] ?? row.estado,
+      cantidad:    row.cantidad,
+      monto_total: monto,
+      prob:        row.estado === 'cerrada_ganada' ? 100 : (tasa_cierre_real ?? 0),
+      ponderado:   row.estado === 'cerrada_ganada' ? monto : monto * ((tasa_cierre_real ?? 0) / 100),
     });
   }
 
+  const ingreso_esperado = Math.round(total_cerrado + pipeline_activo * ((tasa_cierre_real ?? 0) / 100));
+
   return {
-    total_ponderado:    Math.round(totalPonderado),
-    total_sin_ponderar: Math.round(totalSinPonderar),
+    total_ponderado:    ingreso_esperado,
+    total_sin_ponderar: Math.round(pipeline_activo + total_cerrado),
+    tasa_cierre_real,
     desglose,
   };
 }
@@ -1081,4 +1201,194 @@ export async function canalEfectividadService() {
     interesados:    number;
     pct_conversion: number;
   }[];
+}
+
+// ─── Forecast: leads desglosados por categoría ────────────────────────────────
+export async function forecastLeadsService(tipo: "calientes" | "activos" | "cierres") {
+  let query: string;
+
+  if (tipo === "calientes") {
+    // Prospectos con al menos una propuesta activa (enviada o en negociación)
+    // — alineado con el conteo del forecast que usa la tabla propuestas
+    query = `
+      SELECT DISTINCT ON (p.id)
+        p.id, p.empresa, p.nombre_contacto, p.telefono,
+        p.etapa_pipeline, p.estado_lead, p.ciudad, p.actualizado_en
+      FROM prospectos p
+      JOIN propuestas pr ON pr.prospecto_id = p.id
+      WHERE pr.estado IN ('enviada', 'en_negociacion')
+      ORDER BY p.id, p.actualizado_en DESC
+    `;
+  } else if (tipo === "cierres") {
+    query = `
+      SELECT id, empresa, nombre_contacto, telefono,
+             etapa_pipeline, estado_lead, ciudad, actualizado_en
+      FROM prospectos
+      WHERE etapa_pipeline = 'cerrado_ganado'
+        AND actualizado_en >= DATE_TRUNC('month', CURRENT_DATE)
+      ORDER BY actualizado_en DESC
+    `;
+  } else {
+    query = `
+      SELECT id, empresa, nombre_contacto, telefono,
+             etapa_pipeline, estado_lead, ciudad, actualizado_en
+      FROM prospectos
+      WHERE etapa_pipeline NOT IN ('cerrado_ganado','perdido')
+      ORDER BY actualizado_en DESC
+      LIMIT 100
+    `;
+  }
+
+  const { rows } = await pool.query(query);
+  return rows;
+}
+
+// ─── Inteligencia de conversación ─────────────────────────────────────────────
+
+export async function inteligenciaConversacionService(filters?: { fecha_inicio?: string; fecha_fin?: string }) {
+  const desde = filters?.fecha_inicio ?? null;
+  const hasta = filters?.fecha_fin ?? null;
+
+  const [acciones, duraciones, estadosLeads] = await Promise.all([
+    // Distribución de acciones acordadas en llamadas contestadas del período
+    pool.query(`
+      SELECT
+        accion_acordada,
+        COUNT(*)::int AS total
+      FROM llamadas
+      WHERE contestada = true
+        AND accion_acordada IS NOT NULL
+        AND ($1::timestamptz IS NULL OR fecha >= $1)
+        AND ($2::timestamptz IS NULL OR fecha  < $2)
+      GROUP BY accion_acordada
+      ORDER BY total DESC
+    `, [desde, hasta]),
+
+    // Duración promedio por resultado en el período
+    pool.query(`
+      SELECT
+        resultado,
+        ROUND(AVG(duracion_minutos))::int AS duracion_prom,
+        COUNT(*)::int AS total
+      FROM llamadas
+      WHERE contestada = true
+        AND duracion_minutos > 0
+        AND resultado IS NOT NULL
+        AND ($1::timestamptz IS NULL OR fecha >= $1)
+        AND ($2::timestamptz IS NULL OR fecha  < $2)
+      GROUP BY resultado
+      ORDER BY duracion_prom DESC
+    `, [desde, hasta]),
+
+    // Estado actual de prospectos contactados en el período (coincide con ProspectosPage)
+    pool.query(`
+      SELECT
+        p.estado_lead AS resultado,
+        COUNT(DISTINCT p.id)::int AS total
+      FROM prospectos p
+      WHERE p.estado_lead IS NOT NULL
+        AND EXISTS (
+          SELECT 1 FROM llamadas l
+          WHERE l.prospecto_id = p.id
+            AND ($1::timestamptz IS NULL OR l.fecha >= $1)
+            AND ($2::timestamptz IS NULL OR l.fecha  < $2)
+        )
+      GROUP BY p.estado_lead
+      ORDER BY total DESC
+    `, [desde, hasta]),
+  ]);
+
+  return {
+    acciones_acordadas:     acciones.rows    as { accion_acordada: string; total: number }[],
+    duracion_por_resultado: duraciones.rows  as { resultado: string; duracion_prom: number; total: number }[],
+    resultados_contestadas: estadosLeads.rows as { resultado: string; total: number }[],
+  };
+}
+
+// ─── Drill-down: leads por nivel de score ─────────────────────────────────────
+
+export async function leadsScoreNivelService(niveles: string[]) {
+  const { rows } = await pool.query(`
+    WITH ultimos AS (
+      SELECT DISTINCT ON (prospecto_id)
+        prospecto_id, score, nivel
+      FROM score_history
+      ORDER BY prospecto_id, registrado_en DESC
+    )
+    SELECT
+      p.id, p.empresa, p.nombre_contacto, p.telefono, p.ciudad,
+      p.etapa_pipeline, p.estado_lead, u.score
+    FROM prospectos p
+    JOIN ultimos u ON u.prospecto_id = p.id
+    WHERE u.nivel = ANY($1)
+      AND p.eliminado = false
+      AND p.etapa_pipeline NOT IN ('cerrado_ganado','perdido')
+    ORDER BY u.score DESC
+    LIMIT 150
+  `, [niveles]);
+  return rows as { id: string; empresa: string; nombre_contacto: string | null; telefono: string | null; ciudad: string | null; etapa_pipeline: string; estado_lead: string | null; score: number }[];
+}
+
+// ─── Drill-down: leads por estado_lead ───────────────────────────────────────
+
+export async function leadsPorEstadoService(estado: string) {
+  const { rows } = await pool.query(`
+    SELECT id, empresa, nombre_contacto, telefono, ciudad, etapa_pipeline, estado_lead
+    FROM prospectos
+    WHERE estado_lead = $1
+      AND eliminado = false
+      AND etapa_pipeline NOT IN ('cerrado_ganado','perdido')
+    ORDER BY actualizado_en DESC
+    LIMIT 150
+  `, [estado]);
+  return rows as { id: string; empresa: string; nombre_contacto: string | null; telefono: string | null; ciudad: string | null; etapa_pipeline: string; estado_lead: string }[];
+}
+
+// ─── Drill-down: leads por paquete web cotizado ───────────────────────────────
+
+export async function leadsPorPaqueteWebService(paquete: string) {
+  const { rows } = await pool.query(`
+    SELECT DISTINCT
+      p.id, p.empresa, p.nombre_contacto, p.telefono, p.ciudad,
+      p.etapa_pipeline, p.estado_lead,
+      pr.estado AS estado_propuesta,
+      pr.monto_propuesto
+    FROM prospectos p
+    JOIN propuestas pr ON pr.prospecto_id = p.id
+    WHERE pr.descripcion = $1
+      AND p.eliminado = false
+    ORDER BY pr.estado, p.empresa
+    LIMIT 100
+  `, [paquete]);
+  return rows as { id: string; empresa: string; nombre_contacto: string | null; telefono: string | null; ciudad: string | null; etapa_pipeline: string; estado_lead: string | null; estado_propuesta: string; monto_propuesto: number }[];
+}
+
+// ─── Forecast histórico mensual (últimos 6 meses) ────────────────────────────
+
+export async function forecastHistoricoService() {
+  const { rows } = await pool.query(`
+    WITH meses AS (
+      SELECT generate_series(
+        DATE_TRUNC('month', CURRENT_DATE - INTERVAL '5 months'),
+        DATE_TRUNC('month', CURRENT_DATE),
+        '1 month'::interval
+      )::date AS mes
+    )
+    SELECT
+      TO_CHAR(m.mes, 'YYYY-MM') AS mes,
+      COALESCE(SUM(
+        CASE WHEN p.moneda = 'USD'
+          THEN COALESCE(p.monto_cerrado, p.monto_propuesto) * p.tipo_cambio
+          ELSE COALESCE(p.monto_cerrado, p.monto_propuesto)
+        END
+      ), 0)::float AS cerrado,
+      COUNT(p.id)::int AS cantidad
+    FROM meses m
+    LEFT JOIN propuestas p
+      ON DATE_TRUNC('month', p.fecha_cierre) = m.mes
+      AND p.estado = 'cerrada_ganada'
+    GROUP BY m.mes
+    ORDER BY m.mes
+  `);
+  return rows as { mes: string; cerrado: number; cantidad: number }[];
 }

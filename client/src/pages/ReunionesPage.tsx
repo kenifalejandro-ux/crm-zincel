@@ -5,7 +5,6 @@ import { Plus, FileDown } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
   getReuniones,
-  crearReunion,
   actualizarReunion,
   eliminarReunionesMasivoService,
   getEstadisticasReuniones,
@@ -15,7 +14,7 @@ import { getProspectos } from "../services/prospectos.api";
 import type { Reunion } from "../types/reunion.types";
 
 import { ListaReuniones }                from "../components/reuniones/ListaReuniones";
-import { ModalReunion, type FormReunion } from "../components/reuniones/ModalReunion";
+import { ReunionForm } from "../components/reuniones/ReunionForm";
 import { ModalEditarReunion }            from "../components/reuniones/ModalEditarReunion";
 import { TableBulkActions }              from "../components/ui/TableBulkActions";
 import { KpisReuniones }                 from "../components/reuniones/KpisReuniones";
@@ -28,23 +27,11 @@ const ESTADOS = ["programada", "realizada", "cancelada", "reprogramada", "en_pro
 
 const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
-const FORM_INICIAL: FormReunion = {
-  prospecto_id: "",
-  titulo:       "",
-  fecha_hora:   "",
-  modalidad:    "google_meet",
-  enlace:       "",
-  estado:       "programada",
-  notas:        "",
-};
-
 export default function ReunionesPage() {
   const [reuniones,     setReuniones]     = useState<Reunion[]>([]);
   const [prospectos,    setProspectos]    = useState<any[]>([]);
   const [modalAbierto,  setModalAbierto]  = useState(false);
-  const [cargando,      setCargando]      = useState(false);
   const [filtroEstado,  setFiltroEstado]  = useState("");
-  const [form,          setForm]          = useState<FormReunion>(FORM_INICIAL);
   const [seleccionados, setSeleccionados] = useState<string[]>([]);
 
   const [estadisticas, setEstadisticas] = useState<any[]>([]);
@@ -149,23 +136,6 @@ export default function ReunionesPage() {
     } catch {
       alert("Error eliminando reuniones");
     }
-  };
-
-  const handleGuardar = async () => {
-    if (!form.prospecto_id || !form.titulo || !form.fecha_hora) return;
-    setCargando(true);
-    try {
-      await crearReunion({
-        ...form,
-        enlace:    form.enlace    || undefined,
-        modalidad: form.modalidad as any,
-        estado:    form.estado    as any,
-      });
-      setModalAbierto(false);
-      setForm(FORM_INICIAL);
-      cargarAnalisis(filtroFecha, filtroPeriodo);
-    } catch (err) { console.error(err); }
-    finally { setCargando(false); }
   };
 
   const exportarExcel = () => {
@@ -296,16 +266,12 @@ export default function ReunionesPage() {
         />
       )}
 
-      {modalAbierto && (
-        <ModalReunion
-          form={form}
-          prospectos={prospectos}
-          cargando={cargando}
-          onFormChange={setForm}
-          onGuardar={handleGuardar}
-          onCerrar={() => setModalAbierto(false)}
-        />
-      )}
+      <ReunionForm
+        abierto={modalAbierto}
+        onCerrar={() => setModalAbierto(false)}
+        onGuardado={() => cargarAnalisis(filtroFecha, filtroPeriodo)}
+        prospectos={prospectos}
+      />
 
     </div>
   );

@@ -12,7 +12,9 @@ export type EstadoLead =
   | "buzon_de_voz"
   | "fuera_de_servicio"
   | "numero_equivocado"
-  | "ya_tiene_proveedor";
+  | "ya_tiene_proveedor"
+  | "baja_de_oficio"
+  | "solicita_informacion";
 
 export type CanalContacto = "llamada" | "whatsapp" | "correo" | "linkedin" | "instagram" | "facebook";
 export type FuenteLead = "facebook" | "instagram" | "tiktok" | "linkedin" | "referido" | "web" | "llamada_fria" | "otro";
@@ -21,6 +23,7 @@ export type Prioridad = "alta" | "media" | "baja";
 export type ClasificacionLead = "gestionado" | "por_gestionar" | "cerrado" | "descartado";
 export type EstadoVenta = "si" | "no" | "en_proceso";
 export type EtapaPipeline = "nuevo" | "contactado" | "interesado" | "propuesta_enviada" | "negociacion" | "cerrado_ganado" | "perdido";
+export type EstadoWeb = "actualizada" | "por_actualizar" | "vencida" | "en_mantenimiento" | "sin_informacion";
 export type ModalidadReunion = "presencial" | "virtual" | "google_meet" | "zoom";
 export type EstadoReunion = "agendada" | "en_proceso" | "cerrada" | "descartada";
 
@@ -92,6 +95,7 @@ export interface Prospecto {
   pagina_web?:      string;
   web_activa?:      boolean;
   proveedor_web?:   string;
+  estado_web?:      EstadoWeb | null;
   nombre_contacto?: string;
   cargo?:           string;
   telefono?:        string;
@@ -108,7 +112,9 @@ export interface Prospecto {
   etapa_pipeline:          EtapaPipeline;
   valor_estimado?:         number | null;
   valor_pipeline?:         number;
+  moneda?:                 string | null;
   servicio_propuesta?:     string | null;
+  propuestas_list?:        Array<{ id: string; servicio: string; monto: number; moneda: string; estado: string }> | null;
   fecha_primer_contacto?:  string | null;
   fecha_cierre?:           string | null;
   creado_en:               string;

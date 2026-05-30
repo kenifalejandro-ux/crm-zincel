@@ -17,6 +17,7 @@ import TareasPage        from "../pages/TareasPage";
 import PipelinePage      from "../pages/PipelinePage";
 import PlantillasPage    from "../pages/PlantillasPage";
 import InteligenciaPage  from "../pages/InteligenciaPage";
+import InicioPage        from "../pages/InicioPage";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { estaAutenticado, cargando } = useAuth();
@@ -46,8 +47,9 @@ export function AppRouter() {
             </PrivateRoute>
           }
         >
-          <Route index        element={<DashboardPage />} />
-          <Route path="prospectos" element={<ProspectosPage />} />
+          <Route index              element={<DashboardPage />} />
+          <Route path="inicio"      element={<InicioPage />} />
+          <Route path="prospectos"  element={<ProspectosPage />} />
           <Route path="llamadas"   element={<LlamadasPage />} />
           <Route path="reuniones"  element={<ReunionesPage />} />
           <Route path="finanzas"   element={<FinanzasPage />} />

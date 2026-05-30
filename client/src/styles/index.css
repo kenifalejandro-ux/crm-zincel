@@ -13,7 +13,7 @@
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --color-white: #ffffff;
-    --color-text: #ffffffcc;
+    --color-text: #18181b;
     --spacing: .25rem;
     --container-4xl: 56rem;
     --text-base: 1rem;
@@ -32,7 +32,12 @@
 }
 
 @layer base {
-  
+  body {
+    color: #18181b;
+    font-weight: 450;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 @layer utilities {
@@ -102,6 +107,32 @@
 
 html {
   font-size: var(--font-size);
+}
+
+/* ── Fondo animado — luz solar que viaja de esquina en esquina ── */
+
+/* CSS @property permite animar colores de gradiente directamente */
+@property --sun-x     { syntax: '<percentage>'; inherits: false; initial-value: 10%; }
+@property --sun-y     { syntax: '<percentage>'; inherits: false; initial-value: 90%; }
+@property --sun-color { syntax: '<color>';      inherits: false; initial-value: rgba(255, 210, 80, 0.45); }
+
+@keyframes sun-travel {
+  0%   { --sun-x: 10%;  --sun-y: 90%; --sun-color: rgba(255, 210, 80,  0.45); } /* dorado  — inferior izq  */
+  17%  { --sun-x: 90%;  --sun-y: 90%; --sun-color: rgba(255, 140, 160, 0.40); } /* rosa    — inferior der  */
+  34%  { --sun-x: 50%;  --sun-y: 90%; --sun-color: rgba(0,   210, 200, 0.40); } /* cyan    — inferior centro */
+  50%  { --sun-x: 90%;  --sun-y: 10%; --sun-color: rgba(130, 190, 255, 0.40); } /* azul    — superior der  */
+  67%  { --sun-x: 10%;  --sun-y: 10%; --sun-color: rgba(190, 150, 255, 0.40); } /* lila    — superior izq  */
+  83%  { --sun-x: 10%;  --sun-y: 50%; --sun-color: rgba(52,  211, 153, 0.40); } /* emerald — lateral izq   */
+  100% { --sun-x: 10%;  --sun-y: 90%; --sun-color: rgba(255, 210, 80,  0.45); } /* vuelve al dorado        */
+}
+
+.crm-sun-bg {
+  background: radial-gradient(
+    ellipse 90% 90% at var(--sun-x) var(--sun-y),
+    var(--sun-color) 0%,
+    transparent 70%
+  );
+  animation: sun-travel 18s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 

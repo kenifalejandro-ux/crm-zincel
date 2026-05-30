@@ -10,6 +10,7 @@ export async function getBrochures(filters?: { prospecto_id?: string; fecha_inic
 export async function crearBrochure(payload: {
   prospecto_id: string;
   canal: string;
+  fecha_envio?: string;
   notas?: string;
 }) {
   const { data } = await api.post("/brochures", payload);

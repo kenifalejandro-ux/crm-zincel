@@ -106,6 +106,14 @@ CREATE TYPE rol_usuario AS ENUM (
   'vendedor'
 );
 
+CREATE TYPE accion_acordada_enum AS ENUM (
+  'enviar_brochure',
+  'agendar_reunion',
+  'cotizar',
+  'volver_llamar',
+  'ninguna'
+);
+
 -- ============================================================
 -- TABLA: usuarios
 -- ============================================================
@@ -178,6 +186,7 @@ CREATE TABLE IF NOT EXISTS llamadas (
   contestada        BOOLEAN NOT NULL DEFAULT false,
   duracion_minutos  INTEGER DEFAULT 0,
   resultado         estado_lead,
+  accion_acordada   accion_acordada_enum,
   notas             TEXT,
 
   -- Auditoría

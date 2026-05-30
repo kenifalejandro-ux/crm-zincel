@@ -7,43 +7,30 @@ import {
   getResumenLlamadas,
   getAllLlamadas,
   getEstadisticasLlamadas,
-  crearLlamada,
   actualizarLlamada,
+  eliminarLlamada,
+  eliminarLlamadasMasivo,
   getHeatmapLlamadas,
 } from "../services/llamadas.api";
-import { getProspectos }    from "../services/prospectos.api";
-import { getMotivosPerdida } from "../services/prospectos.api";
+import { getProspectos, getProspecto } from "../services/prospectos.api";
+import { getMotivosPerdida }           from "../services/prospectos.api";
+import { ProspectoDetalle }            from "../components/prospectos/ProspectoDetalle";
+import { ProspectoForm }               from "../components/prospectos/ProspectoForm";
+import type { Prospecto }              from "../types/prospecto.types";
 
 import { KpisLlamadas }           from "../components/llamadas/KpisLlamadas";
 import { EstadisticasPeriodo }    from "../components/llamadas/EstadisticasPeriodo";
 import { HistorialLlamadas }      from "../components/llamadas/HistorialLlamadas";
-import { ModalRegistrarLlamada, type FormLlamada } from "../components/llamadas/ModalRegistrarLlamada";
+import { LlamadaForm } from "../components/llamadas/LlamadaForm";
 import { ModalEditarLlamada }     from "../components/llamadas/ModalEditarLlamada";
 import { HeatmapHoras }           from "../components/llamadas/HeatmapHoras";
 import { MotivosChart }           from "../components/llamadas/MotivosChart";
 import { FiltroPeriodoBotones, type FiltroPeriodo } from "../components/shared/FiltroPeriodoBotones";
 import { useEditar }              from "../hooks/useEditar";
-import { fechaHoy, calcularRangoFecha } from "../utils/date";
+import { fechaHoy, calcularRangoFecha, toLocalISOString } from "../utils/date";
+import { TableBulkActions } from "../components/ui/TableBulkActions";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-const getNow = () => {
-  const now = new Date();
-  return {
-    fecha:       fechaHoy(),
-    hora_inicio: `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`,
-  };
-};
-
-const getFormInicial = (): FormLlamada => ({
-  prospecto_id: "",
-  ...getNow(),
-  hora_fin:     "",
-  canal:        "llamada",
-  contestada:   false,
-  resultado:    "",
-  notas:        "",
-});
 
 const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
@@ -65,11 +52,43 @@ export default function LlamadasPage() {
   const [heatmap,      setHeatmap]      = useState<any[]>([]);
   const [motivos,      setMotivos]      = useState<any[]>([]);
 
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const [cargando,     setCargando]     = useState(false);
-  const [form,         setForm]         = useState<FormLlamada>(getFormInicial);
+  const [modalAbierto,        setModalAbierto]        = useState(false);
+  const [seleccionados,       setSeleccionados]       = useState<string[]>([]);
+  const [prospectoDetalle,    setProspectoDetalle]    = useState<Prospecto | null>(null);
+  const [prospectoEditar,     setProspectoEditar]     = useState<Prospecto | null>(null);
+  const [cargandoProspecto,   setCargandoProspecto]   = useState(false);
 
   const editar = useEditar<any>();
+
+  const toggleUno   = (id: string) => setSeleccionados(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const toggleTodos = () => setSeleccionados(prev => prev.length === llamadas.length ? [] : llamadas.map(l => l.id));
+
+  const handleVerProspecto = async (prospecto_id: string) => {
+    setCargandoProspecto(true);
+    try {
+      const p = await getProspecto(prospecto_id);
+      setProspectoDetalle(p);
+    } catch (err) { console.error(err); }
+    finally { setCargandoProspecto(false); }
+  };
+
+  const handleEliminar = async (id: string) => {
+    if (!confirm("¿Eliminar esta llamada?")) return;
+    try {
+      await eliminarLlamada(id);
+      await cargarLlamadas(filtroFecha, filtroPeriodo);
+      setSeleccionados(prev => prev.filter(x => x !== id));
+    } catch (err) { console.error(err); }
+  };
+
+  const handleEliminarMasivo = async () => {
+    if (!confirm(`¿Eliminar ${seleccionados.length} llamada${seleccionados.length > 1 ? "s" : ""}?`)) return;
+    try {
+      await eliminarLlamadasMasivo(seleccionados);
+      setSeleccionados([]);
+      await cargarLlamadas(filtroFecha, filtroPeriodo);
+    } catch (err) { console.error(err); }
+  };
 
   const init = fechaInicial();
   const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>(init.periodo);
@@ -114,37 +133,21 @@ export default function LlamadasPage() {
 
   const handleGuardarEdicion = async (formEdit: any) => {
     await editar.guardar(async () => {
-      const { hora_inicio, ...resto } = formEdit;
-      const payload: any = { ...resto };
-      if (hora_inicio && editar.editando?.fecha) {
-        const fechaBase = editar.editando.fecha.split("T")[0];
-        payload.fecha = `${fechaBase}T${hora_inicio}:00.000Z`;
+      const { hora_inicio, fecha, hora_fin, resultado, motivo_no_interes, accion_acordada, ...resto } = formEdit;
+      const payload: any = {
+        ...resto,
+        hora_fin:          hora_fin          || null,
+        resultado:         resultado         || null,
+        motivo_no_interes: motivo_no_interes || null,
+        accion_acordada:   accion_acordada   || null,
+      };
+      const fechaBase = fecha || editar.editando?.fecha?.split("T")[0];
+      if (fechaBase && hora_inicio) {
+        payload.fecha = toLocalISOString(fechaBase, hora_inicio);
       }
       await actualizarLlamada(editar.editando!.id, payload);
       await cargarLlamadas(filtroFecha, filtroPeriodo);
     });
-  };
-
-  // ── Guardar llamada ─────────────────────────────────────
-  const handleGuardar = async () => {
-    if (!form.prospecto_id) return;
-    setCargando(true);
-    try {
-      const fechaISO = `${form.fecha}T${form.hora_inicio}:00.000Z`;
-      await crearLlamada({
-        prospecto_id: form.prospecto_id,
-        fecha:        fechaISO,
-        hora_fin:     form.hora_fin || undefined,
-        canal:        form.canal,
-        contestada:   form.contestada,
-        resultado:    form.resultado || undefined,
-        notas:        form.notas    || undefined,
-      });
-      setModalAbierto(false);
-      setForm(getFormInicial());
-      await cargarLlamadas(filtroFecha, filtroPeriodo);
-    } catch (err) { console.error(err); }
-    finally { setCargando(false); }
   };
 
   // ── Exportar Excel ──────────────────────────────────────
@@ -199,6 +202,7 @@ export default function LlamadasPage() {
           <p className="text-xs text-zinc-600 mt-0.5">Registro de contactos realizados</p>
         </div>
         <div className="flex gap-2">
+          <TableBulkActions count={seleccionados.length} onDelete={handleEliminarMasivo} />
           {llamadas.length > 0 && (
             <button
               onClick={exportarExcel}
@@ -210,7 +214,7 @@ export default function LlamadasPage() {
               </span>
             </button>
           )}
-          <button onClick={() => { setForm(getFormInicial()); setModalAbierto(true); }}
+          <button onClick={() => setModalAbierto(true)}
             className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition">
             <Plus size={15} /> Registrar llamada
           </button>
@@ -241,7 +245,15 @@ export default function LlamadasPage() {
       </div>
 
       {/* Historial */}
-      <HistorialLlamadas llamadas={llamadas} onEditar={editar.abrir} />
+      <HistorialLlamadas
+        llamadas={llamadas}
+        seleccionados={seleccionados}
+        onToggle={toggleUno}
+        onToggleTodos={toggleTodos}
+        onEditar={editar.abrir}
+        onEliminar={handleEliminar}
+        onVerProspecto={handleVerProspecto}
+      />
 
       {editar.editando && (
         <ModalEditarLlamada
@@ -253,14 +265,46 @@ export default function LlamadasPage() {
         />
       )}
 
-      {modalAbierto && (
-        <ModalRegistrarLlamada
-          form={form}
-          prospectos={prospectos}
-          cargando={cargando}
-          onFormChange={setForm}
-          onGuardar={handleGuardar}
-          onCerrar={() => setModalAbierto(false)}
+      <LlamadaForm
+        abierto={modalAbierto}
+        onCerrar={() => setModalAbierto(false)}
+        onGuardado={() => cargarLlamadas(filtroFecha, filtroPeriodo)}
+        prospectos={prospectos}
+      />
+
+      {/* Spinner mientras carga el detalle */}
+      {cargandoProspecto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
+        </div>
+      )}
+
+      {/* Modal ficha de cliente */}
+      {prospectoDetalle && (
+        <ProspectoDetalle
+          prospecto={prospectoDetalle}
+          onCerrar={() => setProspectoDetalle(null)}
+          onEditar={() => {
+            setProspectoEditar(prospectoDetalle);
+            setProspectoDetalle(null);
+          }}
+          onActualizado={async (id) => {
+            const p = await getProspecto(id);
+            setProspectoDetalle(p);
+          }}
+        />
+      )}
+
+      {/* Modal editar prospecto */}
+      {prospectoEditar && (
+        <ProspectoForm
+          prospecto={prospectoEditar}
+          onCerrar={() => setProspectoEditar(null)}
+          onGuardado={async () => {
+            const p = await getProspecto(prospectoEditar.id);
+            setProspectoEditar(null);
+            setProspectoDetalle(p);
+          }}
         />
       )}
 

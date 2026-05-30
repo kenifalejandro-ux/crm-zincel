@@ -4,7 +4,8 @@ import { useState } from "react";
 import { ModalEditar } from "../ui/ModalEditar";
 import type { TipoServicio, EstadoIngreso, Moneda } from "../../types/finanzas.types";
 
-const cls = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
+const cls = "w-full px-3 py-2 text-xs bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/25 [color-scheme:dark]";
+const lbl = "text-[10px] text-zinc-400 font-semibold uppercase tracking-widest mb-1 block";
 
 const TIPOS: { value: TipoServicio; label: string }[] = [
   { value: "desarrollo_web",    label: "Desarrollo web (a medida)" },
@@ -77,25 +78,26 @@ export function ModalEditarIngreso({ ingreso, guardando, error, onGuardar, onCer
       onGuardar={() => onGuardar(form)}
       onCerrar={onCerrar}
       size="md"
+      variant="dark"
     >
       <div className="space-y-3">
 
         {ingreso.propuesta_id && (
-          <div className="flex items-center gap-2 bg-purple-50 border border-purple-100 rounded-xl px-3 py-2">
-            <span className="text-xs font-medium text-purple-700">Generado desde propuesta</span>
+          <div className="flex items-center gap-2 bg-purple-900/20 border border-purple-700/30 rounded-xl px-3 py-2">
+            <span className="text-xs font-medium text-purple-400">Generado desde propuesta</span>
             <span className="text-[10px] text-purple-500 ml-auto font-mono">#{ingreso.propuesta_id.slice(0, 8)}</span>
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1 block">Empresa / Cliente</label>
+            <label className={lbl}>Empresa / Cliente</label>
             <input type="text" value={form.empresa}
               onChange={(e) => set({ empresa: e.target.value })}
               className={cls} placeholder="Empresa XYZ" />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1 block">Tipo de servicio</label>
+            <label className={lbl}>Tipo de servicio</label>
             <select value={form.tipo_servicio}
               onChange={(e) => set({ tipo_servicio: e.target.value as TipoServicio })}
               className={cls}>
@@ -105,7 +107,7 @@ export function ModalEditarIngreso({ ingreso, guardando, error, onGuardar, onCer
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-700 mb-1 block">Descripción</label>
+          <label className={lbl}>Descripción</label>
           <input type="text" value={form.descripcion}
             onChange={(e) => set({ descripcion: e.target.value })}
             className={cls} />
@@ -113,7 +115,7 @@ export function ModalEditarIngreso({ ingreso, guardando, error, onGuardar, onCer
 
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1 block">Moneda</label>
+            <label className={lbl}>Moneda</label>
             <select value={form.moneda}
               onChange={(e) => set({ moneda: e.target.value as Moneda })}
               className={cls}>
@@ -122,15 +124,13 @@ export function ModalEditarIngreso({ ingreso, guardando, error, onGuardar, onCer
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1 block">Monto total</label>
+            <label className={lbl}>Monto total</label>
             <input type="number" min={0} step="0.01" value={form.monto_total}
               onChange={(e) => set({ monto_total: e.target.value })}
               className={cls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1 block">
-              Cobrado <span className="text-zinc-600"></span>
-            </label>
+            <label className={lbl}>Cobrado</label>
             <input type="number" min={0} step="0.01"
               max={parseFloat(form.monto_total) || undefined}
               value={form.adelanto}
@@ -144,21 +144,21 @@ export function ModalEditarIngreso({ ingreso, guardando, error, onGuardar, onCer
         </div>
 
         {form.moneda === "USD" && (
-          <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-100 rounded-lg text-xs">
-            <span className="text-amber-700 font-medium">TC al registrar:</span>
-            <span className="text-amber-600">S/</span>
+          <div className="flex items-center gap-2 px-3 py-2 bg-amber-900/20 border border-amber-700/30 rounded-lg text-xs">
+            <span className="text-amber-400 font-medium">TC al registrar:</span>
+            <span className="text-amber-500">S/</span>
             <input type="number" min={1} step={0.01} value={form.tipo_cambio}
               onChange={(e) => set({ tipo_cambio: e.target.value })}
-              className="w-20 px-2 py-1 border border-amber-200 rounded text-xs text-center bg-white focus:outline-none focus:ring-1 focus:ring-amber-400" />
-            <span className="text-amber-600">/ USD</span>
-            <span className="text-amber-500 ml-auto">Se guarda con el registro</span>
+              className="w-20 px-2 py-1 border border-zinc-600 rounded text-xs text-center bg-zinc-800 text-zinc-200 focus:outline-none focus:ring-1 focus:ring-amber-400 [color-scheme:dark]" />
+            <span className="text-amber-500">/ USD</span>
+            <span className="text-zinc-500 ml-auto">Se guarda con el registro</span>
           </div>
         )}
 
         {parseFloat(form.monto_total) > 0 && (
-          <div className="flex items-center justify-between px-3 py-2 bg-orange-50 rounded-lg border border-orange-100">
-            <span className="text-xs text-orange-700 font-medium">Saldo pendiente</span>
-            <span className="text-xs font-bold text-orange-700">
+          <div className="flex items-center justify-between px-3 py-2 bg-orange-900/20 rounded-lg border border-orange-700/30">
+            <span className="text-xs text-orange-400 font-medium">Saldo pendiente</span>
+            <span className="text-xs font-bold text-orange-400">
               {sym} {saldo.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
             </span>
           </div>
@@ -166,7 +166,7 @@ export function ModalEditarIngreso({ ingreso, guardando, error, onGuardar, onCer
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1 block">Estado</label>
+            <label className={lbl}>Estado</label>
             <select value={form.estado}
               onChange={(e) => set({ estado: e.target.value as EstadoIngreso })}
               className={cls}>
@@ -174,7 +174,7 @@ export function ModalEditarIngreso({ ingreso, guardando, error, onGuardar, onCer
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1 block">Fecha de emisión</label>
+            <label className={lbl}>Fecha de emisión</label>
             <input type="date" value={form.fecha}
               onChange={(e) => set({ fecha: e.target.value })}
               className={cls} />
@@ -182,16 +182,14 @@ export function ModalEditarIngreso({ ingreso, guardando, error, onGuardar, onCer
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-700 mb-1 block">
-            Fecha de vencimiento <span className="text-zinc-600">(opcional)</span>
-          </label>
+          <label className={lbl}>Fecha de vencimiento <span className="normal-case">(opcional)</span></label>
           <input type="date" value={form.fecha_vencimiento}
             onChange={(e) => set({ fecha_vencimiento: e.target.value })}
             className={cls} />
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
+          <label className={lbl}>Notas</label>
           <textarea value={form.notas} onChange={(e) => set({ notas: e.target.value })}
             rows={2} className={`${cls} resize-none`} />
         </div>

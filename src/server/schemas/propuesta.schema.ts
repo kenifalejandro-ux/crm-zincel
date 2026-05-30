@@ -15,7 +15,7 @@ export const crearPropuestaSchema = z.object({
   prospecto_id:    z.string().uuid(),
   servicio:        z.enum(SERVICIOS),
   descripcion:     z.string().min(1, "La descripción es obligatoria").max(300),
-  monto_propuesto: z.number().positive("El monto debe ser positivo"),
+  monto_propuesto: z.number().min(0, "El monto no puede ser negativo"),
   monto_cerrado:   z.number().min(0).optional().nullable(),
   moneda:          z.enum(["PEN", "USD"]).default("PEN"),
   tipo_cambio:     z.number().positive().default(1),

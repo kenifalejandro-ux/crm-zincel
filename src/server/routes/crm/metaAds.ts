@@ -2,8 +2,17 @@
 
 import { Router } from "express";
 import { authMiddleware } from "../../shared/middlewares/auth.middleware";
-import { previewMetaInsights, syncMetaAdsService } from "../../services/metaAds.service";
+import { previewMetaInsights, syncMetaAdsService, MetaTokenError } from "../../services/metaAds.service";
 import { getMetaAdsQueue } from "../../config/queue";
+import { pool } from "../../config/database";
+
+async function marcarTokenExpirado(empresa: string) {
+  await pool.query(
+    `UPDATE plataforma_cuentas SET activo = false, notas = CONCAT(COALESCE(notas,''), ' | Token expirado automáticamente ', NOW()::date)
+     WHERE empresa ILIKE $1 AND plataforma = 'meta'`,
+    [empresa]
+  );
+}
 
 export const metaAdsRouter = Router();
 
@@ -25,6 +34,10 @@ metaAdsRouter.get("/preview", async (req, res) => {
     const campanas = await previewMetaInsights(empresa, desde, hasta);
     res.json({ total: campanas.length, campanas });
   } catch (err: any) {
+    if (err instanceof MetaTokenError) {
+      await marcarTokenExpirado(empresa).catch(() => {});
+      return res.status(422).json({ message: err.message, tokenExpirado: true });
+    }
     res.status(500).json({ message: err.message });
   }
 });
@@ -54,6 +67,10 @@ metaAdsRouter.post("/sync", async (req, res) => {
     const resultado = await syncMetaAdsService(empresa, desde, hasta);
     res.json({ ok: true, async: false, ...resultado });
   } catch (err: any) {
+    if (err instanceof MetaTokenError) {
+      await marcarTokenExpirado(empresa).catch(() => {});
+      return res.status(422).json({ message: err.message, tokenExpirado: true });
+    }
     res.status(500).json({ message: err.message });
   }
 });

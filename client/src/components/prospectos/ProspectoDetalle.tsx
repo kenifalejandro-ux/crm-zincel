@@ -1,7 +1,7 @@
 /**client/src/prospectos/ProspectoDetalle.tsx */
 
 import { useEffect, useRef, useState } from "react";
-import { Pencil, Phone, Calendar, FileText, Globe, Mail, MapPin, Building2, User, ClipboardList, GitBranch, CheckSquare, Plus, MessageSquare } from "lucide-react";
+import { Pencil, Trash2, Phone, Calendar, FileText, Globe, Mail, MapPin, Building2, User, ClipboardList, GitBranch, CheckSquare, Plus, MessageSquare } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
@@ -18,17 +18,21 @@ import { TareaForm } from "../tareas/TareaForm";
 import { TareasList } from "../tareas/TareasList";
 import { getProspecto, getScoreHistory } from "../../services/prospectos.api";
 import type { ScoreHistoryEntry } from "../../services/prospectos.api";
-import { getReuniones } from "../../services/reuniones.api";
-import { getBrochures } from "../../services/brochures.api";
+import { getReuniones, actualizarReunion, eliminarReunion } from "../../services/reuniones.api";
+import { ModalEditarReunion } from "../reuniones/ModalEditarReunion";
+import { getBrochures, actualizarBrochure, eliminarBrochure } from "../../services/brochures.api";
+import { ModalEditarBrochure } from "../brochures/ModalEditarBrochure";
 import { getTareas } from "../../services/tareas.api";
-import { getLlamadas } from "../../services/llamadas.api";
+import { getLlamadas, actualizarLlamada, eliminarLlamada } from "../../services/llamadas.api";
+import { ModalEditarLlamada } from "../llamadas/ModalEditarLlamada";
+import { useEditar } from "../../hooks/useEditar";
 import type { Llamada } from "../../types/llamada.types";
 import { usePropuestas } from "../../hooks/usePropuestas";
 import type { Prospecto } from "../../types/prospecto.types";
 import type { Reunion } from "../../types/reunion.types";
 import type { Propuesta, FormPropuesta } from "../../types/propuesta.types";
 import type { Tarea } from "../../types/tarea.types";
-import { fechaHoy } from "../../utils/date";
+import { fechaHoy, toLocalISOString } from "../../utils/date";
 
 const COLOR_ESTADO: Record<string, string> = {
   interesado:         "green",
@@ -39,17 +43,24 @@ const COLOR_ESTADO: Record<string, string> = {
   fuera_de_servicio:  "red",
   numero_equivocado:  "pink",
   ya_tiene_proveedor: "purple",
+  baja_de_oficio:       "gray",
+  solicita_informacion: "blue",
 };
 
 const LABEL_ESTADO: Record<string, string> = {
-  interesado:         "Interesado",
-  no_interesado:      "No interesado",
-  no_contesta:        "No contesta",
-  volver_a_llamar:    "Volver a llamar",
-  buzon_de_voz:       "Buzón de voz",
-  fuera_de_servicio:  "Fuera de servicio",
-  numero_equivocado:  "Número equivocado",
-  ya_tiene_proveedor: "Ya tiene proveedor",
+  nuevo:               "Nuevo (última carga)",
+  por_gestionar:       "Por gestionar",
+  interesado:          "Interesado",
+  solicita_informacion:"Solicita información",
+  no_interesado:       "No interesado",
+  no_contesta:         "No contesta",
+  volver_a_llamar:     "Volver a llamar",
+  buzon_de_voz:        "Buzón de voz",
+  fuera_de_servicio:   "Fuera de servicio",
+  numero_equivocado:   "Número equivocado",
+  ya_tiene_proveedor:  "Empresa con página web",
+  baja_de_oficio:      "Baja de oficio",
+  suspension_temporal: "Suspensión temporal",
 };
 
 const COLOR_PRIORIDAD: Record<string, "red" | "yellow" | "gray"> = {
@@ -218,7 +229,7 @@ function calcularScore(p: Prospecto, llamadas: Llamada[], props: { estado?: stri
   const propEnviada  = props.some(pr => pr.estado === "enviada");
 
   const ETAPA_LABEL: Record<string, string> = { nuevo:"Nuevo", contactado:"Contactado", interesado:"Interesado", propuesta_enviada:"Propuesta enviada", negociacion:"Negociación", cerrado_ganado:"Cerrado ganado", perdido:"Perdido" };
-  const ESTADO_LABEL: Record<string, string> = { interesado:"Interesado", volver_a_llamar:"Volver a llamar", no_contesta:"No contesta", no_interesado:"No interesado", buzon_de_voz:"Buzón de voz", ya_tiene_proveedor:"Ya tiene proveedor" };
+  const ESTADO_LABEL: Record<string, string> = { nuevo:"Nuevo", por_gestionar:"Por gestionar", interesado:"Interesado", solicita_informacion:"Solicita información", no_interesado:"No interesado", no_contesta:"No contesta", volver_a_llamar:"Volver a llamar", buzon_de_voz:"Buzón de voz", fuera_de_servicio:"Fuera de servicio", numero_equivocado:"Número equivocado", ya_tiene_proveedor:"Empresa con página web", baja_de_oficio:"Baja de oficio", suspension_temporal:"Suspensión temporal", perdida:"Venta perdida" };
   const base:   Record<string, number> = { nuevo:5, contactado:15, interesado:40, propuesta_enviada:60, negociacion:75, cerrado_ganado:100, perdido:0 };
   const estMod: Record<string, number> = { interesado:10, volver_a_llamar:5, no_contesta:-10, no_interesado:-20 };
   const priMod: Record<string, number> = { alta:10, media:5, baja:0 };
@@ -469,6 +480,71 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
   const [modalLlamada,  setModalLlamada]  = useState(false);
   const [modalReunion,  setModalReunion]  = useState(false);
   const [modalBrochure, setModalBrochure] = useState(false);
+  const [refetchLlamadas, setRefetchLlamadas] = useState(0);
+
+  const editarLlamada  = useEditar<any>();
+  const editarReunion  = useEditar<any>();
+  const editarBrochure = useEditar<any>();
+
+  const handleGuardarEdicionReunion = async (form: any) => {
+    await editarReunion.guardar(async () => {
+      await actualizarReunion(editarReunion.editando!.id, {
+        titulo:     form.titulo,
+        fecha_hora: form.fecha_hora,
+        modalidad:  form.modalidad as any,
+        enlace:     form.enlace || undefined,
+        estado:     form.estado as any,
+        notas:      form.notas || undefined,
+      });
+      cargarDetalle();
+    });
+  };
+
+  const handleEliminarReunion = async (id: string) => {
+    if (!confirm("¿Eliminar esta reunión?")) return;
+    await eliminarReunion(id);
+    cargarDetalle();
+  };
+
+  const handleGuardarEdicionBrochure = async (form: { canal: string; fecha_envio: string; notas: string }) => {
+    await editarBrochure.guardar(async () => {
+      await actualizarBrochure(editarBrochure.editando!.id, {
+        canal:       form.canal       || undefined,
+        fecha_envio: form.fecha_envio || undefined,
+        notas:       form.notas       || undefined,
+      });
+      cargarDetalle();
+    });
+  };
+
+  const handleEliminarBrochure = async (id: string) => {
+    if (!confirm("¿Eliminar este envío?")) return;
+    await eliminarBrochure(id);
+    cargarDetalle();
+  };
+
+  const handleGuardarEdicionLlamada = async (formEdit: any) => {
+    await editarLlamada.guardar(async () => {
+      const { hora_inicio, fecha, hora_fin, resultado, motivo_no_interes, accion_acordada, ...resto } = formEdit;
+      const payload: any = {
+        ...resto,
+        hora_fin:          hora_fin          || null,
+        resultado:         resultado         || null,
+        motivo_no_interes: motivo_no_interes || null,
+        accion_acordada:   accion_acordada   || null,
+      };
+      const fechaBase = fecha || editarLlamada.editando?.fecha?.split("T")[0];
+      if (fechaBase && hora_inicio) payload.fecha = toLocalISOString(fechaBase, hora_inicio);
+      await actualizarLlamada(editarLlamada.editando!.id, payload);
+      setRefetchLlamadas(n => n + 1);
+    });
+  };
+
+  const handleEliminarLlamada = async (id: string) => {
+    if (!confirm("¿Eliminar esta llamada?")) return;
+    await eliminarLlamada(id);
+    setRefetchLlamadas(n => n + 1);
+  };
 
   // ── Propuestas ───────────────────────────────────────────────
   const { propuestas, cargarPropuestas, agregarPropuesta, editarPropuesta, borrarPropuesta } =
@@ -492,7 +568,7 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
       const [det, reuns, broch, tar, llams] = await Promise.all([
         getProspecto(prospecto.id),
         getReuniones({ prospecto_id: prospecto.id }),
-        getBrochures(prospecto.id),
+        getBrochures({ prospecto_id: prospecto.id }),
         getTareas({ prospecto_id: prospecto.id }),
         getLlamadas(prospecto.id),
       ]);
@@ -726,6 +802,26 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
                     <span className="text-xs text-gray-700">{detalle.web_activa ? "Sí" : "No"}</span>
                   </div>
                 )}
+                {detalle.web_activa && detalle.estado_web && (
+                  <div className="flex items-start gap-2">
+                    <span className="text-xs text-zinc-800 mt-0.5 shrink-0">Estado web:</span>
+                    <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
+                      detalle.estado_web === "actualizada"       ? "bg-green-100 text-green-700"  :
+                      detalle.estado_web === "por_actualizar"    ? "bg-yellow-100 text-yellow-700" :
+                      detalle.estado_web === "vencida"           ? "bg-red-100 text-red-700"      :
+                      detalle.estado_web === "en_mantenimiento"  ? "bg-blue-100 text-blue-700"    :
+                      "bg-zinc-100 text-zinc-600"
+                    }`}>
+                      {{
+                        actualizada:      "Actualizada",
+                        por_actualizar:   "Por actualizar",
+                        vencida:          "Vencida",
+                        en_mantenimiento: "En mantenimiento",
+                        sin_informacion:  "Sin información",
+                      }[detalle.estado_web] ?? detalle.estado_web}
+                    </span>
+                  </div>
+                )}
                 {detalle.proveedor_web && (
                   <div className="flex items-start gap-2">
                     <span className="text-xs text-zinc-800 mt-0.5 shrink-0">Proveedor:</span>
@@ -803,7 +899,12 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
                 <Phone size={13} /> Registrar llamada
               </Button>
             </div>
-            <LlamadaHistorial prospectoId={prospecto.id} />
+            <LlamadaHistorial
+              prospectoId={prospecto.id}
+              onEditar={editarLlamada.abrir}
+              onEliminar={handleEliminarLlamada}
+              refetch={refetchLlamadas}
+            />
           </div>
         )}
 
@@ -820,22 +921,32 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
             ) : (
               <div className="space-y-2">
                 {reuniones.map(r => (
-                  <div key={r.id} className="p-3 rounded-lg border border-gray-100 flex items-start justify-between">
-                    <div>
+                  <div key={r.id} className="p-3 rounded-lg border border-gray-100 flex items-start justify-between hover:bg-gray-50 transition">
+                    <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-zinc-800">{r.titulo}</p>
-                      <p className="text-xs text-zinc-800 mt-0.5 capitalize">{r.modalidad.replace("_", " ")}</p>
-                      {r.notas && <p className="text-xs text-zinc-800 mt-1">{r.notas}</p>}
+                      <p className="text-xs text-zinc-800 mt-0.5 capitalize">{r.modalidad.replace(/_/g, " ")}</p>
+                      {r.notas && <p className="text-xs text-zinc-800 mt-1 truncate">{r.notas}</p>}
                     </div>
-                    <div className="text-right shrink-0 ml-4">
-                      <p className="text-xs font-medium text-gray-700">
-                        {new Date(r.fecha_hora).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
-                      </p>
-                      <p className="text-xs text-zinc-800">
-                        {new Date(r.fecha_hora).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
-                      </p>
-                      <Badge color={r.estado === "realizada" ? "green" : r.estado === "cancelada" ? "red" : "blue"}>
-                        {r.estado}
-                      </Badge>
+                    <div className="flex items-start gap-1 shrink-0 ml-4">
+                      <div className="text-right mr-1">
+                        <p className="text-xs font-medium text-gray-700">
+                          {new Date(r.fecha_hora).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
+                        </p>
+                        <p className="text-xs text-zinc-800">
+                          {new Date(r.fecha_hora).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                        <Badge color={r.estado === "realizada" ? "green" : r.estado === "cancelada" ? "red" : "blue"}>
+                          {r.estado}
+                        </Badge>
+                      </div>
+                      <button onClick={() => editarReunion.abrir(r)}
+                        className="text-zinc-400 hover:text-brand transition p-1 mt-0.5" title="Editar">
+                        <Pencil size={13} />
+                      </button>
+                      <button onClick={() => handleEliminarReunion(r.id)}
+                        className="text-zinc-400 hover:text-red-500 transition p-1 mt-0.5" title="Eliminar">
+                        <Trash2 size={13} />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -857,14 +968,24 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
             ) : (
               <div className="space-y-2">
                 {brochures.map(b => (
-                  <div key={b.id} className="p-3 rounded-lg border border-gray-100 flex items-center justify-between">
+                  <div key={b.id} className="p-3 rounded-lg border border-gray-100 flex items-center justify-between hover:bg-gray-50 transition">
                     <div>
                       <span className="text-xs font-medium text-gray-700 capitalize">{b.canal}</span>
                       {b.notas && <p className="text-xs text-zinc-800 mt-0.5">{b.notas}</p>}
                     </div>
-                    <span className="text-xs text-zinc-800">
-                      {new Date(b.fecha_envio).toLocaleDateString("es-PE")}
-                    </span>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="text-xs text-zinc-800 mr-1">
+                        {new Date(b.fecha_envio).toLocaleDateString("es-PE")}
+                      </span>
+                      <button onClick={() => editarBrochure.abrir({ ...b, empresa: detalle.empresa })}
+                        className="text-zinc-400 hover:text-brand transition p-1" title="Editar">
+                        <Pencil size={13} />
+                      </button>
+                      <button onClick={() => handleEliminarBrochure(b.id)}
+                        className="text-zinc-400 hover:text-red-500 transition p-1" title="Eliminar">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -937,20 +1058,48 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
         abierto={modalLlamada}
         onCerrar={() => setModalLlamada(false)}
         prospectoId={prospecto.id}
-        onGuardado={cargarDetalle}
+        onGuardado={() => setRefetchLlamadas(n => n + 1)}
       />
+
+      {editarLlamada.editando && (
+        <ModalEditarLlamada
+          llamada={editarLlamada.editando}
+          guardando={editarLlamada.guardando}
+          error={editarLlamada.error}
+          onGuardar={handleGuardarEdicionLlamada}
+          onCerrar={editarLlamada.cerrar}
+        />
+      )}
       <ReunionForm
         abierto={modalReunion}
         onCerrar={() => setModalReunion(false)}
         prospectoId={prospecto.id}
         onGuardado={cargarDetalle}
       />
+      {editarReunion.editando && (
+        <ModalEditarReunion
+          reunion={editarReunion.editando}
+          guardando={editarReunion.guardando}
+          error={editarReunion.error}
+          onGuardar={handleGuardarEdicionReunion}
+          onCerrar={editarReunion.cerrar}
+        />
+      )}
       <BrochureForm
         abierto={modalBrochure}
         onCerrar={() => setModalBrochure(false)}
         prospectoId={prospecto.id}
         onGuardado={cargarDetalle}
       />
+      {editarBrochure.editando && (
+        <ModalEditarBrochure
+          brochure={editarBrochure.editando}
+          guardando={editarBrochure.guardando}
+          error={editarBrochure.error}
+          onGuardar={handleGuardarEdicionBrochure}
+          onCerrar={editarBrochure.cerrar}
+        />
+      )}
 
       {/* Modal nueva propuesta */}
       {modalNuevaPropuesta && (

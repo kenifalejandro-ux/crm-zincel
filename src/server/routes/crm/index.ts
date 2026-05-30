@@ -19,6 +19,7 @@ import { plantillasRouter }        from "./plantillas";
 import { inteligenciaRouter }      from "./inteligencia";
 import { activityLogsRouter }      from "./activityLogs";
 import { notificacionesRouter }    from "./notificaciones";
+import { inicioRouter }            from "./inicio";
 
 export function createCrmRouter(): Router {
   const router = Router();
@@ -41,6 +42,7 @@ export function createCrmRouter(): Router {
   router.use("/inteligencia",      inteligenciaRouter);
   router.use("/activity-logs",     activityLogsRouter);
   router.use("/notificaciones",    notificacionesRouter);
+  router.use("/inicio",            inicioRouter);
 
   return router;
 }

@@ -7,6 +7,14 @@ import { obtenerCuentaPorEmpresaYPlataforma } from "./plataformaCuentas.service"
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
+// Error especial para tokens inválidos/vencidos — permite al llamador desactivar la cuenta
+export class MetaTokenError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "MetaTokenError";
+  }
+}
+
 interface MetaAction {
   action_type: string;
   value:       string;
@@ -66,8 +74,12 @@ async function fetchPaginas(url: string, params: Record<string, string>): Promis
       nextUrl = page.paging?.next ?? null;
     }
   } catch (err: any) {
-    const metaMsg = err.response?.data?.error?.message;
-    const metaCod = err.response?.data?.error?.code;
+    const metaErr = err.response?.data?.error;
+    const metaMsg = metaErr?.message;
+    const metaCod = metaErr?.code;
+    if (metaCod === 190 || metaCod === 102 || metaCod === 463 || metaCod === 467) {
+      throw new MetaTokenError(`Meta API (${metaCod}): ${metaMsg}`);
+    }
     if (metaMsg) {
       throw new Error(`Meta API (${metaCod}): ${metaMsg}`);
     }

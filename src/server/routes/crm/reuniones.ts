@@ -110,6 +110,15 @@ reunionesRouter.get("/kpis", async (req, res) => {
 
 // DELETE /api/crm/reuniones/reuniones/:id
 // ✅ Agrega esto en reuniones.ts
+reunionesRouter.delete("/:id", async (req, res) => {
+  try {
+    await eliminarReunionesMasivoService([req.params.id]);
+    res.status(200).json({ ok: true });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
 reunionesRouter.delete("/", async (req, res) => {
   try {
     const { ids } = req.body;

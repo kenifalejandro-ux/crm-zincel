@@ -6,7 +6,6 @@ import * as XLSX from "xlsx";
 
 import {
   getBrochures,
-  crearBrochure,
   actualizarBrochure,
   eliminarBrochuresMasivo,
   getEstadisticasBrochures,
@@ -15,30 +14,21 @@ import {
 import { getProspectos } from "../services/prospectos.api";
 
 import { TablaBrochures }                   from "../components/brochures/TablaBrochures";
-import { ModalBrochure, type FormBrochure } from "../components/brochures/ModalBrochure";
+import { BrochureForm } from "../components/brochures/BrochureForm";
 import { ModalEditarBrochure }              from "../components/brochures/ModalEditarBrochure";
 import { KpisBrochures }                    from "../components/brochures/KpisBrochures";
 import { EstadisticasBrochures }            from "../components/brochures/EstadisticasBrochures";
 import { FiltroPeriodoBotones, type FiltroPeriodo } from "../components/shared/FiltroPeriodoBotones";
 import { TableBulkActions }                 from "@/components/ui/TableBulkActions";
 import { useEditar }                        from "../hooks/useEditar";
-import { fechaHoy, calcularRangoFecha }     from "../utils/date";
+import { calcularRangoFecha }               from "../utils/date";
 
 const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
-
-const FORM_INICIAL: FormBrochure = {
-  prospecto_id: "",
-  canal:        "correo",
-  fecha_envio:  fechaHoy(),
-  notas:        "",
-};
 
 export default function BrochuresPage() {
   const [brochures,    setBrochures]    = useState<any[]>([]);
   const [prospectos,   setProspectos]   = useState<any[]>([]);
   const [modalAbierto, setModalAbierto] = useState(false);
-  const [cargando,     setCargando]     = useState(false);
-  const [form,         setForm]         = useState<FormBrochure>(FORM_INICIAL);
   const [seleccionados, setSeleccionados] = useState<string[]>([]);
   const [rangoActual,   setRangoActual]   = useState<{ fecha_inicio?: string; fecha_fin?: string }>({});
 
@@ -98,18 +88,6 @@ export default function BrochuresPage() {
     setFiltroPeriodo(periodo);
     setFiltroFecha(fecha);
     cargarAnalisis(fecha, periodo);
-  };
-
-  const handleGuardar = async () => {
-    if (!form.prospecto_id || !form.canal) return;
-    setCargando(true);
-    try {
-      await crearBrochure(form);
-      setModalAbierto(false);
-      setForm(FORM_INICIAL);
-      cargarAnalisis(filtroFecha, filtroPeriodo);
-    } catch (err) { console.error(err); }
-    finally { setCargando(false); }
   };
 
   const toggleUno = (id: string) =>
@@ -237,16 +215,12 @@ export default function BrochuresPage() {
         />
       )}
 
-      {modalAbierto && (
-        <ModalBrochure
-          form={form}
-          prospectos={prospectos}
-          cargando={cargando}
-          onFormChange={setForm}
-          onGuardar={handleGuardar}
-          onCerrar={() => setModalAbierto(false)}
-        />
-      )}
+      <BrochureForm
+        abierto={modalAbierto}
+        onCerrar={() => setModalAbierto(false)}
+        onGuardado={() => cargarAnalisis(filtroFecha, filtroPeriodo)}
+        prospectos={prospectos}
+      />
 
     </div>
   );

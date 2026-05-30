@@ -2,31 +2,40 @@
 
 import { COLORS, CARD_CLASS, HEADER_CLASS } from "../lib/tokens";
 import { useEffect, useState } from "react";
-import { TrendingUp, Phone, CalendarDays, FileText, Package, AlertTriangle, CheckCircle, Info, Lightbulb, ChevronDown, Pencil, X, Check } from "lucide-react";
+import { TrendingUp, Phone, CalendarDays, FileText, Package, AlertTriangle, CheckCircle, Info, Lightbulb, ChevronDown, Pencil, X, Check, Clock, Target, Zap } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { getFunnelPipeline, getAnalisisRegion, getMotivosPerdida, getProspecto } from "../services/prospectos.api";
+import { getFunnelPipeline, getAnalisisRegion, getMotivosPerdida, getProspecto, getScoresLeads } from "../services/prospectos.api";
 import { getHeatmapLlamadas }  from "../services/llamadas.api";
 import { getMetricasDashboard } from "../services/dashboard.api";
 import { ProspectoDetalle } from "../components/prospectos/ProspectoDetalle";
 import type { Prospecto } from "../types/prospecto.types";
 import { useNavigate } from "react-router-dom";
-import { getInsights, getLeadsEstancados, getPrioridadOperacional, getForecast, getObjetivos, actualizarObjetivos, getTendencias } from "../services/inteligencia.api";
+import { getInsights, getLeadsEstancados, getPrioridadOperacional, getForecast, getForecastLeads, getObjetivos, actualizarObjetivos, getTendencias } from "../services/inteligencia.api";
 import type { Tendencias } from "../services/inteligencia.api";
 import { FunnelConversion }    from "../components/inteligencia/FunnelConversion";
-import { RegionChart }         from "../components/inteligencia/RegionChart";
+import { RegionInteligente }   from "../components/inteligencia/RegionInteligente";
 import { PrioridadOperacional } from "../components/inteligencia/PrioridadOperacional";
 import { CicloVenta }          from "../components/inteligencia/CicloVenta";
 import { AbandonoPipelineChart }       from "../components/inteligencia/AbandonoPipeline";
 import { TiempoPrimeraRespuestaChart } from "../components/inteligencia/TiempoPrimeraRespuesta";
 import { ForecastIngresosChart }       from "../components/inteligencia/ForecastIngresos";
+import { ForecastHistoricoChart }      from "../components/inteligencia/ForecastHistoricoChart";
 import { RechazosDualesChart }         from "../components/inteligencia/RechazosDuales";
 import { LeadScatterChart }            from "../components/inteligencia/LeadScatterChart";
 import { CanalEfectividadChart }      from "../components/inteligencia/CanalEfectividad";
+import { ConversacionChart }          from "../components/inteligencia/ConversacionChart";
+import { CoberturaLlamadas }         from "../components/inteligencia/CoberturaLlamadas";
+import { EstadoWebChart }             from "../components/inteligencia/EstadoWebChart";
+import { PaquetesWebChart }          from "../components/inteligencia/PaquetesWebChart";
 import { HeatmapHoras }        from "../components/llamadas/HeatmapHoras";
 import { MotivosChart }        from "../components/llamadas/MotivosChart";
-import { ResumenEstadosPropuestas } from "../components/propuestas/ResumenEstadosPropuestas";
+import { ActividadAnual }          from "../components/dashboard/ActividadAnual";
+import { ActividadMensualDiaria }  from "../components/dashboard/ActividadMensualDiaria";
+import { TemperaturaLeadsChart }   from "../components/dashboard/TemperaturaLeadsChart";
+import { AnalisisPropuestas }       from "../components/inteligencia/AnalisisPropuestas";
+import { InsightServicios }         from "../components/inteligencia/InsightServicios";
 import type { FunnelEtapa, RegionEtapa } from "../services/prospectos.api";
-import type { Insight, LeadEstancado, AccionPrioridad, Forecast, ObjetivosDiarios } from "../services/inteligencia.api";
+import type { Insight, LeadEstancado, AccionPrioridad, Forecast, ObjetivosDiarios, LeadPrioridad } from "../services/inteligencia.api";
 import { FiltroPeriodoBotones, type FiltroPeriodo } from "../components/shared/FiltroPeriodoBotones";
 import { calcularRangoFecha } from "../utils/date";
 
@@ -177,6 +186,7 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
                   <th className="text-left py-2 pr-4 text-zinc-600 font-medium">Etapa</th>
                   <th className="text-left py-2 pr-4 text-zinc-600 font-medium">Riesgo</th>
                   <th className="text-left py-2 pr-5 text-zinc-600 font-medium">Sin actividad</th>
+                  <th className="py-2 pr-3 text-zinc-600 font-medium" />
                 </tr>
               </thead>
               <tbody>
@@ -215,6 +225,16 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
                           )}
                         </div>
                       </td>
+                      <td className="py-2 pr-3" onClick={e => e.stopPropagation()}>
+                        {lead.telefono && (
+                          <a
+                            href={`tel:${lead.telefono}`}
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-zinc-900 text-white text-[10px] font-semibold hover:bg-zinc-700 transition whitespace-nowrap"
+                          >
+                            <Phone size={10} /> {lead.telefono}
+                          </a>
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
@@ -244,17 +264,64 @@ const TENDENCIA_STYLE = {
   bajando:  { text: "text-red-500", label: "↓ Bajando",  bg: "bg-red-50"   },
 };
 
-function ForecastPanel({ f }: { f: Forecast }) {
+type Salud = "buena" | "atencion" | "critica";
+
+const SALUD_STYLE: Record<Salud, { badge: string; valor: string; dot: string; label: string }> = {
+  buena:    { badge: "bg-green-50 text-green-700",  valor: "text-zinc-900", dot: "bg-green-500",  label: "Saludable" },
+  atencion: { badge: "bg-amber-50 text-amber-700",  valor: "text-amber-600", dot: "bg-amber-500", label: "Atención"  },
+  critica:  { badge: "bg-red-50 text-red-600",      valor: "text-red-500",  dot: "bg-red-500",    label: "Crítico"   },
+};
+
+function saludLlamadas(prom: number): Salud {
+  if (prom >= 5)  return "buena";
+  if (prom >= 2)  return "atencion";
+  return "critica";
+}
+function saludCobertura(x: number): Salud {
+  if (x === 0)             return "atencion"; // sin historia aún
+  if (x >= 3 && x <= 6)   return "buena";
+  if (x > 1 && x < 3)     return "atencion";
+  return "critica"; // <1 (sin pipeline) o >6 (pipeline estancado / sin convertir)
+}
+function saludAging(dias: number): Salud {
+  if (dias === 0 || dias <= 21) return "buena";
+  if (dias <= 45)               return "atencion";
+  return "critica";
+}
+function saludTasa(pct: number): Salud {
+  if (pct >= 40) return "buena";
+  if (pct >= 20) return "atencion";
+  return "critica";
+}
+
+function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
+  f:             Forecast;
+  onVerLeads?:   (tipo: "calientes" | "activos" | "cierres", label: string) => void;
+  onEditarMeta?: (meta: number) => void;
+}) {
   const t       = TENDENCIA_STYLE[f.tendencia];
   const progPct = f.cierres_proyectados > 0
     ? Math.min(100, Math.round((f.cierres_mes_actual / f.cierres_proyectados) * 100))
     : 0;
 
+  function fmtSol(n: number) {
+    if (n >= 1_000_000) return `S/ ${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000)     return `S/ ${(n / 1_000).toFixed(1)}k`;
+    if (n > 0)          return `S/ ${n}`;
+    return "S/ —";
+  }
+
+  const ESCENARIOS = [
+    { label: "Pesimista",  value: f.escenario_pesimista, bg: "bg-zinc-50",    num: "text-zinc-700",  border: "" },
+    { label: "Realista",   value: f.escenario_realista,  bg: "bg-brand/5",    num: "text-zinc-900",  border: "border border-brand/20" },
+    { label: "Optimista",  value: f.escenario_optimista, bg: "bg-amber-50",   num: "text-amber-700", border: "" },
+  ];
+
   return (
     <div className={CARD_CLASS}>
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <TrendingUp size={14} className="text-zinc-500 shrink-0" strokeWidth={2} />
           <div>
@@ -267,13 +334,52 @@ function ForecastPanel({ f }: { f: Forecast }) {
         </span>
       </div>
 
+      {/* Velocidad comercial */}
+      {f.velocidad_comercial > 0 && (
+        <div className="mb-4 px-4 py-3 bg-zinc-900 rounded-2xl flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <Zap size={11} className="text-zinc-400" />
+              <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-semibold">Velocidad comercial</p>
+            </div>
+            <p className="text-2xl font-bold text-white leading-none">
+              {fmtSol(f.velocidad_comercial)}
+              <span className="text-sm font-normal text-zinc-400"> / día</span>
+            </p>
+            <p className="text-[10px] text-zinc-500 mt-1">pipeline activo generando por día</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[9px] text-zinc-500 uppercase tracking-widest mb-0.5">Tasa cierre</p>
+            <p className={`text-lg font-bold ${SALUD_STYLE[saludTasa(f.tasa_conversion_pct)].valor.replace("text-zinc-900","text-zinc-300")}`}>
+              {f.tasa_conversion_pct}%
+            </p>
+            <p className={`text-[9px] font-semibold ${SALUD_STYLE[saludTasa(f.tasa_conversion_pct)].badge} px-1.5 py-0.5 rounded-full mt-1 inline-block`}>
+              {SALUD_STYLE[saludTasa(f.tasa_conversion_pct)].label}
+            </p>
+            <p className="text-[9px] text-zinc-600 mt-1">Meta: ≥ 40%</p>
+          </div>
+        </div>
+      )}
+
+      {/* Escenarios */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        {ESCENARIOS.map(s => (
+          <div key={s.label} className={`rounded-xl p-3 text-center ${s.bg} ${s.border}`}>
+            <p className="text-[9px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">{s.label}</p>
+            <p className={`text-base font-bold leading-none ${s.num}`}>
+              {s.value > 0 ? fmtSol(s.value) : "S/ —"}
+            </p>
+          </div>
+        ))}
+      </div>
+
       {/* Cierres progress bar */}
-      <div className="mb-5">
+      <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] font-semibold text-zinc-700">Cierres este mes</span>
           <span className="text-[11px] text-zinc-500">{progPct}% del objetivo</span>
         </div>
-        <div className="relative h-8 bg-zinc-100 rounded-xl overflow-hidden">
+        <div className="relative h-7 bg-zinc-100 rounded-xl overflow-hidden">
           <div
             className="h-full rounded-xl transition-all duration-700 flex items-center justify-end pr-3"
             style={{ width: `${Math.max(progPct, f.cierres_mes_actual > 0 ? 6 : 0)}%`, backgroundColor: COLORS.primary }}
@@ -284,46 +390,264 @@ function ForecastPanel({ f }: { f: Forecast }) {
           </div>
         </div>
         <div className="flex items-center justify-between mt-1.5">
-          <span className="text-[10px] text-zinc-500">{f.cierres_mes_actual} cerrados</span>
+          {onVerLeads ? (
+            <button
+              onClick={() => onVerLeads("cierres", "Cierres del mes")}
+              className="flex items-center gap-1 text-[11px] font-semibold text-brand hover:underline transition"
+            >
+              {f.cierres_mes_actual} cerrados este mes
+              <ChevronDown size={11} className="-rotate-90" />
+            </button>
+          ) : (
+            <span className="text-[10px] text-zinc-500">{f.cierres_mes_actual} cerrados</span>
+          )}
           <span className="text-[10px] text-zinc-500">{f.cierres_proyectados} proyectados · {f.ciclo_promedio_dias}d ciclo</span>
         </div>
       </div>
 
-      {/* Stats + Conversión gauge */}
-      <div className="flex items-start gap-4">
-        <div className="flex-1 grid grid-cols-2 gap-2">
-          {[
-            { label: "Llamadas / sem.",   value: f.llamadas_semana_prom,                                       icon: <Phone size={11} className="text-zinc-400" />       },
-            { label: "Leads activos",     value: f.leads_activos,                                              icon: <TrendingUp size={11} className="text-zinc-400" />  },
-            { label: "Leads calientes",   value: f.leads_calientes,                                            icon: <Lightbulb size={11} className="text-zinc-400" />   },
-            { label: "Contactos neces.",  value: f.contactos_necesarios > 0 ? f.contactos_necesarios : "—",   icon: <CalendarDays size={11} className="text-zinc-400" /> },
-          ].map(s => (
-            <div key={s.label} className="border border-zinc-100 rounded-xl p-3 flex items-center gap-2">
-              <span className="shrink-0">{s.icon}</span>
-              <div className="min-w-0">
-                <p className="text-[13px] font-bold text-zinc-800 leading-none">{s.value}</p>
-                <p className="text-[9px] text-zinc-500 mt-0.5 leading-tight">{s.label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Stats grid con semáforo y meta */}
+      <div className="grid grid-cols-2 gap-2">
 
-        {/* Gauge tasa conversión */}
-        <div className="shrink-0 flex flex-col items-center gap-1 pt-1">
-          <MiniGauge valor={f.tasa_conversion_pct} color={COLORS.primary} />
-          <p className="text-[9px] text-zinc-400 text-center leading-tight">Tasa<br/>conversión</p>
-          <p className="text-[8px] text-zinc-400">90 días</p>
+        {/* Llamadas por semana */}
+        {(() => {
+          const s = saludLlamadas(f.llamadas_semana_prom);
+          const st = SALUD_STYLE[s];
+          return (
+            <div className="border border-zinc-100 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Phone size={10} className="text-zinc-400" />
+                  <span className="text-[9px] text-zinc-500 font-medium">Llamadas / sem.</span>
+                </div>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${st.badge}`}>{st.label}</span>
+              </div>
+              <p className={`text-xl font-bold leading-none ${st.valor}`}>{f.llamadas_semana_prom}</p>
+              <p className="text-[9px] text-zinc-400 mt-1.5">Meta: ≥ 5 / semana</p>
+            </div>
+          );
+        })()}
+
+        {/* Propuestas activas */}
+        {(() => {
+          const clickable = !!onVerLeads;
+          const inner = (
+            <>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <TrendingUp size={10} className="text-zinc-400" />
+                  <span className="text-[9px] text-zinc-500 font-medium">Propuestas activas</span>
+                </div>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600">
+                  {f.leads_calientes > 0 ? `${f.leads_calientes} abiertas` : "Sin pipeline"}
+                </span>
+              </div>
+              <p className="text-xl font-bold leading-none text-zinc-900">{f.leads_calientes}</p>
+              <p className="text-[9px] text-zinc-400 mt-1.5">Enviadas + en negociación</p>
+            </>
+          );
+          return clickable ? (
+            <button
+              onClick={() => onVerLeads!("calientes", "Propuestas activas")}
+              className="border border-zinc-100 rounded-xl p-3 hover:border-brand/40 hover:bg-brand/5 transition group text-left"
+            >
+              {inner}
+            </button>
+          ) : (
+            <div className="border border-zinc-100 rounded-xl p-3">{inner}</div>
+          );
+        })()}
+
+        {/* Cobertura pipeline */}
+        {(() => {
+          const val = f.pipeline_cobertura_meses;
+          const s   = saludCobertura(val);
+          const st  = SALUD_STYLE[s];
+          const sinHistoria = val === 0;
+          return (
+            <div className="border border-zinc-100 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Target size={10} className="text-zinc-400" />
+                  <span className="text-[9px] text-zinc-500 font-medium">Cobertura pipeline</span>
+                </div>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${sinHistoria ? "bg-zinc-100 text-zinc-400" : st.badge}`}>
+                  {sinHistoria ? "Sin historia" : st.label}
+                </span>
+              </div>
+              <p className={`text-xl font-bold leading-none ${sinHistoria ? "text-zinc-400" : st.valor}`}>
+                {sinHistoria ? "—" : `${val}x`}
+              </p>
+              <p className="text-[9px] text-zinc-400 mt-1.5">Meta: 3 – 6x · +6x = pipeline estancado</p>
+            </div>
+          );
+        })()}
+
+        {/* Aging propuestas */}
+        {(() => {
+          const dias = f.aging_promedio_dias;
+          const s    = saludAging(dias);
+          const st   = SALUD_STYLE[s];
+          return (
+            <div className="border border-zinc-100 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Clock size={10} className="text-zinc-400" />
+                  <span className="text-[9px] text-zinc-500 font-medium">Aging propuestas</span>
+                </div>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${dias === 0 ? "bg-zinc-100 text-zinc-400" : st.badge}`}>
+                  {dias === 0 ? "Sin datos" : st.label}
+                </span>
+              </div>
+              <p className={`text-xl font-bold leading-none ${dias === 0 ? "text-zinc-400" : st.valor}`}>
+                {dias === 0 ? "—" : `${dias}d`}
+              </p>
+              <p className="text-[9px] text-zinc-400 mt-1.5">Meta: &lt; 30d · +45d = riesgo de caída</p>
+            </div>
+          );
+        })()}
+
+      </div>
+
+      {/* ── Quota forecast (Zoho-style) ── */}
+      <QuotaSection f={f} onEditarMeta={onEditarMeta} />
+    </div>
+  );
+}
+
+// ─── Quota Section ────────────────────────────────────────────────────────────
+
+function QuotaSection({
+  f,
+  onEditarMeta,
+}: {
+  f:            Forecast;
+  onEditarMeta?: (meta: number) => void;
+}) {
+  const [editando,  setEditando]  = useState(false);
+  const [metaInput, setMetaInput] = useState(String(f.meta_ingresos));
+
+  function fmt(n: number) {
+    if (n >= 1_000_000) return `S/ ${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000)     return `S/ ${(n / 1_000).toFixed(1)}k`;
+    if (n > 0)          return `S/ ${Math.round(n)}`;
+    return "S/ 0";
+  }
+
+  const meta      = f.meta_ingresos      || 5000;
+  const logrado   = f.logrado_ingresos_mes;
+  const predicted = f.predicted_ingresos;
+  const gap       = f.gap_ingresos;
+
+  const pctLogrado   = Math.min(100, Math.round((logrado   / meta) * 100));
+  const pctPredicted = Math.min(100, Math.round((predicted / meta) * 100));
+
+  const hoy = new Date();
+  const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+  const handleGuardar = () => {
+    const val = parseFloat(metaInput.replace(/[^0-9.]/g, ""));
+    if (val > 0 && onEditarMeta) onEditarMeta(val);
+    setEditando(false);
+  };
+
+  return (
+    <div className="mt-4 pt-4 border-t border-zinc-100 space-y-3">
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">
+            Meta de ingresos — {MESES[hoy.getMonth()]}
+          </p>
+        </div>
+        {!editando ? (
+          <button
+            onClick={() => { setMetaInput(String(meta)); setEditando(true); }}
+            className="flex items-center gap-1 text-[10px] text-zinc-400 hover:text-brand transition"
+          >
+            <Pencil size={10} /> Editar meta
+          </button>
+        ) : (
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              value={metaInput}
+              onChange={e => setMetaInput(e.target.value)}
+              className="w-24 text-xs px-2 py-1 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/40 text-right"
+              min={100}
+              autoFocus
+            />
+            <button onClick={() => setEditando(false)} className="p-1 text-zinc-400 hover:text-zinc-600 transition">
+              <X size={12} />
+            </button>
+            <button onClick={handleGuardar} className="flex items-center gap-1 text-[11px] text-white bg-brand px-2 py-1 rounded-lg hover:bg-brand-hover transition">
+              <Check size={11} /> Guardar
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* 4 KPIs estilo Zoho */}
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { label: "Logrado",   value: fmt(logrado),   sub: "cerrado este mes",      cls: logrado >= meta ? "text-green-600" : "text-zinc-900" },
+          { label: "Meta",      value: fmt(meta),       sub: "objetivo mensual",       cls: "text-zinc-900" },
+          { label: "Gap",       value: gap > 0 ? fmt(gap) : "✓ Meta cumplida", sub: gap > 0 ? "aún te falta" : "objetivo alcanzado", cls: gap > 0 ? "text-red-500" : "text-green-600" },
+          { label: "Predicho",  value: fmt(predicted),  sub: "logrado + pipeline",    cls: predicted >= meta ? "text-green-600" : "text-amber-600" },
+        ].map(k => (
+          <div key={k.label} className="bg-zinc-50 rounded-xl p-2.5 text-center">
+            <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-1">{k.label}</p>
+            <p className={`text-sm font-bold leading-none ${k.cls}`}>{k.value}</p>
+            <p className="text-[9px] text-zinc-400 mt-1 leading-tight">{k.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Barra doble: logrado (sólido) + predicho (semitransparente) */}
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] text-zinc-500">Progreso vs meta</span>
+          <span className="text-[10px] font-semibold text-zinc-700">{pctLogrado}% logrado · {pctPredicted}% predicho</span>
+        </div>
+        <div className="relative h-4 bg-zinc-100 rounded-full overflow-hidden">
+          {/* Barra predicho (fondo, más ancha) */}
+          <div
+            className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
+            style={{ width: `${pctPredicted}%`, backgroundColor: COLORS.primary, opacity: 0.25 }}
+          />
+          {/* Barra logrado (encima, sólida) */}
+          <div
+            className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 flex items-center justify-end pr-2"
+            style={{ width: `${Math.max(pctLogrado, logrado > 0 ? 4 : 0)}%`, backgroundColor: COLORS.primary }}
+          >
+            {pctLogrado > 15 && (
+              <span className="text-[9px] font-bold text-white">{pctLogrado}%</span>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-3 mt-1.5">
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.primary }} />
+            <span className="text-[9px] text-zinc-500">Logrado</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full opacity-30" style={{ backgroundColor: COLORS.primary }} />
+            <span className="text-[9px] text-zinc-500">Predicho (con pipeline)</span>
+          </div>
         </div>
       </div>
 
       {/* Mensaje accionable */}
-      {f.contactos_necesarios > 0 && (
-        <div className="mt-4 pt-3 border-t border-zinc-100">
-          <p className="text-[11px] text-zinc-700 text-center">
-            Necesitas <span className="font-bold text-zinc-900">{f.contactos_necesarios}</span> contactos más
-            para cerrar <span className="font-bold">{Math.max(5, f.cierres_mes_actual + 2)}</span> clientes este mes
-          </p>
-        </div>
+      {gap > 0 && f.contactos_necesarios > 0 && (
+        <p className="text-[11px] text-zinc-600 text-center bg-zinc-50 rounded-xl py-2 px-3">
+          Necesitas <span className="font-bold text-zinc-900">{f.contactos_necesarios}</span> contactos más
+          · te faltan <span className="font-bold text-red-500">{fmt(gap)}</span> para tu meta
+        </p>
+      )}
+      {gap === 0 && (
+        <p className="text-[11px] text-green-700 text-center bg-green-50 rounded-xl py-2 px-3 font-semibold">
+          ✓ Meta de ingresos alcanzada este mes
+        </p>
       )}
     </div>
   );
@@ -490,29 +814,114 @@ function ObjetivosPanel({
   );
 }
 
+// ─── Divider de sección ──────────────────────────────────────────────────────
+function Divider({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-3 pt-1">
+      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest shrink-0">{label}</span>
+      <div className="flex-1 border-t border-zinc-100" />
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
+
+type ModuloId = 'forecasting' | 'pipeline' | 'cicloventa' | 'scoring' | 'churn' | 'acciones' | 'realtime' | 'web';
+
+const MODULO_META: Record<ModuloId, {
+  emoji:       string;
+  titulo:      string;
+  subtitulo:   string;
+  descripcion: string;
+}> = {
+  forecasting: {
+    emoji:       '📈',
+    titulo:      'Forecast comercial',
+    subtitulo:   'Pronóstico · Ingresos ponderados · Tendencia',
+    descripcion: 'Proyecta cierres con tu tasa de cierre real y el ritmo actual de actividad.',
+  },
+  pipeline: {
+    emoji:       '💼',
+    titulo:      'Pipeline y propuestas',
+    subtitulo:   'Objetivos · Brecha · Por empresa y servicio',
+    descripcion: 'Objetivos mensuales vs real, diagnóstico de brecha y análisis por empresa y servicio con drill-down.',
+  },
+  cicloventa: {
+    emoji:       '🔄',
+    titulo:      'Ciclo de venta',
+    subtitulo:   'Tiempo de cierre · Velocidad · Etapas',
+    descripcion: 'Mide cuánto tarda un lead desde el primer contacto hasta el cierre.',
+  },
+  scoring: {
+    emoji:       '🎯',
+    titulo:      'Lead Scoring',
+    subtitulo:   'Probabilidad · Canal · Temperatura',
+    descripcion: 'Identifica qué leads tienen más probabilidad de convertir y por qué canal llegan.',
+  },
+  churn: {
+    emoji:       '⚠️',
+    titulo:      'Análisis de churn',
+    subtitulo:   'Estancados · Abandono · Tiempo de respuesta',
+    descripcion: 'Detecta leads en riesgo de perderse por inactividad, lentitud o abandono.',
+  },
+  acciones: {
+    emoji:       '⚡',
+    titulo:      'Próxima acción',
+    subtitulo:   'Prioridades · Insights · Objetivos',
+    descripcion: 'Acciones ordenadas por impacto con insights automáticos y seguimiento de metas.',
+  },
+  realtime: {
+    emoji:       '📡',
+    titulo:      'Actividad en tiempo real',
+    subtitulo:   'KPIs · Horas · Región · Tendencias',
+    descripcion: 'Vista completa de la actividad comercial por período, hora pico y región.',
+  },
+  web: {
+    emoji:       '🌐',
+    titulo:      'Páginas web',
+    subtitulo:   'Estado de proyectos · Paquetes vendidos',
+    descripcion: 'Estado de proyectos web activos y distribución de ventas por tipo de paquete.',
+  },
+};
+
+const ESTADO_BADGE = {
+  critico: 'bg-red-50 text-red-700 border-red-200',
+  urgente: 'bg-amber-50 text-amber-700 border-amber-200',
+  ok:      'bg-zinc-50 text-zinc-500 border-zinc-200',
+};
+const ESTADO_LABEL = {
+  critico: 'Requiere atención',
+  urgente: 'Revisar',
+  ok:      'Al día',
+};
 
 export default function InteligenciaPage() {
   const hoy = new Date();
-  const [periodo,     setPeriodo]     = useState<FiltroPeriodo>("anio");
-  const [filtroFecha, setFiltroFecha] = useState<string>(String(hoy.getFullYear()));
+  const [periodo,      setPeriodo]      = useState<FiltroPeriodo>("anio");
+  const [filtroFecha,  setFiltroFecha]  = useState<string>(String(hoy.getFullYear()));
+  const [moduloActivo, setModuloActivo] = useState<ModuloId | null>(null);
+  const [anioCV, setAnioCV] = useState<number | undefined>(hoy.getFullYear());
 
-  const [funnel,    setFunnel]    = useState<FunnelEtapa[]>([]);
-  const [regiones,  setRegiones]  = useState<RegionEtapa[]>([]);
-  const [heatmap,   setHeatmap]   = useState<any[]>([]);
-  const [motivos,   setMotivos]   = useState<any[]>([]);
-  const [metricas,  setMetricas]  = useState<any>(null);
-  const [insights,  setInsights]  = useState<Insight[]>([]);
-  const [estancados,setEstancados]= useState<LeadEstancado[]>([]);
-  const [prioridad, setPrioridad] = useState<AccionPrioridad[]>([]);
-  const [forecast,      setForecast]      = useState<Forecast | null>(null);
-  const [objetivos,     setObjetivos]     = useState<ObjetivosDiarios | null>(null);
-  const [tendencias, setTendencias] = useState<Tendencias | null>(null);
+  const [funnel,     setFunnel]     = useState<FunnelEtapa[]>([]);
+  const [regiones,   setRegiones]   = useState<RegionEtapa[]>([]);
+  const [heatmap,    setHeatmap]    = useState<any[]>([]);
+  const [motivos,    setMotivos]    = useState<any[]>([]);
+  const [metricas,   setMetricas]   = useState<any>(null);
+  const [insights,   setInsights]   = useState<Insight[]>([]);
+  const [estancados, setEstancados] = useState<LeadEstancado[]>([]);
+  const [prioridad,  setPrioridad]  = useState<AccionPrioridad[]>([]);
+  const [forecast,    setForecast]    = useState<Forecast | null>(null);
+  const [objetivos,   setObjetivos]   = useState<ObjetivosDiarios | null>(null);
+  const [tendencias,  setTendencias]  = useState<Tendencias | null>(null);
+  const [scoreStats,  setScoreStats]  = useState<{ caliente: number; activo: number; tibio: number; frio: number } | null>(null);
+
+  // Modal de leads del forecast
+  const [forecastModal, setForecastModal] = useState<{ tipo: "calientes" | "activos" | "cierres"; label: string } | null>(null);
+  const [forecastLeads, setForecastLeads] = useState<LeadPrioridad[]>([]);
+  const [cargandoForecastLeads, setCargandoForecastLeads] = useState(false);
   const [cargando,        setCargando]        = useState(true);
   const [cargandoPeriodo, setCargandoPeriodo] = useState(false);
-  const [analisisAbierto, setAnalisisAbierto] = useState(false);
 
-  // Carga estática — funnel, región, insights, estancados, motivos (una vez)
   useEffect(() => {
     setCargando(true);
     Promise.all([
@@ -524,22 +933,23 @@ export default function InteligenciaPage() {
       getPrioridadOperacional(),
     ])
       .then(([f, r, m, ins, est, pri]) => {
-        setFunnel(f);
-        setRegiones(r);
-        setMotivos(m);
-        setInsights(ins);
-        setEstancados(est);
-        setPrioridad(pri);
+        setFunnel(f); setRegiones(r); setMotivos(m);
+        setInsights(ins); setEstancados(est); setPrioridad(pri);
       })
       .catch(console.error)
       .finally(() => setCargando(false));
 
-    // Carga independiente — no bloquea si falla
-    getForecast().then(setForecast).catch(console.error);
+    getForecast().then(setForecast).catch(e => console.error("getForecast error:", e));
     getObjetivos().then(setObjetivos).catch(console.error);
+    getScoresLeads()
+      .then(scores => {
+        const stats = { caliente: 0, activo: 0, tibio: 0, frio: 0 };
+        scores.forEach(s => { stats[s.nivel as keyof typeof stats]++; });
+        setScoreStats(stats);
+      })
+      .catch(console.error);
   }, []);
 
-  // Carga por período — usa el mismo servicio del Dashboard
   useEffect(() => {
     const params  = periodoToDashboard(periodo, filtroFecha);
     const filtroH = periodo !== "anio" ? calcularRangoFecha(filtroFecha, periodo) : undefined;
@@ -552,27 +962,53 @@ export default function InteligenciaPage() {
       .catch(console.error)
       .finally(() => setCargandoPeriodo(false));
 
-    getTendencias(
-      params.periodo,
-      params.mes,
-      params.anio,
-    ).then(setTendencias).catch(console.error);
+    getTendencias(params.periodo, params.mes, params.anio)
+      .then(setTendencias).catch(console.error);
   }, [periodo, filtroFecha]);
 
-  async function handleActualizarObjetivos(metas: { llamadas_meta: number; reuniones_meta: number; brochures_meta: number }) {
+  async function handleActualizarObjetivos(metas: { llamadas_meta: number; reuniones_meta: number; brochures_meta: number; meta_ingresos_mensual?: number }) {
     try {
       const updated = await actualizarObjetivos(metas);
       setObjetivos(updated);
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   }
 
-  const handleFiltroPeriodo = (p: FiltroPeriodo, fecha: string) => {
-    setPeriodo(p);
-    setFiltroFecha(fecha);
+  const handleEditarMetaIngresos = async (meta: number) => {
+    if (!objetivos) return;
+    try {
+      const updated = await actualizarObjetivos({
+        llamadas_meta:        objetivos.llamadas_meta,
+        reuniones_meta:       objetivos.reuniones_meta,
+        brochures_meta:       objetivos.brochures_meta,
+        meta_ingresos_mensual: meta,
+      });
+      setObjetivos(updated);
+      // Actualiza el forecast en memoria para que la UI refleje la nueva meta inmediatamente
+      setForecast(prev => prev ? {
+        ...prev,
+        meta_ingresos:      meta,
+        gap_ingresos:       Math.max(0, meta - prev.logrado_ingresos_mes),
+        predicted_ingresos: Math.round(prev.logrado_ingresos_mes + prev.escenario_realista),
+      } : prev);
+    } catch (err) { console.error(err); }
   };
 
+  const handleFiltroPeriodo = (p: FiltroPeriodo, fecha: string) => {
+    setPeriodo(p); setFiltroFecha(fecha);
+  };
+
+  const abrirForecastLeads = async (tipo: "calientes" | "activos" | "cierres", label: string) => {
+    setForecastModal({ tipo, label });
+    setForecastLeads([]);
+    setCargandoForecastLeads(true);
+    try {
+      const data = await getForecastLeads(tipo);
+      setForecastLeads(data);
+    } catch { /* silencioso */ }
+    finally { setCargandoForecastLeads(false); }
+  };
+
+  // ── Computed values ──
   const totalPipeline = funnel.reduce((s, e) => s + e.total, 0);
   const cerrados      = funnel.find(e => e.etapa === "cerrado_ganado")?.total ?? 0;
   const valorPipeline = funnel
@@ -584,138 +1020,408 @@ export default function InteligenciaPage() {
     : n > 0        ? `S/ ${n}`
     : "S/ —";
 
-  return (
-    <div className="p-6 max-w-9xl mx-auto space-y-6">
+  // Stats para las tarjetas de módulos
+  const criticos   = prioridad.filter(a => a.nivel === 'critica').length;
+  const urgentes   = prioridad.filter(a => a.nivel === 'urgente').length;
+  const pendientes = prioridad.filter(a => a.nivel === 'pendiente').length;
+  const insAlertas = insights.filter(i => i.tipo === 'alerta').length;
+  const insOport   = insights.filter(i => i.tipo === 'oportunidad').length;
+  const pctConv    = totalPipeline > 0 ? Math.round((cerrados / totalPipeline) * 100) : 0;
 
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight flex items-center gap-2">
-            <TrendingUp size={20} className="text-brand" />
-            Inteligencia comercial
-          </h1>
-          <p className="text-xs text-zinc-600 mt-0.5">
-            KPIs de actividad · Funnel · Insights automáticos · Región · Ciclo de venta
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {cargandoPeriodo && (
-            <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-brand" />
-          )}
-          <FiltroPeriodoBotones
-            periodo={periodo}
-            filtroFecha={filtroFecha}
-            onChange={handleFiltroPeriodo}
-          />
-        </div>
-      </div>
+  const modulosCards: Array<{
+    id:     ModuloId;
+    stats:  Array<{ label: string; value: string | number }>;
+    estado: 'critico' | 'urgente' | 'ok';
+  }> = [
+    {
+      id: 'forecasting',
+      stats: [
+        { label: 'leads calientes', value: forecast?.leads_calientes ?? '—' },
+        { label: 'leads activos',   value: forecast?.leads_activos   ?? '—' },
+        { label: 'proy. cierre',    value: forecast?.cierres_proyectados ?? '—' },
+      ],
+      estado: pctConv < 15 ? 'critico' : pctConv < 35 ? 'urgente' : 'ok',
+    },
+    {
+      id: 'pipeline',
+      stats: [
+        { label: 'valor activo', value: fmtSolKpi(valorPipeline) },
+        { label: 'conversión',   value: `${pctConv}%`            },
+        { label: 'cerrados',     value: cerrados                 },
+      ],
+      estado: pctConv < 15 ? 'critico' : pctConv < 35 ? 'urgente' : 'ok',
+    },
+    {
+      id: 'cicloventa',
+      stats: [],
+      estado: 'ok',
+    },
+    {
+      id: 'scoring',
+      stats: [
+        { label: 'calientes', value: scoreStats?.caliente ?? '—' },
+        { label: 'activos',   value: scoreStats?.activo   ?? '—' },
+        { label: 'tibios',    value: scoreStats?.tibio    ?? '—' },
+      ],
+      estado: (scoreStats?.caliente ?? 0) === 0 ? 'urgente' : 'ok',
+    },
+    {
+      id: 'churn',
+      stats: [
+        { label: 'estancados', value: estancados.length },
+        { label: 'alertas',    value: insAlertas        },
+        { label: 'urgentes',   value: urgentes          },
+      ],
+      estado: estancados.length > 10 ? 'critico' : insAlertas >= 2 ? 'urgente' : 'ok',
+    },
+    {
+      id: 'acciones',
+      stats: [
+        { label: 'críticos',   value: criticos   },
+        { label: 'urgentes',   value: urgentes   },
+        { label: 'pendientes', value: pendientes },
+      ],
+      estado: criticos > 0 ? 'critico' : urgentes > 0 ? 'urgente' : 'ok',
+    },
+    {
+      id: 'realtime',
+      stats: [
+        { label: 'llamadas',  value: metricas?.llamadas?.total_llamadas     ?? 0 },
+        { label: 'reuniones', value: metricas?.reuniones?.total_reuniones   ?? 0 },
+        { label: 'brochures', value: metricas?.brochures?.total_brochures   ?? 0 },
+      ],
+      estado: 'ok',
+    },
+    {
+      id: 'web',
+      stats: [],
+      estado: 'ok',
+    },
+  ];
 
-      {cargando ? (
-        <div className="flex justify-center py-20">
-          <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-brand" />
-        </div>
-      ) : (
+  // ── KPI tiles (reutilizados en landing y en módulo diagnóstico) ──
+  const kpiTilesData = [
+    {
+      label: "Llamadas",
+      value: metricas?.llamadas?.total_llamadas ?? 0,
+      sub:   `${metricas?.llamadas?.llamadas_contestadas ?? 0} contestadas · ${
+        (metricas?.llamadas?.total_llamadas ?? 0) > 0
+          ? Math.round(((metricas?.llamadas?.llamadas_contestadas ?? 0) / metricas.llamadas.total_llamadas) * 100)
+          : 0
+      }% tasa`,
+      icon:  <Phone size={13} className="text-zinc-500" />,
+      delta: tendencias?.llamadas?.pct ?? null,
+    },
+    {
+      label: "Reuniones",
+      value: metricas?.reuniones?.total_reuniones ?? 0,
+      sub:   periodoLabel(periodo, filtroFecha),
+      icon:  <CalendarDays size={13} className="text-zinc-500" />,
+      delta: tendencias?.reuniones?.pct ?? null,
+    },
+    {
+      label: "Brochures",
+      value: metricas?.brochures?.total_brochures ?? 0,
+      sub:   periodoLabel(periodo, filtroFecha),
+      icon:  <FileText size={13} className="text-zinc-500" />,
+      delta: tendencias?.brochures?.pct ?? null,
+    },
+    {
+      label: "Valor activo",
+      value: fmtSolKpi(valorPipeline),
+      sub:   `${totalPipeline - cerrados} leads en pipeline`,
+      icon:  <TrendingUp size={13} className="text-zinc-500" />,
+      delta: null,
+    },
+  ];
 
-        <div className="space-y-6">
-
-          {/* ━━━ ZONA 1: Hero KPI tiles ━━━ */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {(() => {
-              const tiles = [
-                {
-                  label: "Llamadas",
-                  value: metricas?.llamadas?.total_llamadas ?? 0,
-                  sub: `${metricas?.llamadas?.llamadas_contestadas ?? 0} contestadas · ${
-                    (metricas?.llamadas?.total_llamadas ?? 0) > 0
-                      ? Math.round(((metricas?.llamadas?.llamadas_contestadas ?? 0) / metricas.llamadas.total_llamadas) * 100)
-                      : 0
-                  }% tasa`,
-                  icon: <Phone size={13} className="text-zinc-500" />,
-                  delta: tendencias?.llamadas?.pct ?? null,
-                },
-                {
-                  label: "Reuniones",
-                  value: metricas?.reuniones?.total_reuniones ?? 0,
-                  sub: `${periodoLabel(periodo, filtroFecha)}`,
-                  icon: <CalendarDays size={13} className="text-zinc-500" />,
-                  delta: tendencias?.reuniones?.pct ?? null,
-                },
-                {
-                  label: "Brochures",
-                  value: metricas?.brochures?.total_brochures ?? 0,
-                  sub: `${periodoLabel(periodo, filtroFecha)}`,
-                  icon: <FileText size={13} className="text-zinc-500" />,
-                  delta: tendencias?.brochures?.pct ?? null,
-                },
-                {
-                  label: "Valor activo",
-                  value: fmtSolKpi(valorPipeline),
-                  sub: `${totalPipeline - cerrados} leads en pipeline`,
-                  icon: <TrendingUp size={13} className="text-zinc-500" />,
-                  delta: null,
-                },
-              ];
-              return tiles.map(tile => (
-                <div key={tile.label} className={CARD_CLASS}>
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="p-1.5 rounded-lg bg-zinc-100 shrink-0">{tile.icon}</div>
-                    {tile.delta !== null && (
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
-                        tile.delta > 0  ? "bg-zinc-800 text-white"
-                        : tile.delta < 0 ? "bg-red-100 text-red-600"
-                        : "bg-zinc-100 text-zinc-500"
-                      }`}>
-                        {tile.delta > 0 ? `▲${tile.delta}%` : tile.delta < 0 ? `▼${Math.abs(tile.delta)}%` : "="}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-3xl font-bold text-zinc-900 leading-none">{tile.value}</p>
-                  <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-2">{tile.label}</p>
-                  <p className="text-[10px] text-zinc-500 mt-1 leading-tight">{tile.sub}</p>
-                </div>
-              ));
-            })()}
-          </div>
-
-          {/* ━━━ Divider ━━━ */}
-          <div className="flex items-center gap-3 pt-2">
-            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest shrink-0">Diagnóstico del día</span>
-            <div className="flex-1 border-t border-zinc-100" />
-          </div>
-
-          {/* ━━━ ZONA 2: Diagnóstico del día ━━━ */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <PrioridadOperacional acciones={prioridad} />
-            {objetivos && (
-              <ObjetivosPanel obj={objetivos} onActualizar={handleActualizarObjetivos} />
+  const kpiTilesJsx = (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {kpiTilesData.map(tile => (
+        <div key={tile.label} className={CARD_CLASS}>
+          <div className="flex items-start justify-between mb-3">
+            <div className="p-1.5 rounded-lg bg-zinc-100 shrink-0">{tile.icon}</div>
+            {tile.delta !== null && (
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
+                tile.delta > 0  ? "bg-zinc-800 text-white"
+                : tile.delta < 0 ? "bg-red-100 text-red-600"
+                : "bg-zinc-100 text-zinc-500"
+              }`}>
+                {tile.delta > 0 ? `▲${tile.delta}%` : tile.delta < 0 ? `▼${Math.abs(tile.delta)}%` : "="}
+              </span>
             )}
           </div>
+          <p className="text-3xl font-bold text-zinc-900 leading-none">{tile.value}</p>
+          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-2">{tile.label}</p>
+          <p className="text-[10px] text-zinc-500 mt-1 leading-tight">{tile.sub}</p>
+        </div>
+      ))}
+    </div>
+  );
 
-          {/* ━━━ Divider ━━━ */}
-          <div className="flex items-center gap-3 pt-2">
-            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest shrink-0">Pipeline & Conversión</span>
-            <div className="flex-1 border-t border-zinc-100" />
+  // ── Header común ──
+  const filtroBotonesJsx = (
+    <div className="flex items-center gap-3">
+      {cargandoPeriodo && <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-brand" />}
+      <FiltroPeriodoBotones periodo={periodo} filtroFecha={filtroFecha} onChange={handleFiltroPeriodo} />
+    </div>
+  );
+
+  // Selector de año para ciclo de venta
+  const aniosCV = Array.from({ length: 3 }, (_, i) => hoy.getFullYear() - 1 + i); // año pasado, actual, próximo
+  const selectorAnioCV = (
+    <div className="flex items-center gap-1.5 bg-zinc-100 rounded-xl p-1">
+      {aniosCV.map(a => (
+        <button
+          key={a}
+          onClick={() => setAnioCV(a === anioCV ? undefined : a)}
+          className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all ${
+            anioCV === a
+              ? "bg-white text-zinc-900 shadow-sm"
+              : "text-zinc-500 hover:text-zinc-700"
+          }`}
+        >
+          {a}
+        </button>
+      ))}
+      <button
+        onClick={() => setAnioCV(undefined)}
+        className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all ${
+          anioCV === undefined
+            ? "bg-white text-zinc-900 shadow-sm"
+            : "text-zinc-500 hover:text-zinc-700"
+        }`}
+      >
+        Todos
+      </button>
+    </div>
+  );
+
+  if (cargando) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-brand" />
+      </div>
+    );
+  }
+
+  // ━━━ LANDING: grid de módulos ━━━
+  const ventas:        ModuloId[] = ['forecasting', 'pipeline', 'cicloventa'];
+  const estrategicos:  ModuloId[] = ['scoring', 'churn'];
+  const operacionales: ModuloId[] = ['acciones', 'realtime', 'web'];
+
+  const renderCard = (id: ModuloId) => {
+    const m    = modulosCards.find(c => c.id === id)!;
+    const meta = MODULO_META[id];
+    return (
+      <button
+        key={id}
+        onClick={() => setModuloActivo(id)}
+        className="text-left bg-white border border-zinc-100 rounded-2xl p-5 hover:border-brand/40 hover:shadow-sm transition-all duration-200 group flex flex-col"
+      >
+        {/* Cabecera */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-2.5">
+            <span className="text-lg leading-none">{meta.emoji}</span>
+            <div>
+              <p className="text-sm font-semibold text-zinc-900 group-hover:text-brand transition-colors leading-tight">{meta.titulo}</p>
+              <p className="text-[10px] text-zinc-400 mt-0.5">{meta.subtitulo}</p>
+            </div>
           </div>
+          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border shrink-0 ml-2 ${ESTADO_BADGE[m.estado]}`}>
+            {ESTADO_LABEL[m.estado]}
+          </span>
+        </div>
 
-          {/* ━━━ ZONA 3: Pipeline & Canal ━━━ */}
-          <FunnelConversion data={funnel} />
+        {/* Descripción — 1 línea */}
+        <p className="text-xs text-zinc-500 leading-relaxed mb-4">{meta.descripcion}</p>
 
+        {/* Stats en vivo */}
+        {m.stats.length > 0 && (
+          <div className="flex gap-2 mt-auto">
+            {m.stats.map(s => (
+              <div key={s.label} className="flex-1 bg-zinc-50 rounded-xl px-2 py-2 text-center">
+                <p className="text-sm font-bold text-zinc-800 leading-none">{s.value}</p>
+                <p className="text-[9px] text-zinc-400 mt-0.5 uppercase tracking-wide leading-tight">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* CTA */}
+        <div className="flex items-center justify-end mt-3">
+          <span className="text-xs font-semibold text-brand inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+            Analizar <ChevronDown size={12} className="-rotate-90" />
+          </span>
+        </div>
+      </button>
+    );
+  };
+
+  if (moduloActivo === null) {
+    return (
+      <div className="p-6 max-w-9xl mx-auto space-y-6">
+
+        {/* Header */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight flex items-center gap-2">
+              <TrendingUp size={20} className="text-brand" />
+              Inteligencia comercial
+            </h1>
+            <p className="text-xs text-zinc-500 mt-0.5">Selecciona el módulo que quieres analizar</p>
+          </div>
+          {filtroBotonesJsx}
+        </div>
+
+        {/* KPI resumen */}
+        {kpiTilesJsx}
+
+        {/* Módulos de ventas */}
+        <div className="space-y-3">
+          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Ventas y pipeline</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {ventas.map(renderCard)}
+          </div>
+        </div>
+
+        {/* Módulos estratégicos */}
+        <div className="space-y-3">
+          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Análisis estratégico</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {estrategicos.map(renderCard)}
+          </div>
+        </div>
+
+        {/* Módulos operacionales */}
+        <div className="space-y-3">
+          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Gestión operacional</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {operacionales.map(renderCard)}
+          </div>
+        </div>
+
+      </div>
+    );
+  }
+
+  // ━━━ VISTA DE MÓDULO ━━━
+  const meta = MODULO_META[moduloActivo];
+
+  return (
+    <>
+    <div className="p-6 max-w-9xl mx-auto space-y-6">
+
+      {/* Breadcrumb */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setModuloActivo(null)}
+            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-800 transition-colors"
+          >
+            <ChevronDown size={13} className="rotate-90" />
+            Inteligencia
+          </button>
+          <span className="text-zinc-300">/</span>
+          <span className="text-sm font-semibold text-zinc-800 flex items-center gap-1.5">
+            {meta.emoji} {meta.titulo}
+          </span>
+        </div>
+        {moduloActivo === 'cicloventa' && selectorAnioCV}
+        {moduloActivo === 'realtime'  && filtroBotonesJsx}
+      </div>
+
+      {/* Contenido del módulo */}
+
+      {moduloActivo === 'forecasting' && (
+        <div className="space-y-6">
+          <Divider label="Pronóstico comercial" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <CanalEfectividadChart />
-            {forecast && <ForecastPanel f={forecast} />}
+            {forecast
+              ? <ForecastPanel f={forecast} onVerLeads={abrirForecastLeads} onEditarMeta={handleEditarMetaIngresos} />
+              : <div className={`${CARD_CLASS} flex items-center justify-center py-10`}>
+                  <div className="text-center">
+                    <div className="w-5 h-5 rounded-full border-2 border-brand border-t-transparent animate-spin mx-auto mb-2" />
+                    <p className="text-xs text-zinc-500">Cargando pronóstico...</p>
+                  </div>
+                </div>
+            }
+            <ForecastIngresosChart />
           </div>
+          <Divider label="Histórico de ingresos cerrados" />
+          <ForecastHistoricoChart />
+        </div>
+      )}
 
-          {/* ━━━ Divider ━━━ */}
-          <div className="flex items-center gap-3 pt-2">
-            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest shrink-0">Inteligencia automática</span>
-            <div className="flex-1 border-t border-zinc-100" />
+      {moduloActivo === 'pipeline' && (
+        <div className="space-y-6">
+          <Divider label="Embudo de conversión" />
+          <FunnelConversion data={funnel} />
+          <Divider label="Inteligencia por servicio" />
+          <InsightServicios />
+          <Divider label="Análisis de propuestas · objetivos · brechas" />
+          <AnalisisPropuestas />
+        </div>
+      )}
+
+      {moduloActivo === 'cicloventa' && (
+        <div className="space-y-6">
+          <Divider label="Ciclo de venta" />
+          <div className={CARD_CLASS}>
+            <div className="flex items-center gap-2 mb-4">
+              <CalendarDays size={14} className="text-zinc-500" strokeWidth={2} />
+              <div>
+                <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Ciclo de venta</p>
+                <p className="text-[10px] text-zinc-400 mt-0.5">Tiempo promedio desde primer contacto hasta cierre</p>
+              </div>
+            </div>
+            <CicloVenta anio={anioCV} />
           </div>
+        </div>
+      )}
 
-          {/* ━━━ ZONA 4: Insights & Alertas ━━━ */}
+      {moduloActivo === 'scoring' && (
+        <div className="space-y-6">
+          <Divider label="Distribución por temperatura" />
+          {scoreStats && (
+            <TemperaturaLeadsChart
+              caliente={scoreStats.caliente}
+              activo={scoreStats.activo}
+              tibio={scoreStats.tibio}
+              frio={scoreStats.frio}
+            />
+          )}
+          <Divider label="Score vs tiempo en pipeline" />
+          <LeadScatterChart />
+          <Divider label="Efectividad por canal de origen" />
+          <CanalEfectividadChart />
+        </div>
+      )}
+
+      {moduloActivo === 'churn' && (
+        <div className="space-y-6">
+          <Divider label="Leads estancados (sin actividad +14 días)" />
+          {estancados.length > 0
+            ? <LeadsEstancadosPanel leads={estancados} />
+            : <p className="text-sm text-zinc-500 text-center py-6">No hay leads estancados — buen trabajo.</p>
+          }
+          <Divider label="Tiempo de primera respuesta" />
+          <TiempoPrimeraRespuestaChart />
+          <Divider label="Rechazos y abandono de pipeline" />
+          <RechazosDualesChart />
+          <AbandonoPipelineChart />
+        </div>
+      )}
+
+      {moduloActivo === 'acciones' && (
+        <div className="space-y-6">
+          <Divider label="Acciones prioritarias" />
+          <PrioridadOperacional acciones={prioridad} />
+          <Divider label="Insights automáticos" />
           {insights.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {insights.map((ins, i) => {
-                const style      = INSIGHT_STYLES[ins.tipo];
+                const style       = INSIGHT_STYLES[ins.tipo];
                 const tieneVizual = ins.valor !== undefined;
                 return (
                   <div key={i} className={`${CARD_CLASS} flex items-center gap-4`}>
@@ -746,74 +1452,113 @@ export default function InteligenciaPage() {
               })}
             </div>
           )}
-
-          {estancados.length > 0 && <LeadsEstancadosPanel leads={estancados} />}
-
-          {/* ━━━ ZONA 5: Análisis profundo (colapsable) ━━━ */}
-          <button
-            onClick={() => setAnalisisAbierto(v => !v)}
-            className="w-full flex items-center gap-3 pt-2 group"
-          >
-            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest shrink-0 group-hover:text-zinc-600 transition">
-              Análisis profundo
-            </span>
-            <div className="flex-1 border-t border-zinc-100" />
-            <span className="text-[10px] text-zinc-400 flex items-center gap-1 shrink-0 group-hover:text-zinc-600 transition">
-              {analisisAbierto ? "Ocultar" : "Expandir"}
-              <ChevronDown
-                size={12}
-                className={`transition-transform duration-200 ${analisisAbierto ? "rotate-180" : ""}`}
-              />
-            </span>
-          </button>
-
-          {analisisAbierto && (
-            <div className="space-y-5">
-
-              {/* Heatmap + Motivos */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <HeatmapHoras data={heatmap} />
-                <MotivosChart data={motivos} />
-              </div>
-
-              {/* Región */}
-              <RegionChart data={regiones} />
-
-              {/* Propuestas + Ciclo */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <ResumenEstadosPropuestas />
-                <div className={CARD_CLASS}>
-                  <div className="flex items-center gap-2 mb-4">
-                    <CalendarDays size={14} className="text-zinc-500" strokeWidth={2} />
-                    <div>
-                      <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Ciclo de venta</p>
-                      <p className="text-[10px] text-zinc-400 mt-0.5">Tiempo promedio desde primer contacto hasta cierre</p>
-                    </div>
-                  </div>
-                  <CicloVenta />
-                </div>
-              </div>
-
-              {/* Tiempo primera respuesta */}
-              <TiempoPrimeraRespuestaChart />
-
-              {/* Rechazos duales */}
-              <RechazosDualesChart />
-
-              {/* Forecast ingresos + Abandono */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <ForecastIngresosChart />
-                <AbandonoPipelineChart />
-              </div>
-
-              {/* Scatter score vs días */}
-              <LeadScatterChart />
-
-            </div>
+          <Divider label="Objetivos del día" />
+          {objetivos && (
+            <ObjetivosPanel obj={objetivos} onActualizar={handleActualizarObjetivos} />
           )}
+        </div>
+      )}
+
+      {moduloActivo === 'realtime' && (
+        <div className="space-y-6">
+
+          <Divider label="Cobertura y resultados de llamadas" />
+          <CoberturaLlamadas />
+
+          <Divider label="KPIs del período" />
+          {kpiTilesJsx}
+
+          <Divider label="Tendencias de actividad" />
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <ActividadAnual />
+            <ActividadMensualDiaria />
+          </div>
+
+          <Divider label="Horas pico y motivos" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <HeatmapHoras data={heatmap} />
+            <MotivosChart data={motivos} />
+          </div>
+
+          <Divider label="Inteligencia de conversación" />
+          <ConversacionChart
+            filtros={calcularRangoFecha(filtroFecha, periodo)}
+            periodoLabel={periodoLabel(periodo, filtroFecha)}
+          />
+
+          <Divider label="Actividad por región" />
+          <RegionInteligente data={regiones} />
 
         </div>
       )}
+
+      {moduloActivo === 'web' && (
+        <div className="space-y-6">
+          <Divider label="Estado de proyectos" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <EstadoWebChart />
+            <PaquetesWebChart />
+          </div>
+        </div>
+      )}
+
     </div>
+    {/* Modal leads del forecast — fuera del árbol de módulos para evitar stacking context */}
+    {forecastModal && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setForecastModal(null)} />
+        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
+          <div className="flex items-center justify-between p-5 border-b border-zinc-100">
+            <div>
+              <p className="text-sm font-semibold text-zinc-900">{forecastModal.label}</p>
+              <p className="text-xs text-zinc-500 mt-0.5">
+                {cargandoForecastLeads ? "Cargando..." : `${forecastLeads.length} leads · clic para llamar`}
+              </p>
+            </div>
+            <button onClick={() => setForecastModal(null)} className="p-1.5 rounded-lg hover:bg-zinc-100 transition">
+              <X size={16} className="text-zinc-600" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {cargandoForecastLeads ? (
+              <div className="flex justify-center py-10">
+                <div className="w-6 h-6 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+              </div>
+            ) : forecastLeads.length === 0 ? (
+              <p className="text-xs text-zinc-500 text-center py-8">Sin leads en esta categoría</p>
+            ) : forecastLeads.map(lead => (
+              <div key={lead.id} className="p-3 rounded-xl border border-zinc-100 hover:border-brand/20 hover:bg-zinc-50 transition">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-zinc-900 truncate">{lead.empresa}</p>
+                    <p className="text-xs text-zinc-600 mt-0.5">{lead.nombre_contacto}</p>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      {lead.ciudad && (
+                        <span className="text-[11px] text-zinc-500">{lead.ciudad}</span>
+                      )}
+                      <span className="text-[11px] font-medium px-2 py-0.5 bg-zinc-100 rounded-full text-zinc-700 capitalize">
+                        {lead.etapa_pipeline.replace(/_/g, " ")}
+                      </span>
+                    </div>
+                  </div>
+                  {lead.telefono && (
+                    <a
+                      href={`tel:${lead.telefono}`}
+                      onClick={e => e.stopPropagation()}
+                      className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-white text-xs font-semibold transition hover:opacity-90"
+                      style={{ backgroundColor: COLORS.dark }}
+                    >
+                      <Phone size={12} />
+                      {lead.telefono}
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

@@ -12,13 +12,34 @@ export interface ResumenProspectos {
   no_contesta:             number;
   volver_a_llamar:         number;
   no_interesado:           number;
+  ya_tiene_proveedor:      number;
+  solicita_informacion:    number;
   buzon_de_voz:            number;
+  fuera_de_servicio:       number;
+  numero_equivocado:       number;
+  baja_de_oficio:          number;
+  suspension_temporal:     number;
+  perdida:                 number;
   leads_contactados:       number;
-  // Métricas de llamadas (iguales al dashboard)
+  // Actividad de llamadas
   total_llamadas:          number;
   llamadas_contestadas:    number;
   llamadas_no_contestadas: number;
-  contestadas:             number; // alias de llamadas_contestadas
+  contestadas:             number;
+  // Desglose de llamadas por resultado
+  llamadas_sin_resultado:      number;
+  llamadas_no_interesado:      number;
+  llamadas_interesado:         number;
+  llamadas_no_contesta:        number;
+  llamadas_volver_llamar:      number;
+  llamadas_solicita_info:      number;
+  llamadas_num_equivocado:     number;
+  llamadas_fuera_servicio:     number;
+  llamadas_buzon_voz:          number;
+  llamadas_tiene_proveedor:    number;
+  // Cobertura de prospección
+  prospectos_con_llamadas:     number;
+  prospectos_sin_llamadas:     number;
 }
 
 export async function upsertContactoSecundario(
@@ -93,9 +114,14 @@ export interface PipelineEtapa {
   valor_usd:  number;
 }
 
-export async function getPipeline() {
+export interface PipelineData {
+  pipeline:      Record<string, PipelineEtapa>;
+  valorPerdido:  number;
+}
+
+export async function getPipeline(): Promise<PipelineData> {
   const { data } = await api.get("/prospectos/pipeline");
-  return data.data as Record<string, PipelineEtapa>;
+  return data.data as PipelineData;
 }
 
 export async function actualizarEtapaPipeline(id: string, etapa: string) {
@@ -103,24 +129,54 @@ export async function actualizarEtapaPipeline(id: string, etapa: string) {
   return data.data as Prospecto;
 }
 
+export async function actualizarEstadoLead(id: string, estado_lead: string) {
+  await api.patch(`/prospectos/${id}/estado-lead`, { estado_lead });
+}
+
 export interface FunnelEtapa {
   etapa:      string;
   total:      number;
   valor:      number;
   conversion: number | null;
+  ganadas?:   number;
+  perdidas?:  number;
 }
 
 export interface RegionEtapa {
-  zona:    string;
-  total:   number;
-  cerrados: number;
-  activos: number;
-  valor:   number;
+  zona:                 string;
+  total:                number;
+  cerrados:             number;
+  activos:              number;
+  valor:                number;
+  llamadas:             number;
+  llamadas_contestadas: number;
+  reuniones:            number;
+  brochures:            number;
+  propuestas:           number;
+  propuestas_ganadas:   number;
 }
 
 export async function getFunnelPipeline() {
   const { data } = await api.get("/prospectos/funnel");
   return data.data as FunnelEtapa[];
+}
+
+export interface EtapaLead {
+  id:              string;
+  empresa:         string;
+  nombre_contacto: string | null;
+  telefono:        string | null;
+  ciudad:          string | null;
+  etapa_pipeline:  string;
+  creado_en:       string;
+  ultima_llamada:  string | null;
+  total_propuestas: number;
+  valor_pipeline:  number;
+}
+
+export async function getEtapaLeads(etapa: string): Promise<EtapaLead[]> {
+  const { data } = await api.get("/prospectos/etapa-leads", { params: { etapa } });
+  return data.data;
 }
 
 export async function getAnalisisRegion() {
@@ -137,8 +193,13 @@ export interface ScoreLead {
   dias_en_pipeline: number;
 }
 
-export async function getScoresLeads() {
-  const { data } = await api.get("/prospectos/scores");
+export async function getScoresLeads(params?: {
+  periodo?: string;
+  mes?:     number;
+  anio?:    number;
+  fecha?:   string;
+}) {
+  const { data } = await api.get("/prospectos/scores", { params });
   return data.data as ScoreLead[];
 }
 
@@ -192,15 +253,52 @@ export interface CicloVentaDetalle {
   dias_propuesta_cierre:    number | null;
   valor_cerrado:            number;
 }
+export interface CicloVentaPorServicio {
+  servicio:      string;
+  total:         number;
+  promedio_dias: number;
+}
 export interface CicloVentaData {
-  kpis:       CicloVentaKPIs;
-  por_rubro:  CicloVentaPorRubro[];
-  en_riesgo:  ProspectoEnRiesgo[];
-  tendencia:  CicloVentaTendencia[];
-  detalle:    CicloVentaDetalle[];
+  kpis:         CicloVentaKPIs;
+  por_rubro:    CicloVentaPorRubro[];
+  por_servicio: CicloVentaPorServicio[];
+  en_riesgo:    ProspectoEnRiesgo[];
+  tendencia:    CicloVentaTendencia[];
+  detalle:      CicloVentaDetalle[];
 }
 
-export async function getCicloVenta(): Promise<CicloVentaData> {
-  const { data } = await api.get("/prospectos/ciclo-venta");
+export async function getCicloVenta(anio?: number): Promise<CicloVentaData> {
+  const params = anio ? { anio } : {};
+  const { data } = await api.get("/prospectos/ciclo-venta", { params });
   return data.data as CicloVentaData;
+}
+
+export interface EstadoWebItem {
+  estado_web: string;
+  total:      number;
+}
+export interface EstadoWebProspecto {
+  id:              string;
+  empresa:         string;
+  pagina_web:      string | null;
+  proveedor_web:   string | null;
+  estado_web:      string;
+  region:          string | null;
+  ciudad:          string | null;
+  nombre_contacto: string | null;
+  telefono:        string | null;
+  estado_lead:     string | null;
+  clasificacion:   string | null;
+  prioridad:       string | null;
+  canal_llamada:   string | null;
+  contesto:        boolean | null;
+}
+export interface EstadoWebData {
+  distribucion: EstadoWebItem[];
+  prospectos:   EstadoWebProspecto[];
+}
+
+export async function getEstadoWebDistribucion(): Promise<EstadoWebData> {
+  const { data } = await api.get("/prospectos/estado-web");
+  return data.data as EstadoWebData;
 }

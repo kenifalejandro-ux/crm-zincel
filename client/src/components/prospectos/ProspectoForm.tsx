@@ -1,27 +1,83 @@
 /**client/src/prospectos/ProspectosForm.tsx */
 import { useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import {
+  Building2, Tag, Globe, Server,
+  User, Briefcase, Phone, Mail, MapPin,
+  StickyNote,
+} from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
-import { crearProspecto, actualizarProspecto, getProspecto } from "../../services/prospectos.api";
-import { crearLlamada } from "../../services/llamadas.api";
-import { crearBrochure } from "../../services/brochures.api";
-import { crearReunion } from "../../services/reuniones.api";
+import { crearProspecto, actualizarProspecto } from "../../services/prospectos.api";
 import { upsertContactoSecundario, eliminarContactoSecundario } from "../../services/prospectos.api";
 import type { Prospecto } from "../../types/prospecto.types";
 
+/** Campo con icono + línea inferior, sin borde completo */
+function Field({ icon, label, required, children }: { icon: ReactNode; label: string; required?: boolean; children: ReactNode }) {
+  return (
+    <div className="space-y-1">
+      <label className="text-[10px] text-zinc-400 font-medium">
+        {label}{required && <span className="text-brand ml-0.5">*</span>}
+      </label>
+      <div className="flex items-center gap-2 border-b border-zinc-200 pb-1.5 focus-within:border-brand transition-colors group">
+        <span className="text-yellow-500 group-focus-within:text-brand transition-colors shrink-0">{icon}</span>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+{/**texto de relleno de los campos del formulario */
+}const fieldInput = "flex-1 text-xs text-zinc-100 bg-transparent outline-none placeholder:text-zinc-500 min-w-0";
+
 const ESTADOS_LEAD = [
-  { value: "nuevo",              label: "Nuevo (última carga)" },
-  { value: "por_gestionar",      label: "Por gestionar" },
-  { value: "interesado",         label: "Interesado" },
-  { value: "no_interesado",      label: "No interesado" },
-  { value: "no_contesta",        label: "No contesta" },
-  { value: "volver_a_llamar",    label: "Volver a llamar" },
-  { value: "buzon_de_voz",       label: "Buzón de voz" },
-  { value: "fuera_de_servicio",  label: "Fuera de servicio" },
-  { value: "numero_equivocado",  label: "Número equivocado" },
-  { value: "ya_tiene_proveedor", label: "Ya tiene proveedor" },
+  { value: "nuevo",               label: "Nuevo (última carga)" },
+  { value: "por_gestionar",       label: "Por gestionar" },
+  { value: "interesado",          label: "Interesado" },
+  { value: "solicita_informacion", label: "Solicita información" },
+  { value: "no_interesado",       label: "No interesado" },
+  { value: "no_contesta",         label: "No contesta" },
+  { value: "volver_a_llamar",     label: "Volver a llamar" },
+  { value: "buzon_de_voz",        label: "Buzón de voz" },
+  { value: "fuera_de_servicio",   label: "Fuera de servicio" },
+  { value: "numero_equivocado",   label: "Número equivocado" },
+  { value: "ya_tiene_proveedor",  label: "Empresa con página web" },
+  { value: "baja_de_oficio",      label: "Baja de oficio" },
+  { value: "suspension_temporal", label: "Suspensión temporal" },
+  { value: "perdida",             label: "Venta perdida" },
 ];
+
+// Prioridad automática según tamaño + estado web
+function calcularPrioridad(tamano: string, estadoWeb: string): string | null {
+  if (estadoWeb === "actualizada") return "baja";
+  const base: Record<string, string> = {
+    "1_10": "baja", "11_50": "media",
+    "51_200": "alta", "201_500": "alta", "mas_500": "alta",
+  };
+  const p = base[tamano];
+  if (!p) return null;
+  const webConOportunidad = ["por_actualizar", "vencida", "en_mantenimiento", "sin_informacion"];
+  if (tamano === "1_10" && webConOportunidad.includes(estadoWeb)) return "media";
+  return p;
+}
+
+// Clasificación automática según estado del lead
+const AUTO_CLASIFICACION: Record<string, string> = {
+  nuevo:                "por_gestionar",
+  por_gestionar:        "por_gestionar",
+  interesado:           "gestionado",
+  solicita_informacion: "gestionado",
+  no_contesta:          "gestionado",
+  volver_a_llamar:      "gestionado",
+  buzon_de_voz:         "gestionado",
+  fuera_de_servicio:    "gestionado",
+  numero_equivocado:    "gestionado",
+  baja_de_oficio:       "descartado",
+  no_interesado:        "descartado",
+  ya_tiene_proveedor:   "descartado",
+  suspension_temporal:  "descartado",
+  perdida:              "descartado",
+};
 
 const REGIONES = [
   { value: "amazonas",     label: "Amazonas" },
@@ -65,11 +121,13 @@ const PRIORIDADES = [
 ];
 
 const FUENTES = [
+  { value: "base_propia",  label: "Base propia" },
+  { value: "referido",     label: "Referido" },
+  { value: "google_ads",   label: "Google Ads" },
   { value: "facebook",     label: "Facebook" },
   { value: "instagram",    label: "Instagram" },
   { value: "tiktok",       label: "TikTok" },
   { value: "linkedin",     label: "LinkedIn" },
-  { value: "referido",     label: "Referido" },
   { value: "web",          label: "Web" },
   { value: "llamada_fria", label: "Llamada fría" },
   { value: "otro",         label: "Otro" },
@@ -94,24 +152,24 @@ const ETAPAS_PIPELINE = [
 const INICIAL = {
   // Empresa
   empresa: "", rubro: "", pagina_web: "", tamano_empresa: "",
-  web_activa: "", proveedor_web: "",
+  web_activa: "false", proveedor_web: "", estado_web: "",
   // Contacto
   nombre_contacto: "", cargo: "", telefono: "", email_contacto: "",
   ciudad: "", region: "",
   // CRM
   estado_lead: "por_gestionar", clasificacion: "por_gestionar",
   prioridad: "media", fuente: "", estado_venta: "no", notas: "",
-  etapa_pipeline: "nuevo",
-  // Llamadas
-  canal_llamada: "", contesto: "", devolvio_llamada: "", intentos: "",
-  // Brochure
-  brochure: "", canal_brochure: "",
-  // Reunión
-  agenda_reunion: "", modalidad_reunion: "presencial", fecha_reunion: "",
-  hora_reunion: "", ingreso_reunion: "", estado_reunion: "programada",
+  etapa_pipeline: "nuevo", motivo_perdida_detalle: "",
 };
-
-const selectClass = "w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
+{/** boton desplegables  */
+}
+const selectClass = "w-full px-3 py-2.5 text-xs bg-zinc-800 border border-yellow-300/50 rounded-xl text-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/50 transition-all";
+const sectionHeader = (title: string) => (
+  <div className="flex items-center gap-2.5 mb-4">
+    <span className="w-1 h-3.5 rounded-full bg-brand block shrink-0" />
+    <span className="text-[11px] font-bold text-zinc-300 uppercase tracking-widest">{title}</span>
+  </div>
+);
 
 export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoFormProps) {
   const esEdicion = !!prospecto?.id;
@@ -125,11 +183,6 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
   useEffect(() => {
     if (prospecto) {
       const p = prospecto as any;
-      // Extraer datos de llamadas/brochures/reuniones si existen
-      const llamada  = p.llamadas?.[0];
-      const brochure = p.brochures?.[0];
-      const reunion  = p.reuniones?.[0];
-
       const c2 = p.contactos?.[0];
       if (c2) setContacto2({ id: c2.id ?? "", nombre: c2.nombre ?? "", cargo: c2.cargo ?? "", telefono: c2.telefono ?? "", email: c2.email ?? "" });
 
@@ -139,6 +192,7 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         pagina_web:       p.pagina_web      ?? "",
         web_activa:       p.web_activa      ?? "",
         proveedor_web:    p.proveedor_web   ?? "",
+        estado_web:       p.estado_web      ?? "",
         tamano_empresa:   p.tamano_empresa  ?? "",
         nombre_contacto:  p.nombre_contacto ?? "",
         cargo:            p.cargo           ?? "",
@@ -152,22 +206,8 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         fuente:           p.fuente          ?? "",
         estado_venta:     p.estado_venta    ?? "no",
         notas:            p.notas           ?? "",
-        etapa_pipeline:   p.etapa_pipeline  ?? "nuevo",
-        // Llamadas
-        canal_llamada:    llamada?.canal    ?? "",
-        contesto:         llamada?.contestada ? "true" : "",
-        devolvio_llamada: "",
-        intentos:         "",
-        // Brochure
-        brochure:         brochure ? "true" : "",
-        canal_brochure:   brochure?.canal   ?? "",
-        // Reunión
-        agenda_reunion:   reunion ? "true" : "",
-        modalidad_reunion: reunion?.modalidad ?? "",
-        fecha_reunion:    reunion?.fecha_hora?.split("T")[0] ?? "",
-        hora_reunion:     reunion?.fecha_hora?.split("T")[1]?.slice(0, 5) ?? "",
-        ingreso_reunion:  "",
-        estado_reunion:   reunion?.estado   ?? "",
+        etapa_pipeline:         p.etapa_pipeline          ?? "nuevo",
+        motivo_perdida_detalle: p.motivo_perdida_detalle  ?? "",
       });
     }
   }, [prospecto]);
@@ -175,7 +215,19 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
   async function handleGuardar() {
-    if (!form.empresa.trim()) { setError("La empresa es obligatoria"); return; }
+    const faltantes: string[] = [];
+    if (!form.empresa.trim())   faltantes.push("Empresa");
+    if (!form.rubro.trim())     faltantes.push("Rubro");
+    if (!form.tamano_empresa)   faltantes.push("Tamaño de empresa");
+    if (!form.region)           faltantes.push("Región");
+    if (!form.ciudad.trim())    faltantes.push("Ciudad");
+    if (!form.estado_lead)      faltantes.push("Estado del lead");
+    if (!form.clasificacion)    faltantes.push("Clasificación");
+    if (!form.prioridad)        faltantes.push("Prioridad");
+    if (faltantes.length > 0) {
+      setError(`Campos obligatorios incompletos: ${faltantes.join(", ")}`);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -185,6 +237,7 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         pagina_web:       form.pagina_web || undefined,
         web_activa:       form.web_activa === "true" ? true : form.web_activa === "false" ? false : undefined,
         proveedor_web:    form.proveedor_web || undefined,
+        estado_web:       form.web_activa === "true" && form.estado_web ? form.estado_web : null,
         tamano_empresa:   form.tamano_empresa || undefined,
         nombre_contacto:  form.nombre_contacto || undefined,
         cargo:            form.cargo || undefined,
@@ -198,7 +251,10 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         fuente:           form.fuente || undefined,
         estado_venta:     form.estado_venta,
         notas:            form.notas || undefined,
-        motivo_perdida:   (form as any).motivo_perdida || null,
+        motivo_perdida:         (form as any).motivo_perdida || null,
+        motivo_perdida_detalle: (form as any).motivo_perdida === "otro"
+          ? (form as any).motivo_perdida_detalle || undefined
+          : null,
         etapa_pipeline:   (form as any).etapa_pipeline || "nuevo",
       };
 
@@ -210,51 +266,6 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         const nuevo = await crearProspecto(payload);
         prospectoId = nuevo.id;
       }
-
-      // Consultar el estado actual del prospecto para no duplicar registros
-      const detalleFull = await getProspecto(prospectoId);
-      const sinLlamadas  = !detalleFull?.llamadas?.length;
-      const sinBrochures = !detalleFull?.brochures?.length;
-      const sinReuniones = !detalleFull?.reuniones?.length;
-
-      const tareas: Promise<any>[] = [];
-
-      if (form.canal_llamada && sinLlamadas) {
-        tareas.push(
-          crearLlamada({
-            prospecto_id: prospectoId,
-            canal:        form.canal_llamada,
-            contestada:   form.contesto === "true",
-            fecha:        new Date().toISOString(),
-          })
-        );
-      }
-
-      if (form.brochure === "true" && form.canal_brochure && sinBrochures) {
-        tareas.push(
-          crearBrochure({
-            prospecto_id: prospectoId,
-            canal:        form.canal_brochure,
-          })
-        );
-      }
-
-      if (form.agenda_reunion === "true" && form.fecha_reunion && sinReuniones) {
-        const fechaHora = form.hora_reunion
-          ? `${form.fecha_reunion}T${form.hora_reunion}:00`
-          : `${form.fecha_reunion}T09:00:00`;
-        tareas.push(
-          crearReunion({
-            prospecto_id: prospectoId,
-            titulo:       "Reunión inicial",
-            fecha_hora:   fechaHora,
-            modalidad:    (form.modalidad_reunion || "presencial") as any,
-            estado:       (form.estado_reunion    || "programada") as any,
-          })
-        );
-      }
-
-      if (tareas.length > 0) await Promise.allSettled(tareas);
 
       // Contacto secundario: upsert si tiene nombre, eliminar si se borró
       if (contacto2.nombre.trim()) {
@@ -289,59 +300,128 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
       onCerrar={onCerrar}
       titulo={esEdicion ? `Editar — ${prospecto?.empresa}` : "Nuevo prospecto"}
       size="xl"
+      variant="dark"
     >
-      <div className="space-y-5">
+      <div className="space-y-4 ">
 
         {/* ── EMPRESA ── */}
-        <div>
-          <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide mb-3">Empresa</p>
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Empresa *" placeholder="Nombre de la empresa"
-              value={form.empresa} onChange={e => set("empresa", e.target.value)} />
-            <Input label="Rubro" placeholder="Ej: Tecnología, Retail..."
-              value={form.rubro} onChange={e => set("rubro", e.target.value)} />
-            <Input label="Enlace web" placeholder="https://..."
-              value={form.pagina_web} onChange={e => set("pagina_web", e.target.value)} />
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">¿Web activa?</label>
-              <select value={form.web_activa} onChange={e => set("web_activa", e.target.value)} className={selectClass}>
+        <div className="rounded-2xl  border border-zinc-700 bg-zinc-800 p-5">
+          {sectionHeader("Empresa")}
+          <div className="grid grid-cols-2  gap-x-6 gap-y-4">
+            <Field icon={<Building2 size={14}/>} label="Empresa" required>
+              <input value={form.empresa} onChange={e => set("empresa", e.target.value)}
+                placeholder="Nombre de la empresa" className={fieldInput} />
+            </Field>
+            <Field icon={<Tag size={14}/>} label="Rubro" required>
+              <input value={form.rubro} onChange={e => set("rubro", e.target.value)}
+                placeholder="Ej: Tecnología, Retail..." className={fieldInput} />
+            </Field>
+            <Field icon={<Globe size={14}/>} label="Enlace web">
+              <input value={form.pagina_web} onChange={e => {
+                const url = e.target.value;
+                set("pagina_web", url);
+                set("web_activa", url.trim() ? "true" : "false");
+                if (!url.trim()) set("estado_web", "");
+              }} placeholder="https://..." className={fieldInput} />
+            </Field>
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1">¿WEB ACTIVA?</label>
+              <select value={form.web_activa} onChange={e => { set("web_activa", e.target.value); if (e.target.value !== "true") set("estado_web", ""); }} className={selectClass}>
                 <option value="">Sin especificar</option>
                 <option value="true">Sí</option>
                 <option value="false">No</option>
               </select>
             </div>
-            <Input label="Proveedor web" placeholder="Ej: Wix, WordPress, agencia..."
-              value={form.proveedor_web} onChange={e => set("proveedor_web", e.target.value)} />
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Tamaño empresa</label>
-              <select value={form.tamano_empresa} onChange={e => set("tamano_empresa", e.target.value)} className={selectClass}>
+            <Field icon={<Server size={14}/>} label="Proveedor web">
+              <input value={form.proveedor_web} onChange={e => set("proveedor_web", e.target.value)}
+                placeholder="Ej: Wix, WordPress, agencia..." className={fieldInput} />
+            </Field>
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1">
+                TAMAÑO EMPRESA <span className="text-brand">*</span>
+              </label>
+              <select
+                value={form.tamano_empresa}
+                onChange={e => {
+                  const t = e.target.value;
+                  set("tamano_empresa", t);
+                  const p = calcularPrioridad(t, form.estado_web);
+                  if (p) set("prioridad", p);
+                }}
+                className={selectClass}
+              >
                 <option value="">Sin especificar</option>
-                <option value="1_10">1 - 10</option>
-                <option value="11_50">11 - 50</option>
-                <option value="51_200">51 - 200</option>
-                <option value="201_500">201 - 500</option>
+                <option value="1_10">1 – 10 empleados</option>
+                <option value="11_50">11 – 50 empleados</option>
+                <option value="51_200">51 – 200 empleados</option>
+                <option value="201_500">201 – 500 empleados</option>
                 <option value="mas_500">Más de 500</option>
               </select>
             </div>
+            {form.web_activa === "true" && (
+              <div className="col-span-2">
+                <label className="text-[10px] text-zinc-400 font-medium block mb-1">ESTADO DE LA WEB</label>
+                <select
+                  value={form.estado_web}
+                  onChange={e => {
+                    const val = e.target.value;
+                    set("estado_web", val);
+                    if (val === "actualizada") {
+                      set("estado_lead",    "ya_tiene_proveedor");
+                      set("clasificacion",  "descartado");
+                      set("contesto",       "true");
+                      set("motivo_perdida", "tiene_web");
+                    } else if (val) {
+                      set("estado_lead",    "ya_tiene_proveedor");
+                      set("clasificacion",  "gestionado");
+                      set("contesto",       "true");
+                      set("motivo_perdida", "");
+                    }
+                    const p = calcularPrioridad(form.tamano_empresa, val);
+                    if (p) set("prioridad", p);
+                  }}
+                  className={selectClass}
+                >
+                  <option value="">Sin especificar</option>
+                  <option value="actualizada">Actualizada</option>
+                  <option value="por_actualizar">Por actualizar</option>
+                  <option value="vencida">Vencida</option>
+                  <option value="en_mantenimiento">En mantenimiento</option>
+                  <option value="sin_informacion">Sin información</option>
+                </select>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* ── CONTACTO ── */}
-        <div>
-          <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide mb-3">Contacto</p>
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Nombre contacto" placeholder="Nombre completo"
-              value={form.nombre_contacto} onChange={e => set("nombre_contacto", e.target.value)} />
-            <Input label="Cargo" placeholder="Ej: Gerente General"
-              value={form.cargo} onChange={e => set("cargo", e.target.value)} />
-            <Input label="Teléfono" placeholder="+51 999 999 999"
-              value={form.telefono} onChange={e => set("telefono", e.target.value)} />
-            <Input label="Email" type="email" placeholder="correo@empresa.com"
-              value={form.email_contacto} onChange={e => set("email_contacto", e.target.value)} />
-            <Input label="Ciudad" placeholder="Ej: Lima"
-              value={form.ciudad} onChange={e => set("ciudad", e.target.value)} />
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Región</label>
+        {/* ── CONTACTO PRINCIPAL ── */}
+        <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-5">
+          {sectionHeader("Contacto principal")}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+            <Field icon={<User size={14}/>} label="Nombre contacto">
+              <input value={form.nombre_contacto} onChange={e => set("nombre_contacto", e.target.value)}
+                placeholder="Nombre completo" className={fieldInput} />
+            </Field>
+            <Field icon={<Briefcase size={14}/>} label="Cargo">
+              <input value={form.cargo} onChange={e => set("cargo", e.target.value)}
+                placeholder="Ej: Gerente General" className={fieldInput} />
+            </Field>
+            <Field icon={<Phone size={14}/>} label="Teléfono">
+              <input value={form.telefono} onChange={e => set("telefono", e.target.value)}
+                placeholder="+51 999 999 999" className={fieldInput} />
+            </Field>
+            <Field icon={<Mail size={14}/>} label="Email">
+              <input type="email" value={form.email_contacto} onChange={e => set("email_contacto", e.target.value)}
+                placeholder="correo@empresa.com" className={fieldInput} />
+            </Field>
+            <Field icon={<MapPin size={14}/>} label="Ciudad" required>
+              <input value={form.ciudad} onChange={e => set("ciudad", e.target.value)}
+                placeholder="Ej: Lima" className={fieldInput} />
+            </Field>
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1">
+                REGIÓN <span className="text-brand">*</span>
+              </label>
               <select value={form.region} onChange={e => set("region", e.target.value)} className={selectClass}>
                 <option value="">Seleccione una región</option>
                 {REGIONES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -351,80 +431,125 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         </div>
 
         {/* ── CONTACTO SECUNDARIO ── */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide">Contacto 2</p>
+        <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-5">
+          {sectionHeader("Contacto 2 (opcional)")}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2.5">
+            </div>
             {contacto2.id && !contacto2.nombre && (
-              <span className="text-[10px] text-zinc-600">Deja el nombre vacío para eliminar</span>
+              <span className="text-[10px] text-zinc-400 italic">Deja el nombre vacío para eliminar</span>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-3 p-3 rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50">
-            <Input label="Nombre" placeholder="Nombre del segundo contacto"
-              value={contacto2.nombre} onChange={e => setC2("nombre", e.target.value)} />
-            <Input label="Cargo" placeholder="Ej: Administrador"
-              value={contacto2.cargo} onChange={e => setC2("cargo", e.target.value)} />
-            <Input label="Teléfono" placeholder="+51 999 999 999"
-              value={contacto2.telefono} onChange={e => setC2("telefono", e.target.value)} />
-            <Input label="Email" type="email" placeholder="correo@empresa.com"
-              value={contacto2.email} onChange={e => setC2("email", e.target.value)} />
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+            <Field icon={<User size={14}/>} label="Nombre">
+              <input value={contacto2.nombre} onChange={e => setC2("nombre", e.target.value)}
+                placeholder="Nombre del segundo contacto" className={fieldInput} />
+            </Field>
+            <Field icon={<Briefcase size={14}/>} label="Cargo">
+              <input value={contacto2.cargo} onChange={e => setC2("cargo", e.target.value)}
+                placeholder="Ej: Administrador" className={fieldInput} />
+            </Field>
+            <Field icon={<Phone size={14}/>} label="Teléfono">
+              <input value={contacto2.telefono} onChange={e => setC2("telefono", e.target.value)}
+                placeholder="+51 999 999 999" className={fieldInput} />
+            </Field>
+            <Field icon={<Mail size={14}/>} label="Email">
+              <input type="email" value={contacto2.email} onChange={e => setC2("email", e.target.value)}
+                placeholder="correo@empresa.com" className={fieldInput} />
+            </Field>
           </div>
         </div>
 
         {/* ── CRM ── */}
-        <div>
-          <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide mb-3">CRM</p>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Estado del lead</label>
-              <select value={form.estado_lead} onChange={e => set("estado_lead", e.target.value)} className={selectClass}>
-                {ESTADOS_LEAD.filter(e => e.value !== "contestada").map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
+        <div className="rounded-2xl border border-brand/20 bg-zinc-800 p-5">
+          {sectionHeader("CRM")}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1">
+                ESTADO DEL LEAD <span className="text-brand">*</span>
+              </label>
+              <select
+                value={form.estado_lead}
+                onChange={e => {
+                  const nuevo = e.target.value;
+                  set("estado_lead", nuevo);
+                  const autoClasif = AUTO_CLASIFICACION[nuevo];
+                  if (autoClasif) set("clasificacion", autoClasif);
+                  const SIN_CONTACTO = ["por_gestionar", "baja_de_oficio", "suspension_temporal", "fuera_de_servicio"];
+                  const CONTESTO_NO  = ["no_contesta", "buzon_de_voz"];
+                  if (SIN_CONTACTO.includes(nuevo)) set("contesto", "");
+                  else if (CONTESTO_NO.includes(nuevo)) set("contesto", "false");
+                  else set("contesto", "true");
+                  if (["baja_de_oficio", "suspension_temporal", "fuera_de_servicio", "buzon_de_voz"].includes(nuevo))
+                    set("canal_llamada", "");
+                }}
+                className={selectClass}
+              >
+                {ESTADOS_LEAD.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
               </select>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Clasificación</label>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[10px] text-zinc-400 font-medium">
+                  CLASIFICACIÓN <span className="text-brand">*</span>
+                </label>
+                {AUTO_CLASIFICACION[form.estado_lead] === form.clasificacion && (
+                  <span className="text-[9px] text-brand font-bold uppercase tracking-wider">auto</span>
+                )}
+              </div>
               <select value={form.clasificacion} onChange={e => set("clasificacion", e.target.value)} className={selectClass}>
                 {CLASIFICACIONES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
-            {/* Motivo de pérdida — aparece solo cuando el lead es perdido */}
+
             {(form.estado_lead === "no_interesado" || form.estado_lead === "ya_tiene_proveedor") && (
-              <div className="space-y-1 col-span-2">
-                <label className="text-xs font-medium text-red-600">¿Por qué no cerró? (motivo de pérdida)</label>
+              <div className="col-span-2 rounded-xl bg-red-50 border border-red-100 p-3 space-y-2">
+                <label className="text-[10px] font-bold text-red-400 uppercase tracking-widest block">Motivo de descarte</label>
                 <select value={(form as any).motivo_perdida ?? ""} onChange={e => set("motivo_perdida", e.target.value)} className={selectClass}>
                   <option value="">Sin especificar</option>
                   <option value="precio_alto">Precio alto</option>
-                  <option value="ya_tiene_proveedor">Ya tiene proveedor</option>
                   <option value="sin_presupuesto">Sin presupuesto</option>
                   <option value="no_le_interesa">No le interesa el servicio</option>
-                  <option value="tiene_web">Ya tiene web propia</option>
+                  <option value="tiene_web">Empresa con página web</option>
                   <option value="no_toma_decision">No es quien decide</option>
                   <option value="otro">Otro</option>
                 </select>
+                {(form as any).motivo_perdida === "otro" && (
+                  <input type="text"
+                    value={(form as any).motivo_perdida_detalle ?? ""}
+                    onChange={e => set("motivo_perdida_detalle", e.target.value)}
+                    placeholder="Especifica el motivo..."
+                    className="w-full px-3 py-2 text-xs bg-white border border-red-200 rounded-xl text-zinc-700 focus:outline-none focus:ring-2 focus:ring-red-200 transition-all"
+                  />
+                )}
               </div>
             )}
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Prioridad</label>
+
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1">
+                PRIORIDAD <span className="text-brand">*</span>
+              </label>
               <select value={form.prioridad} onChange={e => set("prioridad", e.target.value)} className={selectClass}>
                 {PRIORIDADES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
               </select>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Fuente</label>
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1">FUENTE</label>
               <select value={form.fuente} onChange={e => set("fuente", e.target.value)} className={selectClass}>
                 <option value="">Sin especificar</option>
                 {FUENTES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
               </select>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Estado de venta</label>
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1">ESTADO DE VENTA</label>
               <select value={form.estado_venta} onChange={e => set("estado_venta", e.target.value)} className={selectClass}>
                 <option value="no">No</option>
                 <option value="en_proceso">En proceso</option>
                 <option value="si">Sí — Cerrada</option>
               </select>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Etapa Pipeline</label>
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1">ETAPA PIPELINE</label>
               <select value={(form as any).etapa_pipeline ?? "nuevo"} onChange={e => set("etapa_pipeline", e.target.value)} className={selectClass}>
                 {ETAPAS_PIPELINE.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
               </select>
@@ -432,125 +557,28 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
           </div>
         </div>
 
-        {/* ── LLAMADAS ── */}
-        <div>
-          <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide mb-3">Llamadas</p>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Canal de contacto</label>
-              <select value={form.canal_llamada} onChange={e => set("canal_llamada", e.target.value)} className={selectClass}>
-                <option value="">Sin especificar</option>
-                <option value="llamada">Llamada</option>
-                <option value="whatsapp">WhatsApp</option>
-                <option value="correo">Correo</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">¿Contestó?</label>
-              <select value={form.contesto} onChange={e => set("contesto", e.target.value)} className={selectClass}>
-                <option value="">Sin especificar</option>
-                <option value="true">Sí</option>
-                <option value="false">No</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">¿Devolvió llamada?</label>
-              <select value={form.devolvio_llamada} onChange={e => set("devolvio_llamada", e.target.value)} className={selectClass}>
-                <option value="">Sin especificar</option>
-                <option value="true">Sí</option>
-                <option value="false">No</option>
-              </select>
-            </div>
-            <Input label="# Intentos" placeholder="Ej: 3"
-              value={form.intentos} onChange={e => set("intentos", e.target.value)} />
-          </div>
-        </div>
-
-        {/* ── BROCHURE ── */}
-        <div>
-          <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide mb-3">Brochure</p>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">¿Brochure enviado?</label>
-              <select value={form.brochure} onChange={e => set("brochure", e.target.value)} className={selectClass}>
-                <option value="">Sin especificar</option>
-                <option value="true">Sí</option>
-                <option value="false">No</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Canal de envío</label>
-              <select value={form.canal_brochure} onChange={e => set("canal_brochure", e.target.value)} className={selectClass}>
-                <option value="">Sin especificar</option>
-                <option value="whatsapp">WhatsApp</option>
-                <option value="correo">Correo</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* ── REUNIÓN ── */}
-        <div>
-          <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide mb-3">Reunión</p>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">¿Agenda reunión?</label>
-              <select value={form.agenda_reunion} onChange={e => set("agenda_reunion", e.target.value)} className={selectClass}>
-                <option value="">Sin especificar</option>
-                <option value="true">Sí</option>
-                <option value="false">No</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Modalidad</label>
-              <select value={form.modalidad_reunion} onChange={e => set("modalidad_reunion", e.target.value)} className={selectClass}>
-                <option value="">Sin especificar</option>
-                <option value="presencial">Presencial</option>
-                <option value="google_meet">Google Meet</option>
-                <option value="zoom">Zoom</option>
-                <option value="teams">Teams</option>
-                <option value="whatsapp_video">WhatsApp Video</option>
-              </select>
-            </div>
-            <Input label="Fecha reunión" type="date"
-              value={form.fecha_reunion} onChange={e => set("fecha_reunion", e.target.value)} />
-            <Input label="Hora reunión" type="time"
-              value={form.hora_reunion} onChange={e => set("hora_reunion", e.target.value)} />
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">¿Ingresó a la reunión?</label>
-              <select value={form.ingreso_reunion} onChange={e => set("ingreso_reunion", e.target.value)} className={selectClass}>
-                <option value="">Sin especificar</option>
-                <option value="true">Sí</option>
-                <option value="false">No</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-medium gray-100">Estado de la reunión</label>
-              <select value={form.estado_reunion} onChange={e => set("estado_reunion", e.target.value)} className={selectClass}>
-                <option value="programada">Programada</option>
-                <option value="realizada">Realizada</option>
-                <option value="en_proceso">En proceso</option>
-                <option value="reprogramada">Reprogramada</option>
-                <option value="cancelada">Cancelada</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
         {/* ── NOTAS ── */}
-        <div className="space-y-1">
-          <label className="text-xs font-medium gray-100">Notas</label>
+        <div className="rounded-2xl border border-zinc-100 bg-white p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <StickyNote size={13} className="text-brand" />
+            <span className="text-[11px] font-bold text-zinc-600 uppercase tracking-widest">Notas</span>
+          </div>
           <textarea value={form.notas} onChange={e => set("notas", e.target.value)} rows={3}
             placeholder="Observaciones generales del prospecto..."
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none" />
+            className="w-full text-xs bg-zinc-50 border border-zinc-100 rounded-xl px-3 py-2.5 text-zinc-700 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/40 transition-all resize-none" />
         </div>
 
-        {error && <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+        {error && (
+          <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-100 rounded-xl">
+            <span className="text-red-400 text-sm">⚠</span>
+            <p className="text-xs text-red-600">{error}</p>
+          </div>
+        )}
 
         <div className="flex gap-2 pt-1">
           <Button variant="secondary" className="flex-1" onClick={onCerrar}>Cancelar</Button>
           <Button className="flex-1" loading={loading} onClick={handleGuardar}>
-            {esEdicion ? "Guardar cambios" : "Crear prospecto"}
+            {esEdicion ? "Guardar cambios" : "Guardar Prospecto"}
           </Button>
         </div>
 

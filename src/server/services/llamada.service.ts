@@ -10,17 +10,30 @@ export async function crearLlamadaService(input: CrearLlamadaInput, usuarioId: s
   try {
     await client.query("BEGIN");
 
+    // Calcular duración en minutos si se proporcionaron hora_inicio (en fecha) y hora_fin
+    let duracion_minutos: number | null = null;
+    if (input.fecha && input.hora_fin) {
+      const inicio = new Date(input.fecha);
+      const [hFin, mFin] = input.hora_fin.split(":").map(Number);
+      const fin = new Date(inicio);
+      fin.setHours(hFin, mFin, 0, 0);
+      const diff = Math.round((fin.getTime() - inicio.getTime()) / 60000);
+      if (diff > 0 && diff < 480) duracion_minutos = diff;
+    }
+
     const llamada = await client.query(
-      `INSERT INTO llamadas (prospecto_id, fecha, hora_fin, canal, contestada, resultado, motivo_no_interes, notas, creado_por)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      `INSERT INTO llamadas (prospecto_id, fecha, hora_fin, canal, contestada, duracion_minutos, resultado, motivo_no_interes, accion_acordada, notas, creado_por)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
       [
         input.prospecto_id,
         input.fecha ?? new Date().toISOString(),
         input.hora_fin ?? null,
         input.canal ?? "llamada",
         input.contestada ?? false,
+        duracion_minutos,
         input.resultado ?? null,
         input.motivo_no_interes ?? null,
+        input.accion_acordada ?? null,
         input.notas ?? null,
         usuarioId,
       ]
@@ -194,8 +207,24 @@ export async function heatmapLlamadasService(filters?: { fecha_inicio?: string; 
   return result.rows;
 }
 
+export async function eliminarLlamadaService(id: string) {
+  const result = await pool.query(
+    `DELETE FROM llamadas WHERE id = $1 RETURNING id`,
+    [id]
+  );
+  return (result.rowCount ?? 0) > 0;
+}
+
+export async function eliminarLlamadasMasivoService(ids: string[]) {
+  const result = await pool.query(
+    `DELETE FROM llamadas WHERE id = ANY($1::uuid[]) RETURNING id`,
+    [ids]
+  );
+  return result.rowCount ?? 0;
+}
+
 export async function actualizarLlamadaService(id: string, input: Record<string, any>) {
-  const PERMITIDOS = ["canal", "contestada", "fecha", "hora_fin", "resultado", "motivo_no_interes", "notas"];
+  const PERMITIDOS = ["canal", "contestada", "fecha", "hora_fin", "resultado", "motivo_no_interes", "accion_acordada", "notas"];
   const campos = Object.keys(input).filter((k) => PERMITIDOS.includes(k));
   if (campos.length === 0) return null;
 
