@@ -44,11 +44,16 @@ export function labelEstadoLead(estado: string): string {
     interesado:       "Interesado",
     no_interesado:    "No interesado",
     no_contesta:      "No contesta",
-    volver_a_llamar:  "Volver a llamar",
-    buzon_de_voz:     "Buzón de voz",
+    volver_a_llamar:    "Volver a llamar",
+    ocupado_en_reunion: "Ocupado / En reunión",
+    prometio_llamar:    "Prometió llamar",
+    buzon_de_voz:       "Buzón de voz",
     fuera_de_servicio:"Fuera de servicio",
     numero_equivocado:"Número equivocado",
     ya_tiene_proveedor:"Ya tiene proveedor",
+    no_habido:          "No habido",
+    baja_de_oficio:     "Baja de oficio",
+    suspension_temporal:"Suspensión temporal",
   };
   return labels[estado] ?? estado;
 }

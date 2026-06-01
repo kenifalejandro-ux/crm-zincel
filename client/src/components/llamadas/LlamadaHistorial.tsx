@@ -11,12 +11,15 @@ const COLORES_RESULTADO: Record<string, "green" | "red" | "gray" | "yellow" | "o
   no_interesado:       "red",
   no_contesta:         "gray",
   volver_a_llamar:     "yellow",
+  ocupado_en_reunion:  "yellow",
+  prometio_llamar:     "purple",
   buzon_de_voz:        "orange",
   fuera_de_servicio:   "red",
   numero_equivocado:   "pink",
   ya_tiene_proveedor:  "purple",
   baja_de_oficio:      "red",
   suspension_temporal: "orange",
+  no_habido:           "gray",
   perdida:             "red",
 };
 
@@ -26,12 +29,15 @@ const LABELS: Record<string, string> = {
   no_interesado:       "No interesado",
   no_contesta:         "No contesta",
   volver_a_llamar:     "Volver a llamar",
+  ocupado_en_reunion:  "Ocupado / En reunión",
+  prometio_llamar:     "Prometió llamar",
   buzon_de_voz:        "Buzón de voz",
   fuera_de_servicio:   "Fuera de servicio",
   numero_equivocado:   "Número equivocado",
   ya_tiene_proveedor:  "Empresa con página web",
   baja_de_oficio:      "Baja de oficio",
   suspension_temporal: "Suspensión temporal",
+  no_habido:           "No habido",
   perdida:             "Venta perdida",
 };
 

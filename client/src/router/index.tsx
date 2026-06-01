@@ -18,6 +18,10 @@ import PipelinePage      from "../pages/PipelinePage";
 import PlantillasPage    from "../pages/PlantillasPage";
 import InteligenciaPage  from "../pages/InteligenciaPage";
 import InicioPage        from "../pages/InicioPage";
+import ObjetivosPage          from "../pages/ObjetivosPage";
+import OkrPage                from "../pages/OkrPage";
+import AnalisisIntentosPage   from "../pages/AnalisisIntentosPage";
+import AnalisisComercialPage  from "../pages/AnalisisComercialPage";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { estaAutenticado, cargando } = useAuth();
@@ -61,6 +65,10 @@ export function AppRouter() {
           <Route path="/pipeline"        element={<PipelinePage />} />
           <Route path="/plantillas"      element={<PlantillasPage />} />
           <Route path="/inteligencia"    element={<InteligenciaPage />} />
+          <Route path="/objetivos"            element={<ObjetivosPage />} />
+          <Route path="/okr"                element={<OkrPage />} />
+          <Route path="/analisis-llamadas"   element={<AnalisisIntentosPage />} />
+          <Route path="/analisis-comercial" element={<AnalisisComercialPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

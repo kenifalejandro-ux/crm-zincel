@@ -1,7 +1,7 @@
 /** client/src/pages/InteligenciaPage.tsx */
 
 import { COLORS, CARD_CLASS, HEADER_CLASS } from "../lib/tokens";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Component, type ReactNode, type ErrorInfo } from "react";
 import { TrendingUp, Phone, CalendarDays, FileText, Package, AlertTriangle, CheckCircle, Info, Lightbulb, ChevronDown, Pencil, X, Check, Clock, Target, Zap } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { getFunnelPipeline, getAnalisisRegion, getMotivosPerdida, getProspecto, getScoresLeads } from "../services/prospectos.api";
@@ -9,7 +9,7 @@ import { getHeatmapLlamadas }  from "../services/llamadas.api";
 import { getMetricasDashboard } from "../services/dashboard.api";
 import { ProspectoDetalle } from "../components/prospectos/ProspectoDetalle";
 import type { Prospecto } from "../types/prospecto.types";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getInsights, getLeadsEstancados, getPrioridadOperacional, getForecast, getForecastLeads, getObjetivos, actualizarObjetivos, getTendencias } from "../services/inteligencia.api";
 import type { Tendencias } from "../services/inteligencia.api";
 import { FunnelConversion }    from "../components/inteligencia/FunnelConversion";
@@ -25,6 +25,7 @@ import { LeadScatterChart }            from "../components/inteligencia/LeadScat
 import { CanalEfectividadChart }      from "../components/inteligencia/CanalEfectividad";
 import { ConversacionChart }          from "../components/inteligencia/ConversacionChart";
 import { CoberturaLlamadas }         from "../components/inteligencia/CoberturaLlamadas";
+import { IntentosCobertura }         from "../components/inteligencia/IntentosCobertura";
 import { EstadoWebChart }             from "../components/inteligencia/EstadoWebChart";
 import { PaquetesWebChart }          from "../components/inteligencia/PaquetesWebChart";
 import { HeatmapHoras }        from "../components/llamadas/HeatmapHoras";
@@ -34,6 +35,7 @@ import { ActividadMensualDiaria }  from "../components/dashboard/ActividadMensua
 import { TemperaturaLeadsChart }   from "../components/dashboard/TemperaturaLeadsChart";
 import { AnalisisPropuestas }       from "../components/inteligencia/AnalisisPropuestas";
 import { InsightServicios }         from "../components/inteligencia/InsightServicios";
+import { PropuestasMesChart }       from "../components/dashboard/PropuestasMesChart";
 import type { FunnelEtapa, RegionEtapa } from "../services/prospectos.api";
 import type { Insight, LeadEstancado, AccionPrioridad, Forecast, ObjetivosDiarios, LeadPrioridad } from "../services/inteligencia.api";
 import { FiltroPeriodoBotones, type FiltroPeriodo } from "../components/shared/FiltroPeriodoBotones";
@@ -826,7 +828,7 @@ function Divider({ label }: { label: string }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-type ModuloId = 'forecasting' | 'pipeline' | 'cicloventa' | 'scoring' | 'churn' | 'acciones' | 'realtime' | 'web';
+type ModuloId = 'forecasting' | 'pipeline' | 'cicloventa' | 'scoring' | 'churn' | 'acciones' | 'realtime' | 'web' | 'intentos';
 
 const MODULO_META: Record<ModuloId, {
   emoji:       string;
@@ -882,6 +884,12 @@ const MODULO_META: Record<ModuloId, {
     subtitulo:   'Estado de proyectos · Paquetes vendidos',
     descripcion: 'Estado de proyectos web activos y distribución de ventas por tipo de paquete.',
   },
+  intentos: {
+    emoji:       '📞',
+    titulo:      'Intentos vs Cobertura',
+    subtitulo:   'Llamadas totales · Empresas únicas · Eficiencia',
+    descripcion: 'Cuántas llamadas reales hiciste vs cuántas empresas distintas contactaste y cuántos intentos necesitó cada una.',
+  },
 };
 
 const ESTADO_BADGE = {
@@ -895,11 +903,32 @@ const ESTADO_LABEL = {
   ok:      'Al día',
 };
 
+class ModuloErrorBoundary extends Component<{ children: ReactNode }, { error: boolean }> {
+  state = { error: false };
+  static getDerivedStateFromError() { return { error: true }; }
+  componentDidCatch(e: Error, info: ErrorInfo) { console.error("[ModuloErrorBoundary]", e, info); }
+  render() {
+    if (this.state.error) return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <AlertTriangle size={28} className="text-amber-400 mb-2" />
+        <p className="text-sm text-zinc-700 font-medium">Ocurrió un error al cargar este módulo</p>
+        <button onClick={() => this.setState({ error: false })} className="mt-3 text-xs text-brand hover:underline">
+          Reintentar
+        </button>
+      </div>
+    );
+    return this.props.children;
+  }
+}
+
 export default function InteligenciaPage() {
-  const hoy = new Date();
+  const hoy      = new Date();
+  const location = useLocation();
   const [periodo,      setPeriodo]      = useState<FiltroPeriodo>("anio");
   const [filtroFecha,  setFiltroFecha]  = useState<string>(String(hoy.getFullYear()));
-  const [moduloActivo, setModuloActivo] = useState<ModuloId | null>(null);
+  const [moduloActivo, setModuloActivo] = useState<ModuloId | null>(
+    (location.state as any)?.modulo ?? null
+  );
   const [anioCV, setAnioCV] = useState<number | undefined>(hoy.getFullYear());
 
   const [funnel,     setFunnel]     = useState<FunnelEtapa[]>([]);
@@ -1097,6 +1126,15 @@ export default function InteligenciaPage() {
       stats: [],
       estado: 'ok',
     },
+    {
+      id: 'intentos',
+      stats: [
+        { label: 'llamadas',  value: metricas?.llamadas?.total_llamadas ?? 0 },
+        { label: 'empresas',  value: '—' },
+        { label: 'promedio',  value: '—' },
+      ],
+      estado: 'ok',
+    },
   ];
 
   // ── KPI tiles (reutilizados en landing y en módulo diagnóstico) ──
@@ -1208,7 +1246,7 @@ export default function InteligenciaPage() {
   // ━━━ LANDING: grid de módulos ━━━
   const ventas:        ModuloId[] = ['forecasting', 'pipeline', 'cicloventa'];
   const estrategicos:  ModuloId[] = ['scoring', 'churn'];
-  const operacionales: ModuloId[] = ['acciones', 'realtime', 'web'];
+  const operacionales: ModuloId[] = ['acciones', 'realtime', 'web', 'intentos'];
 
   const renderCard = (id: ModuloId) => {
     const m    = modulosCards.find(c => c.id === id)!;
@@ -1323,9 +1361,39 @@ export default function InteligenciaPage() {
             Inteligencia
           </button>
           <span className="text-zinc-300">/</span>
-          <span className="text-sm font-semibold text-zinc-800 flex items-center gap-1.5">
-            {meta.emoji} {meta.titulo}
-          </span>
+
+          {/* Selector de módulo — dropdown inline */}
+          <div className="relative group">
+            <button className="flex items-center gap-1.5 text-sm font-semibold text-zinc-800 hover:text-brand transition-colors">
+              {meta.emoji} {meta.titulo}
+              <ChevronDown size={13} className="text-zinc-400" />
+            </button>
+            <div className="absolute left-0 top-[calc(100%+6px)] z-50 bg-white border border-zinc-100 rounded-xl shadow-xl w-52 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
+              {([
+                { id: "forecasting", emoji: "📈", label: "Forecast comercial" },
+                { id: "pipeline",    emoji: "💼", label: "Pipeline y propuestas" },
+                { id: "cicloventa",  emoji: "🔄", label: "Ciclo de venta" },
+                { id: "scoring",     emoji: "🎯", label: "Lead Scoring" },
+                { id: "churn",       emoji: "⚠️", label: "Análisis de churn" },
+                { id: "acciones",    emoji: "⚡", label: "Próxima acción" },
+                { id: "realtime",    emoji: "📡", label: "Actividad en tiempo real" },
+                { id: "web",         emoji: "🌐", label: "Páginas web" },
+                { id: "intentos",    emoji: "📞", label: "Intentos vs Cobertura" },
+              ] as Array<{ id: ModuloId; emoji: string; label: string }>).map(m => (
+                <button
+                  key={m.id}
+                  onClick={() => setModuloActivo(m.id)}
+                  className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 transition
+                    ${moduloActivo === m.id
+                      ? "bg-brand/5 text-brand font-semibold"
+                      : "text-zinc-700 hover:bg-zinc-50 hover:text-brand"
+                    }`}
+                >
+                  <span>{m.emoji}</span> {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
         {moduloActivo === 'cicloventa' && selectorAnioCV}
         {moduloActivo === 'realtime'  && filtroBotonesJsx}
@@ -1355,6 +1423,8 @@ export default function InteligenciaPage() {
 
       {moduloActivo === 'pipeline' && (
         <div className="space-y-6">
+          <Divider label="Propuestas por mes" />
+          <PropuestasMesChart anio={hoy.getFullYear()} />
           <Divider label="Embudo de conversión" />
           <FunnelConversion data={funnel} />
           <Divider label="Inteligencia por servicio" />
@@ -1375,7 +1445,9 @@ export default function InteligenciaPage() {
                 <p className="text-[10px] text-zinc-400 mt-0.5">Tiempo promedio desde primer contacto hasta cierre</p>
               </div>
             </div>
-            <CicloVenta anio={anioCV} />
+            <ModuloErrorBoundary>
+              <CicloVenta anio={anioCV} />
+            </ModuloErrorBoundary>
           </div>
         </div>
       )}
@@ -1499,6 +1571,13 @@ export default function InteligenciaPage() {
             <EstadoWebChart />
             <PaquetesWebChart />
           </div>
+        </div>
+      )}
+
+      {moduloActivo === 'intentos' && (
+        <div className="space-y-6">
+          <Divider label="Llamadas totales vs empresas únicas contactadas" />
+          <IntentosCobertura />
         </div>
       )}
 

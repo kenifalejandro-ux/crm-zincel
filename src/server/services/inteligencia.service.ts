@@ -509,7 +509,61 @@ export interface ObjetivosDiarios {
   brochures_hoy:          number;
 }
 
-export async function getObjetivosService(usuarioId: string): Promise<ObjetivosDiarios> {
+export interface FiltroObjetivos {
+  periodo?: string;
+  mes?:     number;
+  anio?:    number;
+  fecha?:   string;
+}
+
+function getPeriodoRange(filtro: FiltroObjetivos): { inicio: string; fin: string } {
+  const { periodo = "mes", mes, anio, fecha } = filtro;
+  const now = new Date();
+
+  switch (periodo) {
+    case "hoy": {
+      const d = now.toISOString().slice(0, 10);
+      return { inicio: d, fin: d };
+    }
+    case "semana": {
+      const day  = now.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      const lunes = new Date(now);
+      lunes.setDate(now.getDate() + diff);
+      return { inicio: lunes.toISOString().slice(0, 10), fin: now.toISOString().slice(0, 10) };
+    }
+    case "mes": {
+      const m = mes ?? now.getMonth() + 1;
+      const a = anio ?? now.getFullYear();
+      const ultimoDia = new Date(a, m, 0).getDate();
+      return {
+        inicio: `${a}-${String(m).padStart(2, "0")}-01`,
+        fin:    `${a}-${String(m).padStart(2, "0")}-${String(ultimoDia).padStart(2, "0")}`,
+      };
+    }
+    case "anio": {
+      const a = anio ?? now.getFullYear();
+      return { inicio: `${a}-01-01`, fin: `${a}-12-31` };
+    }
+    case "dia": {
+      const d = fecha ?? now.toISOString().slice(0, 10);
+      return { inicio: d, fin: d };
+    }
+    default: {
+      const m = now.getMonth() + 1;
+      const a = now.getFullYear();
+      const ultimoDia = new Date(a, m, 0).getDate();
+      return {
+        inicio: `${a}-${String(m).padStart(2, "0")}-01`,
+        fin:    `${a}-${String(m).padStart(2, "0")}-${String(ultimoDia).padStart(2, "0")}`,
+      };
+    }
+  }
+}
+
+export async function getObjetivosService(usuarioId: string, filtro: FiltroObjetivos = {}): Promise<ObjetivosDiarios> {
+  const { inicio, fin } = getPeriodoRange(filtro);
+
   const [metas, actuals] = await Promise.all([
     pool.query(
       `SELECT llamadas_meta, reuniones_meta, brochures_meta,
@@ -517,7 +571,6 @@ export async function getObjetivosService(usuarioId: string): Promise<ObjetivosD
        FROM objetivos_diarios WHERE usuario_id = $1`,
       [usuarioId]
     ).catch(() =>
-      // Fallback si la columna aún no fue migrada
       pool.query(
         `SELECT llamadas_meta, reuniones_meta, brochures_meta
          FROM objetivos_diarios WHERE usuario_id = $1`,
@@ -527,12 +580,12 @@ export async function getObjetivosService(usuarioId: string): Promise<ObjetivosD
     pool.query(
       `SELECT
          (SELECT COUNT(*)::int FROM llamadas
-          WHERE creado_por = $1 AND fecha::date = CURRENT_DATE)       AS llamadas_hoy,
+          WHERE fecha::date BETWEEN $1::date AND $2::date)       AS llamadas_hoy,
          (SELECT COUNT(*)::int FROM reuniones
-          WHERE creado_por = $1 AND fecha_hora::date = CURRENT_DATE)  AS reuniones_hoy,
+          WHERE fecha_hora::date BETWEEN $1::date AND $2::date)  AS reuniones_hoy,
          (SELECT COUNT(*)::int FROM brochures
-          WHERE creado_por = $1 AND fecha_envio = CURRENT_DATE)       AS brochures_hoy`,
-      [usuarioId]
+          WHERE fecha_envio BETWEEN $1::date AND $2::date)       AS brochures_hoy`,
+      [inicio, fin]
     ),
   ]);
 

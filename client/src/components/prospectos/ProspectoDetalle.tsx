@@ -25,6 +25,7 @@ import { ModalEditarBrochure } from "../brochures/ModalEditarBrochure";
 import { getTareas } from "../../services/tareas.api";
 import { getLlamadas, actualizarLlamada, eliminarLlamada } from "../../services/llamadas.api";
 import { ModalEditarLlamada } from "../llamadas/ModalEditarLlamada";
+import { ProspectoForm } from "./ProspectoForm";
 import { useEditar } from "../../hooks/useEditar";
 import type { Llamada } from "../../types/llamada.types";
 import { usePropuestas } from "../../hooks/usePropuestas";
@@ -55,12 +56,15 @@ const LABEL_ESTADO: Record<string, string> = {
   no_interesado:       "No interesado",
   no_contesta:         "No contesta",
   volver_a_llamar:     "Volver a llamar",
+  ocupado_en_reunion:  "Ocupado / En reunión",
+  prometio_llamar:     "Prometió llamar",
   buzon_de_voz:        "Buzón de voz",
   fuera_de_servicio:   "Fuera de servicio",
   numero_equivocado:   "Número equivocado",
   ya_tiene_proveedor:  "Empresa con página web",
   baja_de_oficio:      "Baja de oficio",
   suspension_temporal: "Suspensión temporal",
+  no_habido:           "No habido",
 };
 
 const COLOR_PRIORIDAD: Record<string, "red" | "yellow" | "gray"> = {
@@ -229,7 +233,7 @@ function calcularScore(p: Prospecto, llamadas: Llamada[], props: { estado?: stri
   const propEnviada  = props.some(pr => pr.estado === "enviada");
 
   const ETAPA_LABEL: Record<string, string> = { nuevo:"Nuevo", contactado:"Contactado", interesado:"Interesado", propuesta_enviada:"Propuesta enviada", negociacion:"Negociación", cerrado_ganado:"Cerrado ganado", perdido:"Perdido" };
-  const ESTADO_LABEL: Record<string, string> = { nuevo:"Nuevo", por_gestionar:"Por gestionar", interesado:"Interesado", solicita_informacion:"Solicita información", no_interesado:"No interesado", no_contesta:"No contesta", volver_a_llamar:"Volver a llamar", buzon_de_voz:"Buzón de voz", fuera_de_servicio:"Fuera de servicio", numero_equivocado:"Número equivocado", ya_tiene_proveedor:"Empresa con página web", baja_de_oficio:"Baja de oficio", suspension_temporal:"Suspensión temporal", perdida:"Venta perdida" };
+  const ESTADO_LABEL: Record<string, string> = { nuevo:"Nuevo", por_gestionar:"Por gestionar", interesado:"Interesado", solicita_informacion:"Solicita información", no_interesado:"No interesado", no_contesta:"No contesta", volver_a_llamar:"Volver a llamar", ocupado_en_reunion:"Ocupado / En reunión", prometio_llamar:"Prometió llamar", buzon_de_voz:"Buzón de voz", fuera_de_servicio:"Fuera de servicio", numero_equivocado:"Número equivocado", ya_tiene_proveedor:"Empresa con página web", baja_de_oficio:"Baja de oficio", suspension_temporal:"Suspensión temporal", no_habido:"No habido", perdida:"Venta perdida" };
   const base:   Record<string, number> = { nuevo:5, contactado:15, interesado:40, propuesta_enviada:60, negociacion:75, cerrado_ganado:100, perdido:0 };
   const estMod: Record<string, number> = { interesado:10, volver_a_llamar:5, no_contesta:-10, no_interesado:-20 };
   const priMod: Record<string, number> = { alta:10, media:5, baja:0 };
@@ -445,7 +449,7 @@ const COLOR_VENTA: Record<string, "green" | "blue" | "gray"> = {
 interface ProspectoDetalleProps {
   prospecto:      Prospecto;
   onCerrar:       () => void;
-  onEditar:       () => void;
+  onEditar?:      () => void;
   onActualizado?: (id: string) => void;
 }
 
@@ -468,6 +472,7 @@ const FORM_PROPUESTA_VACIO: FormPropuesta = {
 
 export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado }: ProspectoDetalleProps) {
   const [tab, setTab]               = useState<Tab>("info");
+  const [editando, setEditando]     = useState(false);
   const [detalle, setDetalle]       = useState<Prospecto>(prospecto);
   const [llamadasDet, setLlamadasDet] = useState<Llamada[]>([]);
   const [reuniones, setReuniones]   = useState<Reunion[]>([]);
@@ -745,7 +750,7 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
             );
           })()}
           <div className="ml-auto">
-            <Button size="sm" variant="secondary" onClick={onEditar}>
+            <Button size="sm" variant="secondary" onClick={() => setEditando(true)}>
               <Pencil size={13} /> Editar
             </Button>
           </div>
@@ -780,10 +785,10 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
               {/* Empresa */}
               <div className="space-y-3">
                 <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide">Empresa</p>
-                {detalle.rubro && (
+                {(detalle.actividad_economica || detalle.sector) && (
                   <div className="flex items-start gap-2">
                     <Building2 size={14} className="text-zinc-800 mt-0.5 shrink-0" />
-                    <span className="text-xs text-gray-700">{detalle.rubro}</span>
+                    <span className="text-xs text-gray-700">{detalle.actividad_economica || detalle.sector}</span>
                   </div>
                 )}
                 {detalle.pagina_web && detalle.pagina_web.toLowerCase() !== "no" && (
@@ -858,9 +863,10 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
                 )}
                 {detalle.telefono && (
                   <div className="flex items-start gap-2">
-                    <Phone size={14} className="text-zinc-800 mt-0.5 shrink-0" />
-                    <a href={`tel:${detalle.telefono}`} className="text-xs text-gray-700 hover:text-brand transition">
-                      {detalle.telefono}
+                    <a href={`tel:${detalle.telefono}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors text-xs font-semibold"
+                      title="Llamar">
+                      <Phone size={13} /> {detalle.telefono}
                     </a>
                   </div>
                 )}
@@ -1121,6 +1127,19 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
           onFormChange={setFormPropuesta}
           onGuardar={handleEditarPropuesta}
           onCerrar={() => setPropuestaEditando(null)}
+        />
+      )}
+
+      {/* Modal editar prospecto */}
+      {editando && (
+        <ProspectoForm
+          prospecto={detalle}
+          onCerrar={() => setEditando(false)}
+          onGuardado={() => {
+            setEditando(false);
+            cargarDetalle();
+            onActualizado?.(detalle.id);
+          }}
         />
       )}
     </>

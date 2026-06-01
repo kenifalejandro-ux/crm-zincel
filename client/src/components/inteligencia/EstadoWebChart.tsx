@@ -24,8 +24,10 @@ const LEAD_CFG: Record<string, { label: string; bg: string; text: string }> = {
   por_gestionar:       { label: "Por gestionar",    bg: "bg-zinc-100",    text: "text-zinc-600"   },
   interesado:          { label: "Interesado",       bg: "bg-brand/10",    text: "text-brand"      },
   solicita_informacion:{ label: "Solicita info",    bg: "bg-brand/10",    text: "text-brand"      },
-  volver_a_llamar:     { label: "Volver a llamar",  bg: "bg-blue-50",     text: "text-blue-600"   },
-  no_contesta:         { label: "No contesta",      bg: "bg-yellow-50",   text: "text-yellow-700" },
+  volver_a_llamar:     { label: "Volver a llamar",     bg: "bg-blue-50",     text: "text-blue-600"   },
+  ocupado_en_reunion:  { label: "Ocupado / En reunión", bg: "bg-yellow-50",  text: "text-yellow-700" },
+  prometio_llamar:     { label: "Prometió llamar",      bg: "bg-purple-50",  text: "text-purple-700" },
+  no_contesta:         { label: "No contesta",          bg: "bg-yellow-50",  text: "text-yellow-700" },
   buzon_de_voz:        { label: "Buzón de voz",     bg: "bg-yellow-50",   text: "text-yellow-700" },
   fuera_de_servicio:   { label: "Fuera servicio",   bg: "bg-yellow-50",   text: "text-yellow-700" },
   numero_equivocado:   { label: "Nro equivocado",   bg: "bg-zinc-100",    text: "text-zinc-500"   },
@@ -88,6 +90,8 @@ const RESULTADOS_WEB = [
   { value: "no_interesado",       label: "No interesado" },
   { value: "no_contesta",         label: "No contesta" },
   { value: "volver_a_llamar",     label: "Volver a llamar" },
+  { value: "ocupado_en_reunion",  label: "Ocupado / En reunión" },
+  { value: "prometio_llamar",     label: "Prometió llamar" },
   { value: "buzon_de_voz",        label: "Buzón de voz" },
   { value: "fuera_de_servicio",   label: "Fuera de servicio" },
   { value: "numero_equivocado",   label: "Número equivocado" },
@@ -159,7 +163,13 @@ function RegistrarLlamadaModal({ prospecto, onCerrar, onGuardado }: RegistrarLla
           {prospecto.nombre_contacto && (
             <div className="bg-zinc-50 rounded-xl px-4 py-3 text-xs text-zinc-600 space-y-0.5">
               <p className="font-semibold text-zinc-800">{prospecto.nombre_contacto}</p>
-              {prospecto.telefono && <p>{prospecto.telefono}</p>}
+              {prospecto.telefono && (
+                <a href={`tel:${prospecto.telefono}`}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors text-xs font-medium"
+                  title="Llamar">
+                  <Phone size={11} /> {prospecto.telefono}
+                </a>
+              )}
             </div>
           )}
 

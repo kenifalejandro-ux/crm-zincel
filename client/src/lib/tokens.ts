@@ -17,6 +17,7 @@ export const COLORS = {
   mutedDark:    "#3f3f46",  // zinc-700 (gris oscuro legible)
   mutedLight:   "#ceab11",  // debe coincidir con --color-brand en globals.css
   danger:       "#f87171",  // red-400 (errores, cancelaciones)
+  success:      "#22c55e",  // green-500 (propuestas, logros, confirmaciones)
   surface:      "#f4f4f5",  // zinc-100 (grids, fondos de gráfico)
 } as const;
 

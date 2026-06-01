@@ -11,12 +11,15 @@ const RESULTADOS = [
   { value: "no_interesado",       label: "No interesado" },
   { value: "no_contesta",         label: "No contesta" },
   { value: "volver_a_llamar",     label: "Volver a llamar" },
+  { value: "ocupado_en_reunion",  label: "Ocupado / En reunión" },
+  { value: "prometio_llamar",     label: "Prometió llamar" },
   { value: "buzon_de_voz",        label: "Buzón de voz" },
   { value: "fuera_de_servicio",   label: "Fuera de servicio" },
   { value: "numero_equivocado",   label: "Número equivocado" },
   { value: "ya_tiene_proveedor",  label: "Empresa con página web" },
   { value: "baja_de_oficio",      label: "Baja de oficio" },
   { value: "suspension_temporal", label: "Suspensión temporal" },
+  { value: "no_habido",           label: "No habido" },
   { value: "perdida",             label: "Venta perdida" },
 ];
 
@@ -38,7 +41,7 @@ const ACCIONES_ACORDADAS = [
 ];
 
 const PIDE_MOTIVO = ["no_interesado", "ya_tiene_proveedor"];
-const PIDE_ACCION = ["interesado", "solicita_informacion", "volver_a_llamar"];
+const PIDE_ACCION = ["interesado", "solicita_informacion", "volver_a_llamar", "ocupado_en_reunion", "prometio_llamar"];
 
 const cls = "w-full px-3 py-2 text-xs bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/25 [color-scheme:dark]";
 const lbl = "text-[10px] text-zinc-400 font-semibold uppercase tracking-widest mb-1 block";

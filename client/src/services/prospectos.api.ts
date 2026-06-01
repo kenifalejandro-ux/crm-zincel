@@ -11,6 +11,8 @@ export interface ResumenProspectos {
   interesado:              number;
   no_contesta:             number;
   volver_a_llamar:         number;
+  ocupado_en_reunion:      number;
+  prometio_llamar:         number;
   no_interesado:           number;
   ya_tiene_proveedor:      number;
   solicita_informacion:    number;
@@ -19,6 +21,7 @@ export interface ResumenProspectos {
   numero_equivocado:       number;
   baja_de_oficio:          number;
   suspension_temporal:     number;
+  no_habido:               number;
   perdida:                 number;
   leads_contactados:       number;
   // Actividad de llamadas
@@ -54,8 +57,11 @@ export async function eliminarContactoSecundario(prospectoId: string, contactoId
   await api.delete(`/prospectos/${prospectoId}/contactos/${contactoId}`);
 }
 
-export async function getResumenProspectos(): Promise<ResumenProspectos> {
-  const { data } = await api.get("/prospectos/resumen");
+export async function getResumenProspectos(fechaDesde?: string, fechaHasta?: string): Promise<ResumenProspectos> {
+  const params: Record<string, string> = {};
+  if (fechaDesde) params.fecha_desde = fechaDesde;
+  if (fechaHasta) params.fecha_hasta = fechaHasta;
+  const { data } = await api.get("/prospectos/resumen", { params });
   return data.data;
 }
 

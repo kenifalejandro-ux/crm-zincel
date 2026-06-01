@@ -3,14 +3,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ChevronRight, Plus, Phone, FileText, CalendarDays,
-  AlertTriangle, Clock, Zap, CheckCircle, Loader2,
-  Sun, Sunset, Moon, Users, Target,
+  Phone, CalendarDays, AlertTriangle, Users,
+  TrendingUp, CheckCircle, Zap, ChevronRight,
+  Clock, Loader2, Plus, FileText,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getResumenInicio } from "../services/inicio.api";
-import type { ResumenInicio, LeadCaliente, ReunionHoy } from "../services/inicio.api";
-import { COLORS } from "../lib/tokens";
+import type { ResumenInicio } from "../services/inicio.api";
 import { ProspectoForm } from "../components/prospectos/ProspectoForm";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -18,16 +17,11 @@ import { ProspectoForm } from "../components/prospectos/ProspectoForm";
 const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 const DIAS  = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
 
-function saludo(): { texto: string; icon: React.ReactNode } {
+function saludo() {
   const h = new Date().getHours();
-  if (h >= 5  && h < 12) return { texto: "Buenos días",   icon: <Sun    size={20} className="text-amber-400" /> };
-  if (h >= 12 && h < 19) return { texto: "Buenas tardes", icon: <Sunset size={20} className="text-orange-400" /> };
-  return                         { texto: "Buenas noches", icon: <Moon   size={20} className="text-indigo-400" /> };
-}
-
-function fmtHora(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
+  if (h >= 5  && h < 12) return { texto: "Buenos días",   emoji: "☀️" };
+  if (h >= 12 && h < 19) return { texto: "Buenas tardes", emoji: "🌤️" };
+  return                         { texto: "Buenas noches", emoji: "🌙" };
 }
 
 const ETAPA_LABEL: Record<string, string> = {
@@ -38,281 +32,403 @@ const ETAPA_LABEL: Record<string, string> = {
   negociacion:       "Negociación",
 };
 
-// ─── Componentes base ─────────────────────────────────────────────────────────
+// ─── Tipos de ítem del checklist ─────────────────────────────────────────────
 
-function SectionCard({ title, icon, children, badge }: {
-  title:    string;
+interface CheckItem {
+  id:       string;
   icon:     React.ReactNode;
-  children: React.ReactNode;
+  label:    string;
+  sub:      string;
   badge?:   number;
-}) {
-  return (
-    <div className="bg-white rounded-2xl border border-zinc-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_4px_16px_rgba(0,0,0,0.04)]">
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-zinc-50">
-        {icon}
-        <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">{title}</span>
-        {badge !== undefined && badge > 0 && (
-          <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">{badge}</span>
-        )}
-      </div>
-      <div>{children}</div>
-    </div>
-  );
-}
-
-function DrillRow({ icon, label, sub, badge, badgeCls, onClick, urgente }: {
-  icon:      React.ReactNode;
-  label:     string;
-  sub?:      string;
-  badge?:    string | number;
-  badgeCls?: string;
-  onClick?:  () => void;
-  urgente?:  boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3 border-b border-zinc-50 last:border-0 text-left transition-colors
-        ${onClick ? "hover:bg-zinc-50 cursor-pointer" : "cursor-default"}
-        ${urgente ? "bg-red-50/40 hover:bg-red-50" : ""}`}
-    >
-      <div className="shrink-0 text-zinc-400">{icon}</div>
-      <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium truncate ${urgente ? "text-red-700" : "text-zinc-800"}`}>{label}</p>
-        {sub && <p className="text-[11px] text-zinc-500 mt-0.5">{sub}</p>}
-      </div>
-      {badge !== undefined && (
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${badgeCls ?? "bg-zinc-100 text-zinc-600"}`}>
-          {badge}
-        </span>
-      )}
-      {onClick && <ChevronRight size={14} className="text-zinc-300 shrink-0" />}
-    </button>
-  );
-}
-
-function ObjetivoRow({ label, real, meta, icon }: { label: string; real: number; meta: number; icon: React.ReactNode }) {
-  const pct      = meta > 0 ? Math.min(100, Math.round((real / meta) * 100)) : 0;
-  const cumplido = pct >= 100;
-  return (
-    <div className="px-4 py-3 border-b border-zinc-50 last:border-0">
-      <div className="flex items-center justify-between mb-1.5">
-        <div className="flex items-center gap-2 text-sm text-zinc-700">
-          <span className="text-zinc-400">{icon}</span>
-          {label}
-        </div>
-        <span className={`text-xs font-bold ${cumplido ? "text-emerald-600" : "text-zinc-600"}`}>
-          {real} / {meta}
-        </span>
-      </div>
-      <div className="h-1.5 bg-zinc-100 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct}%`, backgroundColor: cumplido ? "#10b981" : COLORS.primary }}
-        />
-      </div>
-    </div>
-  );
+  urgente?: boolean;
+  action:   () => void;
+  detail: {
+    titulo:      string;
+    descripcion: string;
+    cta:         string;
+    onCta:       () => void;
+    extra?:      React.ReactNode;
+  };
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function InicioPage() {
-  const navigate  = useNavigate();
+  const navigate    = useNavigate();
   const { usuario } = useAuth() as any;
-  const nombre    = usuario?.nombre?.split(" ")[0] ?? "Kenif";
+  const nombre      = usuario?.nombre?.split(" ")[0] ?? "Kenif";
 
-  const [data,     setData]     = useState<ResumenInicio | null>(null);
-  const [cargando, setCargando] = useState(true);
+  const [data,           setData]           = useState<ResumenInicio | null>(null);
+  const [cargando,       setCargando]       = useState(true);
+  const [seleccionado,   setSeleccionado]   = useState<string>("leads");
   const [modalProspecto, setModalProspecto] = useState(false);
 
   useEffect(() => {
     getResumenInicio()
-      .then(setData)
+      .then(d => { setData(d); })
       .catch(console.error)
       .finally(() => setCargando(false));
   }, []);
 
-  const hoy    = new Date();
-  const { texto: saludoTexto, icon: saludoIcon } = saludo();
+  const hoy     = new Date();
+  const { texto: saludoTexto, emoji } = saludo();
   const fechaStr = `${DIAS[hoy.getDay()]} ${hoy.getDate()} de ${MESES[hoy.getMonth()]}`;
 
-  // Resumen header
-  const totalTareas   = (data?.tareas.pendientes_hoy ?? 0) + (data?.tareas.vencidas ?? 0);
-  const reunionesHoy  = data?.reuniones_hoy.length ?? 0;
+  const totalAlertas = data
+    ? data.alertas.criticos + data.alertas.urgentes + data.alertas.estancados
+    : 0;
+
+  // ── Ítems del checklist ──
+  const items: CheckItem[] = [
+    {
+      id:    "leads",
+      icon:  <Zap size={16} />,
+      label: "Leads prioritarios",
+      sub:   data ? `${data.leads_calientes.length} leads calientes para contactar` : "Cargando...",
+      badge: data?.leads_calientes.length,
+      action: () => setSeleccionado("leads"),
+      detail: {
+        titulo:      "Leads calientes",
+        descripcion: "Los leads con mayor prioridad según etapa del pipeline y valor estimado.",
+        cta:         "Ver todos los prospectos",
+        onCta:       () => navigate("/prospectos"),
+        extra: data?.leads_calientes.length === 0 ? (
+          <p className="text-sm text-zinc-400 text-center py-4">Sin leads activos</p>
+        ) : (
+          <div className="space-y-2 mt-3">
+            {data?.leads_calientes.map(lead => (
+              <div
+                key={lead.id}
+                onClick={() => navigate("/prospectos")}
+                className="flex items-center justify-between p-3 rounded-xl bg-white/60 hover:bg-white border border-white/80 cursor-pointer transition group"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-zinc-800 truncate group-hover:text-brand">{lead.empresa}</p>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">
+                    {ETAPA_LABEL[lead.etapa_pipeline] ?? lead.etapa_pipeline}
+                    {lead.valor_pipeline > 0 && ` · S/ ${lead.valor_pipeline.toLocaleString("es-PE", { maximumFractionDigits: 0 })}`}
+                  </p>
+                </div>
+                {lead.telefono && (
+                  <a
+                    href={`tel:${lead.telefono}`}
+                    onClick={e => e.stopPropagation()}
+                    className="shrink-0 ml-2 flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-zinc-900 text-white hover:bg-zinc-700 transition"
+                  >
+                    <Phone size={11} /> Llamar
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        ),
+      },
+    },
+    {
+      id:    "reuniones",
+      icon:  <CalendarDays size={16} />,
+      label: "Reuniones de hoy",
+      sub:   data
+        ? data.reuniones_hoy.length > 0
+          ? `${data.reuniones_hoy.length} reunión${data.reuniones_hoy.length > 1 ? "es" : ""} programada${data.reuniones_hoy.length > 1 ? "s" : ""}`
+          : "Sin reuniones programadas hoy"
+        : "Cargando...",
+      badge: data?.reuniones_hoy.length || undefined,
+      action: () => setSeleccionado("reuniones"),
+      detail: {
+        titulo:      "Reuniones de hoy",
+        descripcion: "Reuniones programadas para hoy con tus prospectos.",
+        cta:         "Ir a Reuniones",
+        onCta:       () => navigate("/reuniones"),
+        extra: data?.reuniones_hoy.length === 0 ? (
+          <p className="text-sm text-zinc-400 text-center py-4">No hay reuniones hoy</p>
+        ) : (
+          <div className="space-y-2 mt-3">
+            {data?.reuniones_hoy.map(r => {
+              const hora = new Date(r.fecha_hora).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
+              return (
+                <div key={r.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/60 border border-white/80">
+                  <div className="shrink-0 w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center">
+                    <span className="text-xs font-bold text-blue-600">{hora}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-zinc-800 truncate">{r.empresa}</p>
+                    <p className="text-[11px] text-zinc-500 truncate">{r.titulo}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ),
+      },
+    },
+    {
+      id:      "alertas",
+      icon:    <AlertTriangle size={16} />,
+      label:   "Alertas activas",
+      sub:     data
+        ? totalAlertas > 0
+          ? `${totalAlertas} alerta${totalAlertas > 1 ? "s" : ""} requieren atención`
+          : "Todo al día — sin alertas"
+        : "Cargando...",
+      badge:   totalAlertas || undefined,
+      urgente: (data?.alertas.criticos ?? 0) > 0,
+      action:  () => setSeleccionado("alertas"),
+      detail: {
+        titulo:      "Alertas",
+        descripcion: "Leads que necesitan atención inmediata por tiempo en pipeline o inactividad.",
+        cta:         "Ver en Inteligencia",
+        onCta:       () => navigate("/inteligencia"),
+        extra: (
+          <div className="space-y-2 mt-3">
+            {(data?.alertas.criticos ?? 0) > 0 && (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-red-50 border border-red-100">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle size={14} className="text-red-500" />
+                  <span className="text-sm font-medium text-red-700">Críticos (+90 días)</span>
+                </div>
+                <span className="text-sm font-bold text-red-600">{data?.alertas.criticos}</span>
+              </div>
+            )}
+            {(data?.alertas.urgentes ?? 0) > 0 && (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-100">
+                <div className="flex items-center gap-2">
+                  <Clock size={14} className="text-amber-500" />
+                  <span className="text-sm font-medium text-amber-700">Urgentes (+45 días)</span>
+                </div>
+                <span className="text-sm font-bold text-amber-600">{data?.alertas.urgentes}</span>
+              </div>
+            )}
+            {(data?.alertas.estancados ?? 0) > 0 && (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 border border-zinc-100">
+                <div className="flex items-center gap-2">
+                  <Users size={14} className="text-zinc-500" />
+                  <span className="text-sm font-medium text-zinc-700">Sin actividad (+14 días)</span>
+                </div>
+                <span className="text-sm font-bold text-zinc-600">{data?.alertas.estancados}</span>
+              </div>
+            )}
+            {totalAlertas === 0 && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                <CheckCircle size={14} className="text-emerald-500" />
+                <span className="text-sm text-emerald-700">Sin alertas activas — buen trabajo</span>
+              </div>
+            )}
+          </div>
+        ),
+      },
+    },
+    {
+      id:    "acciones",
+      icon:  <Plus size={16} />,
+      label: "Acciones rápidas",
+      sub:   "Registrar llamada, prospecto o reunión",
+      action: () => setSeleccionado("acciones"),
+      detail: {
+        titulo:      "Acciones rápidas",
+        descripcion: "Registra actividad o crea nuevos registros directamente desde aquí.",
+        cta:         "Ir al Pipeline",
+        onCta:       () => navigate("/pipeline"),
+        extra: (
+          <div className="space-y-2 mt-3">
+            {[
+              { icon: <Plus size={14} />,         label: "Nuevo prospecto",   sub: "Agregar lead a tu base",         action: () => setModalProspecto(true) },
+              { icon: <Phone size={14} />,         label: "Registrar llamada", sub: "Añadir llamada a un lead",       action: () => navigate("/llamadas") },
+              { icon: <CalendarDays size={14} />,  label: "Agendar reunión",   sub: "Programar reunión con un lead",  action: () => navigate("/reuniones") },
+              { icon: <FileText size={14} />,      label: "Nueva propuesta",   sub: "Crear propuesta en el pipeline", action: () => navigate("/pipeline") },
+            ].map(item => (
+              <button
+                key={item.label}
+                onClick={item.action}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/60 hover:bg-white border border-white/80 hover:border-brand/30 transition group text-left"
+              >
+                <div className="w-8 h-8 rounded-lg bg-zinc-100 group-hover:bg-brand/10 flex items-center justify-center text-zinc-500 group-hover:text-brand transition shrink-0">
+                  {item.icon}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-zinc-800 group-hover:text-brand transition">{item.label}</p>
+                  <p className="text-[11px] text-zinc-500">{item.sub}</p>
+                </div>
+                <ChevronRight size={14} className="text-zinc-300 group-hover:text-brand ml-auto shrink-0 transition" />
+              </button>
+            ))}
+          </div>
+        ),
+      },
+    },
+    {
+      id:    "pipeline",
+      icon:  <TrendingUp size={16} />,
+      label: "Estado del pipeline",
+      sub:   "Ver propuestas activas y oportunidades",
+      action: () => setSeleccionado("pipeline"),
+      detail: {
+        titulo:      "Pipeline de ventas",
+        descripcion: "Vista rápida de tus propuestas activas, en negociación y cerradas.",
+        cta:         "Abrir Pipeline",
+        onCta:       () => navigate("/pipeline"),
+        extra: (
+          <div className="space-y-2 mt-3">
+            {[
+              { label: "Ver propuestas activas",    icon: <FileText size={13} />,   action: () => navigate("/pipeline") },
+              { label: "Análisis de inteligencia",  icon: <TrendingUp size={13} />, action: () => navigate("/inteligencia") },
+              { label: "Historial de llamadas",     icon: <Phone size={13} />,      action: () => navigate("/llamadas") },
+            ].map(item => (
+              <button
+                key={item.label}
+                onClick={item.action}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/60 hover:bg-white border border-white/80 hover:border-brand/30 transition group text-left"
+              >
+                <span className="text-zinc-400 group-hover:text-brand transition">{item.icon}</span>
+                <span className="text-sm text-zinc-700 group-hover:text-brand transition">{item.label}</span>
+                <ChevronRight size={13} className="ml-auto text-zinc-300 group-hover:text-brand transition" />
+              </button>
+            ))}
+          </div>
+        ),
+      },
+    },
+  ];
+
+  const itemActivo = items.find(i => i.id === seleccionado) ?? items[0];
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-4">
+    <div className="p-6 max-w-6xl mx-auto">
 
-      {/* ── Header personalizado ── */}
-      <div className="bg-zinc-900 rounded-2xl px-6 py-5 flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            {saludoIcon}
-            <h1 className="text-xl font-bold text-white">{saludoTexto}, {nombre}</h1>
-          </div>
-          <p className="text-sm text-zinc-400 capitalize">{fechaStr}</p>
-          {!cargando && (
-            <p className="text-xs text-zinc-500 mt-2">
-              {totalTareas > 0
-                ? <span className="text-amber-400 font-medium">{totalTareas} tarea{totalTareas > 1 ? "s" : ""} pendiente{totalTareas > 1 ? "s" : ""}</span>
-                : <span className="text-emerald-400 font-medium">Sin tareas pendientes</span>
-              }
-              {" · "}
-              {reunionesHoy > 0
-                ? <span className="text-blue-400 font-medium">{reunionesHoy} reunión{reunionesHoy > 1 ? "es" : ""} hoy</span>
-                : <span className="text-zinc-500">Sin reuniones hoy</span>
-              }
-            </p>
-          )}
-        </div>
-        <div className="text-3xl leading-none select-none">
-          {hoy.getHours() >= 5 && hoy.getHours() < 12 ? "☀️" : hoy.getHours() < 19 ? "🌤️" : "🌙"}
-        </div>
+      {/* ── Header ── */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-zinc-900">Inicio</h1>
+        <p className="text-sm text-zinc-500 mt-0.5 capitalize">{fechaStr}</p>
       </div>
 
-      {cargando ? (
-        <div className="flex justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-zinc-400" />
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-start">
+
+        {/* ── Panel izquierdo — bienvenida ── */}
+        <div className="lg:col-span-2 space-y-4">
+
+          {/* Welcome card */}
+          <div className="relative overflow-hidden rounded-2xl p-6"
+            style={{ background: "linear-gradient(135deg, #f0f4ff 0%, #fdf6ff 50%, #fff7ed 100%)" }}>
+            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-brand/10 blur-2xl" />
+            <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-blue-400/10 blur-2xl" />
+            <div className="relative">
+              <p className="text-2xl font-bold text-zinc-900 leading-tight">
+                {saludoTexto},<br />
+                {nombre} {emoji}
+              </p>
+              <p className="text-sm text-zinc-500 mt-2 leading-relaxed">
+                Aquí tienes el resumen de tu jornada comercial.
+              </p>
+
+              {cargando ? (
+                <div className="flex items-center gap-2 mt-4">
+                  <Loader2 size={14} className="animate-spin text-zinc-400" />
+                  <span className="text-xs text-zinc-400">Cargando datos...</span>
+                </div>
+              ) : (
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  {[
+                    { label: "Leads",    value: data?.leads_calientes.length ?? 0, color: "text-brand" },
+                    { label: "Alertas",  value: totalAlertas, color: totalAlertas > 0 ? "text-red-500" : "text-emerald-500" },
+                    { label: "Reuniones", value: data?.reuniones_hoy.length ?? 0, color: "text-blue-500" },
+                  ].map(s => (
+                    <div key={s.label} className="bg-white/70 rounded-xl p-2.5 text-center border border-white">
+                      <p className={`text-xl font-bold leading-none ${s.color}`}>{s.value}</p>
+                      <p className="text-[10px] text-zinc-400 mt-1 uppercase tracking-wide">{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Checklist */}
+          <div className="bg-white rounded-2xl border border-zinc-100 overflow-hidden shadow-sm">
+            <div className="px-4 py-3 border-b border-zinc-50">
+              <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Tu jornada</p>
+            </div>
+            {items.map(item => {
+              const activo = seleccionado === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={item.action}
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 border-b border-zinc-50 last:border-0 text-left transition-all
+                    ${activo
+                      ? "bg-gradient-to-r from-brand/5 to-brand/10 border-l-2 border-l-brand"
+                      : "hover:bg-zinc-50"
+                    }`}
+                >
+                  <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors
+                    ${activo ? "bg-brand text-white" : "bg-zinc-100 text-zinc-500"}`}>
+                    {item.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-semibold truncate ${activo ? "text-brand" : "text-zinc-800"}`}>
+                      {item.label}
+                    </p>
+                    <p className="text-[11px] text-zinc-500 truncate mt-0.5">{item.sub}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full
+                        ${item.urgente ? "bg-red-100 text-red-600" : "bg-zinc-100 text-zinc-600"}`}>
+                        {item.badge}
+                      </span>
+                    )}
+                    <ChevronRight size={14} className={activo ? "text-brand" : "text-zinc-300"} />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      ) : (
-        <>
-          {/* ── Acciones rápidas ── */}
-          <SectionCard title="Acciones rápidas" icon={<Zap size={13} className="text-brand" />}>
-            <DrillRow
-              icon={<Plus size={16} />}
-              label="Nuevo prospecto"
-              sub="Registrar un lead en tu base"
-              onClick={() => setModalProspecto(true)}
-            />
-            <DrillRow
-              icon={<Phone size={16} />}
-              label="Registrar llamada"
-              sub="Añadir llamada a un lead"
-              onClick={() => navigate("/llamadas")}
-            />
-            <DrillRow
-              icon={<FileText size={16} />}
-              label="Nueva propuesta"
-              sub="Crear propuesta en el pipeline"
-              onClick={() => navigate("/pipeline")}
-            />
-            <DrillRow
-              icon={<CalendarDays size={16} />}
-              label="Agendar reunión"
-              sub="Programar reunión con un lead"
-              onClick={() => navigate("/reuniones")}
-            />
-          </SectionCard>
 
-          {/* ── Objetivos del día ── */}
-          {data && (
-            <SectionCard title="Objetivos del día" icon={<Target size={13} className="text-emerald-500" />}>
-              <ObjetivoRow label="Llamadas"  real={0} meta={5}  icon={<Phone size={13} />} />
-              <ObjetivoRow label="Reuniones" real={reunionesHoy} meta={2} icon={<CalendarDays size={13} />} />
-              <DrillRow
-                icon={<CheckCircle size={16} />}
-                label="Ver objetivos completos"
-                onClick={() => navigate("/inteligencia")}
-              />
-            </SectionCard>
-          )}
+        {/* ── Panel derecho — detalle del ítem seleccionado ── */}
+        <div className="lg:col-span-3">
+          <div className="rounded-2xl overflow-hidden border border-zinc-100 shadow-sm"
+            style={{ background: "linear-gradient(160deg, #fafafa 0%, #f5f7ff 100%)" }}>
 
-          {/* ── Reuniones hoy ── */}
-          {data && (
-            <SectionCard
-              title="Reuniones de hoy"
-              icon={<CalendarDays size={13} className="text-blue-500" />}
-              badge={data.reuniones_hoy.length}
-            >
-              {data.reuniones_hoy.length === 0 ? (
-                <DrillRow icon={<CalendarDays size={16} />} label="Sin reuniones programadas hoy" sub="Puedes agendar una nueva" onClick={() => navigate("/reuniones")} />
+            {/* Header del detalle */}
+            <div className="px-6 py-5 border-b border-zinc-100/80">
+              <p className="text-lg font-bold text-zinc-900">{itemActivo.detail.titulo}</p>
+              <p className="text-sm text-zinc-500 mt-1">{itemActivo.detail.descripcion}</p>
+            </div>
+
+            {/* Contenido */}
+            <div className="px-6 py-4 min-h-[320px]">
+              {cargando ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 size={20} className="animate-spin text-zinc-300" />
+                </div>
               ) : (
-                data.reuniones_hoy.map((r: ReunionHoy) => (
-                  <DrillRow
-                    key={r.id}
-                    icon={<CalendarDays size={16} />}
-                    label={r.empresa}
-                    sub={`${fmtHora(r.fecha_hora)} · ${r.titulo}`}
-                    onClick={() => navigate("/reuniones")}
-                  />
-                ))
+                itemActivo.detail.extra
               )}
-            </SectionCard>
-          )}
+            </div>
 
-          {/* ── Alertas ── */}
-          {data && (
-            <SectionCard
-              title="Alertas"
-              icon={<AlertTriangle size={13} className="text-amber-500" />}
-              badge={(data.alertas.estancados + data.alertas.criticos + data.alertas.urgentes) || undefined}
-            >
-              {data.alertas.estancados === 0 && data.alertas.criticos === 0 && data.alertas.urgentes === 0 ? (
-                <DrillRow icon={<CheckCircle size={16} />} label="Todo al día — sin alertas activas" />
-              ) : (
-                <>
-                  {data.alertas.criticos > 0 && (
-                    <DrillRow
-                      icon={<AlertTriangle size={16} />}
-                      label={`${data.alertas.criticos} lead${data.alertas.criticos > 1 ? "s" : ""} crítico${data.alertas.criticos > 1 ? "s" : ""} (+90 días en pipeline)`}
-                      badge={data.alertas.criticos}
-                      badgeCls="bg-red-100 text-red-700"
-                      onClick={() => navigate("/inteligencia")}
-                      urgente
-                    />
-                  )}
-                  {data.alertas.urgentes > 0 && (
-                    <DrillRow
-                      icon={<Clock size={16} />}
-                      label={`${data.alertas.urgentes} lead${data.alertas.urgentes > 1 ? "s" : ""} urgente${data.alertas.urgentes > 1 ? "s" : ""} (+45 días en pipeline)`}
-                      badge={data.alertas.urgentes}
-                      badgeCls="bg-amber-100 text-amber-700"
-                      onClick={() => navigate("/inteligencia")}
-                    />
-                  )}
-                  {data.alertas.estancados > 0 && (
-                    <DrillRow
-                      icon={<Users size={16} />}
-                      label={`${data.alertas.estancados} lead${data.alertas.estancados > 1 ? "s" : ""} sin actividad (+14 días)`}
-                      badge={data.alertas.estancados}
-                      badgeCls="bg-zinc-100 text-zinc-600"
-                      onClick={() => navigate("/inteligencia")}
-                    />
-                  )}
-                </>
-              )}
-            </SectionCard>
-          )}
+            {/* CTA */}
+            <div className="px-6 py-4 border-t border-zinc-100/80">
+              <button
+                onClick={itemActivo.detail.onCta}
+                className="flex items-center gap-2 text-sm font-semibold text-brand hover:text-brand/80 transition group"
+              >
+                {itemActivo.detail.cta}
+                <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
+          </div>
+        </div>
 
-          {/* ── Leads calientes ── */}
-          {data && data.leads_calientes.length > 0 && (
-            <SectionCard title="Leads prioritarios" icon={<Zap size={13} className="text-brand" />}>
-              {data.leads_calientes.map((lead: LeadCaliente) => (
-                <DrillRow
-                  key={lead.id}
-                  icon={<Users size={16} />}
-                  label={lead.empresa}
-                  sub={`${ETAPA_LABEL[lead.etapa_pipeline] ?? lead.etapa_pipeline}${lead.ciudad ? ` · ${lead.ciudad}` : ""}${lead.valor_pipeline > 0 ? ` · S/ ${lead.valor_pipeline.toLocaleString("es-PE", { maximumFractionDigits: 0 })}` : ""}`}
-                  badge={lead.telefono ? undefined : undefined}
-                  onClick={() => navigate("/prospectos")}
-                />
-              ))}
-              <DrillRow
-                icon={<ChevronRight size={16} />}
-                label="Ver todos los prospectos"
-                onClick={() => navigate("/prospectos")}
-              />
-            </SectionCard>
-          )}
-        </>
-      )}
+      </div>
 
       {/* ── Modal nuevo prospecto ── */}
       {modalProspecto && (
         <ProspectoForm
           onCerrar={() => setModalProspecto(false)}
-          onGuardado={() => { setModalProspecto(false); getResumenInicio().then(setData).catch(console.error); }}
+          onGuardado={() => {
+            setModalProspecto(false);
+            getResumenInicio().then(setData).catch(console.error);
+          }}
         />
       )}
     </div>

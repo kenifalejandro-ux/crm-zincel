@@ -9,10 +9,11 @@ interface Props {
 }
 
 const ITEMS = [
-  { name: "Prospectos", key: "prospectos_hoy",  fill: COLORS.primary, dataKey: "prospectos" as const },
-  { name: "Reuniones",  key: "reuniones_hoy",   fill: COLORS.primary,   dataKey: "reuniones"  as const },
-  { name: "Brochures",  key: "brochures_hoy",   fill: COLORS.muted,      dataKey: "brochures"  as const },
-  { name: "Llamadas",   key: "llamadas_hoy",    fill: COLORS.dark,      dataKey: "llamadas"   as const },
+  { name: "Prospectos", fill: COLORS.primary      },
+  { name: "Reuniones",  fill: COLORS.primaryHover },
+  { name: "Brochures",  fill: COLORS.muted        },
+  { name: "Llamadas",   fill: COLORS.dark         },
+  { name: "Propuestas", fill: COLORS.success      },
 ];
 
 export function ActividadHoy({ metricas }: Props) {
@@ -21,6 +22,7 @@ export function ActividadHoy({ metricas }: Props) {
     metricas.reuniones.reuniones_hoy,
     metricas.brochures.brochures_hoy,
     metricas.llamadas.llamadas_hoy,
+    metricas.propuestas?.propuestas_hoy ?? 0,
   ];
   const maxVal = Math.max(...valores, 1);
 

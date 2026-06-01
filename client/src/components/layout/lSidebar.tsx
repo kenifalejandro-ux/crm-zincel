@@ -4,15 +4,16 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Users, Phone,
-  CalendarDays, DollarSign, FileText, User, BarChart2, X, Settings, CheckSquare, Kanban, MessageSquare, TrendingUp,
+  CalendarDays, DollarSign, FileText, User, BarChart2, X, PieChart, Settings, CheckSquare, Kanban, MessageSquare, TrendingUp, Target, Flag,
 } from "lucide-react";
 import { getResumenTareas } from "../../services/tareas.api";
 import { getScoresLeads } from "../../services/prospectos.api";
 
 const navegacion = [
-  { label: "Dashboard",      to: "/",               icon: LayoutDashboard },
-  { label: "Inicio",         to: "/inicio",         icon: BarChart2 },
-  { label: "Llamadas",       to: "/llamadas",       icon: Phone },
+  { label: "Análisis",      to: "/",               icon: PieChart },
+  { label: "Objetivos",     to: "/objetivos",      icon: Target },
+  { label: "OKR",           to: "/okr",            icon: Flag },
+  { label: "Llamadas",      to: "/llamadas",        icon: Phone },
   { label: "Reuniones",      to: "/reuniones",      icon: CalendarDays },
   { label: "Finanzas",       to: "/finanzas",       icon: DollarSign },
   { label: "Brochures",      to: "/brochures",      icon: FileText },
@@ -120,6 +121,7 @@ export function lSidebar({ abierto, onCerrar }: Props) {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+          <NavItem label="Inicio"      to="/inicio"     icon={LayoutDashboard} />
           <NavItem label="Prospectos" to="/prospectos" icon={Users}  badge={leadsCalientes} badgeColor="bg-red-500" />
           <NavItem label="Pipeline"   to="/pipeline"   icon={Kanban} badge={leadsCalientes} badgeColor="bg-red-500" />
 

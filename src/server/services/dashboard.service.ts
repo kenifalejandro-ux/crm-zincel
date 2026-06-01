@@ -32,7 +32,7 @@ export async function metricasDashboardService(
       case "trimestre":
         return `${columna} >= CURRENT_DATE - INTERVAL '90 days'`;
       case "anio":
-        return `${columna} >= CURRENT_DATE - INTERVAL '365 days'`;
+        return `${columna} >= DATE_TRUNC('year', NOW())`;
       case "todo":
         return `1=1`;
       default:
@@ -40,12 +40,13 @@ export async function metricasDashboardService(
     }
   };
 
-  const filtroLlamadas   = buildFiltro("fecha");
-  const filtroBrochures  = buildFiltro("fecha_envio");
-  const filtroReuniones  = buildFiltro("fecha_hora");
-  const filtroProspectos = buildFiltro("creado_en");
-  const filtroIngresos   = buildFiltro("fecha");
-  const filtroVentas     = buildFiltro("fecha_cierre");
+  const filtroLlamadas    = buildFiltro("fecha");
+  const filtroBrochures   = buildFiltro("fecha_envio");
+  const filtroReuniones   = buildFiltro("fecha_hora");
+  const filtroProspectos  = buildFiltro("creado_en");
+  const filtroIngresos    = buildFiltro("fecha");
+  const filtroVentas      = buildFiltro("fecha_cierre");
+  const filtroPropuestas  = buildFiltro("fecha_propuesta");
 
   try {
     const [
@@ -60,13 +61,14 @@ export async function metricasDashboardService(
       finanzasResult,
       ventasResult,
       ventasPorServicioResult,
+      propuestasResult,
     ] = await Promise.all([
 
       pool.query(`
         SELECT
-          COUNT(*)::int                                              AS total_llamadas,
-          COUNT(*) FILTER (WHERE contestada = true)::int            AS llamadas_contestadas,
-          COUNT(*) FILTER (WHERE contestada = false)::int           AS llamadas_no_contestadas
+          COUNT(DISTINCT prospecto_id)::int AS total_llamadas,
+          COUNT(DISTINCT CASE WHEN contestada = true  THEN prospecto_id END)::int AS llamadas_contestadas,
+          (COUNT(DISTINCT prospecto_id) - COUNT(DISTINCT CASE WHEN contestada = true THEN prospecto_id END))::int AS llamadas_no_contestadas
         FROM llamadas
         WHERE ${filtroLlamadas}
       `).catch(() => ({
@@ -74,7 +76,7 @@ export async function metricasDashboardService(
       })),
 
       pool.query(`
-        SELECT canal, COUNT(*)::int AS cantidad
+        SELECT canal, COUNT(DISTINCT prospecto_id)::int AS cantidad
         FROM llamadas
         WHERE ${filtroLlamadas}
         GROUP BY canal
@@ -201,6 +203,17 @@ export async function metricasDashboardService(
         GROUP BY servicio
         ORDER BY monto_total DESC
       `).catch(() => ({ rows: [] })),
+
+      // Propuestas del período
+      pool.query(`
+        SELECT
+          COUNT(*)::int                                                                   AS total_propuestas,
+          COUNT(*) FILTER (WHERE estado = 'cerrada_ganada')::int                         AS propuestas_ganadas,
+          COUNT(*) FILTER (WHERE estado = 'cerrada_perdida')::int                        AS propuestas_perdidas,
+          COUNT(*) FILTER (WHERE estado NOT IN ('cerrada_ganada','cerrada_perdida'))::int AS propuestas_activas
+        FROM propuestas
+        WHERE ${filtroPropuestas}
+      `).catch(() => ({ rows: [{ total_propuestas: 0, propuestas_ganadas: 0, propuestas_perdidas: 0, propuestas_activas: 0 }] })),
     ]);
 
     const ll = llamadasResult.rows[0];
@@ -209,6 +222,7 @@ export async function metricasDashboardService(
     const pr = prospectosResult.rows[0];
     const fi = finanzasResult.rows[0];
     const vt = ventasResult.rows[0];
+    const pp = propuestasResult.rows[0];
 
     const dashResult = {
       llamadas: {
@@ -275,6 +289,15 @@ export async function metricasDashboardService(
         ingresos_mes:  Number(fi.ingresos_mes),
         ingresos_anio: Number(fi.ingresos_mes),
       },
+
+      propuestas: {
+        total_propuestas:    pp.total_propuestas,
+        propuestas_ganadas:  pp.propuestas_ganadas,
+        propuestas_perdidas: pp.propuestas_perdidas,
+        propuestas_activas:  pp.propuestas_activas,
+        propuestas_hoy:      pp.total_propuestas,
+        propuestas_mes:      pp.total_propuestas,
+      },
     };
 
     await cacheSet(cacheKey, dashResult, cacheTTL);
@@ -289,6 +312,7 @@ export async function metricasDashboardService(
       brochures:             { total_brochures: 0, brochures_correo: 0, brochures_whatsapp: 0, brochures_hoy: 0, brochures_mes: 0 },
       reuniones:             { total_reuniones: 0, reuniones_programadas: 0, reuniones_realizadas: 0, reuniones_canceladas: 0, reuniones_descartadas: 0, reuniones_reprogramadas: 0, reuniones_hoy: 0, reuniones_mes: 0 },
       prospectos:            { total_prospectos: 0, prospectos_interesados: 0, prospectos_no_interesados: 0, prospectos_no_contesta: 0, prospectos_volver_llamar: 0, prospectos_buzon: 0, prospectos_tiene_proveedor: 0, prospectos_con_web: 0, prospectos_sin_web: 0, web_actualizada: 0, web_por_actualizar: 0, web_vencida: 0, web_en_mantenimiento: 0, web_sin_informacion: 0, prospectos_hoy: 0, prospectos_mes: 0 },
+      propuestas:            { total_propuestas: 0, propuestas_ganadas: 0, propuestas_perdidas: 0, propuestas_activas: 0, propuestas_hoy: 0, propuestas_mes: 0 },
       ventas:                { cerradas: 0, en_proceso: 0, no: 0 },
       ventas_por_servicio:   [],
       tasa_conversion:       0,

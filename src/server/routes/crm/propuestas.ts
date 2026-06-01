@@ -249,6 +249,30 @@ propuestasRouter.put("/metas-pipeline", async (req: any, res) => {
   }
 });
 
+// GET /api/crm/propuestas/por-mes?anio=2026
+propuestasRouter.get("/por-mes", async (req, res) => {
+  try {
+    const { pool } = await import("../../config/database");
+    const anio = req.query.anio ? Number(req.query.anio) : new Date().getFullYear();
+    const { rows } = await pool.query(`
+      SELECT
+        EXTRACT(MONTH FROM fecha_propuesta)::int          AS mes_num,
+        COUNT(*)::int                                      AS total,
+        COUNT(*) FILTER (WHERE estado = 'enviada')::int            AS enviadas,
+        COUNT(*) FILTER (WHERE estado = 'en_negociacion')::int     AS en_negociacion,
+        COUNT(*) FILTER (WHERE estado = 'cerrada_ganada')::int     AS ganadas,
+        COUNT(*) FILTER (WHERE estado IN ('cerrada_perdida','vencida'))::int AS perdidas
+      FROM propuestas
+      WHERE EXTRACT(YEAR FROM fecha_propuesta) = $1
+      GROUP BY mes_num
+      ORDER BY mes_num ASC
+    `, [anio]);
+    res.json({ ok: true, data: rows });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
 // GET /api/crm/propuestas/resumen-estados
 propuestasRouter.get("/resumen-estados", async (req, res) => {
   try {

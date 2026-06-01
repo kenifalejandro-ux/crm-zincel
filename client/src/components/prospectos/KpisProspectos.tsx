@@ -17,8 +17,10 @@ const CARDS_ESTADOS: CardDef[] = [
   { key: "nuevo",          label: "Nueva carga",     color: "text-blue-700",  bg: "bg-blue-50 border-blue-200",    dot: "bg-blue-500"   },
   { key: "por_gestionar",  label: "Por gestionar",   color: "text-slate-700", bg: "bg-slate-50 border-slate-200",  dot: "bg-slate-400"  },
   { key: "interesado",     label: "Interesados",     color: "text-green-700", bg: "bg-green-50 border-green-200",  dot: "bg-green-500"  },
-  { key: "volver_a_llamar",label: "Volver a llamar", color: "text-yellow-700",bg: "bg-yellow-50 border-yellow-200",dot: "bg-yellow-500" },
-  { key: "no_interesado",  label: "No interesado",   color: "text-red-700",   bg: "bg-red-50 border-red-200",      dot: "bg-red-400"    },
+  { key: "volver_a_llamar",   label: "Volver a llamar",      color: "text-yellow-700", bg: "bg-yellow-50 border-yellow-200",  dot: "bg-yellow-500" },
+  { key: "ocupado_en_reunion",label: "Ocupado / En reunión", color: "text-yellow-700", bg: "bg-yellow-50 border-yellow-200",  dot: "bg-yellow-400" },
+  { key: "prometio_llamar",   label: "Prometió llamar",      color: "text-purple-700", bg: "bg-purple-50 border-purple-200",  dot: "bg-purple-400" },
+  { key: "no_interesado",     label: "No interesado",        color: "text-red-700",    bg: "bg-red-50 border-red-200",        dot: "bg-red-400"    },
   { key: "no_contesta",    label: "No contesta",     color: "text-gray-600",  bg: "bg-gray-50 border-gray-200",    dot: "bg-gray-400"   },
   { key: "ya_tiene_proveedor",   label: "Tiene proveedor",      color: "text-indigo-700", bg: "bg-indigo-50 border-indigo-200",  dot: "bg-indigo-500"  },
   { key: "solicita_informacion", label: "Solicita información",  color: "text-blue-700",   bg: "bg-blue-50 border-blue-200",      dot: "bg-blue-500"    },
@@ -26,7 +28,8 @@ const CARDS_ESTADOS: CardDef[] = [
   { key: "fuera_de_servicio",    label: "Fuera de servicio",     color: "text-gray-600",   bg: "bg-gray-50 border-gray-200",      dot: "bg-gray-400"    },
   { key: "numero_equivocado",    label: "Número equivocado",     color: "text-yellow-700", bg: "bg-yellow-50 border-yellow-200",  dot: "bg-yellow-500"  },
   { key: "baja_de_oficio",       label: "Baja de oficio",        color: "text-slate-700",  bg: "bg-slate-50 border-slate-200",    dot: "bg-slate-400"   },
-  { key: "suspension_temporal",  label: "Suspensión temporal",   color: "text-yellow-700", bg: "bg-yellow-50 border-yellow-200",  dot: "bg-yellow-500"  },
+  { key: "suspension_temporal",  label: "Suspensión temporal",   color: "text-amber-700",  bg: "bg-amber-50 border-amber-200",    dot: "bg-amber-400"   },
+  { key: "no_habido",            label: "No habido",             color: "text-slate-600",  bg: "bg-slate-50 border-slate-200",    dot: "bg-slate-300"   },
   { key: "perdida",              label: "Venta perdida",         color: "text-red-700",    bg: "bg-red-50 border-red-200",        dot: "bg-red-500"     },
 ];
 
@@ -70,7 +73,10 @@ const GRUPOS = [
       { key: "solicita_informacion", label: "Solicita información", dot: "bg-blue-400"   },
       { key: "interesado",           label: "Interesados",          dot: "bg-green-500"  },
       { key: "volver_a_llamar",      label: "Volver a llamar",      dot: "bg-yellow-500" },
+      { key: "ocupado_en_reunion",   label: "Ocupado / En reunión", dot: "bg-yellow-400" },
+      { key: "prometio_llamar",      label: "Prometió llamar",      dot: "bg-purple-400" },
       { key: "no_interesado",        label: "No interesado",        dot: "bg-red-400"    },
+      { key: "ya_tiene_proveedor",   label: "Tiene proveedor",      dot: "bg-indigo-500" },
       { key: "perdida",              label: "Venta perdida",        dot: "bg-red-600"    },
     ],
   },
@@ -84,7 +90,6 @@ const GRUPOS = [
       { key: "fuera_de_servicio", label: "Fuera de servicio", dot: "bg-slate-400"   },
       { key: "numero_equivocado", label: "Número equivocado", dot: "bg-yellow-500"  },
       { key: "no_contesta",       label: "No contesta",       dot: "bg-gray-500"    },
-      { key: "ya_tiene_proveedor",label: "Tiene proveedor",   dot: "bg-indigo-500"  },
     ],
   },
   {
@@ -94,6 +99,17 @@ const GRUPOS = [
     dot:       "bg-slate-400",
     items: [
       { key: "por_gestionar", label: "Por gestionar", dot: "bg-slate-400" },
+    ],
+  },
+  {
+    label:     "Inactivos",
+    colorHead: "text-slate-500",
+    bgHead:    "bg-slate-50 border-slate-300",
+    dot:       "bg-slate-300",
+    items: [
+      { key: "baja_de_oficio",      label: "Baja de oficio",      dot: "bg-slate-400" },
+      { key: "suspension_temporal", label: "Suspensión temporal", dot: "bg-amber-400" },
+      { key: "no_habido",           label: "No habido",           dot: "bg-slate-300" },
     ],
   },
 ];

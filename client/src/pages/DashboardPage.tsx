@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CARD_CLASS, HEADER_CLASS } from "../lib/tokens";
 import { ChevronDown, ChevronLeft, ChevronRight, CheckSquare, AlertCircle, Clock, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ChevronDown as ChevronDownIcon } from "lucide-react";
 import { getMetricasDashboard } from "../services/dashboard.api";
 import { getReuniones } from "../services/reuniones.api";
 import { getResumenTareas } from "../services/tareas.api";
@@ -17,7 +18,7 @@ import { ReunionesChart }        from "../components/dashboard/ReunionesChart";
 import { TemperaturaLeadsChart } from "../components/dashboard/TemperaturaLeadsChart";
 import { ActividadHoy }          from "../components/dashboard/ActividadHoy";
 import { ProximasReuniones }     from "../components/dashboard/ProximasReuniones";
-import { ProspectosPorEstado }   from "../components/dashboard/ProspectosPorEstado";
+import { DashboardEstadoLeads }  from "../components/dashboard/DashboardEstadoLeads";
 import { DashboardMapRegion }    from "../components/dashboard/DashboardMapRegion";
 import { VentasChart }           from "../components/dashboard/VentasChart";
 import { BrochuresChart }        from "../components/dashboard/BrochuresChart";
@@ -103,6 +104,14 @@ export interface Metricas {
     ingresos_mes:  number;
     ingresos_anio: number;
   };
+  propuestas: {
+    total_propuestas:    number;
+    propuestas_ganadas:  number;
+    propuestas_perdidas: number;
+    propuestas_activas:  number;
+    propuestas_hoy:      number;
+    propuestas_mes:      number;
+  };
 }
 
 export default function DashboardPage() {
@@ -112,8 +121,8 @@ export default function DashboardPage() {
   const [reuniones, setReuniones] = useState<any[]>([]);
   const [metricas, setMetricas]   = useState<Metricas | null>(null);
   const [resumenTareas, setResumenTareas] = useState<ResumenTareas | null>(null);
-  const [scoreStats,   setScoreStats]   = useState<{ caliente: number; activo: number; tibio: number; frio: number } | null>(null);
-  const [regiones,     setRegiones]     = useState<RegionEtapa[]>([]);
+  const [scoreStats, setScoreStats] = useState<{ caliente: number; activo: number; tibio: number; frio: number } | null>(null);
+  const [regiones,   setRegiones]   = useState<RegionEtapa[]>([]);
   const hoy = new Date();
   const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,"0")}-${String(hoy.getDate()).padStart(2,"0")}`;
 
@@ -123,8 +132,43 @@ export default function DashboardPage() {
     anio: hoy.getFullYear(),
   });
   const [diaSeleccionado, setDiaSeleccionado] = useState<string>(hoyStr);
+
+  function calcFechaDesde(): string | undefined {
+    if (filtroPeriodo === "hoy") return hoyStr;
+    if (filtroPeriodo === "semana") {
+      const lunes = new Date(hoy);
+      lunes.setDate(hoy.getDate() - hoy.getDay() + (hoy.getDay() === 0 ? -6 : 1));
+      return lunes.toISOString().slice(0, 10);
+    }
+    if (filtroPeriodo === "mes") {
+      const { mes, anio } = mesSeleccionado;
+      return `${anio}-${String(mes + 1).padStart(2, "0")}-01`;
+    }
+    if (filtroPeriodo === "anio") return `${hoy.getFullYear()}-01-01`;
+    if (filtroPeriodo === "dia")  return diaSeleccionado;
+    return undefined;
+  }
+
+  function calcFechaHasta(): string | undefined {
+    if (filtroPeriodo === "hoy") return hoyStr;
+    if (filtroPeriodo === "semana") {
+      const domingo = new Date(hoy);
+      domingo.setDate(hoy.getDate() - hoy.getDay() + (hoy.getDay() === 0 ? 0 : 7));
+      return domingo.toISOString().slice(0, 10);
+    }
+    if (filtroPeriodo === "mes") {
+      const { mes, anio } = mesSeleccionado;
+      const ultimoDia = new Date(anio, mes + 1, 0).getDate();
+      return `${anio}-${String(mes + 1).padStart(2, "0")}-${String(ultimoDia).padStart(2, "0")}`;
+    }
+    if (filtroPeriodo === "anio") return `${hoy.getFullYear()}-12-31`;
+    if (filtroPeriodo === "dia")  return diaSeleccionado;
+    return undefined;
+  }
   const [pickerAbierto,   setPickerAbierto]   = useState(false);
   const [calAbierto,      setCalAbierto]       = useState(false);
+  const [dropdownModulo,  setDropdownModulo]  = useState(false);
+  const [intelAbierto,    setIntelAbierto]    = useState(false);
   const [anioNavegando,   setAnioNavegando]    = useState(hoy.getFullYear());
   const [calNav, setCalNav] = useState({ mes: hoy.getMonth(), anio: hoy.getFullYear() });
 
@@ -181,19 +225,88 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 ">
 
       {/* Header + Filtros */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">Dashboard</h1>
-            {actualizando && (
-              <div className="w-3.5 h-3.5 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+        <div className="flex items-center gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">Análisis</h1>
+              {actualizando && (
+                <div className="w-3.5 h-3.5 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+              )}
+            </div>
+
+          {/* Dropdown selector de módulo */}
+          <div className="relative">
+            <button
+              onClick={() => { setDropdownModulo(v => !v); setIntelAbierto(false); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg transition"
+            >
+              Dashboard <ChevronDownIcon size={16} />
+            </button>
+
+            {dropdownModulo && (
+              <>
+                {/* Backdrop para cerrar al click fuera */}
+                <div className="fixed inset-0 z-40" onClick={() => { setDropdownModulo(false); setIntelAbierto(false); }} />
+
+                <div className="absolute left-0 top-[calc(100%+6px)] z-50 bg-white border border-zinc-100 rounded-xl shadow-xl w-56 py-1.5">
+
+                  {/* Dashboard — activo */}
+                  <button className="w-full  text-left px-3 py-2 text-xs font-semibold text-brand bg-brand/5 flex items-center gap-2">
+                    📊 Dashboard
+                  </button>
+
+                  {/* Objetivos */}
+                  <button
+                    onClick={() => { navigate("/objetivos"); setDropdownModulo(false); }}
+                    className="w-full text-left px-3 py-2 text-xs text-zinc-700 hover:bg-zinc-50 hover:text-brand transition flex items-center gap-2"
+                  >
+                    🎯 Objetivos
+                  </button>
+
+                  {/* Separador */}
+                  <div className="mx-3 my-1 border-t border-zinc-100" />
+
+                  {/* Inteligencia — sección colapsable */}
+                  <button
+                    onClick={() => setIntelAbierto(v => !v)}
+                    className="w-full text-left px-3 py-2 text-xs font-semibold text-zinc-500 hover:text-zinc-800 flex items-center justify-between transition"
+                  >
+                    <span>🧠 Inteligencia</span>
+                    <ChevronDown size={12} className={`transition-transform ${intelAbierto ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {intelAbierto && (
+                    <div className="pb-1">
+                      {[
+                        { id: "forecasting", emoji: "📈", label: "Forecast comercial" },
+                        { id: "pipeline",    emoji: "💼", label: "Pipeline y propuestas" },
+                        { id: "cicloventa",  emoji: "🔄", label: "Ciclo de venta" },
+                        { id: "scoring",     emoji: "🎯", label: "Lead Scoring" },
+                        { id: "churn",       emoji: "⚠️", label: "Análisis de churn" },
+                        { id: "acciones",    emoji: "⚡", label: "Próxima acción" },
+                        { id: "realtime",    emoji: "📡", label: "Actividad en tiempo real" },
+                        { id: "web",         emoji: "🌐", label: "Páginas web" },
+                      ].map(m => (
+                        <button
+                          key={m.id}
+                          onClick={() => { navigate("/inteligencia", { state: { modulo: m.id } }); setDropdownModulo(false); setIntelAbierto(false); }}
+                          className="w-full text-left pl-6 pr-3 py-1.5 text-xs text-zinc-600 hover:bg-zinc-50 hover:text-brand transition flex items-center gap-2"
+                        >
+                          <span>{m.emoji}</span> {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
-          <p className="text-xs text-zinc-700 mt-0.5">Resumen de tu actividad comercial</p>
         </div>
+           </div>
 
         <div className="flex flex-wrap gap-2 items-center relative">
 
@@ -371,7 +484,6 @@ export default function DashboardPage() {
       )}
 
 
-      
       {/* Fila 2 — Charts principales */}
       {metricas && (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
@@ -400,12 +512,13 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Fila — Prospectos y webs */}
+
+      {/* Fila — Estado de leads (respeta el filtro global del dashboard) */}
+      <DashboardEstadoLeads fechaDesde={calcFechaDesde()} fechaHasta={calcFechaHasta()} />
+
+      {/* Fila — Webs */}
       {metricas && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-          <ProspectosPorEstado metricas={metricas} />
-          <WebResumenChart     metricas={metricas} />
-        </div>
+        <WebResumenChart metricas={metricas} />
       )}
 
       {/* Fila — Mapa por región (ancho completo) */}

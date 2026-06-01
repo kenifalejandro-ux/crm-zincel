@@ -1,8 +1,9 @@
 /** client/src/pages/ProspectosPage.tsx */
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useProspectos } from "../hooks/useProspectos";
-import { Plus, Upload, AlertTriangle, FileDown } from "lucide-react";
+import { Plus, Upload, AlertTriangle, FileDown, BarChart2 } from "lucide-react";
 import * as XLSX from "xlsx";
 import api from "../services/api";
 import { getScoresLeads, getResumenProspectos } from "../services/prospectos.api";
@@ -26,8 +27,12 @@ const LIMITE = 50;
 export default function ProspectosPage() {
   const { prospectos, total, cargando, cargar, eliminar } = useProspectos();
 
+  const location = useLocation();
+  const navigate = useNavigate();
+  const estadoInicial = (location.state as any)?.filtroEstado ?? "";
+
   const [busqueda, setBusqueda]         = useState("");
-  const [estadoFiltro, setEstadoFiltro] = useState("");
+  const [estadoFiltro, setEstadoFiltro] = useState(estadoInicial);
   const [pagina, setPagina]             = useState(1);
 
   const [preview, setPreview]           = useState<any[]>([]);
@@ -102,7 +107,10 @@ const eliminarSeleccionados = async () => {
   const exportarExcel = () => {
     const rows = prospectos.map((p) => ({
       "Empresa":         p.empresa,
-      "Rubro":           p.rubro              ?? "",
+      "Actividad Economica": p.actividad_economica ?? "",
+      "Sector":          p.sector             ?? "",
+      "Perfil":          p.perfil_empresa     ?? "",
+      "Trabajadores":    p.cantidad_trabajadores ?? "",
       "Contacto":        p.nombre_contacto    ?? "",
       "Cargo":           p.cargo              ?? "",
       "Teléfono":        p.telefono           ?? "",
@@ -179,10 +187,7 @@ const eliminarSeleccionados = async () => {
         <ProspectoDetalle
           prospecto={prospectoSeleccionado}
           onCerrar={() => setProspectoSeleccionado(null)}
-          onEditar={() => {
-            setProspectoEditar(prospectoSeleccionado);
-            setProspectoSeleccionado(null);
-          }}
+          onActualizado={(_id) => cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE })}
         />
       )}
 
@@ -230,6 +235,15 @@ const eliminarSeleccionados = async () => {
               Importar Excel
             </span>
           </label>
+          <button
+            onClick={() => navigate("/analisis-comercial")}
+            className="relative group p-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition"
+          >
+            <BarChart2 size={17} />
+            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+              Análisis comercial
+            </span>
+          </button>
           {prospectos.length > 0 && (
             <button
               onClick={exportarExcel}

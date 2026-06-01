@@ -1,5 +1,6 @@
 /** client/src/components/prospectos/TablaProspectos.tsx */
 
+import { Phone } from "lucide-react";
 import { ESTADOS_LEAD, COLOR_ESTADO, COLOR_PRIORIDAD } from "../../utils/prospectos.mappers";
 import { TableCheckbox } from "../ui/TableCheckbox";
 import type { ScoreLead } from "../../services/prospectos.api";
@@ -93,14 +94,23 @@ export function TablaProspectos({
                 </td>
                 <td className="px-5 py-3.5">
                   <p className="font-medium text-zinc-800">{p.empresa}</p>
-                  {p.rubro && <p className="text-xs text-zinc-600">{p.rubro}</p>}
+                  {(p.sector || p.actividad_economica) && <p className="text-xs text-zinc-600">{p.sector || p.actividad_economica}</p>}
                 </td>
                 <td className="px-5 py-3.5">
                   <p className="text-gray-700">{p.nombre_contacto || "-"}</p>
                   {p.cargo && <p className="text-xs text-zinc-600">{p.cargo}</p>}
                 </td>
                 <td className="px-3 py-2 text-gray-700 max-w-[300px] truncate">{p.email_contacto || "-"}</td>
-                <td className="px-5 py-3.5 text-gray-700">{p.telefono || "-"}</td>
+                <td className="px-5 py-3.5">
+                  {p.telefono
+                    ? <a href={`tel:${p.telefono}`}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors text-xs font-medium whitespace-nowrap"
+                        onClick={e => e.stopPropagation()}
+                        title="Llamar">
+                        <Phone size={11} /> {p.telefono}
+                      </a>
+                    : <span className="text-gray-400">-</span>}
+                </td>
                 <td className="px-5 py-3.5">
                   <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${COLOR_ESTADO[estadoEfectivo(p)] || "bg-gray-100 text-gray-700"}`}>
                     {ESTADOS_LEAD.find((e) => e.value === estadoEfectivo(p))?.label || estadoEfectivo(p)}

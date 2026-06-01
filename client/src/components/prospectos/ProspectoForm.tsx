@@ -4,13 +4,159 @@ import type { ReactNode } from "react";
 import {
   Building2, Tag, Globe, Server,
   User, Briefcase, Phone, Mail, MapPin,
-  StickyNote,
+  StickyNote, Users, Share2, Sparkles,
 } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { crearProspecto, actualizarProspecto } from "../../services/prospectos.api";
 import { upsertContactoSecundario, eliminarContactoSecundario } from "../../services/prospectos.api";
 import type { Prospecto } from "../../types/prospecto.types";
+
+// ── Datos de sector / perfil / plan sugerido ────────────────────────────────
+
+const SECTORES = [
+  { value: "construccion",           label: "Construcción" },
+  { value: "arquitectura_ingenieria",label: "Arquitectura e Ingeniería" },
+  { value: "manufactura_industria",  label: "Manufactura / Industria" },
+  { value: "comercio_retail",        label: "Comercio / Retail" },
+  { value: "comercio_mayorista",     label: "Comercio Mayorista" },
+  { value: "salud",                  label: "Salud" },
+  { value: "educacion",              label: "Educación" },
+  { value: "gastronomia_turismo",    label: "Gastronomía / Turismo" },
+  { value: "servicios_profesionales",label: "Servicios Profesionales" },
+  { value: "tecnologia",             label: "Tecnología / TI" },
+  { value: "transporte_logistica",   label: "Transporte / Logística" },
+  { value: "inmobiliaria",           label: "Inmobiliaria" },
+  { value: "agroindustria",          label: "Agroindustria / Agro" },
+  { value: "mineria_energia",        label: "Minería / Energía" },
+  { value: "seguridad",              label: "Seguridad / CCTV" },
+  { value: "otro",                   label: "Otro" },
+];
+
+const PERFILES_POR_SECTOR: Record<string, { value: string; label: string }[]> = {
+  construccion:            [{ value: "construccion", label: "Constructora / Contratista" }, { value: "ferreteria_materiales", label: "Ferretería / Materiales" }],
+  arquitectura_ingenieria: [{ value: "arquitectura", label: "Estudio de Arquitectura" }, { value: "ingenieria_consultoria", label: "Ingeniería / Consultoría técnica" }],
+  manufactura_industria:   [{ value: "fabrica_manufactura", label: "Fábrica / Planta de producción" }, { value: "taller_industrial", label: "Taller industrial / Metalmecánica" }, { value: "agroindustria", label: "Agroindustria / Procesadora" }],
+  comercio_retail:         [{ value: "tienda_retail", label: "Tienda / Retail (ropa, calzado...)" }, { value: "farmacia_botica", label: "Farmacia / Botica" }],
+  comercio_mayorista:      [{ value: "distribuidora_mayorista", label: "Distribuidora / Mayorista" }, { value: "drogueria_farmaceutica", label: "Droguería / Dist. farmacéutica" }, { value: "importadora_exportadora", label: "Importadora / Exportadora" }],
+  salud:                   [{ value: "clinica_hospital", label: "Clínica / Hospital" }, { value: "consultorio_medico", label: "Consultorio Médico / Dental" }, { value: "laboratorio", label: "Laboratorio Clínico" }],
+  educacion:               [{ value: "instituto_academia", label: "Instituto / Academia" }, { value: "colegio", label: "Colegio / Centro educativo" }, { value: "centro_capacitacion", label: "Centro de capacitación" }],
+  gastronomia_turismo:     [{ value: "restaurante", label: "Restaurante / Cevichería" }, { value: "hotel_hospedaje", label: "Hotel / Hospedaje" }, { value: "agencia_viajes", label: "Agencia de viajes / Tours" }],
+  servicios_profesionales: [{ value: "estudio_juridico", label: "Estudio Jurídico / Abogados" }, { value: "contabilidad_auditoria", label: "Contabilidad / Auditoría" }, { value: "consultoria_empresarial", label: "Consultoría / Asesoría empresarial" }],
+  tecnologia:              [{ value: "tecnologia_ti", label: "Empresa de TI / Software" }],
+  transporte_logistica:    [{ value: "empresa_transportes", label: "Empresa de transportes" }, { value: "almacen_logistica", label: "Almacén / Logística" }, { value: "agencia_aduanas", label: "Agencia de aduanas" }],
+  inmobiliaria:            [{ value: "inmobiliaria", label: "Inmobiliaria / Desarrolladora" }],
+  agroindustria:           [{ value: "agroindustria", label: "Agroindustria / Procesadora" }],
+  mineria_energia:         [{ value: "mineria_energia", label: "Minera / Energía / Electricidad" }],
+  seguridad:               [{ value: "seguridad_cctv", label: "Empresa de seguridad / CCTV" }],
+  otro:                    [{ value: "otro", label: "Otro" }, { value: "ong_asociacion", label: "ONG / Asociación" }],
+};
+
+const REDES_OPCIONES = [
+  { value: "facebook",  label: "Facebook" },
+  { value: "instagram", label: "Instagram" },
+  { value: "tiktok",    label: "TikTok" },
+  { value: "linkedin",  label: "LinkedIn" },
+  { value: "ninguna",   label: "Ninguna" },
+];
+
+function inferirSectorPerfil(actividad: string, empresa: string = ""): { sector: string; perfil: string } | null {
+  const t = (actividad + " " + empresa).toUpperCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g, ""); // quita tildes
+
+  // Construcción
+  if (/CONSTRUCC|OBRA CIVIL|CONTRATIST|EDIFICACI|HABILITACION URBANA/.test(t))
+    return { sector: "construccion", perfil: "construccion" };
+  // Ferretería / materiales (antes de comercio genérico)
+  if (/FERRETERI|MATERIALES DE CONSTRUCC/.test(t))
+    return { sector: "construccion", perfil: "ferreteria_materiales" };
+  // Inmobiliaria
+  if (/INMOBILI|BIENES RAICES|DESARROLLO INMOB/.test(t))
+    return { sector: "inmobiliaria", perfil: "inmobiliaria" };
+  // Arquitectura e Ingeniería
+  if (/ARQUITECTURA/.test(t))
+    return { sector: "arquitectura_ingenieria", perfil: "arquitectura" };
+  if (/INGENIERIA|INGENIERÍA|CONSULTORIA TEC|CONSULTOR.*TECNI/.test(t))
+    return { sector: "arquitectura_ingenieria", perfil: "ingenieria_consultoria" };
+  // Minería / Energía
+  if (/MINER|EXTRACCION DE|PETROLEO|GAS NATURAL|ELECTRICIDAD|GENERACION DE ENERGIA/.test(t))
+    return { sector: "mineria_energia", perfil: "mineria_energia" };
+  // Agroindustria
+  if (/AGRICULTUR|GANADERI|ACUICULT|PESCA(?!DO)|CULTIVO|AGROINDUST/.test(t))
+    return { sector: "agroindustria", perfil: "agroindustria" };
+  // Manufactura
+  if (/FABRICACI|MANUFACTURA|ELABORACI|PRODUCCION DE|PLANTA.*PRODUC/.test(t))
+    return { sector: "manufactura_industria", perfil: "fabrica_manufactura" };
+  if (/TALLER|METALMECAN|METAL MECAN/.test(t))
+    return { sector: "manufactura_industria", perfil: "taller_industrial" };
+  // Salud — laboratorio primero (más específico)
+  if (/LABORATORIO CLINIC|LABORATORIO DE ANALISIS|ANALISIS CLINIC/.test(t))
+    return { sector: "salud", perfil: "laboratorio" };
+  if (/ODONTOLOG|DENTAL|CONSULTORIO MEDIC/.test(t))
+    return { sector: "salud", perfil: "consultorio_medico" };
+  if (/ATENCION.*SALUD|CLINICA|HOSPITAL|CENTRO MEDIC|CENTRO DE SALUD/.test(t))
+    return { sector: "salud", perfil: "clinica_hospital" };
+  // Farmacia por mayor → droguería
+  if (/FARMACEUT/.test(t) && /POR MAYOR|DROGUER/.test(t))
+    return { sector: "comercio_mayorista", perfil: "drogueria_farmaceutica" };
+  // Farmacia por menor → botica
+  if (/FARMACEUT/.test(t) && /POR MENOR/.test(t))
+    return { sector: "comercio_retail", perfil: "farmacia_botica" };
+  // Educación
+  if (/CAPACITACI/.test(t))
+    return { sector: "educacion", perfil: "centro_capacitacion" };
+  if (/PRIMARIA|SECUNDARIA|COLEGIO|ESCUELA/.test(t))
+    return { sector: "educacion", perfil: "colegio" };
+  if (/ENSENANZA|ENSEÑANZA|EDUCACI|INSTITUTO|ACADEMIA/.test(t))
+    return { sector: "educacion", perfil: "instituto_academia" };
+  // Turismo / Gastronomía
+  if (/HOTEL|HOSPEDAJE|ALOJAMIENTO/.test(t))
+    return { sector: "gastronomia_turismo", perfil: "hotel_hospedaje" };
+  if (/AGENCIA.*VIAJE|VIAJES.*TURISMO|AGENCIA.*TURISMO/.test(t))
+    return { sector: "gastronomia_turismo", perfil: "agencia_viajes" };
+  if (/RESTAUR|CAFETERI|CEVICHER|PICANTER|SERVICIO DE COMIDA/.test(t))
+    return { sector: "gastronomia_turismo", perfil: "restaurante" };
+  // Servicios profesionales
+  if (/JURIDIC|JURIDICA|NOTARI|ABOGADO|ESTUDIO DE DERECHO/.test(t))
+    return { sector: "servicios_profesionales", perfil: "estudio_juridico" };
+  if (/CONTABILIDAD|AUDITORIA|CONTADURI/.test(t))
+    return { sector: "servicios_profesionales", perfil: "contabilidad_auditoria" };
+  if (/CONSULTORIA|ASESORIA|GESTION EMPRESARIAL/.test(t))
+    return { sector: "servicios_profesionales", perfil: "consultoria_empresarial" };
+  // Tecnología
+  if (/PROGRAMACI|SOFTWARE|INFORMATICA|TECNOLOGIA.*INFORMACI|SISTEMAS INFORM/.test(t))
+    return { sector: "tecnologia", perfil: "tecnologia_ti" };
+  // Seguridad
+  if (/SEGURIDAD|VIGILANCIA/.test(t))
+    return { sector: "seguridad", perfil: "seguridad_cctv" };
+  // Transporte y logística
+  if (/AGENCIA.*ADUANA|OPERADOR.*ADUANA/.test(t))
+    return { sector: "transporte_logistica", perfil: "agencia_aduanas" };
+  if (/ALMACENAMIENTO|ALMACEN|DEPOSITO.*MERCANC/.test(t))
+    return { sector: "transporte_logistica", perfil: "almacen_logistica" };
+  if (/TRANSPORTE/.test(t))
+    return { sector: "transporte_logistica", perfil: "empresa_transportes" };
+  // Importadora / Exportadora (antes de comercio genérico)
+  if (/IMPORTACI|EXPORTACI|IMPORT.*EXPORT/.test(t))
+    return { sector: "comercio_mayorista", perfil: "importadora_exportadora" };
+  // Distribuidora / mayorista
+  if (/POR MAYOR|AL POR MAYOR|DISTRIBUCI/.test(t))
+    return { sector: "comercio_mayorista", perfil: "distribuidora_mayorista" };
+  // Retail / comercio minorista
+  if (/POR MENOR|AL POR MENOR|COMERCIO ESPECIALI/.test(t))
+    return { sector: "comercio_retail", perfil: "tienda_retail" };
+
+  return null;
+}
+
+function calcularPlanSugerido(n: number): { nombre: string; rango: string; color: string } | null {
+  if (n <= 0) return null;
+  if (n <= 5)  return { nombre: "Base — Web Express",  rango: "S/ 500–700",    color: "text-zinc-400" };
+  if (n <= 10) return { nombre: "Gold — Web Pro",      rango: "S/ 900–1,200",  color: "text-yellow-500" };
+  if (n <= 30) return { nombre: "Red — Web Advanced",  rango: "S/ 1,300–1,600",color: "text-red-400" };
+  if (n <= 100)return { nombre: "Blue — Web Expert",   rango: "S/ 1,700–2,000",color: "text-blue-400" };
+  return       { nombre: "Platinum — Elite",            rango: "S/ 2,000+",     color: "text-purple-400" };
+}
 
 /** Campo con icono + línea inferior, sin borde completo */
 function Field({ icon, label, required, children }: { icon: ReactNode; label: string; required?: boolean; children: ReactNode }) {
@@ -38,27 +184,88 @@ const ESTADOS_LEAD = [
   { value: "no_interesado",       label: "No interesado" },
   { value: "no_contesta",         label: "No contesta" },
   { value: "volver_a_llamar",     label: "Volver a llamar" },
+  { value: "ocupado_en_reunion",  label: "Ocupado / En reunión" },
+  { value: "prometio_llamar",     label: "Prometió llamar" },
   { value: "buzon_de_voz",        label: "Buzón de voz" },
   { value: "fuera_de_servicio",   label: "Fuera de servicio" },
   { value: "numero_equivocado",   label: "Número equivocado" },
   { value: "ya_tiene_proveedor",  label: "Empresa con página web" },
   { value: "baja_de_oficio",      label: "Baja de oficio" },
   { value: "suspension_temporal", label: "Suspensión temporal" },
+  { value: "no_habido",           label: "No habido" },
   { value: "perdida",             label: "Venta perdida" },
 ];
 
-// Prioridad automática según tamaño + estado web
-function calcularPrioridad(tamano: string, estadoWeb: string): string | null {
-  if (estadoWeb === "actualizada") return "baja";
-  const base: Record<string, string> = {
-    "1_10": "baja", "11_50": "media",
-    "51_200": "alta", "201_500": "alta", "mas_500": "alta",
+// ── Sistema de scoring de prioridad ─────────────────────────────────────────
+
+const SECTOR_SCORE: Record<string, number> = {
+  construccion: 15, inmobiliaria: 15, manufactura_industria: 15,
+  agroindustria: 15, mineria_energia: 15,
+  salud: 12, servicios_profesionales: 12, comercio_mayorista: 12, arquitectura_ingenieria: 12,
+  tecnologia: 8, transporte_logistica: 8, seguridad: 8, educacion: 8,
+  comercio_retail: 5, gastronomia_turismo: 5, otro: 5,
+};
+
+const PERFIL_SCORE: Record<string, number> = {
+  construccion: 6, clinica_hospital: 6, importadora_exportadora: 6,
+  fabrica_manufactura: 6, drogueria_farmaceutica: 6, estudio_juridico: 6,
+  distribuidora_mayorista: 3, hotel_hospedaje: 3, consultoria_empresarial: 3,
+  almacen_logistica: 3, agencia_aduanas: 3, inmobiliaria: 3, ingenieria_consultoria: 3,
+  arquitectura: 0, laboratorio: 0, contabilidad_auditoria: 0, instituto_academia: 0,
+  empresa_transportes: 0, seguridad_cctv: 0, taller_industrial: 0,
+  ferreteria_materiales: 0, agencia_viajes: 0, agroindustria: 0,
+  consultorio_medico: 0, colegio: 0, tecnologia_ti: 0,
+  farmacia_botica: -4, tienda_retail: -4, restaurante: -4,
+  ong_asociacion: -4, centro_capacitacion: -4,
+};
+
+const TAMANO_FALLBACK_SCORE: Record<string, number> = {
+  "1_10": 2, "11_50": 7, "51_200": 9, "201_500": 15, "mas_500": 15,
+};
+
+function scoreWorkers(n: number): number {
+  if (n === 1)    return -5;
+  if (n <= 3)     return -3;
+  if (n <= 5)     return 0;
+  if (n <= 10)    return 2;
+  if (n <= 15)    return 4;
+  if (n <= 25)    return 5;
+  if (n <= 50)    return 7;
+  if (n <= 100)   return 9;
+  if (n <= 200)   return 12;
+  return 15;
+}
+
+function scoreWeb(webActiva: string, estadoWeb: string): number {
+  if (webActiva !== "true") return 8;
+  const map: Record<string, number> = {
+    vencida: 5, sin_informacion: 4, por_actualizar: 3, en_mantenimiento: 1, actualizada: -10,
   };
-  const p = base[tamano];
-  if (!p) return null;
-  const webConOportunidad = ["por_actualizar", "vencida", "en_mantenimiento", "sin_informacion"];
-  if (tamano === "1_10" && webConOportunidad.includes(estadoWeb)) return "media";
-  return p;
+  return map[estadoWeb] ?? 0;
+}
+
+function scoreRedes(redes: string[]): number {
+  const activas = redes.filter(r => r !== "ninguna");
+  if (activas.length === 0) return 0;
+  let pts = activas.length === 1 ? 1 : 2;
+  if (activas.includes("linkedin")) pts += 2;
+  return Math.min(pts, 4);
+}
+
+function calcularScoring(params: {
+  sector: string; perfil: string; cantidad_trabajadores: string;
+  tamano_empresa: string; web_activa: string; estado_web: string;
+  redes: string[];
+}): { score: number; prioridad: "alta" | "media" | "baja" } {
+  let total = 0;
+  total += SECTOR_SCORE[params.sector] ?? 0;
+  total += PERFIL_SCORE[params.perfil] ?? 0;
+  const n = parseInt(params.cantidad_trabajadores);
+  total += !isNaN(n) ? scoreWorkers(n) : (TAMANO_FALLBACK_SCORE[params.tamano_empresa] ?? 0);
+  total += scoreWeb(params.web_activa, params.estado_web);
+  total += scoreRedes(params.redes);
+  const prioridad: "alta" | "media" | "baja" = total >= 25 ? "alta" : total >= 12 ? "media" : "baja";
+  return { score: total, prioridad };
 }
 
 // Clasificación automática según estado del lead
@@ -151,7 +358,8 @@ const ETAPAS_PIPELINE = [
 
 const INICIAL = {
   // Empresa
-  empresa: "", rubro: "", pagina_web: "", tamano_empresa: "",
+  empresa: "", actividad_economica: "", sector: "", perfil_empresa: "",
+  cantidad_trabajadores: "", pagina_web: "", tamano_empresa: "",
   web_activa: "false", proveedor_web: "", estado_web: "",
   // Contacto
   nombre_contacto: "", cargo: "", telefono: "", email_contacto: "",
@@ -159,7 +367,7 @@ const INICIAL = {
   // CRM
   estado_lead: "por_gestionar", clasificacion: "por_gestionar",
   prioridad: "media", fuente: "", estado_venta: "no", notas: "",
-  etapa_pipeline: "nuevo", motivo_perdida_detalle: "",
+  etapa_pipeline: "nuevo", motivo_perdida: "", motivo_perdida_detalle: "",
 };
 {/** boton desplegables  */
 }
@@ -174,6 +382,8 @@ const sectionHeader = (title: string) => (
 export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoFormProps) {
   const esEdicion = !!prospecto?.id;
   const [form, setForm] = useState({ ...INICIAL });
+  const [redesSociales, setRedesSociales] = useState<string[]>([]);
+  const [prioridadAuto, setPrioridadAuto] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
 
@@ -186,14 +396,20 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
       const c2 = p.contactos?.[0];
       if (c2) setContacto2({ id: c2.id ?? "", nombre: c2.nombre ?? "", cargo: c2.cargo ?? "", telefono: c2.telefono ?? "", email: c2.email ?? "" });
 
+      if (Array.isArray(p.redes_sociales)) setRedesSociales(p.redes_sociales);
+
       setForm({
-        empresa:          p.empresa         ?? "",
-        rubro:            p.rubro           ?? "",
-        pagina_web:       p.pagina_web      ?? "",
-        web_activa:       p.web_activa      ?? "",
-        proveedor_web:    p.proveedor_web   ?? "",
-        estado_web:       p.estado_web      ?? "",
-        tamano_empresa:   p.tamano_empresa  ?? "",
+        empresa:               p.empresa              ?? "",
+        actividad_economica:   p.actividad_economica  ?? "",
+        sector:                p.sector               ?? "",
+        perfil_empresa:        p.perfil_empresa        ?? "",
+        cantidad_trabajadores: p.cantidad_trabajadores != null ? String(p.cantidad_trabajadores) : "",
+        pagina_web:            p.pagina_web            ?? "",
+        web_activa:            p.web_activa != null ? String(p.web_activa) : "",
+        proveedor_web:         p.proveedor_web         ?? "",
+        estado_web:            p.estado_web            ?? "",
+        motivo_perdida:        p.motivo_perdida        ?? "",
+        tamano_empresa:        p.tamano_empresa        ?? "",
         nombre_contacto:  p.nombre_contacto ?? "",
         cargo:            p.cargo           ?? "",
         telefono:         p.telefono        ?? "",
@@ -217,8 +433,7 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
   async function handleGuardar() {
     const faltantes: string[] = [];
     if (!form.empresa.trim())   faltantes.push("Empresa");
-    if (!form.rubro.trim())     faltantes.push("Rubro");
-    if (!form.tamano_empresa)   faltantes.push("Tamaño de empresa");
+    if (!form.tamano_empresa && !form.cantidad_trabajadores) faltantes.push("Tamaño de empresa o Nro. de trabajadores");
     if (!form.region)           faltantes.push("Región");
     if (!form.ciudad.trim())    faltantes.push("Ciudad");
     if (!form.estado_lead)      faltantes.push("Estado del lead");
@@ -231,14 +446,19 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
     setLoading(true);
     setError(null);
     try {
+      const nroTrabajadores = form.cantidad_trabajadores ? parseInt(form.cantidad_trabajadores) : undefined;
       const payload: any = {
-        empresa:          form.empresa,
-        rubro:            form.rubro || undefined,
-        pagina_web:       form.pagina_web || undefined,
-        web_activa:       form.web_activa === "true" ? true : form.web_activa === "false" ? false : undefined,
-        proveedor_web:    form.proveedor_web || undefined,
-        estado_web:       form.web_activa === "true" && form.estado_web ? form.estado_web : null,
-        tamano_empresa:   form.tamano_empresa || undefined,
+        empresa:               form.empresa,
+        actividad_economica:   form.actividad_economica || undefined,
+        sector:                form.sector || undefined,
+        perfil_empresa:        form.perfil_empresa || undefined,
+        cantidad_trabajadores: nroTrabajadores,
+        redes_sociales:        redesSociales.length > 0 ? redesSociales : undefined,
+        pagina_web:            form.pagina_web || undefined,
+        web_activa:            form.web_activa === "true" ? true : form.web_activa === "false" ? false : undefined,
+        proveedor_web:         form.proveedor_web || undefined,
+        estado_web:            form.web_activa === "true" ? (form.estado_web || undefined) : undefined,
+        tamano_empresa:        form.tamano_empresa || undefined,
         nombre_contacto:  form.nombre_contacto || undefined,
         cargo:            form.cargo || undefined,
         telefono:         form.telefono || undefined,
@@ -251,10 +471,10 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         fuente:           form.fuente || undefined,
         estado_venta:     form.estado_venta,
         notas:            form.notas || undefined,
-        motivo_perdida:         (form as any).motivo_perdida || null,
+        motivo_perdida:         (form as any).motivo_perdida || undefined,
         motivo_perdida_detalle: (form as any).motivo_perdida === "otro"
           ? (form as any).motivo_perdida_detalle || undefined
-          : null,
+          : undefined,
         etapa_pipeline:   (form as any).etapa_pipeline || "nuevo",
       };
 
@@ -309,13 +529,146 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
           {sectionHeader("Empresa")}
           <div className="grid grid-cols-2  gap-x-6 gap-y-4">
             <Field icon={<Building2 size={14}/>} label="Empresa" required>
-              <input value={form.empresa} onChange={e => set("empresa", e.target.value)}
-                placeholder="Nombre de la empresa" className={fieldInput} />
+              <input
+                value={form.empresa}
+                onChange={e => {
+                  const val = e.target.value;
+                  set("empresa", val);
+                  if (!form.sector && form.actividad_economica.trim().length > 5) {
+                    const inferido = inferirSectorPerfil(form.actividad_economica, val);
+                    if (inferido) {
+                      set("sector", inferido.sector);
+                      set("perfil_empresa", inferido.perfil);
+                    }
+                  }
+                }}
+                placeholder="Nombre de la empresa"
+                className={fieldInput}
+              />
             </Field>
-            <Field icon={<Tag size={14}/>} label="Rubro" required>
-              <input value={form.rubro} onChange={e => set("rubro", e.target.value)}
-                placeholder="Ej: Tecnología, Retail..." className={fieldInput} />
+            <Field icon={<Tag size={14}/>} label="Actividad Económica (SUNAT)">
+              <input
+                value={form.actividad_economica}
+                onChange={e => {
+                  const val = e.target.value;
+                  set("actividad_economica", val);
+                  if (val.trim().length > 5) {
+                    const inferido = inferirSectorPerfil(val, form.empresa);
+                    if (inferido) {
+                      set("sector", inferido.sector);
+                      set("perfil_empresa", inferido.perfil);
+                    }
+                  }
+                }}
+                placeholder="Ej: CONSTRUCCIÓN DE EDIFICIOS"
+                className={fieldInput}
+              />
             </Field>
+
+            {/* Sector y Perfil */}
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1">SECTOR</label>
+              <select
+                value={form.sector}
+                onChange={e => { set("sector", e.target.value); set("perfil_empresa", ""); }}
+                className={selectClass}
+              >
+                <option value="">Sin especificar</option>
+                {SECTORES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1">PERFIL DE EMPRESA</label>
+              <select
+                value={form.perfil_empresa}
+                onChange={e => {
+                  const perfil = e.target.value;
+                  set("perfil_empresa", perfil);
+                  const { prioridad: p } = calcularScoring({ sector: form.sector, perfil, cantidad_trabajadores: form.cantidad_trabajadores, tamano_empresa: form.tamano_empresa, web_activa: form.web_activa, estado_web: form.estado_web, redes: redesSociales });
+                  set("prioridad", p); setPrioridadAuto(true);
+                }}
+                className={selectClass}
+                disabled={!form.sector}
+              >
+                <option value="">{form.sector ? "Selecciona perfil" : "Primero elige el sector"}</option>
+                {(PERFILES_POR_SECTOR[form.sector] ?? []).map(p => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Cantidad de trabajadores + tamaño auto + plan sugerido */}
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1">NRO. DE TRABAJADORES</label>
+              <div className="flex items-center gap-2 border-b border-zinc-200 pb-1.5 focus-within:border-brand transition-colors group">
+                <span className="text-yellow-500 group-focus-within:text-brand transition-colors shrink-0">
+                  <Users size={14} />
+                </span>
+                <input
+                  type="number" min={1} max={9999}
+                  value={form.cantidad_trabajadores}
+                  onChange={e => {
+                    const val = e.target.value;
+                    set("cantidad_trabajadores", val);
+                    const n = parseInt(val);
+                    if (!isNaN(n) && n > 0) {
+                      const t = n <= 10 ? "1_10" : n <= 50 ? "11_50" : n <= 200 ? "51_200" : n <= 500 ? "201_500" : "mas_500";
+                      set("tamano_empresa", t);
+                      const { prioridad: p } = calcularScoring({ sector: form.sector, perfil: form.perfil_empresa, cantidad_trabajadores: val, tamano_empresa: form.tamano_empresa, web_activa: form.web_activa, estado_web: form.estado_web, redes: redesSociales });
+                      set("prioridad", p); setPrioridadAuto(true);
+                    }
+                  }}
+                  placeholder="Ej: 12"
+                  className={fieldInput}
+                />
+              </div>
+              {form.cantidad_trabajadores && (() => {
+                const plan = calcularPlanSugerido(parseInt(form.cantidad_trabajadores));
+                return plan ? (
+                  <div className="mt-1.5 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-zinc-800/60 border border-zinc-700">
+                    <Sparkles size={11} className={plan.color} />
+                    <span className={`text-[10px] font-semibold ${plan.color}`}>{plan.nombre}</span>
+                    <span className="text-[10px] text-zinc-500 ml-auto">{plan.rango}</span>
+                  </div>
+                ) : null;
+              })()}
+            </div>
+
+            {/* Redes sociales multi-select */}
+            <div>
+              <label className="text-[10px] text-zinc-400 font-medium block mb-1.5">
+                <span className="flex items-center gap-1"><Share2 size={11} className="text-yellow-500" /> REDES SOCIALES ACTIVAS</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {REDES_OPCIONES.map(r => {
+                  const activa = redesSociales.includes(r.value);
+                  return (
+                    <button
+                      key={r.value}
+                      type="button"
+                      onClick={() => {
+                        if (r.value === "ninguna") {
+                          setRedesSociales(activa ? [] : ["ninguna"]);
+                        } else {
+                          setRedesSociales(prev => {
+                            const sin = prev.filter(x => x !== "ninguna");
+                            return activa ? sin.filter(x => x !== r.value) : [...sin, r.value];
+                          });
+                        }
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border transition-all ${
+                        activa
+                          ? "bg-brand border-brand text-zinc-900"
+                          : "bg-zinc-700 border-zinc-600 text-zinc-300 hover:border-brand/50"
+                      }`}
+                    >
+                      {r.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <Field icon={<Globe size={14}/>} label="Enlace web">
               <input value={form.pagina_web} onChange={e => {
                 const url = e.target.value;
@@ -345,8 +698,8 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
                 onChange={e => {
                   const t = e.target.value;
                   set("tamano_empresa", t);
-                  const p = calcularPrioridad(t, form.estado_web);
-                  if (p) set("prioridad", p);
+                  const { prioridad: p } = calcularScoring({ sector: form.sector, perfil: form.perfil_empresa, cantidad_trabajadores: form.cantidad_trabajadores, tamano_empresa: form.tamano_empresa, web_activa: form.web_activa, estado_web: form.estado_web, redes: redesSociales });
+                  set("prioridad", p); setPrioridadAuto(true);
                 }}
                 className={selectClass}
               >
@@ -377,8 +730,8 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
                       set("contesto",       "true");
                       set("motivo_perdida", "");
                     }
-                    const p = calcularPrioridad(form.tamano_empresa, val);
-                    if (p) set("prioridad", p);
+                    const { prioridad: p } = calcularScoring({ sector: form.sector, perfil: form.perfil_empresa, cantidad_trabajadores: form.cantidad_trabajadores, tamano_empresa: form.tamano_empresa, web_activa: form.web_activa, estado_web: val, redes: redesSociales });
+                    set("prioridad", p); setPrioridadAuto(true);
                   }}
                   className={selectClass}
                 >
@@ -526,10 +879,20 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
             )}
 
             <div>
-              <label className="text-[10px] text-zinc-400 font-medium block mb-1">
-                PRIORIDAD <span className="text-brand">*</span>
-              </label>
-              <select value={form.prioridad} onChange={e => set("prioridad", e.target.value)} className={selectClass}>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[10px] text-zinc-400 font-medium">
+                  PRIORIDAD <span className="text-brand">*</span>
+                </label>
+                {prioridadAuto && (() => {
+                  const { score } = calcularScoring({ sector: form.sector, perfil: form.perfil_empresa, cantidad_trabajadores: form.cantidad_trabajadores, tamano_empresa: form.tamano_empresa, web_activa: form.web_activa, estado_web: form.estado_web, redes: redesSociales });
+                  return <span className="text-[9px] text-brand font-bold uppercase tracking-wider">auto · {score} pts</span>;
+                })()}
+              </div>
+              <select
+                value={form.prioridad}
+                onChange={e => { set("prioridad", e.target.value); setPrioridadAuto(false); }}
+                className={selectClass}
+              >
                 {PRIORIDADES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
               </select>
             </div>

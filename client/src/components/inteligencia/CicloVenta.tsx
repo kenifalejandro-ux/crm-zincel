@@ -209,11 +209,22 @@ export function CicloVenta({ anio }: { anio?: number }) {
     </div>
   );
 
-  if (!data) return null;
+  if (!data) return (
+    <div className="flex flex-col items-center justify-center py-10 text-center">
+      <Clock size={28} className="text-zinc-300 mb-2" />
+      <p className="text-sm text-zinc-500 font-medium">No se pudieron cargar los datos</p>
+      <p className="text-xs text-zinc-400 mt-1">Verifica que haya ventas cerradas con fecha de cierre registrada</p>
+    </div>
+  );
 
-  const { kpis, por_rubro, por_servicio, en_riesgo, tendencia, detalle } = data;
-  const maxRubro    = Math.max(...por_rubro.map(r => r.promedio_dias), 1);
-  const maxServicio = Math.max(...por_servicio.map(s => s.promedio_dias), 1);
+  const kpis        = data.kpis        ?? { total_cerrados: 0, promedio_dias: null, min_dias: null, max_dias: null, promedio_contacto_propuesta: null, promedio_propuesta_cierre: null };
+  const por_rubro   = data.por_rubro   ?? [];
+  const por_servicio = data.por_servicio ?? [];
+  const en_riesgo   = data.en_riesgo   ?? [];
+  const tendencia   = data.tendencia   ?? [];
+  const detalle     = data.detalle     ?? [];
+  const maxRubro    = por_rubro.length   > 0 ? Math.max(...por_rubro.map(r => r.promedio_dias), 1)   : 1;
+  const maxServicio = por_servicio.length > 0 ? Math.max(...por_servicio.map(s => s.promedio_dias), 1) : 1;
   const sinDatos  = kpis.total_cerrados === 0;
   const bajaMeta  = kpis.promedio_dias != null && kpis.promedio_dias <= meta;
 

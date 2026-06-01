@@ -5,6 +5,95 @@ import { registrarActividad } from "./activityLog.service";
 import { logger } from "../config/logger";
 import type { CrearProspectoInput, ActualizarProspectoInput } from "../schemas/prospecto.schema";
 
+// ── Sistema de scoring de prioridad ──────────────────────────────────────────
+
+function calcularTamanoDesdeNro(n: number): string {
+  if (n <= 10)  return "1_10";
+  if (n <= 50)  return "11_50";
+  if (n <= 200) return "51_200";
+  if (n <= 500) return "201_500";
+  return "mas_500";
+}
+
+const SECTOR_SCORE: Record<string, number> = {
+  construccion: 15, inmobiliaria: 15, manufactura_industria: 15,
+  agroindustria: 15, mineria_energia: 15,
+  salud: 12, servicios_profesionales: 12, comercio_mayorista: 12, arquitectura_ingenieria: 12,
+  tecnologia: 8, transporte_logistica: 8, seguridad: 8, educacion: 8,
+  comercio_retail: 5, gastronomia_turismo: 5, otro: 5,
+};
+
+const PERFIL_SCORE: Record<string, number> = {
+  construccion: 6, clinica_hospital: 6, importadora_exportadora: 6,
+  fabrica_manufactura: 6, drogueria_farmaceutica: 6, estudio_juridico: 6,
+  distribuidora_mayorista: 3, hotel_hospedaje: 3, consultoria_empresarial: 3,
+  almacen_logistica: 3, agencia_aduanas: 3, inmobiliaria: 3, ingenieria_consultoria: 3,
+  arquitectura: 0, laboratorio: 0, contabilidad_auditoria: 0, instituto_academia: 0,
+  empresa_transportes: 0, seguridad_cctv: 0, taller_industrial: 0,
+  ferreteria_materiales: 0, agencia_viajes: 0, agroindustria: 0,
+  consultorio_medico: 0, colegio: 0, tecnologia_ti: 0,
+  farmacia_botica: -4, tienda_retail: -4, restaurante: -4,
+  ong_asociacion: -4, centro_capacitacion: -4,
+};
+
+const TAMANO_FALLBACK_SCORE: Record<string, number> = {
+  "1_10": 2, "11_50": 7, "51_200": 9, "201_500": 15, "mas_500": 15,
+};
+
+function scoreWorkers(n: number): number {
+  if (n === 1)  return -5;
+  if (n <= 3)   return -3;
+  if (n <= 5)   return 0;
+  if (n <= 10)  return 2;
+  if (n <= 15)  return 4;
+  if (n <= 25)  return 5;
+  if (n <= 50)  return 7;
+  if (n <= 100) return 9;
+  if (n <= 200) return 12;
+  return 15;
+}
+
+function scoreWeb(webActiva: boolean | undefined, estadoWeb: string | undefined | null): number {
+  if (!webActiva) return 8;
+  const map: Record<string, number> = {
+    vencida: 5, sin_informacion: 4, por_actualizar: 3, en_mantenimiento: 1, actualizada: -10,
+  };
+  return estadoWeb ? (map[estadoWeb] ?? 0) : 0;
+}
+
+function scoreRedes(redes: string[] | undefined | null): number {
+  if (!redes || redes.length === 0) return 0;
+  const activas = redes.filter(r => r !== "ninguna");
+  if (activas.length === 0) return 0;
+  let pts = activas.length === 1 ? 1 : 2;
+  if (activas.includes("linkedin")) pts += 2;
+  return Math.min(pts, 4);
+}
+
+function calcularPrioridadPorScore(params: {
+  sector?: string | null;
+  perfil_empresa?: string | null;
+  cantidad_trabajadores?: number | null;
+  tamano_empresa?: string | null;
+  web_activa?: boolean | null;
+  estado_web?: string | null;
+  redes_sociales?: string[] | null;
+}): "alta" | "media" | "baja" {
+  let total = 0;
+  total += SECTOR_SCORE[params.sector ?? ""] ?? 0;
+  total += PERFIL_SCORE[params.perfil_empresa ?? ""] ?? 0;
+  if (params.cantidad_trabajadores != null) {
+    total += scoreWorkers(params.cantidad_trabajadores);
+  } else if (params.tamano_empresa) {
+    total += TAMANO_FALLBACK_SCORE[params.tamano_empresa] ?? 0;
+  }
+  total += scoreWeb(params.web_activa ?? undefined, params.estado_web);
+  total += scoreRedes(params.redes_sociales);
+  return total >= 25 ? "alta" : total >= 12 ? "media" : "baja";
+}
+
+// ── Crear prospecto ──────────────────────────────────────────────────────────
+
 export async function crearProspectoService(input: CrearProspectoInput, usuarioId: string) {
   const webActiva = input.web_activa === true
     ? true
@@ -14,24 +103,43 @@ export async function crearProspectoService(input: CrearProspectoInput, usuarioI
         ? false
         : undefined;
 
+  const tamano = input.cantidad_trabajadores
+    ? calcularTamanoDesdeNro(input.cantidad_trabajadores)
+    : input.tamano_empresa;
+
+  const prioridad = calcularPrioridadPorScore({
+    sector:               input.sector,
+    perfil_empresa:       input.perfil_empresa,
+    cantidad_trabajadores: input.cantidad_trabajadores,
+    tamano_empresa:       tamano,
+    web_activa:           webActiva,
+    estado_web:           input.estado_web,
+    redes_sociales:       input.redes_sociales as string[] | undefined,
+  });
+
   const result = await pool.query(
     `INSERT INTO prospectos (
-      empresa, rubro, tamano_empresa, pagina_web, web_activa, proveedor_web, estado_web,
+      empresa, actividad_economica, sector, perfil_empresa, cantidad_trabajadores, redes_sociales,
+      tamano_empresa, pagina_web, web_activa, proveedor_web, estado_web,
       nombre_contacto, cargo, telefono, email_contacto,
       ciudad, region, pais,
       prioridad, fuente, estado_lead, clasificacion, estado_venta,
       notas, creado_por
     ) VALUES (
-      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25
     ) RETURNING *`,
     [
-      input.empresa, input.rubro, input.tamano_empresa, input.pagina_web,
-      input.web_activa, input.proveedor_web, input.estado_web ?? null,
-      input.nombre_contacto, input.cargo,
-      input.telefono, input.email_contacto, input.ciudad, input.region,
-      input.pais ?? "Perú", input.prioridad ?? "media", input.fuente,
+      input.empresa, input.actividad_economica ?? null, input.sector ?? null,
+      input.perfil_empresa ?? null, input.cantidad_trabajadores ?? null,
+      input.redes_sociales ?? null,
+      tamano ?? null, input.pagina_web ?? null,
+      webActiva ?? null, input.proveedor_web ?? null, input.estado_web ?? null,
+      input.nombre_contacto ?? null, input.cargo ?? null,
+      input.telefono ?? null, input.email_contacto ?? null,
+      input.ciudad ?? null, input.region ?? null,
+      input.pais ?? "Perú", prioridad, input.fuente ?? null,
       input.estado_lead ?? "por_gestionar", input.clasificacion ?? "por_gestionar",
-      input.estado_venta ?? "no", input.notas, usuarioId,
+      input.estado_venta ?? "no", input.notas ?? null, usuarioId,
     ]
   );
   logger.info({ id: result.rows[0].id }, "Prospecto creado");
@@ -174,11 +282,38 @@ export async function eliminarContactoService(id: string, prospectoId: string) {
 }
 
 export async function actualizarProspectoService(id: string, input: ActualizarProspectoInput) {
-  const campos = Object.keys(input).filter(k => (input as any)[k] !== undefined);
+  const data: Record<string, any> = { ...input };
+
+  // Auto-calcular tamano_empresa si viene cantidad_trabajadores
+  if (data.cantidad_trabajadores !== undefined && data.cantidad_trabajadores !== null) {
+    data.tamano_empresa = calcularTamanoDesdeNro(data.cantidad_trabajadores);
+  }
+
+  // Recalcular prioridad si cambia algún factor del scoring
+  const factoresScoring = ["sector","perfil_empresa","cantidad_trabajadores","tamano_empresa","web_activa","estado_web","redes_sociales"];
+  if (factoresScoring.some(f => data[f] !== undefined)) {
+    const actual = await pool.query(
+      `SELECT sector, perfil_empresa, cantidad_trabajadores, tamano_empresa, web_activa, estado_web, redes_sociales FROM prospectos WHERE id=$1`, [id]
+    );
+    if (actual.rows[0]) {
+      const row = actual.rows[0];
+      data.prioridad = calcularPrioridadPorScore({
+        sector:               data.sector               ?? row.sector,
+        perfil_empresa:       data.perfil_empresa       ?? row.perfil_empresa,
+        cantidad_trabajadores: data.cantidad_trabajadores ?? row.cantidad_trabajadores,
+        tamano_empresa:       data.tamano_empresa       ?? row.tamano_empresa,
+        web_activa:           data.web_activa           ?? row.web_activa,
+        estado_web:           data.estado_web           ?? row.estado_web,
+        redes_sociales:       data.redes_sociales       ?? row.redes_sociales,
+      });
+    }
+  }
+
+  const campos = Object.keys(data).filter(k => data[k] !== undefined);
   if (campos.length === 0) throw new Error("No hay campos para actualizar");
 
-  const sets = campos.map((campo, i) => `${campo} = $${i + 2}`).join(", ");
-  const valores = campos.map(campo => (input as any)[campo]);
+  const sets    = campos.map((campo, i) => `${campo} = $${i + 2}`).join(", ");
+  const valores = campos.map(campo => data[campo]);
 
   const result = await pool.query(
     `UPDATE prospectos SET ${sets} WHERE id = $1 RETURNING *`,
@@ -206,7 +341,7 @@ export async function getPipelineService() {
     SELECT
       p.id, p.empresa, p.nombre_contacto, p.telefono, p.email_contacto,
       p.estado_lead, p.prioridad, p.etapa_pipeline,
-      p.ciudad, p.rubro, p.notas,
+      p.ciudad, p.actividad_economica, p.sector, p.perfil_empresa, p.notas,
       p.creado_en, p.actualizado_en,
       -- Computed pipeline column
       CASE
@@ -431,7 +566,14 @@ export async function actualizarEtapaPipelineService(id: string, etapa: string, 
   return result.rows[0];
 }
 
-export async function resumenProspectosService() {
+export async function resumenProspectosService(fechaDesde?: string, fechaHasta?: string) {
+  const whereFecha = fechaDesde && fechaHasta
+    ? `AND p.id IN (SELECT DISTINCT prospecto_id FROM llamadas WHERE fecha::date BETWEEN $1::date AND $2::date)`
+    : fechaDesde
+    ? `AND p.id IN (SELECT DISTINCT prospecto_id FROM llamadas WHERE fecha::date >= $1::date)`
+    : "";
+  const params = fechaDesde && fechaHasta ? [fechaDesde, fechaHasta] : fechaDesde ? [fechaDesde] : [];
+
   const [leads, llamadas, cobertura] = await Promise.all([
     pool.query(`
       SELECT
@@ -441,6 +583,8 @@ export async function resumenProspectosService() {
         COUNT(*) FILTER (WHERE estado_lead = 'interesado')::int                  AS interesado,
         COUNT(*) FILTER (WHERE estado_lead = 'no_contesta')::int                 AS no_contesta,
         COUNT(*) FILTER (WHERE estado_lead = 'volver_a_llamar')::int             AS volver_a_llamar,
+        COUNT(*) FILTER (WHERE estado_lead::text = 'ocupado_en_reunion')::int    AS ocupado_en_reunion,
+        COUNT(*) FILTER (WHERE estado_lead::text = 'prometio_llamar')::int       AS prometio_llamar,
         COUNT(*) FILTER (WHERE estado_lead = 'no_interesado')::int               AS no_interesado,
         COUNT(*) FILTER (WHERE estado_lead = 'buzon_de_voz')::int                AS buzon_de_voz,
         COUNT(*) FILTER (WHERE estado_lead = 'solicita_informacion')::int        AS solicita_informacion,
@@ -448,14 +592,15 @@ export async function resumenProspectosService() {
         COUNT(*) FILTER (WHERE estado_lead::text = 'numero_equivocado')::int     AS numero_equivocado,
         COUNT(*) FILTER (WHERE estado_lead::text = 'baja_de_oficio')::int        AS baja_de_oficio,
         COUNT(*) FILTER (WHERE estado_lead::text = 'suspension_temporal')::int   AS suspension_temporal,
-        COUNT(*) FILTER (WHERE estado_lead::text = 'perdida')::int              AS perdida,
+        COUNT(*) FILTER (WHERE estado_lead::text = 'no_habido')::int             AS no_habido,
+        COUNT(*) FILTER (WHERE estado_lead::text = 'perdida')::int               AS perdida,
         COUNT(*) FILTER (WHERE estado_lead::text IN (
-          'interesado','no_interesado','volver_a_llamar','ya_tiene_proveedor'
+          'interesado','no_interesado','volver_a_llamar','ocupado_en_reunion','prometio_llamar','ya_tiene_proveedor'
         ))::int  AS leads_contactados,
-        COUNT(*) FILTER (WHERE estado_lead::text = 'ya_tiene_proveedor')::int       AS ya_tiene_proveedor
+        COUNT(*) FILTER (WHERE estado_lead::text = 'ya_tiene_proveedor')::int    AS ya_tiene_proveedor
       FROM prospectos p
-      
-    `),
+      WHERE 1=1 ${whereFecha}
+    `, params),
     pool.query(`
       SELECT
         COUNT(*)::int                                          AS total_llamadas,
@@ -688,16 +833,21 @@ export async function importarProspectosService(prospectos: any[], usuarioId: st
             ? false
             : undefined;
 
+      const tamanoImport = (p as any).cantidad_trabajadores
+        ? calcularTamanoDesdeNro((p as any).cantidad_trabajadores)
+        : p.tamano_empresa;
+
       const result = await client.query(
         `INSERT INTO prospectos (
-          empresa, rubro, tamano_empresa, pagina_web, web_activa, proveedor_web, estado_web,
+          empresa, actividad_economica, tamano_empresa, pagina_web, web_activa, proveedor_web, estado_web,
           nombre_contacto, cargo, telefono, email_contacto,
           ciudad, region, pais, prioridad, fuente,
           estado_lead, clasificacion, estado_venta, notas, creado_por
         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
         RETURNING id`,
         [
-          p.empresa, p.rubro, p.tamano_empresa, p.pagina_web, webActiva,
+          p.empresa, (p as any).actividad_economica ?? p.rubro ?? null,
+          tamanoImport ?? null, p.pagina_web, webActiva,
           p.proveedor_web, p.estado_web ?? null,
           p.nombre_contacto, p.cargo, p.telefono, p.email_contacto,
           p.ciudad, p.region, p.pais ?? "Perú", p.prioridad ?? "media", p.fuente,
@@ -980,10 +1130,10 @@ export async function ciclodeVentaService(anio?: number) {
     FROM base
   `);
 
-  // Por rubro (top 8) — basado en propuestas cerradas
+  // Por sector/rubro (top 8) — basado en propuestas cerradas
   const porRubro = await pool.query(`
     SELECT
-      COALESCE(p.rubro, 'Sin rubro') AS rubro,
+      COALESCE(p.sector, p.actividad_economica, 'Sin sector') AS rubro,
       COUNT(pr.id)::int              AS total,
       ROUND(AVG((pr.fecha_cierre - p.fecha_primer_contacto)))::int AS promedio_dias
     FROM propuestas pr
@@ -993,7 +1143,7 @@ export async function ciclodeVentaService(anio?: number) {
       AND p.fecha_primer_contacto IS NOT NULL
       AND p.eliminado = false
       ${anioClause}
-    GROUP BY p.rubro
+    GROUP BY COALESCE(p.sector, p.actividad_economica, 'Sin sector')
     ORDER BY total DESC
     LIMIT 8
   `);
@@ -1024,7 +1174,7 @@ export async function ciclodeVentaService(anio?: number) {
       pr.id,
       p.empresa,
       p.nombre_contacto,
-      p.rubro,
+      COALESCE(p.sector, p.actividad_economica) AS rubro,
       p.fecha_primer_contacto::text,
       pr.fecha_cierre::text,
       GREATEST((pr.fecha_cierre - p.fecha_primer_contacto)::int, 0)   AS dias_ciclo,
@@ -1210,4 +1360,183 @@ export async function recalcularScoreProspecto(id: string): Promise<void> {
       [id, score, nivel]
     ).catch(() => {});
   } catch { /* silencioso — no rompe el flujo principal */ }
+}
+
+// ── Análisis Comercial ────────────────────────────────────────────────────────
+
+function calcularScoreComercial(p: any): number {
+  let total = 0;
+  const SECTOR_S: Record<string, number> = {
+    construccion: 15, inmobiliaria: 15, manufactura_industria: 15, agroindustria: 15, mineria_energia: 15,
+    salud: 12, servicios_profesionales: 12, comercio_mayorista: 12, arquitectura_ingenieria: 12,
+    tecnologia: 8, transporte_logistica: 8, seguridad: 8, educacion: 8,
+    comercio_retail: 5, gastronomia_turismo: 5, otro: 5,
+  };
+  const PERFIL_S: Record<string, number> = {
+    construccion: 6, clinica_hospital: 6, importadora_exportadora: 6, fabrica_manufactura: 6,
+    drogueria_farmaceutica: 6, estudio_juridico: 6,
+    distribuidora_mayorista: 3, hotel_hospedaje: 3, consultoria_empresarial: 3,
+    almacen_logistica: 3, agencia_aduanas: 3, inmobiliaria: 3, ingenieria_consultoria: 3,
+    arquitectura: 0, laboratorio: 0, contabilidad_auditoria: 0, instituto_academia: 0,
+    empresa_transportes: 0, seguridad_cctv: 0, taller_industrial: 0,
+    ferreteria_materiales: 0, agencia_viajes: 0, agroindustria: 0,
+    consultorio_medico: 0, colegio: 0, tecnologia_ti: 0,
+    farmacia_botica: -4, tienda_retail: -4, restaurante: -4, ong_asociacion: -4, centro_capacitacion: -4,
+  };
+  const TAMANO_F: Record<string, number> = { "1_10": 2, "11_50": 7, "51_200": 9, "201_500": 15, "mas_500": 15 };
+
+  total += SECTOR_S[p.sector ?? ""] ?? 0;
+  total += PERFIL_S[p.perfil_empresa ?? ""] ?? 0;
+
+  const n = p.cantidad_trabajadores != null ? parseInt(p.cantidad_trabajadores) : NaN;
+  if (!isNaN(n)) {
+    if (n === 1) total -= 5; else if (n <= 3) total -= 3; else if (n <= 5) total += 0;
+    else if (n <= 10) total += 2; else if (n <= 15) total += 4; else if (n <= 25) total += 5;
+    else if (n <= 50) total += 7; else if (n <= 100) total += 9; else if (n <= 200) total += 12;
+    else total += 15;
+  } else {
+    total += TAMANO_F[p.tamano_empresa ?? ""] ?? 0;
+  }
+
+  if (!p.web_activa) { total += 8; }
+  else {
+    const wm: Record<string, number> = { vencida: 5, sin_informacion: 4, por_actualizar: 3, en_mantenimiento: 1, actualizada: -10 };
+    total += wm[p.estado_web ?? ""] ?? 0;
+  }
+
+  const redes: string[] = Array.isArray(p.redes_sociales) ? p.redes_sociales : [];
+  const activas = redes.filter((r: string) => r !== "ninguna");
+  if (activas.length > 0) {
+    let rp = activas.length === 1 ? 1 : 2;
+    if (activas.includes("linkedin")) rp += 2;
+    total += Math.min(rp, 4);
+  }
+
+  return total;
+}
+
+const SECTORES_3D  = new Set(["construccion", "inmobiliaria", "arquitectura_ingenieria"]);
+const SECTORES_MKT = new Set(["comercio_retail", "gastronomia_turismo"]);
+const TAMANO_GRANDE = new Set(["51_200", "201_500", "mas_500"]);
+
+function clasificarServicios(p: any): string[] {
+  const servicios: string[] = [];
+  const redes: string[] = Array.isArray(p.redes_sociales) ? p.redes_sociales : [];
+  const redesActivas = redes.filter((r: string) => r !== "ninguna");
+  const trab = p.cantidad_trabajadores != null ? parseInt(p.cantidad_trabajadores) : null;
+  const esGrande = trab != null ? trab >= 51 : TAMANO_GRANDE.has(p.tamano_empresa ?? "");
+  const esMicro  = trab != null ? trab <= 15 : p.tamano_empresa === "1_10";
+
+  // Desarrollo Web — sin web o web desactualizada
+  if (!p.web_activa || ["vencida", "por_actualizar", "sin_informacion", "en_mantenimiento"].includes(p.estado_web ?? "")) {
+    servicios.push("desarrollo_web");
+  }
+
+  // Marketing Digital — redes activas o sector consumo masivo
+  if (redesActivas.length > 0 || SECTORES_MKT.has(p.sector ?? "")) {
+    servicios.push("marketing_digital");
+  }
+
+  // Branding — empresas pequeñas/medianas con identidad por construir
+  if (esMicro) {
+    servicios.push("branding");
+  }
+
+  // Modelamiento 3D — sectores con necesidad visual/técnica
+  if (SECTORES_3D.has(p.sector ?? "")) {
+    servicios.push("modelamiento_3d");
+  }
+
+  // ERP / CRM — empresas grandes con estructura
+  if (esGrande) {
+    servicios.push("erp_crm");
+  }
+
+  return servicios;
+}
+
+export async function getAnalisisComercialService() {
+  const result = await pool.query(`
+    SELECT
+      id, empresa, nombre_contacto, telefono, ciudad, region,
+      sector, perfil_empresa, cantidad_trabajadores, tamano_empresa,
+      web_activa, estado_web, redes_sociales,
+      prioridad, estado_lead, clasificacion, creado_en
+    FROM prospectos
+    WHERE eliminado = false
+      AND estado_lead::text NOT IN ('no_interesado', 'perdida', 'baja_de_oficio', 'suspension_temporal', 'no_habido')
+    ORDER BY empresa ASC
+  `);
+
+  const leads = result.rows;
+
+  // Score + clasificación en memoria
+  const enriquecidos = leads.map(p => ({
+    ...p,
+    score:    calcularScoreComercial(p),
+    servicios: clasificarServicios(p),
+  }));
+
+  // Separar ignorables (score < 5)
+  const ignorables = enriquecidos.filter(p => p.score < 5);
+  const activos    = enriquecidos.filter(p => p.score >= 5);
+
+  const porServicio = (key: string) =>
+    activos.filter(p => p.servicios.includes(key))
+           .sort((a, b) => b.score - a.score);
+
+  // Conteo de excluidos para la nota de referencia
+  const excluidos = await pool.query(`
+    SELECT
+      COUNT(*) FILTER (WHERE estado_lead::text = 'no_interesado')                                                          AS no_interesados,
+      COUNT(*) FILTER (WHERE estado_lead::text = 'perdida')                                                                 AS perdidas,
+      COUNT(*) FILTER (WHERE estado_lead::text IN ('baja_de_oficio','suspension_temporal','no_habido'))                    AS inactivos,
+      COUNT(*) FILTER (WHERE web_activa = false)                                                                            AS total_sin_web_bd,
+      COUNT(*) FILTER (WHERE web_activa = false AND estado_lead::text = 'no_interesado')                                   AS sin_web_no_interesados,
+      COUNT(*) FILTER (WHERE web_activa = false AND estado_lead::text = 'perdida')                                         AS sin_web_perdidas,
+      COUNT(*) FILTER (WHERE web_activa = false AND estado_lead::text IN ('baja_de_oficio','suspension_temporal','no_habido')) AS sin_web_inactivos
+    FROM prospectos WHERE eliminado = false
+  `);
+  const exc = excluidos.rows[0];
+
+  const stats = {
+    total:          leads.length,
+    alta:           leads.filter(p => p.prioridad === "alta").length,
+    media:          leads.filter(p => p.prioridad === "media").length,
+    baja:           leads.filter(p => p.prioridad === "baja").length,
+    sin_web:        leads.filter(p => !p.web_activa).length,
+    ignorables:     ignorables.length,
+    excluidos: {
+      no_interesados: parseInt(exc.no_interesados ?? "0"),
+      perdidas:       parseInt(exc.perdidas ?? "0"),
+      inactivos:      parseInt(exc.inactivos ?? "0"),
+    },
+    sin_web_detalle: {
+      total_bd:       parseInt(exc.total_sin_web_bd ?? "0"),
+      no_interesados: parseInt(exc.sin_web_no_interesados ?? "0"),
+      perdidas:       parseInt(exc.sin_web_perdidas ?? "0"),
+      inactivos:      parseInt(exc.sin_web_inactivos ?? "0"),
+    },
+  };
+
+  // Agrupación por oportunidad web (todos los prospectables)
+  const porWeb = {
+    sin_web:          enriquecidos.filter(p => !p.web_activa).sort((a,b) => b.score - a.score),
+    vencida:          enriquecidos.filter(p => p.web_activa && p.estado_web === "vencida").sort((a,b) => b.score - a.score),
+    por_actualizar:   enriquecidos.filter(p => p.web_activa && p.estado_web === "por_actualizar").sort((a,b) => b.score - a.score),
+    en_mantenimiento: enriquecidos.filter(p => p.web_activa && p.estado_web === "en_mantenimiento").sort((a,b) => b.score - a.score),
+    sin_informacion:  enriquecidos.filter(p => p.web_activa && (!p.estado_web || p.estado_web === "sin_informacion")).sort((a,b) => b.score - a.score),
+    actualizada:      enriquecidos.filter(p => p.web_activa && p.estado_web === "actualizada").sort((a,b) => b.score - a.score),
+  };
+
+  return {
+    stats,
+    desarrollo_web:    porServicio("desarrollo_web"),
+    marketing_digital: porServicio("marketing_digital"),
+    branding:          porServicio("branding"),
+    modelamiento_3d:   porServicio("modelamiento_3d"),
+    erp_crm:           porServicio("erp_crm"),
+    ignorables:        ignorables.sort((a, b) => b.score - a.score),
+    por_web:           porWeb,
+  };
 }

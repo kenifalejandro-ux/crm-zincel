@@ -16,6 +16,8 @@ const COLOR_ESTADO: Record<string, string> = {
   no_interesado:      "bg-red-100 text-red-700",
   no_contesta:        "bg-gray-100 text-gray-600",
   volver_a_llamar:    "bg-yellow-100 text-yellow-700",
+  ocupado_en_reunion: "bg-yellow-100 text-yellow-700",
+  prometio_llamar:    "bg-purple-100 text-purple-700",
   buzon_de_voz:       "bg-orange-100 text-orange-700",
   ya_tiene_proveedor: "bg-purple-100 text-purple-700",
   fuera_de_servicio:  "bg-red-100 text-red-700",
@@ -27,6 +29,8 @@ const LABEL_ESTADO: Record<string, string> = {
   no_interesado:      "No interesado",
   no_contesta:        "No contesta",
   volver_a_llamar:    "Volver a llamar",
+  ocupado_en_reunion: "Ocupado / En reunión",
+  prometio_llamar:    "Prometió llamar",
   buzon_de_voz:       "Buzón de voz",
   ya_tiene_proveedor: "Tiene proveedor",
   fuera_de_servicio:  "Fuera servicio",
@@ -132,8 +136,12 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
         )}
         {p.telefono && (
           <div className="flex items-center gap-1.5 mb-2">
-            <Phone size={11} className="text-zinc-600 shrink-0" />
-            <p className="text-[11px] text-zinc-700">{p.telefono}</p>
+            <a href={`tel:${p.telefono}`}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors text-[10px] font-medium"
+              onClick={e => e.stopPropagation()}
+              title="Llamar">
+              <Phone size={10} /> {p.telefono}
+            </a>
           </div>
         )}
 
@@ -207,8 +215,12 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
           )}
           {p.telefono && (
             <div className="flex items-center gap-1.5">
-              <Phone size={11} className="text-zinc-400 shrink-0" />
-              <p className="text-[11px] text-zinc-600">{p.telefono}</p>
+              <a href={`tel:${p.telefono}`}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors text-[10px] font-medium"
+                onClick={e => e.stopPropagation()}
+                title="Llamar">
+                <Phone size={10} /> {p.telefono}
+              </a>
             </div>
           )}
 

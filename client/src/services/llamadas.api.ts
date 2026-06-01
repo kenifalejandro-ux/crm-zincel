@@ -15,7 +15,7 @@ export async function crearLlamada(payload: CrearLlamadaPayload) {
 
 export async function getResumenLlamadas(filters?: { fecha_inicio?: string; fecha_fin?: string }) {
   const { data } = await api.get("/llamadas/resumen", { params: filters });
-  return data.data;
+  return data.data as { canales: any[]; totales: { empresas: number; contactadas: number; no_contactadas: number } };
 }
 
 export async function getAllLlamadas(filters?: { fecha_inicio?: string; fecha_fin?: string }) {

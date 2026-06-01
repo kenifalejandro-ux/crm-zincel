@@ -15,10 +15,13 @@ CREATE TYPE estado_lead AS ENUM (
   'no_interesado',
   'no_contesta',
   'volver_a_llamar',
+  'ocupado_en_reunion',
+  'prometio_llamar',
   'buzon_de_voz',
   'fuera_de_servicio',
   'numero_equivocado',
-  'ya_tiene_proveedor'
+  'ya_tiene_proveedor',
+  'no_habido'
 );
 
 CREATE TYPE canal_contacto AS ENUM (
@@ -137,12 +140,16 @@ CREATE TABLE IF NOT EXISTS prospectos (
   id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
   -- Datos de la empresa
-  empresa             VARCHAR(200) NOT NULL,
-  rubro               VARCHAR(100),
-  tamano_empresa      tamano_empresa,
-  pagina_web          VARCHAR(300),
-  web_activa          BOOLEAN DEFAULT NULL,
-  proveedor_web       VARCHAR(150),
+  empresa               VARCHAR(200) NOT NULL,
+  actividad_economica   VARCHAR(500),
+  sector                VARCHAR(60),
+  perfil_empresa        VARCHAR(100),
+  cantidad_trabajadores INTEGER,
+  redes_sociales        TEXT[],
+  tamano_empresa        tamano_empresa,
+  pagina_web            VARCHAR(300),
+  web_activa            BOOLEAN DEFAULT NULL,
+  proveedor_web         VARCHAR(150),
 
   -- Datos del contacto
   nombre_contacto     VARCHAR(150),

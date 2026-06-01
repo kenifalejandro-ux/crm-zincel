@@ -46,6 +46,55 @@ llamadasRouter.get("/resumen", async (req, res) => {
   }
 });
 
+// GET /api/crm/llamadas/empresas-intentos
+llamadasRouter.get("/empresas-intentos", async (_req, res) => {
+  try {
+    const { pool } = await import("../../config/database");
+    const result = await pool.query(`
+      SELECT
+        p.id,
+        p.empresa,
+        p.nombre_contacto,
+        COUNT(l.id)::int                                              AS total_llamadas,
+        MAX(l.fecha)                                                  AS ultima_llamada,
+        p.estado_lead::text                                           AS estado_lead,
+        MODE() WITHIN GROUP (ORDER BY l.canal)                       AS canal_principal,
+        COUNT(l.id) FILTER (WHERE l.contestada = true)::int          AS contestadas
+      FROM llamadas l
+      JOIN prospectos p ON p.id = l.prospecto_id
+      WHERE p.eliminado = false
+      GROUP BY p.id, p.empresa, p.nombre_contacto, p.estado_lead
+      ORDER BY total_llamadas DESC, ultima_llamada DESC
+    `);
+    res.json({ ok: true, data: result.rows });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/llamadas/analisis-intentos
+llamadasRouter.get("/analisis-intentos", async (_req, res) => {
+  try {
+    const { pool } = await import("../../config/database");
+    const result = await pool.query(`
+      SELECT
+        SUM(cnt)::int                                                   AS total_llamadas,
+        COUNT(*)::int                                                   AS empresas_unicas,
+        ROUND(SUM(cnt)::numeric / NULLIF(COUNT(*), 0), 2)              AS promedio_intentos,
+        COUNT(*) FILTER (WHERE cnt = 1)::int                           AS empresas_1,
+        COUNT(*) FILTER (WHERE cnt = 2)::int                           AS empresas_2,
+        COUNT(*) FILTER (WHERE cnt >= 3)::int                          AS empresas_3mas,
+        SUM(CASE WHEN cnt >= 3 THEN cnt ELSE 0 END)::int               AS llamadas_en_3mas
+      FROM (
+        SELECT prospecto_id, COUNT(*) AS cnt FROM llamadas GROUP BY prospecto_id
+      ) sub
+    `);
+    res.json({ ok: true, data: result.rows[0] });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
 // GET /api/crm/llamadas/heatmap
 llamadasRouter.get("/heatmap", async (req, res) => {
   try {

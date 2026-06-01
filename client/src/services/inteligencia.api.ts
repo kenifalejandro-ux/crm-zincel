@@ -145,8 +145,13 @@ export async function getTendencias(periodo: string, mes?: number, anio?: number
   return data.data as Tendencias;
 }
 
-export async function getObjetivos() {
-  const { data } = await api.get("/inteligencia/objetivos");
+export async function getObjetivos(params?: {
+  periodo?: string;
+  mes?:     number;
+  anio?:    number;
+  fecha?:   string;
+}) {
+  const { data } = await api.get("/inteligencia/objetivos", { params });
   return data.data as ObjetivosDiarios;
 }
 

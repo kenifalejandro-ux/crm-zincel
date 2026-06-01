@@ -244,9 +244,12 @@ export function PrioridadOperacional({ acciones }: Props) {
                           <p className="text-[11px] text-zinc-700 truncate">{lead.nombre_contacto}</p>
                           <div className="flex items-center gap-3 mt-1 flex-wrap">
                             {lead.telefono && (
-                              <span className="flex items-center gap-1 text-[10px] text-zinc-600">
+                              <a href={`tel:${lead.telefono}`}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors text-[10px] font-medium"
+                                onClick={e => e.stopPropagation()}
+                                title="Llamar">
                                 <Phone size={9} /> {lead.telefono}
-                              </span>
+                              </a>
                             )}
                             {lead.ciudad && (
                               <span className="flex items-center gap-1 text-[10px] text-zinc-600">

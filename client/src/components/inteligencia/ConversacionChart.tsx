@@ -20,6 +20,8 @@ const RESULTADO_LABEL: Record<string, string> = {
   solicita_informacion:"Solicita info",
   no_interesado:       "No interesado",
   volver_a_llamar:     "Volver a llamar",
+  ocupado_en_reunion:  "Ocupado / En reunión",
+  prometio_llamar:     "Prometió llamar",
   buzon_de_voz:        "Buzón de voz",
   fuera_de_servicio:   "Fuera de servicio",
   numero_equivocado:   "N° equivocado",

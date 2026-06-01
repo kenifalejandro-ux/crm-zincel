@@ -254,7 +254,7 @@ export const mapearExcelACRM = (rows: any[]) => {
 
     const fila: any = {
       empresa,
-      rubro:             String(row["RUBRO"] || row["Rubro"] || "").trim().slice(0, 300),
+      actividad_economica: String(row["RUBRO"] || row["Rubro"] || row["ACTIVIDAD_ECONOMICA"] || row["Actividad economica"] || "").trim().slice(0, 500),
       web_activa:        webActiva,
       pagina_web:        paginaWeb || undefined,
       proveedor_web:     String(row["Proveedor"] || row["Proveedor web"] || "").trim().slice(0, 200),
@@ -362,12 +362,16 @@ export const ESTADOS_LEAD = [
   { value: "no_interesado",       label: "No interesado" },
   { value: "no_contesta",         label: "No contesta" },
   { value: "volver_a_llamar",     label: "Volver a llamar" },
+  { value: "ocupado_en_reunion",  label: "Ocupado / En reunión" },
+  { value: "prometio_llamar",     label: "Prometió llamar" },
   { value: "buzon_de_voz",        label: "Buzón de voz" },
   { value: "fuera_de_servicio",   label: "Fuera de servicio" },
   { value: "numero_equivocado",   label: "Número equivocado" },
   { value: "ya_tiene_proveedor",  label: "Empresa con página web" },
   { value: "baja_de_oficio",      label: "Baja de oficio" },
   { value: "suspension_temporal", label: "Suspensión temporal" },
+  { value: "no_habido",           label: "No habido" },
+  { value: "perdida",             label: "Venta perdida" },
 ];
 
 export const COLOR_ESTADO: Record<string, string> = {
@@ -377,6 +381,8 @@ export const COLOR_ESTADO: Record<string, string> = {
   no_interesado:      "bg-red-100 text-red-700",
   no_contesta:        "bg-gray-100 text-gray-500",
   volver_a_llamar:    "bg-yellow-100 text-yellow-700",
+  ocupado_en_reunion: "bg-yellow-100 text-yellow-700",
+  prometio_llamar:    "bg-purple-100 text-purple-700",
   buzon_de_voz:       "bg-orange-100 text-orange-700",
   fuera_de_servicio:  "bg-red-100 text-red-600",
   numero_equivocado:  "bg-pink-100 text-pink-700",
@@ -384,6 +390,8 @@ export const COLOR_ESTADO: Record<string, string> = {
   baja_de_oficio:      "bg-slate-100 text-slate-600",
   solicita_informacion:"bg-sky-100 text-sky-700",
   suspension_temporal: "bg-amber-100 text-amber-700",
+  no_habido:           "bg-slate-100 text-slate-500",
+  perdida:             "bg-red-100 text-red-700",
 };
 
 export const COLOR_PRIORIDAD: Record<string, string> = {

@@ -115,11 +115,14 @@ export async function obtenerTodasLlamadasService(filters?: { fecha_inicio?: str
 
   const where = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "";
   const result = await pool.query(
-    `SELECT l.*, p.empresa, p.nombre_contacto
-     FROM llamadas l
-     LEFT JOIN prospectos p ON p.id = l.prospecto_id
-     ${where}
-     ORDER BY l.fecha DESC
+    `SELECT * FROM (
+       SELECT DISTINCT ON (l.prospecto_id) l.*, p.empresa, p.nombre_contacto
+       FROM llamadas l
+       LEFT JOIN prospectos p ON p.id = l.prospecto_id
+       ${where}
+       ORDER BY l.prospecto_id, l.fecha DESC
+     ) sub
+     ORDER BY fecha DESC
      LIMIT 200`,
     valores
   );
@@ -141,17 +144,28 @@ export async function resumenLlamadasService(filters?: { fecha_inicio?: string; 
   }
 
   const where = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "";
-  const result = await pool.query(`
-    SELECT
-      canal,
-      COUNT(*) as por_canal,
-      COUNT(*) FILTER (WHERE contestada = true) as contestadas,
-      COUNT(*) FILTER (WHERE contestada = false) as no_contestadas
-    FROM llamadas
-    ${where}
-    GROUP BY canal
-  `, valores);
-  return result.rows;
+  const [canalesResult, totalesResult] = await Promise.all([
+    pool.query(`
+      SELECT
+        canal,
+        COUNT(DISTINCT prospecto_id)::int AS por_canal,
+        COUNT(DISTINCT CASE WHEN contestada = true  THEN prospecto_id END)::int AS contestadas,
+        (COUNT(DISTINCT prospecto_id) - COUNT(DISTINCT CASE WHEN contestada = true THEN prospecto_id END))::int AS no_contestadas
+      FROM llamadas
+      ${where}
+      GROUP BY canal
+      ORDER BY por_canal DESC
+    `, valores),
+    pool.query(`
+      SELECT
+        COUNT(DISTINCT prospecto_id)::int AS empresas,
+        COUNT(DISTINCT CASE WHEN contestada = true  THEN prospecto_id END)::int AS contactadas,
+        (COUNT(DISTINCT prospecto_id) - COUNT(DISTINCT CASE WHEN contestada = true THEN prospecto_id END))::int AS no_contactadas
+      FROM llamadas
+      ${where}
+    `, valores),
+  ]);
+  return { canales: canalesResult.rows, totales: totalesResult.rows[0] };
 }
 export async function estadisticasLlamadasPorPeriodoService(
   fecha_inicio?: string,

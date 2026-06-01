@@ -9,15 +9,21 @@ export type EstadoLead =
   | "no_interesado"
   | "no_contesta"
   | "volver_a_llamar"
+  | "ocupado_en_reunion"
+  | "prometio_llamar"
   | "buzon_de_voz"
   | "fuera_de_servicio"
   | "numero_equivocado"
   | "ya_tiene_proveedor"
   | "baja_de_oficio"
-  | "solicita_informacion";
+  | "solicita_informacion"
+  | "suspension_temporal"
+  | "no_habido"
+  | "perdida";
 
 export type CanalContacto = "llamada" | "whatsapp" | "correo" | "linkedin" | "instagram" | "facebook";
 export type FuenteLead = "facebook" | "instagram" | "tiktok" | "linkedin" | "referido" | "web" | "llamada_fria" | "otro";
+export type RedSocial = "facebook" | "instagram" | "tiktok" | "linkedin" | "ninguna";
 export type TamanoEmpresa = "1_10" | "11_50" | "51_200" | "201_500" | "mas_500";
 export type Prioridad = "alta" | "media" | "baja";
 export type ClasificacionLead = "gestionado" | "por_gestionar" | "cerrado" | "descartado";
@@ -90,7 +96,11 @@ export interface ContactoSecundario {
 export interface Prospecto {
   id:               string;
   empresa:          string;
-  rubro?:           string;
+  actividad_economica?: string;
+  sector?:              string;
+  perfil_empresa?:      string;
+  cantidad_trabajadores?: number;
+  redes_sociales?:      RedSocial[];
   tamano_empresa?:  TamanoEmpresa;
   pagina_web?:      string;
   web_activa?:      boolean;

@@ -134,7 +134,13 @@ inteligenciaRouter.get("/tendencias", async (req, res) => {
 // GET /api/crm/inteligencia/objetivos
 inteligenciaRouter.get("/objetivos", async (req: any, res) => {
   try {
-    const data = await getObjetivosService(req.usuario.id);
+    const { periodo, mes, anio, fecha } = req.query;
+    const data = await getObjetivosService(req.usuario.id, {
+      periodo: periodo as string | undefined,
+      mes:     mes  ? parseInt(mes  as string, 10) : undefined,
+      anio:    anio ? parseInt(anio as string, 10) : undefined,
+      fecha:   fecha as string | undefined,
+    });
     res.json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
@@ -151,7 +157,7 @@ inteligenciaRouter.put("/objetivos", async (req: any, res) => {
       brochures_meta:        Math.max(1,    parseInt(brochures_meta)        || 5),
       meta_ingresos_mensual: Math.max(100,  parseFloat(meta_ingresos_mensual) || 5000),
     });
-    const data = await getObjetivosService(req.usuario.id);
+    const data = await getObjetivosService(req.usuario.id, {});
     res.json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

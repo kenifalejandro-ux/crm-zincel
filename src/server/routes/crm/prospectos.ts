@@ -25,6 +25,7 @@ import {
   upsertContactoService,
   eliminarContactoService,
   getEstadoWebDistribucionService,
+  getAnalisisComercialService,
 } from "../../services/prospecto.service";
 import { invalidarCacheCRM } from "../../config/cache";
 
@@ -32,10 +33,21 @@ export const prospectosRouter = Router();
 
 prospectosRouter.use(authMiddleware);
 
-// GET /api/crm/prospectos/resumen
-prospectosRouter.get("/resumen", async (_req, res) => {
+// GET /api/crm/prospectos/analisis-comercial
+prospectosRouter.get("/analisis-comercial", async (_req, res) => {
   try {
-    const data = await resumenProspectosService();
+    const data = await getAnalisisComercialService();
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/prospectos/resumen
+prospectosRouter.get("/resumen", async (req, res) => {
+  try {
+    const { fecha_desde, fecha_hasta } = req.query as Record<string, string>;
+    const data = await resumenProspectosService(fecha_desde || undefined, fecha_hasta || undefined);
     res.json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

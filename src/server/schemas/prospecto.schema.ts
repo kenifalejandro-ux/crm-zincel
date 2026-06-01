@@ -3,9 +3,13 @@
 import { z } from "zod";
 
 export const crearProspectoSchema = z.object({
-  empresa:          z.string().min(1, "La empresa es obligatoria").max(200),
-  rubro:            z.string().max(300).optional(),
-  tamano_empresa:   z.enum(["1_10","11_50","51_200","201_500","mas_500"]).optional(),
+  empresa:               z.string().min(1, "La empresa es obligatoria").max(200),
+  actividad_economica:   z.string().max(500).optional(),
+  sector:                z.string().max(60).optional(),
+  perfil_empresa:        z.string().max(100).optional(),
+  cantidad_trabajadores: z.number().int().positive().optional(),
+  redes_sociales:        z.array(z.enum(["facebook","instagram","tiktok","linkedin","ninguna"])).optional(),
+  tamano_empresa:        z.enum(["1_10","11_50","51_200","201_500","mas_500"]).optional(),
   pagina_web:       z.string().max(300).optional().or(z.literal("")),
   web_activa:       z.boolean().optional(),
   proveedor_web:    z.string().max(150).optional(),
@@ -19,7 +23,7 @@ export const crearProspectoSchema = z.object({
   pais:             z.string().max(100).default("Perú"),
   prioridad:        z.enum(["alta","media","baja"]).default("media"),
   fuente:           z.enum(["base_propia","google_ads","facebook","instagram","tiktok","linkedin","referido","web","llamada_fria","otro"]).optional(),
-  estado_lead:      z.enum(["nuevo","por_gestionar","interesado","no_interesado","no_contesta","volver_a_llamar","buzon_de_voz","fuera_de_servicio","numero_equivocado","ya_tiene_proveedor","baja_de_oficio","solicita_informacion","suspension_temporal","perdida"]).default("por_gestionar"),
+  estado_lead:      z.enum(["nuevo","por_gestionar","interesado","no_interesado","no_contesta","volver_a_llamar","ocupado_en_reunion","prometio_llamar","buzon_de_voz","fuera_de_servicio","numero_equivocado","ya_tiene_proveedor","baja_de_oficio","solicita_informacion","suspension_temporal","perdida","no_habido"]).default("por_gestionar"),
   clasificacion:    z.enum(["gestionado","por_gestionar","cerrado","descartado"]).default("por_gestionar"),
   estado_venta:     z.enum(["si","no","en_proceso"]).default("no"),
   notas:            z.string().optional(),

@@ -363,7 +363,6 @@ export default function PipelinePage() {
         <ProspectoDetalle
           prospecto={prospectoDetalle}
           onCerrar={() => setProspectoDetalle(null)}
-          onEditar={() => { setProspectoEditando(prospectoDetalle); setProspectoDetalle(null); }}
           onActualizado={actualizarCardPipeline}
         />
       )}

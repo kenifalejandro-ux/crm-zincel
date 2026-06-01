@@ -62,6 +62,20 @@ export async function getResumenEstadosPropuestas(params?: {
   return data.data;
 }
 
+export interface PropuestaMes {
+  mes_num:       number;
+  total:         number;
+  enviadas:      number;
+  en_negociacion: number;
+  ganadas:       number;
+  perdidas:      number;
+}
+
+export async function getPropuestasPorMes(anio?: number): Promise<PropuestaMes[]> {
+  const { data } = await api.get("/propuestas/por-mes", { params: anio ? { anio } : {} });
+  return data.data;
+}
+
 export interface PaqueteWebStat {
   paquete:        string;
   cotizados:      number;

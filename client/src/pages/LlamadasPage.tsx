@@ -1,7 +1,8 @@
 /** client/src/pages/LlamadasPage.tsx */
 
 import { useEffect, useState, useMemo } from "react";
-import { Plus, FileDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, FileDown, BarChart2 } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
   getResumenLlamadas,
@@ -45,7 +46,8 @@ function fechaInicial(): { periodo: FiltroPeriodo; filtroFecha: string } {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function LlamadasPage() {
-  const [resumen,      setResumen]      = useState<any[]>([]);
+  const navigate = useNavigate();
+  const [resumen,      setResumen]      = useState<{ canales: any[]; totales: { empresas: number; contactadas: number; no_contactadas: number } }>({ canales: [], totales: { empresas: 0, contactadas: 0, no_contactadas: 0 } });
   const [llamadas,     setLlamadas]     = useState<any[]>([]);
   const [estadisticas, setEstadisticas] = useState<any[]>([]);
   const [prospectos,   setProspectos]   = useState<any[]>([]);
@@ -170,9 +172,9 @@ export default function LlamadasPage() {
   };
 
   // ── KPIs ────────────────────────────────────────────────
-  const totalLlamadas      = resumen.reduce((acc, r) => acc + parseInt(r.por_canal  || 0), 0);
-  const totalContestadas   = resumen.reduce((acc, r) => acc + parseInt(r.contestadas || 0), 0);
-  const totalNoContestadas = resumen.reduce((acc, r) => acc + parseInt(r.no_contestadas || 0), 0);
+  const totalLlamadas      = resumen.totales.empresas;
+  const totalContestadas   = resumen.totales.contactadas;
+  const totalNoContestadas = resumen.totales.no_contactadas;
 
   const estadisticasPorPeriodo = useMemo(() => estadisticas.map((stat) => {
     let fechaLabel: string;
@@ -203,6 +205,15 @@ export default function LlamadasPage() {
         </div>
         <div className="flex gap-2">
           <TableBulkActions count={seleccionados.length} onDelete={handleEliminarMasivo} />
+          <button
+            onClick={() => navigate("/analisis-llamadas")}
+            className="relative group p-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition"
+          >
+            <BarChart2 size={17} />
+            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+              Análisis de intentos
+            </span>
+          </button>
           {llamadas.length > 0 && (
             <button
               onClick={exportarExcel}
@@ -234,7 +245,7 @@ export default function LlamadasPage() {
       {/* Estadísticas + canal */}
       <EstadisticasPeriodo
         estadisticas={estadisticasPorPeriodo}
-        resumen={resumen}
+        resumen={resumen.canales}
         filtroPeriodo={filtroPeriodo}
       />
 

@@ -20,6 +20,7 @@ import { inteligenciaRouter }      from "./inteligencia";
 import { activityLogsRouter }      from "./activityLogs";
 import { notificacionesRouter }    from "./notificaciones";
 import { inicioRouter }            from "./inicio";
+import { okrRouter }               from "./okr";
 
 export function createCrmRouter(): Router {
   const router = Router();
@@ -43,6 +44,7 @@ export function createCrmRouter(): Router {
   router.use("/activity-logs",     activityLogsRouter);
   router.use("/notificaciones",    notificacionesRouter);
   router.use("/inicio",            inicioRouter);
+  router.use("/okr",               okrRouter);
 
   return router;
 }
