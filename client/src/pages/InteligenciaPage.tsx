@@ -35,6 +35,7 @@ import { ActividadMensualDiaria }  from "../components/dashboard/ActividadMensua
 import { TemperaturaLeadsChart }   from "../components/dashboard/TemperaturaLeadsChart";
 import { AnalisisPropuestas }       from "../components/inteligencia/AnalisisPropuestas";
 import { InsightServicios }         from "../components/inteligencia/InsightServicios";
+import { RankingSubcategorias }    from "../components/inteligencia/RankingSubcategorias";
 import { PropuestasMesChart }       from "../components/dashboard/PropuestasMesChart";
 import type { FunnelEtapa, RegionEtapa } from "../services/prospectos.api";
 import type { Insight, LeadEstancado, AccionPrioridad, Forecast, ObjetivosDiarios, LeadPrioridad } from "../services/inteligencia.api";
@@ -1429,6 +1430,8 @@ export default function InteligenciaPage() {
           <FunnelConversion data={funnel} />
           <Divider label="Inteligencia por servicio" />
           <InsightServicios />
+          <Divider label="Ranking por subcategoría · paquetes y plataformas" />
+          <RankingSubcategorias />
           <Divider label="Análisis de propuestas · objetivos · brechas" />
           <AnalisisPropuestas />
         </div>

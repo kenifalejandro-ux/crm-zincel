@@ -23,13 +23,13 @@ export async function getResumenInicioService(usuarioId: string) {
         AND creado_por = $1
     `, [usuarioId]),
 
-    // Reuniones de hoy
+    // Reuniones de hoy (excluye solo canceladas y descartadas)
     pool.query(`
-      SELECT r.id, r.titulo, r.fecha_hora::text, p.empresa
+      SELECT r.id, r.titulo, r.fecha_hora::text, r.hora_fin::text, r.modalidad, r.estado, p.empresa, p.nombre_contacto
       FROM reuniones r
       JOIN prospectos p ON p.id = r.prospecto_id
       WHERE DATE(r.fecha_hora) = CURRENT_DATE
-        AND r.estado = 'programada'
+        AND r.estado NOT IN ('cancelada', 'reprogramada')
         AND r.creado_por = $1
       ORDER BY r.fecha_hora ASC
       LIMIT 5

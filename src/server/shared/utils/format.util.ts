@@ -54,6 +54,7 @@ export function labelEstadoLead(estado: string): string {
     no_habido:          "No habido",
     baja_de_oficio:     "Baja de oficio",
     suspension_temporal:"Suspensión temporal",
+    venta_ganada:       "Venta ganada",
   };
   return labels[estado] ?? estado;
 }

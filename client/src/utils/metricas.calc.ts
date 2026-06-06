@@ -62,29 +62,33 @@ export interface ProyeccionData {
 }
 
 // ─── Benchmarks por plataforma ─────────────────────────────────────────────────
+// Meta: sector inmobiliario, mercado LatAm Tier 3 (Perú), valores en S/.
+// Ajustado -20% respecto a benchmarks USD (WordStream 2025, SuperAds, AdAmigo).
+// Lógica evaluarBenchmark: NOT invertido → green>=max, yellow>=min, red<min
+//                           invertido     → green<=min, yellow<=max, red>max
 const BENCHMARKS: Record<Plataforma, Record<string, { min: number; max: number }>> = {
   meta: {
-    ctr:       { min: 0.9,  max: 1.5  },
-    cpc:       { min: 0.5,  max: 3.0  },
-    cpm:       { min: 8,    max: 25   },
-    cpa:       { min: 5,    max: 30   },
-    roas:      { min: 2,    max: 999  },
-    frecuencia:{ min: 1,    max: 3    },
+    ctr:       { min: 2.2,  max: 3.5  }, // % — excelente ≥3.5%, aceptable ≥2.2%
+    cpc:       { min: 2.50, max: 4.00 }, // S/ — excelente <2.50, aceptable <4.00
+    cpm:       { min: 65,   max: 105  }, // S/ — excelente <65,   aceptable <105
+    cpa:       { min: 120,  max: 250  }, // S/ — excelente <120,  aceptable <250
+    roas:      { min: 2,    max: 5    }, // x  — excelente ≥5x,   aceptable ≥2x
+    frecuencia:{ min: 2.5,  max: 4.0  }, // x  — excelente ≤2.5x, aceptable ≤4x
   },
   google: {
-    ctr:       { min: 2,    max: 5    },
-    cpc:       { min: 1,    max: 8    },
-    cpm:       { min: 5,    max: 20   },
-    cpa:       { min: 10,   max: 50   },
-    roas:      { min: 2,    max: 999  },
+    ctr:       { min: 2,    max: 5    }, // % search
+    cpc:       { min: 3,    max: 15   }, // S/ search
+    cpm:       { min: 15,   max: 50   }, // S/ display
+    cpa:       { min: 30,   max: 100  }, // S/
+    roas:      { min: 2,    max: 5    },
     frecuencia:{ min: 1,    max: 5    },
   },
   tiktok: {
-    ctr:       { min: 1,    max: 3    },
-    cpc:       { min: 0.3,  max: 2.0  },
-    cpm:       { min: 5,    max: 15   },
-    cpa:       { min: 5,    max: 25   },
-    roas:      { min: 2,    max: 999  },
+    ctr:       { min: 1,    max: 3    }, // %
+    cpc:       { min: 1,    max: 4    }, // S/
+    cpm:       { min: 15,   max: 45   }, // S/
+    cpa:       { min: 20,   max: 80   }, // S/
+    roas:      { min: 2,    max: 5    },
     frecuencia:{ min: 1,    max: 4    },
   },
 };
@@ -264,7 +268,7 @@ const calcularFunnel = (
       valor:      m.leads,
       porcentaje: r(safe(m.leads / m.clics * 100)),
       estado:     m.leads / m.clics >= 0.05 ? "green" : m.leads / m.clics >= 0.02 ? "yellow" : "red",
-      etiqueta:   "BOFU",
+      etiqueta:   "DOFU",
     },
     {
       nombre:     "Conversiones",

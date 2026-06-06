@@ -274,12 +274,12 @@ const eliminarSeleccionados = async () => {
       )}
 
       {/* Alerta leads calientes */}
-      {Object.values(scores).filter(s => s.nivel === "caliente").length > 0 && (
+      {Object.values(scores).filter(s => s.nivel === "caliente" && s.etapa_pipeline !== "cerrado_ganado" && s.etapa_pipeline !== "perdido" && !["venta_ganada","baja_de_oficio","suspension_temporal","no_habido","perdida"].includes(s.estado_lead)).length > 0 && (
         <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-red-50 to-orange-50 border border-orange-200 rounded-xl">
           <span className="text-lg">🔥</span>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-orange-700">
-              {Object.values(scores).filter(s => s.nivel === "caliente").length} leads calientes listos para cierre
+              {Object.values(scores).filter(s => s.nivel === "caliente" && s.etapa_pipeline !== "cerrado_ganado" && s.etapa_pipeline !== "perdido" && !["venta_ganada","baja_de_oficio","suspension_temporal","no_habido","perdida"].includes(s.estado_lead)).length} leads calientes listos para cierre
             </p>
             <p className="text-[11px] text-orange-500 mt-0.5">
               Están en la parte superior de la lista — prioriza el contacto hoy

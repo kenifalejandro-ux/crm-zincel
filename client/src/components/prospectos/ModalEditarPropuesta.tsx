@@ -8,6 +8,16 @@ import { LABEL_SERVICIO, LABEL_ESTADO, MOTIVOS_CIERRE_PERDIDO } from "../../type
 const SERVICIOS = Object.keys(LABEL_SERVICIO) as ServicioPropuesta[];
 const ESTADOS   = Object.keys(LABEL_ESTADO)   as EstadoPropuesta[];
 
+const PLATAFORMAS_REDES = [
+  { value: "facebook",  label: "Facebook" },
+  { value: "instagram", label: "Instagram" },
+  { value: "tiktok",    label: "TikTok" },
+  { value: "linkedin",  label: "LinkedIn" },
+  { value: "youtube",   label: "YouTube" },
+  { value: "multi",     label: "Múltiples plataformas" },
+];
+const SERVICIOS_CON_PLATAFORMA = ["redes_sociales"];
+
 const inp = "w-full px-3 py-2 text-xs bg-zinc-900/50 border border-zinc-600 rounded-lg text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/50 [color-scheme:dark]";
 const sel = "w-full px-3 py-2 text-xs bg-zinc-900/50 border border-zinc-600 rounded-lg text-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/50";
 const lbl = "text-xs font-medium text-zinc-400 mb-1 block";
@@ -16,12 +26,13 @@ interface Props {
   propuesta:    Propuesta;
   form:         FormPropuesta;
   cargando:     boolean;
+  error?:       string | null;
   onFormChange: (form: FormPropuesta) => void;
   onGuardar:    () => void;
   onCerrar:     () => void;
 }
 
-export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, onGuardar, onCerrar }: Props) {
+export function ModalEditarPropuesta({ propuesta, form, cargando, error, onFormChange, onGuardar, onCerrar }: Props) {
   const set = (campo: Partial<FormPropuesta>) => onFormChange({ ...form, ...campo });
 
   const esCerrada     = form.estado === "cerrada_ganada" || form.estado === "cerrada_perdida";
@@ -51,9 +62,29 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
           </select>
         </div>
 
+        {/* Plataforma — solo para Redes Sociales / Publicidad Digital */}
+        {SERVICIOS_CON_PLATAFORMA.includes(form.servicio) && (
+          <div>
+            <label className={lbl}>Plataforma</label>
+            <select
+              value={PLATAFORMAS_REDES.find(p => p.label === form.descripcion)?.value ?? ""}
+              onChange={e => {
+                const plat = PLATAFORMAS_REDES.find(p => p.value === e.target.value);
+                set({ descripcion: plat ? plat.label : "", subcategoria: plat ? plat.label : "" });
+              }}
+              className={sel}
+            >
+              <option value="">Selecciona una plataforma...</option>
+              {PLATAFORMAS_REDES.map(p => (
+                <option key={p.value} value={p.value}>{p.label}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Descripción */}
         <div>
-          <label className={lbl}>Descripción</label>
+          <label className={lbl}>Descripción{SERVICIOS_CON_PLATAFORMA.includes(form.servicio) ? " (detalle adicional)" : ""}</label>
           <input type="text" value={form.descripcion}
             onChange={e => set({ descripcion: e.target.value })}
             className={inp} />
@@ -117,7 +148,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
               className={inp} />
           </div>
 
-          {(esNegociacion || esFinalizada) && (
+          {(esNegociacion || (esFinalizada && form.fecha_negociacion)) && (
             <div>
               <label className={lbl}>⚖️ En negociación — fecha de inicio</label>
               <input type="date" value={form.fecha_negociacion}
@@ -153,13 +184,44 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, onFormChange, 
           </div>
         )}
 
-        {/* Notas */}
-        <div>
-          <label className={lbl}>Notas</label>
-          <textarea rows={2} value={form.notas}
-            onChange={e => set({ notas: e.target.value })}
-            className={`${inp} resize-none`} />
+        {/* Notas por etapa */}
+        <div className="space-y-3">
+          <div>
+            <label className={lbl}>📤 Notas al enviar</label>
+            <textarea rows={2} value={form.notas}
+              onChange={e => set({ notas: e.target.value })}
+              placeholder="Contexto al enviar la propuesta..."
+              className="w-full text-xs bg-zinc-900/50 border border-zinc-600 rounded-lg px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none" />
+          </div>
+
+          {(esNegociacion || (esFinalizada && form.fecha_negociacion) || form.notas_negociacion) && (
+            <div>
+              <label className={lbl}>⚖️ Notas de negociación</label>
+              <textarea rows={2} value={form.notas_negociacion}
+                onChange={e => set({ notas_negociacion: e.target.value })}
+                placeholder="Objeciones, ajustes de precio, acuerdos..."
+                className="w-full text-xs bg-zinc-900/50 border border-zinc-600 rounded-lg px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none" />
+            </div>
+          )}
+
+          {(esFinalizada || form.notas_cierre) && (
+            <div>
+              <label className={lbl}>
+                {form.estado === "cerrada_ganada" ? "✅" : form.estado === "cerrada_perdida" ? "❌" : "⏱️"} Notas de cierre
+              </label>
+              <textarea rows={2} value={form.notas_cierre}
+                onChange={e => set({ notas_cierre: e.target.value })}
+                placeholder="Razón del cierre, condiciones pactadas..."
+                className="w-full text-xs bg-zinc-900/50 border border-zinc-600 rounded-lg px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none" />
+            </div>
+          )}
         </div>
+
+        {error && (
+          <div className="px-3 py-2 bg-red-900/40 border border-red-700/50 rounded-lg text-xs text-red-300">
+            {error}
+          </div>
+        )}
 
         {/* Botones */}
         <div className="flex gap-2 pt-1 border-t border-zinc-700">

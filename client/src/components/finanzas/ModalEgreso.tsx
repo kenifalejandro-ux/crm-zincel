@@ -12,27 +12,20 @@ const CATEGORIAS: { value: CategoriaEgreso; label: string }[] = [
   { value: "subcontratos",            label: "Subcontratos" },
 ];
 
-const PLACEHOLDERS: Record<CategoriaEgreso, { descripcion: string; proveedor: string }> = {
-  publicidad_digital: {
-    descripcion: "Ej: Campaña Meta Ads mayo, pauta TikTok...",
-    proveedor:   "Ej: Meta Ads, TikTok Ads, Google Ads...",
-  },
-  herramientas_saas: {
-    descripcion: "Ej: Adobe Creative Cloud, Semrush, Make...",
-    proveedor:   "Ej: Adobe, Semrush, Make, Canva...",
-  },
-  herramientas_ia: {
-    descripcion: "Ej: ChatGPT Plus, Claude Pro, Grok, Gemini...",
-    proveedor:   "Ej: OpenAI, Anthropic, xAI, Google...",
-  },
-  infraestructura_digital: {
-    descripcion: "Ej: Hosting mensual, renovación de dominio, VPS...",
-    proveedor:   "Ej: SG-Host, Namecheap, Cloudflare, DigitalOcean...",
-  },
-  subcontratos: {
-    descripcion: "Ej: Diseño de piezas gráficas, edición de video...",
-    proveedor:   "Ej: Nombre del freelancer o agencia...",
-  },
+const PLACEHOLDERS: Record<CategoriaEgreso, string> = {
+  publicidad_digital:      "Ej: Campaña Meta Ads mayo, pauta TikTok...",
+  herramientas_saas:       "Ej: Adobe Creative Cloud, Semrush, Make...",
+  herramientas_ia:         "Ej: ChatGPT Plus, Claude Pro, Grok, Gemini...",
+  infraestructura_digital: "Ej: Hosting mensual, renovación de dominio, VPS...",
+  subcontratos:            "Ej: Diseño de piezas gráficas, edición de video...",
+};
+
+const PROVEEDORES: Record<CategoriaEgreso, string[]> = {
+  publicidad_digital:      ["Meta Ads", "TikTok Ads", "Google Ads", "LinkedIn Ads", "YouTube Ads", "Pinterest Ads", "Twitter / X Ads"],
+  herramientas_saas:       ["Adobe Creative Cloud", "Canva", "Figma", "Semrush", "Make", "Zapier", "Notion", "HubSpot", "Buffer", "Hootsuite"],
+  herramientas_ia:         ["OpenAI (ChatGPT)", "Anthropic (Claude)", "Google (Gemini)", "xAI (Grok)", "Midjourney", "ElevenLabs", "Perplexity", "Runway", "Sora"],
+  infraestructura_digital: ["SG-Host", "Namecheap", "Cloudflare", "DigitalOcean", "AWS", "GoDaddy", "Hostinger", "Vercel", "Netlify"],
+  subcontratos:            ["Freelancer diseño gráfico", "Freelancer edición de video", "Freelancer desarrollo web", "Freelancer redacción", "Agencia externa", "Consultor estratégico"],
 };
 
 const FRECUENCIAS: { value: FrecuenciaEgreso; label: string }[] = [
@@ -61,7 +54,7 @@ export function ModalEgreso({ form, cargando, onFormChange, onGuardar, onCerrar 
         <div>
           <label className="text-xs font-medium text-gray-700 mb-1 block">Categoría</label>
           <select value={form.categoria}
-            onChange={(e) => set({ categoria: e.target.value as CategoriaEgreso })}
+            onChange={(e) => set({ categoria: e.target.value as CategoriaEgreso, proveedor: "" })}
             className={cls}>
             {CATEGORIAS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
@@ -73,15 +66,20 @@ export function ModalEgreso({ form, cargando, onFormChange, onGuardar, onCerrar 
             <label className="text-xs font-medium text-gray-700 mb-1 block">Descripción</label>
             <input type="text" value={form.descripcion}
               onChange={(e) => set({ descripcion: e.target.value })}
-              placeholder={PLACEHOLDERS[form.categoria].descripcion} className={cls} />
+              placeholder={PLACEHOLDERS[form.categoria]} className={cls} />
           </div>
           <div>
             <label className="text-xs font-medium text-gray-700 mb-1 block">
               Proveedor <span className="text-zinc-600">(opcional)</span>
             </label>
-            <input type="text" value={form.proveedor}
+            <select value={form.proveedor}
               onChange={(e) => set({ proveedor: e.target.value })}
-              placeholder={PLACEHOLDERS[form.categoria].proveedor} className={cls} />
+              className={cls}>
+              <option value="">— Selecciona proveedor —</option>
+              {PROVEEDORES[form.categoria].map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
           </div>
         </div>
 

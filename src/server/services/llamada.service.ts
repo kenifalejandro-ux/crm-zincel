@@ -22,8 +22,8 @@ export async function crearLlamadaService(input: CrearLlamadaInput, usuarioId: s
     }
 
     const llamada = await client.query(
-      `INSERT INTO llamadas (prospecto_id, fecha, hora_fin, canal, contestada, duracion_minutos, resultado, motivo_no_interes, accion_acordada, notas, creado_por)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+      `INSERT INTO llamadas (prospecto_id, fecha, hora_fin, canal, contestada, duracion_minutos, resultado, motivo_no_interes, accion_acordada, notas, intentos, creado_por)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
       [
         input.prospecto_id,
         input.fecha ?? new Date().toISOString(),
@@ -35,6 +35,7 @@ export async function crearLlamadaService(input: CrearLlamadaInput, usuarioId: s
         input.motivo_no_interes ?? null,
         input.accion_acordada ?? null,
         input.notas ?? null,
+        input.intentos ?? 1,
         usuarioId,
       ]
     );
@@ -238,7 +239,7 @@ export async function eliminarLlamadasMasivoService(ids: string[]) {
 }
 
 export async function actualizarLlamadaService(id: string, input: Record<string, any>) {
-  const PERMITIDOS = ["canal", "contestada", "fecha", "hora_fin", "resultado", "motivo_no_interes", "accion_acordada", "notas"];
+  const PERMITIDOS = ["canal", "contestada", "fecha", "hora_fin", "resultado", "motivo_no_interes", "accion_acordada", "notas", "intentos"];
   const campos = Object.keys(input).filter((k) => PERMITIDOS.includes(k));
   if (campos.length === 0) return null;
 

@@ -8,6 +8,15 @@ import { LABEL_SERVICIO, LABEL_ESTADO } from "../../types/propuesta.types";
 const SERVICIOS = Object.keys(LABEL_SERVICIO) as ServicioPropuesta[];
 const ESTADOS   = Object.keys(LABEL_ESTADO)   as EstadoPropuesta[];
 
+const PLATAFORMAS_REDES = [
+  { value: "facebook",    label: "Facebook" },
+  { value: "instagram",   label: "Instagram" },
+  { value: "tiktok",      label: "TikTok" },
+  { value: "linkedin",    label: "LinkedIn" },
+  { value: "youtube",     label: "YouTube" },
+  { value: "multi",       label: "Múltiples plataformas" },
+];
+
 const PAQUETES_WEB = [
   { value: "base_web_express",   label: "Base — Web Express",   precio: 500,  rango: "S/ 500 – 700",    dias: "3 a 5 días"       },
   { value: "gold_web_pro",       label: "Gold — Web Pro",       precio: 900,  rango: "S/ 900 – 1,200",  dias: "7 a 10 días"      },
@@ -60,7 +69,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
             </label>
             <select
               value={form.servicio}
-              onChange={(e) => set({ servicio: e.target.value as ServicioPropuesta, descripcion: "", monto_propuesto: "" })}
+              onChange={(e) => set({ servicio: e.target.value as ServicioPropuesta, descripcion: "", subcategoria: "", monto_propuesto: "" })}
               className={sel}
             >
               {SERVICIOS.map((s) => (
@@ -68,6 +77,27 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
               ))}
             </select>
           </div>
+
+          {form.servicio === "redes_sociales" && (
+            <div>
+              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+                <Package size={11} className="text-yellow-500"/>Plataforma
+              </label>
+              <select
+                value={PLATAFORMAS_REDES.find(p => p.label === form.descripcion)?.value ?? ""}
+                onChange={(e) => {
+                  const plat = PLATAFORMAS_REDES.find(p => p.value === e.target.value);
+                  set({ descripcion: plat ? plat.label : "", subcategoria: plat ? plat.label : "" });
+                }}
+                className={sel}
+              >
+                <option value="">Selecciona una plataforma...</option>
+                {PLATAFORMAS_REDES.map(p => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {form.servicio === "desarrollo_web" && (
             <div>
@@ -78,8 +108,8 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
                 value={paqueteActual?.value ?? ""}
                 onChange={(e) => {
                   const pkg = PAQUETES_WEB.find(p => p.value === e.target.value);
-                  if (pkg) set({ descripcion: pkg.label, monto_propuesto: String(pkg.precio), moneda: "PEN" });
-                  else     set({ descripcion: "", monto_propuesto: "" });
+                  if (pkg) set({ descripcion: pkg.label, subcategoria: pkg.label, monto_propuesto: String(pkg.precio), moneda: "PEN" });
+                  else     set({ descripcion: "", subcategoria: "", monto_propuesto: "" });
                 }}
                 className={sel}
               >
@@ -143,14 +173,38 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
           </Field>
         </div>
 
-        {/* Notas */}
-        <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4">
-          <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-2">
+        {/* Notas por etapa */}
+        <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 space-y-3">
+          <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5">
             <StickyNote size={11} className="text-yellow-500"/>Notas
           </label>
-          <textarea rows={2} value={form.notas} onChange={(e) => set({ notas: e.target.value })}
-            placeholder="Detalles adicionales de la propuesta..."
-            className="w-full text-xs bg-zinc-900/50 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none" />
+
+          <div>
+            <p className="text-[10px] text-zinc-500 mb-1">📤 Al enviar</p>
+            <textarea rows={2} value={form.notas} onChange={(e) => set({ notas: e.target.value })}
+              placeholder="Contexto al enviar la propuesta..."
+              className="w-full text-xs bg-zinc-900/50 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none" />
+          </div>
+
+          {(form.estado === "en_negociacion") && (
+            <div>
+              <p className="text-[10px] text-zinc-500 mb-1">⚖️ Negociación</p>
+              <textarea rows={2} value={form.notas_negociacion} onChange={(e) => set({ notas_negociacion: e.target.value })}
+                placeholder="Objeciones, ajustes de precio, acuerdos..."
+                className="w-full text-xs bg-zinc-900/50 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none" />
+            </div>
+          )}
+
+          {(form.estado === "cerrada_ganada" || form.estado === "cerrada_perdida" || form.estado === "vencida") && (
+            <div>
+              <p className="text-[10px] text-zinc-500 mb-1">
+                {form.estado === "cerrada_ganada" ? "✅" : form.estado === "cerrada_perdida" ? "❌" : "⏱️"} Cierre
+              </p>
+              <textarea rows={2} value={form.notas_cierre} onChange={(e) => set({ notas_cierre: e.target.value })}
+                placeholder="Razón del cierre, condiciones pactadas..."
+                className="w-full text-xs bg-zinc-900/50 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none" />
+            </div>
+          )}
         </div>
 
         {/* Botones */}

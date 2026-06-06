@@ -57,11 +57,12 @@ export const env = {
   redisPort: readNumber(process.env.REDIS_PORT, 6379),
   redisPassword: process.env.REDIS_PASSWORD || "",
   // --- META ADS ---
-  metaAppId:           process.env.META_APP_ID           || "",
-  metaAppSecret:       process.env.META_APP_SECRET       || "",
-  metaAccessToken:     process.env.META_ACCESS_TOKEN     || "",
-  metaAdAccountId:     process.env.META_AD_ACCOUNT_ID    || "",
-  metaEmpresaNombre:   process.env.META_EMPRESA_NOMBRE   || "",
+  metaAppId:               process.env.META_APP_ID               || "",
+  metaAppSecret:           process.env.META_APP_SECRET           || "",
+  metaAccessToken:         process.env.META_ACCESS_TOKEN         || "",
+  metaAdAccountId:         process.env.META_AD_ACCOUNT_ID        || "",
+  metaEmpresaNombre:       process.env.META_EMPRESA_NOMBRE       || "",
+  metaWebhookVerifyToken:  process.env.META_WEBHOOK_VERIFY_TOKEN || "",
   // --- TIKTOK ADS ---
   tiktokAppId:         process.env.TIKTOK_APP_ID         || "",
   tiktokAppSecret:     process.env.TIKTOK_APP_SECRET     || "",

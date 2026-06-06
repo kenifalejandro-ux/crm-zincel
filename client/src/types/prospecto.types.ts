@@ -19,10 +19,12 @@ export type EstadoLead =
   | "solicita_informacion"
   | "suspension_temporal"
   | "no_habido"
-  | "perdida";
+  | "perdida"
+  | "venta_ganada";
 
 export type CanalContacto = "llamada" | "whatsapp" | "correo" | "linkedin" | "instagram" | "facebook";
 export type FuenteLead = "facebook" | "instagram" | "tiktok" | "linkedin" | "referido" | "web" | "llamada_fria" | "otro";
+export type CalidadLead = "sin_calificar" | "calificado" | "no_calificado";
 export type RedSocial = "facebook" | "instagram" | "tiktok" | "linkedin" | "ninguna";
 export type TamanoEmpresa = "1_10" | "11_50" | "51_200" | "201_500" | "mas_500";
 export type Prioridad = "alta" | "media" | "baja";
@@ -115,6 +117,8 @@ export interface Prospecto {
   pais:             string;
   prioridad:        Prioridad;
   fuente?:          FuenteLead;
+  calidad_lead?:    CalidadLead;
+  campana_origen?:  string | null;
   estado_lead:      EstadoLead;
   clasificacion:    ClasificacionLead;
   estado_venta:     EstadoVenta;

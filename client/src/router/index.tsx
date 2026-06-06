@@ -22,6 +22,8 @@ import ObjetivosPage          from "../pages/ObjetivosPage";
 import OkrPage                from "../pages/OkrPage";
 import AnalisisIntentosPage   from "../pages/AnalisisIntentosPage";
 import AnalisisComercialPage  from "../pages/AnalisisComercialPage";
+import JornadaPage            from "../pages/JornadaPage";
+import ResultadosPage         from "../pages/ResultadosPage";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { estaAutenticado, cargando } = useAuth();
@@ -51,8 +53,9 @@ export function AppRouter() {
             </PrivateRoute>
           }
         >
-          <Route index              element={<DashboardPage />} />
+          <Route index              element={<Navigate to="/inicio" replace />} />
           <Route path="inicio"      element={<InicioPage />} />
+          <Route path="analisis"    element={<DashboardPage />} />
           <Route path="prospectos"  element={<ProspectosPage />} />
           <Route path="llamadas"   element={<LlamadasPage />} />
           <Route path="reuniones"  element={<ReunionesPage />} />
@@ -69,6 +72,8 @@ export function AppRouter() {
           <Route path="/okr"                element={<OkrPage />} />
           <Route path="/analisis-llamadas"   element={<AnalisisIntentosPage />} />
           <Route path="/analisis-comercial" element={<AnalisisComercialPage />} />
+          <Route path="/jornada"            element={<JornadaPage />} />
+          <Route path="/resultados"         element={<ResultadosPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

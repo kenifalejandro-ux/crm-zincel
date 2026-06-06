@@ -122,7 +122,7 @@ export function TablaProspectos({
                   </span>
                 </td>
                 <td className="px-5 py-3.5">
-                  {sc && sc.score > 5 ? (
+                  {sc != null ? (
                     <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${SCORE_BADGE[sc.nivel]}`}>
                       {SCORE_ICON[sc.nivel]} {sc.score}
                     </span>

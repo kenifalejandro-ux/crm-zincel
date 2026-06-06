@@ -23,6 +23,7 @@ export interface ResumenProspectos {
   suspension_temporal:     number;
   no_habido:               number;
   perdida:                 number;
+  venta_ganada:            number;
   leads_contactados:       number;
   // Actividad de llamadas
   total_llamadas:          number;
@@ -107,6 +108,7 @@ export async function importarProspectos(prospectos: any[]) {
   return res.data;
 }
 
+
 export async function getMotivosPerdida() {
   const { data } = await api.get("/prospectos/motivos-perdida");
   return data.data as Array<{ motivo_perdida: string; total: number }>;
@@ -137,6 +139,26 @@ export async function actualizarEtapaPipeline(id: string, etapa: string) {
 
 export async function actualizarEstadoLead(id: string, estado_lead: string) {
   await api.patch(`/prospectos/${id}/estado-lead`, { estado_lead });
+}
+
+export async function actualizarCalidadLead(id: string, calidad_lead: string) {
+  await api.patch(`/prospectos/${id}/calidad`, { calidad_lead });
+}
+
+export interface LeadsPorCampana {
+  campana_origen:           string;
+  total:                    string;
+  calificados:              string;
+  no_calificados:           string;
+  sin_calificar:            string;
+  sin_contactar:            string;
+  min_promedio_respuesta:   string | null;
+  contactados_5min:         string;
+}
+
+export async function getLeadsPorCampana(fuente = "facebook"): Promise<LeadsPorCampana[]> {
+  const { data } = await api.get("/prospectos/por-campana", { params: { fuente } });
+  return data.data as LeadsPorCampana[];
 }
 
 export interface FunnelEtapa {
@@ -196,6 +218,7 @@ export interface ScoreLead {
   nivel:            "caliente" | "activo" | "tibio" | "frio";
   empresa:          string;
   etapa_pipeline:   string;
+  estado_lead:      string;
   dias_en_pipeline: number;
 }
 

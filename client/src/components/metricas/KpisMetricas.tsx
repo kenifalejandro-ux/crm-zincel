@@ -16,9 +16,12 @@ export const KpisMetricas = ({ metricas }: Props) => {
   const roasPromedio = metricas.length
     ? (metricas.reduce((a, m) => a + Number(m.roas), 0) / metricas.length).toFixed(2)
     : "0.00";
-  const cpaPromedio  = metricas.length
-    ? (metricas.reduce((a, m) => a + Number(m.cpa), 0) / metricas.length).toFixed(2)
-    : "0.00";
+  // CPL: gasto total ÷ leads totales — solo campañas con Instant Form activo (leads > 0)
+  const conLeads      = metricas.filter((m) => Number(m.leads) > 0);
+  const gastoConLeads = conLeads.reduce((a, m) => a + Number(m.gasto), 0);
+  const cplPromedio   = conLeads.length > 0 && totalLeads > 0
+    ? (gastoConLeads / totalLeads).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : null;
 
   const kpis: KpiItem[] = [
     {
@@ -50,8 +53,8 @@ export const KpisMetricas = ({ metricas }: Props) => {
       bg:    "bg-green-50",
     },
     {
-      label: "CPA promedio",
-      valor: `S/ ${cpaPromedio}`,
+      label: "CPL promedio",
+      valor: cplPromedio ? `S/ ${cplPromedio}` : "—",
       icon:  <Target size={18} />,
       color: "text-red-600",
       bg:    "bg-red-50",

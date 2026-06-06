@@ -48,7 +48,13 @@ export default function ReunionesPage() {
 
   const handleGuardarEdicion = async (form: any) => {
     await editar.guardar(async () => {
-      await actualizarReunion(editar.editando!.id, form);
+      const { fecha, hora_inicio, hora_fin, ...resto } = form;
+      const payload = {
+        ...resto,
+        fecha_hora: fecha && hora_inicio ? `${fecha}T${hora_inicio}` : undefined,
+        hora_fin:   hora_fin || undefined,
+      };
+      await actualizarReunion(editar.editando!.id, payload);
       cargarAnalisis(filtroFecha, filtroPeriodo);
     });
   };
@@ -92,11 +98,18 @@ export default function ReunionesPage() {
     cargarAnalisis(filtroFecha, filtroPeriodo);
   }, []);
 
-  useEffect(() => { cargar(); }, [filtroEstado]);
+  const handleEstadoChange = (value: string) => {
+    setFiltroEstado(value);
+    setSeleccionados([]);
+    getReuniones({ estado: value || undefined, desde: rangoActual.fecha_inicio, hasta: rangoActual.fecha_fin })
+      .then(reuns => setReuniones(reuns))
+      .catch(err => console.error(err));
+  };
 
   const handleFiltroChange = (periodo: FiltroPeriodo, fecha: string) => {
     setFiltroPeriodo(periodo);
     setFiltroFecha(fecha);
+    setSeleccionados([]);
     cargarAnalisis(fecha, periodo);
   };
 
@@ -195,7 +208,7 @@ export default function ReunionesPage() {
           <TableBulkActions count={seleccionados.length} onDelete={eliminarSeleccionados} />
           <select
             value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
+            onChange={(e) => handleEstadoChange(e.target.value)}
             className="px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 text-gray-600"
           >
             <option value="">Todos los estados</option>

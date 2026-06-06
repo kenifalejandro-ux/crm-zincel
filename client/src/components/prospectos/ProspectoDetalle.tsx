@@ -1,7 +1,8 @@
 /**client/src/prospectos/ProspectoDetalle.tsx */
 
 import { useEffect, useRef, useState } from "react";
-import { Pencil, Trash2, Phone, Calendar, FileText, Globe, Mail, MapPin, Building2, User, ClipboardList, GitBranch, CheckSquare, Plus, MessageSquare } from "lucide-react";
+import { Pencil, Trash2, Phone, Calendar, FileText, Globe, Mail, MapPin, Building2, User, ClipboardList, GitBranch, CheckSquare, Plus, MessageSquare, BookOpen } from "lucide-react";
+import { SpeechPanel } from "./SpeechPanel";
 import { Modal } from "../ui/Modal";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
@@ -34,6 +35,7 @@ import type { Reunion } from "../../types/reunion.types";
 import type { Propuesta, FormPropuesta } from "../../types/propuesta.types";
 import type { Tarea } from "../../types/tarea.types";
 import { fechaHoy, toLocalISOString } from "../../utils/date";
+
 
 const COLOR_ESTADO: Record<string, string> = {
   interesado:         "green",
@@ -440,6 +442,7 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
   );
 }
 
+
 const COLOR_VENTA: Record<string, "green" | "blue" | "gray"> = {
   si:         "green",
   en_proceso: "blue",
@@ -458,6 +461,7 @@ type Tab = "info" | "llamadas" | "reuniones" | "brochures" | "propuestas" | "tar
 const FORM_PROPUESTA_VACIO: FormPropuesta = {
   servicio:              "desarrollo_web",
   descripcion:           "",
+  subcategoria:          "",
   monto_propuesto:       "",
   monto_cerrado:         "",
   moneda:                "PEN",
@@ -467,6 +471,8 @@ const FORM_PROPUESTA_VACIO: FormPropuesta = {
   fecha_negociacion:     "",
   fecha_cierre:          "",
   notas:                 "",
+  notas_negociacion:     "",
+  notas_cierre:          "",
   motivo_cierre_perdido: "",
 };
 
@@ -482,6 +488,8 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
   const [, setCargando]     = useState(false);
   const [historialScore, setHistorialScore] = useState<ScoreHistoryEntry[]>([]);
 
+  const [speechAbierto, setSpeechAbierto] = useState(false);
+
   const [modalLlamada,  setModalLlamada]  = useState(false);
   const [modalReunion,  setModalReunion]  = useState(false);
   const [modalBrochure, setModalBrochure] = useState(false);
@@ -495,7 +503,8 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
     await editarReunion.guardar(async () => {
       await actualizarReunion(editarReunion.editando!.id, {
         titulo:     form.titulo,
-        fecha_hora: form.fecha_hora,
+        fecha_hora: form.fecha && form.hora_inicio ? `${form.fecha}T${form.hora_inicio}` : undefined,
+        hora_fin:   form.hora_fin || undefined,
         modalidad:  form.modalidad as any,
         enlace:     form.enlace || undefined,
         estado:     form.estado as any,
@@ -559,6 +568,7 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
   const [propuestaEditando,    setPropuestaEditando]    = useState<Propuesta | null>(null);
   const [formPropuesta,        setFormPropuesta]        = useState<FormPropuesta>(FORM_PROPUESTA_VACIO);
   const [guardandoPropuesta,   setGuardandoPropuesta]   = useState(false);
+  const [errorPropuesta,       setErrorPropuesta]       = useState<string | null>(null);
 
   useEffect(() => {
     cargarDetalle();
@@ -596,6 +606,7 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
         prospecto_id:    prospecto.id,
         servicio:        formPropuesta.servicio as any,
         descripcion:     formPropuesta.descripcion,
+        subcategoria:    formPropuesta.subcategoria,
         monto_propuesto: parseFloat(formPropuesta.monto_propuesto) || 0,
         monto_cerrado:   formPropuesta.monto_cerrado ? parseFloat(formPropuesta.monto_cerrado) : null,
         moneda:          formPropuesta.moneda,
@@ -605,6 +616,8 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
         fecha_negociacion:     (formPropuesta.fecha_negociacion || null) as any,
         fecha_cierre:          (formPropuesta.fecha_cierre || null) as any,
         notas:                 formPropuesta.notas || "",
+        notas_negociacion:     formPropuesta.notas_negociacion,
+        notas_cierre:          formPropuesta.notas_cierre,
         motivo_cierre_perdido: formPropuesta.motivo_cierre_perdido || null,
       });
       setModalNuevaPropuesta(false);
@@ -621,10 +634,12 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
   async function handleEditarPropuesta() {
     if (!propuestaEditando) return;
     setGuardandoPropuesta(true);
+    setErrorPropuesta(null);
     try {
       await editarPropuesta(propuestaEditando.id, {
         servicio:        formPropuesta.servicio as any,
         descripcion:     formPropuesta.descripcion,
+        subcategoria:    formPropuesta.subcategoria || null,
         monto_propuesto: parseFloat(formPropuesta.monto_propuesto) || 0,
         monto_cerrado:   formPropuesta.monto_cerrado ? parseFloat(formPropuesta.monto_cerrado) : null,
         moneda:          formPropuesta.moneda,
@@ -634,14 +649,17 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
         fecha_negociacion:     (formPropuesta.fecha_negociacion || null) as any,
         fecha_cierre:          (formPropuesta.fecha_cierre || null) as any,
         notas:                 formPropuesta.notas || "",
+        notas_negociacion:     formPropuesta.notas_negociacion || null,
+        notas_cierre:          formPropuesta.notas_cierre || null,
         motivo_cierre_perdido: formPropuesta.motivo_cierre_perdido || null,
       });
       setPropuestaEditando(null);
       onActualizado?.(prospecto.id);
       // Recargar detalle del prospecto para reflejar cambios de estado_venta/clasificacion
       cargarDetalle();
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || "Error al guardar";
+      setErrorPropuesta(msg);
     } finally {
       setGuardandoPropuesta(false);
     }
@@ -660,7 +678,10 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
       fecha_propuesta:       (p.fecha_propuesta   ?? "").slice(0, 10),
       fecha_negociacion:     (p.fecha_negociacion ?? "").slice(0, 10),
       fecha_cierre:          (p.fecha_cierre      ?? "").slice(0, 10),
+      subcategoria:          p.subcategoria ?? "",
       notas:                 p.notas ?? "",
+      notas_negociacion:     p.notas_negociacion ?? "",
+      notas_cierre:          p.notas_cierre ?? "",
       motivo_cierre_perdido: p.motivo_cierre_perdido ?? "",
     });
   }
@@ -695,7 +716,7 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
 
   return (
     <>
-      <Modal abierto onCerrar={onCerrar} titulo={detalle.empresa} size="xl">
+      <Modal abierto onCerrar={onCerrar} titulo={detalle.empresa} size="xl" draggable>
         {/* Badges superiores */}
         <div className="flex items-center gap-2 flex-wrap mb-5">
           <Badge color={COLOR_ESTADO[detalle.estado_lead] as any}>
@@ -715,6 +736,11 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
           {detalle.fuente && (
             <Badge color="gray">
               Fuente: {detalle.fuente}
+            </Badge>
+          )}
+          {detalle.campana_origen && (
+            <Badge color="gray">
+              📢 {detalle.campana_origen}
             </Badge>
           )}
           <ScoreBadge score={score} nivel={nivel} breakdown={breakdown} accion={accion} insight={insight} delta={delta} historial={historialScore} />
@@ -749,7 +775,17 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
               </div>
             );
           })()}
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={() => setSpeechAbierto(v => !v)}
+              className={`flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-all select-none cursor-pointer
+                ${speechAbierto
+                  ? "bg-amber-500 text-white border-amber-500"
+                  : "bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100"}`}
+              title="Ver speech de llamada"
+            >
+              <BookOpen size={11} /> Speech
+            </button>
             <Button size="sm" variant="secondary" onClick={() => setEditando(true)}>
               <Pencil size={13} /> Editar
             </Button>
@@ -1124,9 +1160,10 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
           propuesta={propuestaEditando}
           form={formPropuesta}
           cargando={guardandoPropuesta}
+          error={errorPropuesta}
           onFormChange={setFormPropuesta}
           onGuardar={handleEditarPropuesta}
-          onCerrar={() => setPropuestaEditando(null)}
+          onCerrar={() => { setPropuestaEditando(null); setErrorPropuesta(null); }}
         />
       )}
 
@@ -1142,6 +1179,15 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
           }}
         />
       )}
+
+      {/* Panel lateral de speech */}
+      {speechAbierto && (
+        <SpeechPanel
+          prospecto={detalle}
+          onCerrar={() => setSpeechAbierto(false)}
+        />
+      )}
     </>
   );
 }
+

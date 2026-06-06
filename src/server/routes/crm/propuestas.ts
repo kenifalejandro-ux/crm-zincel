@@ -91,7 +91,7 @@ propuestasRouter.get("/analisis-pipeline", async (_req, res) => {
   try {
     const { pool } = await import("../../config/database");
 
-    const [rEmpresa, rServicio, rMes] = await Promise.all([
+    const [rEmpresa, rServicio, rMes, rSubcat] = await Promise.all([
       pool.query(`
         SELECT
           p.id                                                                              AS prospecto_id,
@@ -167,6 +167,27 @@ propuestasRouter.get("/analisis-pipeline", async (_req, res) => {
           COUNT(*) FILTER (WHERE estado IN ('cerrada_ganada','cerrada_perdida','vencida'))::int AS resueltas_total
         FROM propuestas
       `),
+      pool.query(`
+        SELECT
+          pr.servicio,
+          pr.subcategoria,
+          COUNT(*)::int                                                                      AS total,
+          COUNT(*) FILTER (WHERE pr.estado IN ('enviada','en_negociacion'))::int             AS activas,
+          COUNT(*) FILTER (WHERE pr.estado = 'cerrada_ganada')::int                         AS ganadas,
+          COUNT(*) FILTER (WHERE pr.estado IN ('cerrada_perdida','vencida'))::int            AS perdidas,
+          COALESCE(SUM(CASE WHEN pr.estado = 'cerrada_ganada'
+            THEN (CASE WHEN pr.moneda='USD'
+              THEN COALESCE(pr.monto_cerrado, pr.monto_propuesto)*pr.tipo_cambio
+              ELSE COALESCE(pr.monto_cerrado, pr.monto_propuesto) END)
+            ELSE 0 END), 0)::float                                                           AS monto_ganado
+        FROM propuestas pr
+        JOIN prospectos p ON p.id = pr.prospecto_id
+        WHERE p.eliminado = false
+          AND pr.subcategoria IS NOT NULL
+          AND pr.subcategoria <> ''
+        GROUP BY pr.servicio, pr.subcategoria
+        ORDER BY COUNT(*) DESC
+      `),
     ]);
 
     // Also fetch detail rows for empresa drill-down
@@ -196,11 +217,12 @@ propuestasRouter.get("/analisis-pipeline", async (_req, res) => {
     res.json({
       ok: true,
       data: {
-        por_empresa:       rEmpresa.rows,
-        por_servicio:      rServicio.rows,
-        mes_actual:        rMes.rows[0] ?? { propuestas_mes: 0, cierres_mes: 0, ingresos_mes: 0, resueltas_mes: 0 },
-        detalle_empresa:   detalleMap,
-        detalle_servicio:  detalleServicio,
+        por_empresa:        rEmpresa.rows,
+        por_servicio:       rServicio.rows,
+        por_subcategoria:   rSubcat.rows,
+        mes_actual:         rMes.rows[0] ?? { propuestas_mes: 0, cierres_mes: 0, ingresos_mes: 0, resueltas_mes: 0 },
+        detalle_empresa:    detalleMap,
+        detalle_servicio:   detalleServicio,
       },
     });
   } catch (err: any) {

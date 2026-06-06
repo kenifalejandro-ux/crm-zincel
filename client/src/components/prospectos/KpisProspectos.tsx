@@ -31,6 +31,7 @@ const CARDS_ESTADOS: CardDef[] = [
   { key: "suspension_temporal",  label: "Suspensión temporal",   color: "text-amber-700",  bg: "bg-amber-50 border-amber-200",    dot: "bg-amber-400"   },
   { key: "no_habido",            label: "No habido",             color: "text-slate-600",  bg: "bg-slate-50 border-slate-200",    dot: "bg-slate-300"   },
   { key: "perdida",              label: "Venta perdida",         color: "text-red-700",    bg: "bg-red-50 border-red-200",        dot: "bg-red-500"     },
+  { key: "venta_ganada",        label: "Venta ganada",          color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200", dot: "bg-emerald-500"  },
 ];
 
 function getEstadoValue(resumen: ResumenProspectos, key: string): number {
@@ -78,6 +79,7 @@ const GRUPOS = [
       { key: "no_interesado",        label: "No interesado",        dot: "bg-red-400"    },
       { key: "ya_tiene_proveedor",   label: "Tiene proveedor",      dot: "bg-indigo-500" },
       { key: "perdida",              label: "Venta perdida",        dot: "bg-red-600"    },
+      { key: "venta_ganada",         label: "Venta ganada",         dot: "bg-emerald-500" },
     ],
   },
   {

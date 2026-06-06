@@ -11,27 +11,9 @@ import { Button } from "../ui/Button";
 import { crearProspecto, actualizarProspecto } from "../../services/prospectos.api";
 import { upsertContactoSecundario, eliminarContactoSecundario } from "../../services/prospectos.api";
 import type { Prospecto } from "../../types/prospecto.types";
+import { SECTORES } from "../../utils/sectores";
 
 // ── Datos de sector / perfil / plan sugerido ────────────────────────────────
-
-const SECTORES = [
-  { value: "construccion",           label: "Construcción" },
-  { value: "arquitectura_ingenieria",label: "Arquitectura e Ingeniería" },
-  { value: "manufactura_industria",  label: "Manufactura / Industria" },
-  { value: "comercio_retail",        label: "Comercio / Retail" },
-  { value: "comercio_mayorista",     label: "Comercio Mayorista" },
-  { value: "salud",                  label: "Salud" },
-  { value: "educacion",              label: "Educación" },
-  { value: "gastronomia_turismo",    label: "Gastronomía / Turismo" },
-  { value: "servicios_profesionales",label: "Servicios Profesionales" },
-  { value: "tecnologia",             label: "Tecnología / TI" },
-  { value: "transporte_logistica",   label: "Transporte / Logística" },
-  { value: "inmobiliaria",           label: "Inmobiliaria" },
-  { value: "agroindustria",          label: "Agroindustria / Agro" },
-  { value: "mineria_energia",        label: "Minería / Energía" },
-  { value: "seguridad",              label: "Seguridad / CCTV" },
-  { value: "otro",                   label: "Otro" },
-];
 
 const PERFILES_POR_SECTOR: Record<string, { value: string; label: string }[]> = {
   construccion:            [{ value: "construccion", label: "Constructora / Contratista" }, { value: "ferreteria_materiales", label: "Ferretería / Materiales" }],
@@ -194,6 +176,7 @@ const ESTADOS_LEAD = [
   { value: "suspension_temporal", label: "Suspensión temporal" },
   { value: "no_habido",           label: "No habido" },
   { value: "perdida",             label: "Venta perdida" },
+  { value: "venta_ganada",        label: "Venta ganada" },
 ];
 
 // ── Sistema de scoring de prioridad ─────────────────────────────────────────
@@ -284,6 +267,7 @@ const AUTO_CLASIFICACION: Record<string, string> = {
   ya_tiene_proveedor:   "descartado",
   suspension_temporal:  "descartado",
   perdida:              "descartado",
+  venta_ganada:         "cerrado",
 };
 
 const REGIONES = [

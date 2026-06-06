@@ -16,6 +16,9 @@ import { ModalRegistroMetrica }   from "../components/metricas/ModalRegistroMetr
 import { ModalEditarMetrica }     from "../components/metricas/ModalEditarMetrica";
 import { ImportarCSVMetrica }     from "../components/metricas/ImportarCSVMetrica";
 import { ModalImportarAPI }      from "../components/metricas/ModalImportarAPI";
+import { ProyeccionTab }          from "../components/metricas/ProyeccionTab";
+import { ComparativaTab }         from "../components/metricas/ComparativaTab";
+import { BenchmarksTab }          from "../components/metricas/BenchmarksTab";
 
 import { TableBulkActions }       from "../components/ui/TableBulkActions";
 
@@ -86,7 +89,7 @@ const FORM_INICIAL: FormMetrica = {
   notas:              "",
 };
 
-type TabPlataforma = Plataforma | "todas";
+type TabPlataforma = Plataforma | "todas" | "proyeccion" | "comparativa" | "benchmarks";
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 export default function MetricasPage() {
@@ -141,7 +144,7 @@ export default function MetricasPage() {
   // ── Métricas filtradas por tab de plataforma ─────────────────────────────────
   const metricasFiltradas = useMemo(
     () =>
-      tabPlataforma === "todas"
+      tabPlataforma === "todas" || tabPlataforma === "comparativa" || tabPlataforma === "proyeccion" || tabPlataforma === "benchmarks"
         ? metricas
         : metricas.filter((m) => m.plataforma === tabPlataforma),
     [metricas, tabPlataforma]
@@ -277,35 +280,46 @@ export default function MetricasPage() {
         <KpisMetricas metricas={metricasFiltradas} />
       )}
 
-      {/* ── Tabs Meta | Google | TikTok | Todas ── */}
+      {/* ── Tabs Meta | Google | TikTok | Todas | Proyección ── */}
       <TabsPlataforma
         activa={tabPlataforma}
         onChange={setTabPlataforma}
       />
 
-      {/* ── Resumen por plataforma (solo si hay empresa seleccionada) ── */}
-      {filtros.empresa && resumen.length > 0 && (
-        <ResumenPlataforma resumen={resumen} />
-      )}
+      {/* ── Tab Proyección ── */}
+      {tabPlataforma === "proyeccion" ? (
+        <ProyeccionTab metricas={metricas} empresa={filtros.empresa} />
+      ) : tabPlataforma === "comparativa" ? (
+        <ComparativaTab metricas={metricasFiltradas} empresa={filtros.empresa} />
+      ) : tabPlataforma === "benchmarks" ? (
+        <BenchmarksTab />
+      ) : (
+        <>
+          {/* ── Resumen por plataforma (solo si hay empresa seleccionada) ── */}
+          {filtros.empresa && resumen.length > 0 && (
+            <ResumenPlataforma resumen={resumen} />
+          )}
 
-      {/* ── Charts ── */}
-      {metricasFiltradas.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <MetricasLineChart metricas={metricasFiltradas} />
-          <MetricasBarChart  metricas={metricasFiltradas} />
-        </div>
-      )}
+          {/* ── Charts ── */}
+          {metricasFiltradas.length > 0 && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <MetricasLineChart metricas={metricasFiltradas} />
+              <MetricasBarChart  metricas={metricasFiltradas} />
+            </div>
+          )}
 
-      {/* ── Tabla ── */}
-      <TablaMetricas
-        metricas={metricasFiltradas}
-        seleccionados={seleccionados}
-        todosSeleccionados={todosSeleccionados}
-        onToggleUno={toggleUno}
-        onToggleTodos={toggleTodos}
-        onEditar={editar.abrir}
-        onBorrar={borrarMetrica}
-      />
+          {/* ── Tabla ── */}
+          <TablaMetricas
+            metricas={metricasFiltradas}
+            seleccionados={seleccionados}
+            todosSeleccionados={todosSeleccionados}
+            onToggleUno={toggleUno}
+            onToggleTodos={toggleTodos}
+            onEditar={editar.abrir}
+            onBorrar={borrarMetrica}
+          />
+        </>
+      )}
 
       {/* ── Modal registro manual ── */}
       {modal && (

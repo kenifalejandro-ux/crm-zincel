@@ -15,6 +15,14 @@ const CATEGORIAS: { value: CategoriaEgreso; label: string }[] = [
   { value: "subcontratos",            label: "Subcontratos" },
 ];
 
+const PROVEEDORES: Record<CategoriaEgreso, string[]> = {
+  publicidad_digital:      ["Meta Ads", "TikTok Ads", "Google Ads", "LinkedIn Ads", "YouTube Ads", "Pinterest Ads", "Twitter / X Ads"],
+  herramientas_saas:       ["Adobe Creative Cloud", "Canva", "Figma", "Semrush", "Make", "Zapier", "Notion", "HubSpot", "Buffer", "Hootsuite"],
+  herramientas_ia:         ["OpenAI (ChatGPT)", "Anthropic (Claude)", "Google (Gemini)", "xAI (Grok)", "Midjourney", "ElevenLabs", "Perplexity", "Runway", "Sora"],
+  infraestructura_digital: ["SG-Host", "Namecheap", "Cloudflare", "DigitalOcean", "AWS", "GoDaddy", "Hostinger", "Vercel", "Netlify"],
+  subcontratos:            ["Freelancer diseño gráfico", "Freelancer edición de video", "Freelancer desarrollo web", "Freelancer redacción", "Agencia externa", "Consultor estratégico"],
+};
+
 const FRECUENCIAS: { value: FrecuenciaEgreso; label: string }[] = [
   { value: "unico",   label: "Único" },
   { value: "mensual", label: "Mensual" },
@@ -78,7 +86,7 @@ export function ModalEditarEgreso({ egreso, guardando, error, onGuardar, onCerra
         <div>
           <label className={lbl}>Categoría</label>
           <select value={form.categoria}
-            onChange={(e) => set({ categoria: e.target.value as CategoriaEgreso })}
+            onChange={(e) => set({ categoria: e.target.value as CategoriaEgreso, proveedor: "" })}
             className={cls}>
             {CATEGORIAS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
@@ -93,9 +101,14 @@ export function ModalEditarEgreso({ egreso, guardando, error, onGuardar, onCerra
           </div>
           <div>
             <label className={lbl}>Proveedor</label>
-            <input type="text" value={form.proveedor}
+            <select value={form.proveedor}
               onChange={(e) => set({ proveedor: e.target.value })}
-              className={cls} placeholder="Opcional" />
+              className={cls}>
+              <option value="">— Selecciona proveedor —</option>
+              {PROVEEDORES[form.categoria].map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
           </div>
         </div>
 

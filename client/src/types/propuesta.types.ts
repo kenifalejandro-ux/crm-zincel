@@ -5,7 +5,6 @@ export type ServicioPropuesta =
   | "wordpress"
   | "diseño_marketing"
   | "redes_sociales"
-  | "publicidad_digital"
   | "erp"
   | "crm"
   | "otro";
@@ -37,6 +36,7 @@ export interface Propuesta {
   prospecto_id:    string;
   servicio:        ServicioPropuesta;
   descripcion:     string;
+  subcategoria?:   string | null;
   monto_propuesto: number;
   monto_cerrado?:  number | null;
   moneda:          Moneda;
@@ -46,6 +46,8 @@ export interface Propuesta {
   fecha_negociacion?:    string | null;
   fecha_cierre?:         string | null;
   notas?:                string;
+  notas_negociacion?:    string | null;
+  notas_cierre?:         string | null;
   motivo_cierre_perdido?: string | null;
   creado_en:       string;
   actualizado_en:  string;
@@ -54,6 +56,7 @@ export interface Propuesta {
 export interface FormPropuesta {
   servicio:              ServicioPropuesta;
   descripcion:           string;
+  subcategoria:          string;
   monto_propuesto:       string;
   monto_cerrado:         string;
   moneda:                Moneda;
@@ -63,6 +66,8 @@ export interface FormPropuesta {
   fecha_negociacion:     string;
   fecha_cierre:          string;
   notas:                 string;
+  notas_negociacion:     string;
+  notas_cierre:          string;
   motivo_cierre_perdido: string;
 }
 
@@ -71,7 +76,6 @@ export const LABEL_SERVICIO: Record<ServicioPropuesta, string> = {
   wordpress:          "WordPress",
   "diseño_marketing": "Diseño & Marketing",
   redes_sociales:     "Redes Sociales",
-  publicidad_digital: "Publicidad Digital",
   erp:                "ERP",
   crm:                "CRM",
   otro:               "Otro",

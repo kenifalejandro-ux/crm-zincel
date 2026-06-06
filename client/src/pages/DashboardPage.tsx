@@ -25,6 +25,7 @@ import { BrochuresChart }        from "../components/dashboard/BrochuresChart";
 import { TasaConversion }        from "../components/dashboard/TasaConversion";
 import { WebResumenChart }       from "../components/dashboard/WebResumenChart";
 import { ResumenEstadosPropuestas } from "../components/propuestas/ResumenEstadosPropuestas";
+import { VentasGanadasCharts }     from "../components/dashboard/VentasGanadasCharts";
 
 const MESES_FULL  = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const MESES_CORTO = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
@@ -512,6 +513,9 @@ export default function DashboardPage() {
         </div>
       )}
 
+
+      {/* Fila — Ventas: ganadas vs perdidas por empresa, servicio y categoría */}
+      <VentasGanadasCharts />
 
       {/* Fila — Estado de leads (respeta el filtro global del dashboard) */}
       <DashboardEstadoLeads fechaDesde={calcFechaDesde()} fechaHasta={calcFechaHasta()} />

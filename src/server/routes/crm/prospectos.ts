@@ -420,3 +420,56 @@ prospectosRouter.post("/importar", async (req, res) => {
     res.status(500).json({ ok: false, message: err.message });
   }
 });
+
+// PATCH /api/crm/prospectos/:id/calidad — actualiza calidad_lead
+prospectosRouter.patch("/:id/calidad", async (req, res) => {
+  const { calidad_lead } = req.body;
+  if (!["sin_calificar","calificado","no_calificado"].includes(calidad_lead)) {
+    return res.status(400).json({ ok: false, message: "calidad_lead inválido" });
+  }
+  try {
+    const { pool } = await import("../../config/database");
+    await pool.query(
+      `UPDATE prospectos SET calidad_lead = $1, actualizado_en = NOW() WHERE id = $2`,
+      [calidad_lead, req.params.id]
+    );
+    res.json({ ok: true, calidad_lead });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /api/crm/prospectos/por-campana?fuente=facebook — leads agrupados por campaña con calidad y velocidad
+prospectosRouter.get("/por-campana", async (req, res) => {
+  const fuente = (req.query.fuente as string) || "facebook";
+  try {
+    const { pool } = await import("../../config/database");
+    const { rows } = await pool.query(
+      `SELECT
+         COALESCE(p.campana_origen, 'Sin campaña')                        AS campana_origen,
+         COUNT(*)                                                           AS total,
+         COUNT(*) FILTER (WHERE p.calidad_lead = 'calificado')             AS calificados,
+         COUNT(*) FILTER (WHERE p.calidad_lead = 'no_calificado')          AS no_calificados,
+         COUNT(*) FILTER (WHERE p.calidad_lead = 'sin_calificar')          AS sin_calificar,
+         COUNT(*) FILTER (WHERE ll.primera_llamada IS NULL)                AS sin_contactar,
+         ROUND(AVG(
+           EXTRACT(EPOCH FROM (ll.primera_llamada - p.creado_en)) / 60
+         ) FILTER (WHERE ll.primera_llamada IS NOT NULL))::int              AS min_promedio_respuesta,
+         COUNT(*) FILTER (
+           WHERE ll.primera_llamada IS NOT NULL
+           AND EXTRACT(EPOCH FROM (ll.primera_llamada - p.creado_en)) / 60 <= 5
+         )                                                                  AS contactados_5min
+       FROM prospectos p
+       LEFT JOIN LATERAL (
+         SELECT MIN(fecha) AS primera_llamada FROM llamadas l WHERE l.prospecto_id = p.id
+       ) ll ON true
+       WHERE p.fuente = $1 AND p.eliminado = false
+       GROUP BY p.campana_origen
+       ORDER BY total DESC`,
+      [fuente]
+    );
+    res.json({ ok: true, data: rows });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});

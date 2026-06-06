@@ -117,6 +117,7 @@ export function TablaPropuestas({ propuestas, onEditar, onEliminar }: Props) {
         <thead>
           <tr className="border-b border-gray-100 bg-gray-50">
             <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase w-[120px]">Servicio</th>
+            <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase w-[110px]">Categoría</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase w-[150px]">Descripción</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase w-[110px]">Propuesto</th>
             <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase w-[110px]">Cerrado</th>
@@ -128,7 +129,7 @@ export function TablaPropuestas({ propuestas, onEditar, onEliminar }: Props) {
         <tbody className="divide-y divide-gray-50">
           {propuestas.length === 0 ? (
             <tr>
-              <td colSpan={7} className="text-center py-10 text-xs text-zinc-600">
+              <td colSpan={8} className="text-center py-10 text-xs text-zinc-600">
                 Sin propuestas registradas
               </td>
             </tr>
@@ -141,6 +142,12 @@ export function TablaPropuestas({ propuestas, onEditar, onEliminar }: Props) {
               <tr key={p.id} onClick={() => setVista(p)} className="hover:bg-gray-50 cursor-pointer">
                 <td className="px-5 py-3.5 font-medium text-zinc-800">
                   {LABEL_SERVICIO[p.servicio as keyof typeof LABEL_SERVICIO] ?? p.servicio}
+                </td>
+                <td className="px-5 py-3.5 text-zinc-700">
+                  {p.subcategoria
+                    ? <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium bg-zinc-100 text-zinc-600">{p.subcategoria}</span>
+                    : <span className="text-zinc-400">—</span>
+                  }
                 </td>
                 <td className="px-5 py-3.5 text-zinc-700 max-w-[160px] truncate">
                   {p.descripcion}

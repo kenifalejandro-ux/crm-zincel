@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { Calendar, Clock, Activity, Phone, StickyNote, AlertCircle, Users, CheckCircle2 } from "lucide-react";
+import { Calendar, Clock, Activity, Phone, StickyNote, AlertCircle, Users, CheckCircle2, Hash } from "lucide-react";
 import { Modal }  from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { crearLlamada } from "../../services/llamadas.api";
@@ -25,6 +25,7 @@ const RESULTADOS = [
   { value: "suspension_temporal", label: "Suspensión temporal" },
   { value: "no_habido",           label: "No habido" },
   { value: "perdida",             label: "Venta perdida" },
+  { value: "venta_ganada",        label: "Venta ganada" },
 ];
 
 const MOTIVOS_DESCARTE = [
@@ -46,6 +47,8 @@ const ACCIONES_ACORDADAS = [
 
 const PIDE_MOTIVO  = ["no_interesado", "ya_tiene_proveedor"];
 const PIDE_ACCION  = ["interesado", "solicita_informacion", "volver_a_llamar", "ocupado_en_reunion", "prometio_llamar"];
+// Estados en los que no tiene sentido registrar hora de fin (no hubo contacto real)
+const SIN_HORA_FIN = ["", "no_contesta", "buzon_de_voz", "fuera_de_servicio", "baja_de_oficio", "suspension_temporal", "no_habido", "venta_ganada"];
 
 const getNowTime = () => {
   const now = new Date();
@@ -88,16 +91,18 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
     motivo_no_interes: "",
     accion_acordada:   "",
     notas:             "",
+    intentos:          1,
   });
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState<string | null>(null);
 
   const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
   const idEfectivo = prospectoId ?? prospectoSel;
+  const horaFinDesactivada = SIN_HORA_FIN.includes(form.resultado);
 
   function reset() {
     setProspectoSel("");
-    setForm({ fecha: fechaHoy(), hora_inicio: getNowTime(), hora_fin: "", canal: "llamada", contestada: false, resultado: "", motivo_no_interes: "", accion_acordada: "", notas: "" });
+    setForm({ fecha: fechaHoy(), hora_inicio: getNowTime(), hora_fin: "", canal: "llamada", contestada: false, resultado: "", motivo_no_interes: "", accion_acordada: "", notas: "", intentos: 1 });
     setError(null);
   }
 
@@ -116,6 +121,7 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
         motivo_no_interes: PIDE_MOTIVO.includes(form.resultado) ? (form.motivo_no_interes || undefined) : undefined,
         accion_acordada:   (form.contestada && PIDE_ACCION.includes(form.resultado)) ? (form.accion_acordada || undefined) : undefined,
         notas:             form.notas             || undefined,
+        intentos:          form.intentos,
       });
       onGuardado?.();
       reset();
@@ -162,9 +168,17 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
             <Field icon={<Clock size={14}/>} label="Hora inicio">
               <input type="time" value={form.hora_inicio} onChange={e => set("hora_inicio", e.target.value)} className={fi} />
             </Field>
-            <Field icon={<Clock size={14}/>} label="Hora fin (opcional)">
-              <input type="time" value={form.hora_fin} onChange={e => set("hora_fin", e.target.value)} className={fi} />
-            </Field>
+            <div style={horaFinDesactivada ? { opacity: 0.35, pointerEvents: "none" } : {}}>
+              <Field icon={<Clock size={14}/>} label={horaFinDesactivada ? "Hora fin (N/A)" : "Hora fin (opcional)"}>
+                <input
+                  type="time"
+                  value={form.hora_fin}
+                  onChange={e => set("hora_fin", e.target.value)}
+                  disabled={horaFinDesactivada}
+                  className={fi}
+                />
+              </Field>
+            </div>
           </>}
         </div>
 
@@ -174,7 +188,12 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
             <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
               <Activity size={11} className="text-yellow-500"/>Estado del lead
             </label>
-            <select value={form.resultado} onChange={e => { set("resultado", e.target.value); set("motivo_no_interes", ""); }} className={sel}>
+            <select value={form.resultado} onChange={e => {
+              const v = e.target.value;
+              set("resultado", v);
+              set("motivo_no_interes", "");
+              if (SIN_HORA_FIN.includes(v)) set("hora_fin", "");
+            }} className={sel}>
               <option value="">Sin resultado</option>
               {RESULTADOS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
             </select>
@@ -210,6 +229,40 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
               <Phone size={12} className="text-yellow-500"/>¿Fue contestada?
             </span>
           </label>
+
+          <div>
+            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+              <Hash size={11} className="text-yellow-500"/>Intentos de llamada
+            </label>
+            <div className="flex items-center gap-2">
+              {[1,2,3,4,5].map(n => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => set("intentos", n)}
+                  className={`w-9 h-9 rounded-xl text-xs font-bold border transition-all ${
+                    form.intentos === n
+                      ? "bg-brand border-brand text-zinc-900"
+                      : "bg-zinc-900 border-zinc-600 text-zinc-400 hover:border-brand/50 hover:text-zinc-200"
+                  }`}
+                >
+                  {n}
+                </button>
+              ))}
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={form.intentos > 5 ? form.intentos : ""}
+                placeholder={form.intentos > 5 ? String(form.intentos) : "+5"}
+                onChange={e => {
+                  const v = parseInt(e.target.value, 10);
+                  if (!isNaN(v) && v >= 1 && v <= 20) set("intentos", v);
+                }}
+                className="w-14 h-9 rounded-xl text-xs text-center bg-zinc-900 border border-zinc-600 text-zinc-300 focus:outline-none focus:border-brand/50 placeholder:text-zinc-500"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Notas */}

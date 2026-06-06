@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const SERVICIOS = [
   "desarrollo_web", "wordpress", "diseño_marketing", "redes_sociales",
-  "publicidad_digital", "erp", "crm", "otro",
+  "erp", "crm", "otro",
 ] as const;
 
 const ESTADOS = [
@@ -15,6 +15,7 @@ export const crearPropuestaSchema = z.object({
   prospecto_id:    z.string().uuid(),
   servicio:        z.enum(SERVICIOS),
   descripcion:     z.string().min(1, "La descripción es obligatoria").max(300),
+  subcategoria:    z.string().max(100).optional().nullable(),
   monto_propuesto: z.number().min(0, "El monto no puede ser negativo"),
   monto_cerrado:   z.number().min(0).optional().nullable(),
   moneda:          z.enum(["PEN", "USD"]).default("PEN"),
@@ -24,6 +25,8 @@ export const crearPropuestaSchema = z.object({
   fecha_negociacion:  z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
   fecha_cierre:       z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
   notas:                 z.string().optional(),
+  notas_negociacion:     z.string().optional().nullable(),
+  notas_cierre:          z.string().optional().nullable(),
   motivo_cierre_perdido: z.string().optional().nullable(),
 });
 

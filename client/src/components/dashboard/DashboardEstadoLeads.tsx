@@ -22,7 +22,8 @@ const GRUPOS = [
       { key: "prometio_llamar",      label: "Prometió llamar",      dot: "bg-purple-400"  },
       { key: "no_interesado",        label: "No interesado",        dot: "bg-red-400"     },
       { key: "ya_tiene_proveedor",   label: "Tiene proveedor",      dot: "bg-indigo-500"  },
-      { key: "perdida",              label: "Venta perdida",        dot: "bg-red-600"     },
+      { key: "perdida",              label: "Venta perdida",        dot: "bg-red-600"      },
+      { key: "venta_ganada",         label: "Venta ganada",         dot: "bg-emerald-500"  },
     ],
   },
   {

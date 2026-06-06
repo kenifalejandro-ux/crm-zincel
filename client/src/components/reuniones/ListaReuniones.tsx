@@ -104,18 +104,20 @@ export function ListaReuniones({
                 <div className="space-y-1">
                   <p className="font-medium text-zinc-800">
                     {new Date(r.fecha_hora).toLocaleDateString("es-PE", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
+                      day: "numeric", month: "short", year: "numeric",
                     })}
                   </p>
-
                   <p className="text-xs text-zinc-600">
-                    {new Date(r.fecha_hora).toLocaleTimeString("es-PE", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {new Date(r.fecha_hora).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
+                    {r.hora_fin && <> – {r.hora_fin.slice(0, 5)}</>}
                   </p>
+                  {r.duracion_minutos != null && r.duracion_minutos > 0 && (
+                    <span className="inline-block text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                      {r.duracion_minutos >= 60
+                        ? `${Math.floor(r.duracion_minutos / 60)}h${r.duracion_minutos % 60 > 0 ? ` ${r.duracion_minutos % 60}m` : ""}`
+                        : `${r.duracion_minutos}m`}
+                    </span>
+                  )}
                 </div>
               </td>
 

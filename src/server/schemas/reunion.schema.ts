@@ -11,6 +11,7 @@ export const crearReunionSchema = z.object({
   enlace:       z.string().url("URL inválida").max(500).optional().or(z.literal("")),
   estado:       z.enum(["programada","realizada","cancelada","reprogramada","en_proceso"]).default("programada"),
   notas:        z.string().optional(),
+  hora_fin:     z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:MM").optional().or(z.literal("")).transform(v => v === "" ? undefined : v),
 });
 
 export const actualizarReunionSchema = crearReunionSchema.partial();

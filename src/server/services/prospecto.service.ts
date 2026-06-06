@@ -594,6 +594,7 @@ export async function resumenProspectosService(fechaDesde?: string, fechaHasta?:
         COUNT(*) FILTER (WHERE estado_lead::text = 'suspension_temporal')::int   AS suspension_temporal,
         COUNT(*) FILTER (WHERE estado_lead::text = 'no_habido')::int             AS no_habido,
         COUNT(*) FILTER (WHERE estado_lead::text = 'perdida')::int               AS perdida,
+        COUNT(*) FILTER (WHERE estado_lead::text = 'venta_ganada')::int         AS venta_ganada,
         COUNT(*) FILTER (WHERE estado_lead::text IN (
           'interesado','no_interesado','volver_a_llamar','ocupado_en_reunion','prometio_llamar','ya_tiene_proveedor'
         ))::int  AS leads_contactados,
@@ -1041,13 +1042,13 @@ export async function scoreLeadsService(
       ))::int AS score,
       p.empresa,
       p.etapa_pipeline,
+      p.estado_lead::text AS estado_lead,
       COALESCE((CURRENT_DATE - p.fecha_primer_contacto)::int, 0) AS dias_en_pipeline
     FROM prospectos p
     LEFT JOIN act7     ON act7.prospecto_id = p.id
     LEFT JOIN act30    ON act30.prospecto_id = p.id
     LEFT JOIN prop_data pr ON pr.prospecto_id = p.id
-    WHERE p.etapa_pipeline NOT IN ('cerrado_ganado','perdido')
-      AND p.eliminado = false
+    WHERE p.eliminado = false
       ${filtroProspectos}
     ORDER BY score DESC
   `);
@@ -1057,6 +1058,7 @@ export async function scoreLeadsService(
     score:           r.score,
     empresa:         r.empresa as string,
     etapa_pipeline:  r.etapa_pipeline as string,
+    estado_lead:     r.estado_lead as string,
     dias_en_pipeline: r.dias_en_pipeline as number,
     nivel: (r.score >= 75 ? "caliente"
           : r.score >= 50 ? "activo"

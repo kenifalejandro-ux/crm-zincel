@@ -14,51 +14,49 @@ export function fechaHoy(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-/** Calcula el rango de fechas ISO a partir de un valor de filtro y un período */
+/** Calcula el rango de fechas ISO a partir de un valor de filtro y un período.
+ *  Usa medianoche local (no UTC) para que reuniones/llamadas a última hora del día
+ *  queden dentro del rango correcto independientemente del offset del servidor.
+ */
 export function calcularRangoFecha(
   fecha: string,
   periodo: "hoy" | "dia" | "semana" | "mes" | "anio"
 ): { fecha_inicio?: string; fecha_fin?: string } {
   if (periodo === "hoy") {
     const d = new Date();
-    const y = d.getFullYear();
-    const m = d.getMonth() + 1;
-    const day = d.getDate();
-    return {
-      fecha_inicio: `${y}-${String(m).padStart(2,"0")}-${String(day).padStart(2,"0")}T00:00:00.000Z`,
-      fecha_fin:    new Date(Date.UTC(y, m - 1, day + 1)).toISOString(),
-    };
+    const inicio = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+    const fin    = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, 0);
+    return { fecha_inicio: inicio.toISOString(), fecha_fin: fin.toISOString() };
   }
   if (periodo === "anio") {
     const year = parseInt(fecha);
     if (!year) return {};
     return {
-      fecha_inicio: `${year}-01-01T00:00:00.000Z`,
-      fecha_fin:    `${year + 1}-01-01T00:00:00.000Z`,
+      fecha_inicio: new Date(year,     0, 1, 0, 0, 0, 0).toISOString(),
+      fecha_fin:    new Date(year + 1, 0, 1, 0, 0, 0, 0).toISOString(),
     };
   }
   if (periodo === "mes") {
     const [year, month] = fecha.split("-").map(Number);
     if (!year || !month) return {};
-    const inicio = `${year}-${String(month).padStart(2, "0")}-01T00:00:00.000Z`;
-    const finMes = month === 12
-      ? `${year + 1}-01-01T00:00:00.000Z`
-      : `${year}-${String(month + 1).padStart(2, "0")}-01T00:00:00.000Z`;
-    return { fecha_inicio: inicio, fecha_fin: finMes };
+    return {
+      fecha_inicio: new Date(year, month - 1, 1, 0, 0, 0, 0).toISOString(),
+      fecha_fin:    new Date(year, month,     1, 0, 0, 0, 0).toISOString(),
+    };
   }
   if (!fecha) return {};
   const [y, m, d] = fecha.split("-").map(Number);
   if (periodo === "dia") {
     return {
-      fecha_inicio: `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}T00:00:00.000Z`,
-      fecha_fin:    new Date(Date.UTC(y, m - 1, d + 1)).toISOString(),
+      fecha_inicio: new Date(y, m - 1, d,     0, 0, 0, 0).toISOString(),
+      fecha_fin:    new Date(y, m - 1, d + 1, 0, 0, 0, 0).toISOString(),
     };
   }
-  // semana
-  const dia    = new Date(Date.UTC(y, m - 1, d));
-  const ajuste = (dia.getUTCDay() + 6) % 7;
-  const ini    = new Date(Date.UTC(y, m - 1, d - ajuste));
-  const fin    = new Date(Date.UTC(y, m - 1, d - ajuste + 7));
+  // semana — lunes como primer día
+  const dia    = new Date(y, m - 1, d);
+  const ajuste = (dia.getDay() + 6) % 7;
+  const ini    = new Date(y, m - 1, d - ajuste,     0, 0, 0, 0);
+  const fin    = new Date(y, m - 1, d - ajuste + 7, 0, 0, 0, 0);
   return { fecha_inicio: ini.toISOString(), fecha_fin: fin.toISOString() };
 }
 

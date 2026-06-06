@@ -11,6 +11,7 @@ export interface Llamada {
   motivo_no_interes?: string;
   accion_acordada?:  string;
   notas?:            string;
+  intentos?:         number;
   creado_por?:       string;
   creado_en:         string;
 }
@@ -25,4 +26,5 @@ export interface CrearLlamadaPayload {
   motivo_no_interes?: string;
   accion_acordada?:  string;
   notas?:            string;
+  intentos?:         number;
 }

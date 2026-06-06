@@ -6,11 +6,22 @@ import type { CrearReunionInput, ActualizarReunionInput } from "../schemas/reuni
 import { registrarActividad } from "./activityLog.service";
 
 export async function crearReunionService(input: CrearReunionInput, usuarioId: string) {
+  let duracion_minutos: number | null = null;
+  if (input.hora_fin && input.fecha_hora) {
+    const inicio = new Date(input.fecha_hora);
+    const [hFin, mFin] = input.hora_fin.split(":").map(Number);
+    const fin = new Date(inicio);
+    fin.setHours(hFin, mFin, 0, 0);
+    const diff = Math.round((fin.getTime() - inicio.getTime()) / 60000);
+    if (diff > 0 && diff < 720) duracion_minutos = diff;
+  }
+
   const result = await pool.query(
-    `INSERT INTO reuniones (prospecto_id, titulo, fecha_hora, modalidad, enlace, estado, notas, creado_por)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+    `INSERT INTO reuniones (prospecto_id, titulo, fecha_hora, hora_fin, duracion_minutos, modalidad, enlace, estado, notas, creado_por)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
     [
       input.prospecto_id, input.titulo, input.fecha_hora,
+      input.hora_fin ?? null, duracion_minutos,
       input.modalidad ?? "google_meet", input.enlace,
       input.estado ?? "programada", input.notas, usuarioId,
     ]
@@ -69,8 +80,30 @@ export async function obtenerReunionesService(filtros: {
   return result.rows;
 }
 
-export async function actualizarReunionService(id: string, input: ActualizarReunionInput) {
-  const campos = Object.keys(input).filter(k => (input as any)[k] !== undefined);
+export async function actualizarReunionService(id: string, input: ActualizarReunionInput & { hora_fin?: string }) {
+  // Normalizar hora_fin: string vacío → null explícito
+  const horaFinValida = input.hora_fin && /^\d{2}:\d{2}$/.test(input.hora_fin) ? input.hora_fin : null;
+  if ("hora_fin" in input) {
+    (input as any).hora_fin = horaFinValida;
+  }
+
+  // Recalcular duración si hay hora_fin válida
+  if (horaFinValida) {
+    const fechaRow = await pool.query(`SELECT fecha_hora FROM reuniones WHERE id = $1`, [id]);
+    if (fechaRow.rows[0]) {
+      const fechaBase = input.fecha_hora ? new Date(input.fecha_hora) : new Date(fechaRow.rows[0].fecha_hora);
+      const [hFin, mFin] = horaFinValida.split(":").map(Number);
+      const fin = new Date(fechaBase);
+      fin.setHours(hFin, mFin, 0, 0);
+      const diff = Math.round((fin.getTime() - fechaBase.getTime()) / 60000);
+      (input as any).duracion_minutos = diff > 0 && diff < 720 ? diff : null;
+    }
+  } else if ("hora_fin" in input) {
+    (input as any).duracion_minutos = null;
+  }
+
+  const CAMPOS_PERMITIDOS = ["titulo", "fecha_hora", "hora_fin", "duracion_minutos", "modalidad", "enlace", "estado", "notas"];
+  const campos = Object.keys(input).filter(k => CAMPOS_PERMITIDOS.includes(k) && (input as any)[k] !== undefined);
   if (campos.length === 0) throw new Error("No hay campos para actualizar");
 
   const sets = campos.map((campo, i) => `${campo} = $${i + 2}`).join(", ");

@@ -12,6 +12,7 @@ import { metricasRouter }       from "./metricas";
 import { configuracionRouter }  from "./configuracion";
 import { propuestasRouter }     from "./propuestas";
 import { metaAdsRouter }           from "./metaAds";
+import { metaCuentasRouter }       from "./metaCuentas";
 import { tiktokAdsRouter }         from "./tiktokAds";
 import { plataformaCuentasRouter } from "./plataformaCuentas";
 import { tareasRouter }            from "./tareas";
@@ -21,6 +22,9 @@ import { activityLogsRouter }      from "./activityLogs";
 import { notificacionesRouter }    from "./notificaciones";
 import { inicioRouter }            from "./inicio";
 import { okrRouter }               from "./okr";
+import { jornadaRouter }           from "./jornada";
+import { resultadosRouter }        from "./resultados";
+import { benchmarksRouter }        from "./benchmarks";
 
 export function createCrmRouter(): Router {
   const router = Router();
@@ -36,6 +40,7 @@ export function createCrmRouter(): Router {
   router.use("/configuracion", configuracionRouter);
   router.use("/propuestas",    propuestasRouter);
   router.use("/meta-ads",          metaAdsRouter);
+  router.use("/meta-cuentas",      metaCuentasRouter);
   router.use("/tiktok-ads",        tiktokAdsRouter);
   router.use("/plataforma-cuentas", plataformaCuentasRouter);
   router.use("/tareas",            tareasRouter);
@@ -45,6 +50,9 @@ export function createCrmRouter(): Router {
   router.use("/notificaciones",    notificacionesRouter);
   router.use("/inicio",            inicioRouter);
   router.use("/okr",               okrRouter);
+  router.use("/jornada",           jornadaRouter);
+  router.use("/resultados",        resultadosRouter);
+  router.use("/benchmarks",        benchmarksRouter);
 
   return router;
 }

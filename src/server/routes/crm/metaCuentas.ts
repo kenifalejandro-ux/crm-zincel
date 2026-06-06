@@ -3,16 +3,43 @@
 import { Router } from "express";
 import { authMiddleware } from "../../shared/middlewares/auth.middleware";
 import { validate } from "../../middleware/validate";
-import { MetaCuentaSchema } from "../../schemas/metaCuentas.schema";
+import { MetaCuentaSchema, MetaProyeccionSchema } from "../../schemas/metaCuentas.schema";
 import {
   listarMetaCuentas,
   crearMetaCuenta,
   actualizarMetaCuenta,
   eliminarMetaCuenta,
+  obtenerProyeccionConfig,
+  guardarProyeccionConfig,
 } from "../../services/metaCuentas.service";
 
 export const metaCuentasRouter = Router();
 metaCuentasRouter.use(authMiddleware);
+
+// Rutas específicas ANTES de las rutas con parámetro /:id
+// GET /api/crm/meta-cuentas/proyeccion?empresa=X
+metaCuentasRouter.get("/proyeccion", async (req, res) => {
+  const empresa = req.query.empresa as string;
+  if (!empresa) return res.status(400).json({ ok: false, message: "Parámetro empresa requerido" });
+  try {
+    const data = await obtenerProyeccionConfig(empresa);
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// PUT /api/crm/meta-cuentas/proyeccion
+metaCuentasRouter.put("/proyeccion", async (req, res) => {
+  const parsed = MetaProyeccionSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ ok: false, errors: parsed.error.flatten() });
+  try {
+    const data = await guardarProyeccionConfig(parsed.data);
+    res.json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
 
 metaCuentasRouter.get("/", async (_req, res) => {
   try {

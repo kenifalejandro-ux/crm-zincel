@@ -73,15 +73,16 @@ async function sincronizarEtapaPorPropuestas(prospectoId: string, query: QueryFn
 export async function crearPropuestaService(input: CrearPropuestaInput, usuarioId: string) {
   const result = await pool.query(
     `INSERT INTO propuestas
-       (prospecto_id, servicio, descripcion, monto_propuesto, monto_cerrado,
+       (prospecto_id, servicio, descripcion, subcategoria, monto_propuesto, monto_cerrado,
         moneda, tipo_cambio, estado, fecha_propuesta, fecha_cierre, notas,
-        motivo_cierre_perdido, creado_por)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+        notas_negociacion, notas_cierre, motivo_cierre_perdido, creado_por)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
      RETURNING *`,
     [
       input.prospecto_id,
       input.servicio,
       input.descripcion,
+      input.subcategoria ?? null,
       input.monto_propuesto,
       input.monto_cerrado ?? null,
       input.moneda ?? "PEN",
@@ -90,6 +91,8 @@ export async function crearPropuestaService(input: CrearPropuestaInput, usuarioI
       input.fecha_propuesta,
       input.fecha_cierre ?? null,
       input.notas ?? null,
+      input.notas_negociacion ?? null,
+      input.notas_cierre ?? null,
       input.motivo_cierre_perdido ?? null,
       usuarioId,
     ]

@@ -64,6 +64,7 @@ export const TablaMetricas = ({
                 <th className="px-4 py-3 text-right">Clics</th>
                 <th className="px-4 py-3 text-right">CTR%</th>
                 <th className="px-4 py-3 text-right">ROAS</th>
+                <th className="px-4 py-3 text-right">CPL</th>
                 <th className="px-4 py-3 text-right">CPA</th>
                 <th className="px-4 py-3 text-left">Período</th>
                 <th className="px-4 py-3"></th>
@@ -131,6 +132,12 @@ export const TablaMetricas = ({
 
                   <td className="px-4 py-3 text-right">
                     S/ {Number(m.cpa).toLocaleString("es-PE")}
+                  </td>
+
+                  <td className="px-4 py-3 text-right text-zinc-400">
+                    {Number(m.conversiones) > 0
+                      ? `S/ ${(Number(m.gasto) / Number(m.conversiones)).toLocaleString("es-PE", { maximumFractionDigits: 0 })}`
+                      : "—"}
                   </td>
 
                   <td className="px-4 py-3 text-zinc-700">

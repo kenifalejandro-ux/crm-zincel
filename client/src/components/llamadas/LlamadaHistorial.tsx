@@ -78,6 +78,11 @@ export function LlamadaHistorial({ prospectoId, onEditar, onEliminar, refetch }:
                   {LABELS[l.resultado] ?? l.resultado}
                 </Badge>
               )}
+              {l.intentos != null && l.intentos > 1 && (
+                <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                  {l.intentos} intentos
+                </span>
+              )}
               <span className="flex items-center gap-1 text-xs text-zinc-700">
                 <Clock size={11} />
                 {new Date(l.fecha).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}

@@ -11,6 +11,9 @@ import { useAuth } from "../context/AuthContext";
 import { getResumenInicio } from "../services/inicio.api";
 import type { ResumenInicio } from "../services/inicio.api";
 import { ProspectoForm } from "../components/prospectos/ProspectoForm";
+import { ProspectoDetalle } from "../components/prospectos/ProspectoDetalle";
+import { getProspecto } from "../services/prospectos.api";
+import type { Prospecto } from "../types/prospecto.types";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -62,10 +65,23 @@ export default function InicioPage() {
   const [cargando,       setCargando]       = useState(true);
   const [seleccionado,   setSeleccionado]   = useState<string>("leads");
   const [modalProspecto, setModalProspecto] = useState(false);
+  const [detalleProspecto, setDetalleProspecto] = useState<Prospecto | null>(null);
+
+  async function abrirDetalle(id: string) {
+    try {
+      const p = await getProspecto(id);
+      setDetalleProspecto(p);
+    } catch { /* silencioso */ }
+  }
 
   useEffect(() => {
     getResumenInicio()
-      .then(d => { setData(d); })
+      .then(d => {
+        setData(d);
+        // Auto-seleccionar reuniones si hay alguna hoy con estado programada o en proceso
+        const proxima = d.reuniones_hoy.find((r: any) => r.estado === "programada" || r.estado === "en_proceso");
+        if (proxima) setSeleccionado("reuniones");
+      })
       .catch(console.error)
       .finally(() => setCargando(false));
   }, []);
@@ -99,7 +115,7 @@ export default function InicioPage() {
             {data?.leads_calientes.map(lead => (
               <div
                 key={lead.id}
-                onClick={() => navigate("/prospectos")}
+                onClick={() => abrirDetalle(lead.id)}
                 className="flex items-center justify-between p-3 rounded-xl bg-white/60 hover:bg-white border border-white/80 cursor-pointer transition group"
               >
                 <div className="min-w-0">
@@ -128,11 +144,16 @@ export default function InicioPage() {
       id:    "reuniones",
       icon:  <CalendarDays size={16} />,
       label: "Reuniones de hoy",
-      sub:   data
-        ? data.reuniones_hoy.length > 0
-          ? `${data.reuniones_hoy.length} reunión${data.reuniones_hoy.length > 1 ? "es" : ""} programada${data.reuniones_hoy.length > 1 ? "s" : ""}`
-          : "Sin reuniones programadas hoy"
-        : "Cargando...",
+      sub: (() => {
+        if (!data) return "Cargando...";
+        if (data.reuniones_hoy.length === 0) return "Sin reuniones programadas hoy";
+        const proxima = (data.reuniones_hoy as any[]).find((r: any) => r.estado === "programada" || r.estado === "en_proceso");
+        if (proxima) {
+          const hora = new Date(proxima.fecha_hora).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
+          return `Próxima: ${proxima.empresa} a las ${hora}`;
+        }
+        return `${data.reuniones_hoy.length} reunión${data.reuniones_hoy.length > 1 ? "es" : ""} hoy`;
+      })(),
       badge: data?.reuniones_hoy.length || undefined,
       action: () => setSeleccionado("reuniones"),
       detail: {
@@ -141,20 +162,61 @@ export default function InicioPage() {
         cta:         "Ir a Reuniones",
         onCta:       () => navigate("/reuniones"),
         extra: data?.reuniones_hoy.length === 0 ? (
-          <p className="text-sm text-zinc-400 text-center py-4">No hay reuniones hoy</p>
+          <div className="flex flex-col items-center justify-center py-8 gap-2">
+            <CalendarDays size={32} className="text-zinc-200" />
+            <p className="text-sm text-zinc-400">No hay reuniones programadas hoy</p>
+          </div>
         ) : (
-          <div className="space-y-2 mt-3">
-            {data?.reuniones_hoy.map(r => {
-              const hora = new Date(r.fecha_hora).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
+          <div className="space-y-3 mt-2">
+            {data?.reuniones_hoy.map((r: any) => {
+              const hora    = new Date(r.fecha_hora).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
+              const horaFin = r.hora_fin ? r.hora_fin.slice(0, 5) : null;
+              const ahora   = new Date();
+              const inicioMs = new Date(r.fecha_hora).getTime();
+              const diffMin  = Math.round((inicioMs - ahora.getTime()) / 60000);
+              const esPronto = diffMin > 0 && diffMin <= 30;
+              const enCurso  = r.estado === "en_proceso" || (diffMin <= 0 && r.estado !== "realizada");
+              const MODAL_ICON: Record<string, string> = {
+                zoom: "Zoom", google_meet: "Meet", teams: "Teams",
+                presencial: "Presencial", llamada: "Llamada", whatsapp_video: "WhatsApp",
+              };
               return (
-                <div key={r.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/60 border border-white/80">
-                  <div className="shrink-0 w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center">
-                    <span className="text-xs font-bold text-blue-600">{hora}</span>
+                <div
+                  key={r.id}
+                  onClick={() => navigate("/reuniones")}
+                  className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition group
+                    ${enCurso  ? "bg-blue-50 border-blue-200 hover:bg-blue-100" :
+                      esPronto ? "bg-amber-50 border-amber-200 hover:bg-amber-100" :
+                                 "bg-white/70 border-white/80 hover:bg-white"}`}
+                >
+                  <div className={`shrink-0 w-14 rounded-xl flex flex-col items-center justify-center py-2 border
+                    ${enCurso  ? "bg-blue-600 border-blue-700 text-white" :
+                      esPronto ? "bg-amber-500 border-amber-600 text-white" :
+                                 "bg-zinc-100 border-zinc-200 text-zinc-700"}`}>
+                    <span className="text-[11px] font-bold leading-none">{hora}</span>
+                    {horaFin && <span className="text-[9px] mt-0.5 opacity-75">– {horaFin}</span>}
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-zinc-800 truncate">{r.empresa}</p>
-                    <p className="text-[11px] text-zinc-500 truncate">{r.titulo}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-bold text-zinc-800 truncate group-hover:text-brand transition">
+                        {r.empresa}
+                      </p>
+                      {enCurso && (
+                        <span className="text-[10px] font-bold bg-blue-600 text-white px-1.5 py-0.5 rounded-full">EN CURSO</span>
+                      )}
+                      {esPronto && !enCurso && (
+                        <span className="text-[10px] font-bold bg-amber-500 text-white px-1.5 py-0.5 rounded-full">EN {diffMin}min</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-zinc-600 mt-0.5 truncate">{r.titulo}</p>
+                    {r.nombre_contacto && (
+                      <p className="text-[11px] text-zinc-400 truncate">{r.nombre_contacto}</p>
+                    )}
+                    <span className="inline-block mt-1 text-[10px] text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded">
+                      {MODAL_ICON[r.modalidad] ?? r.modalidad}
+                    </span>
                   </div>
+                  <ChevronRight size={14} className="text-zinc-300 group-hover:text-brand mt-1 shrink-0 transition" />
                 </div>
               );
             })}
@@ -427,6 +489,19 @@ export default function InicioPage() {
           onCerrar={() => setModalProspecto(false)}
           onGuardado={() => {
             setModalProspecto(false);
+            getResumenInicio().then(setData).catch(console.error);
+          }}
+        />
+      )}
+
+      {/* ── Modal ficha prospecto ── */}
+      {detalleProspecto && (
+        <ProspectoDetalle
+          prospecto={detalleProspecto}
+          onCerrar={() => setDetalleProspecto(null)}
+          onActualizado={async (id) => {
+            const p = await getProspecto(id);
+            setDetalleProspecto(p);
             getResumenInicio().then(setData).catch(console.error);
           }}
         />

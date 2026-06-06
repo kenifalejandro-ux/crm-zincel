@@ -126,7 +126,7 @@ export async function resumenMetricasService(empresa?: string) {
       SUM(seguidores_ganados)         AS total_seguidores,
       SUM(reproducciones)             AS total_reproducciones,
       ROUND(AVG(roas)::numeric, 2)    AS roas_promedio,
-      ROUND(AVG(cpa)::numeric, 2)     AS cpa_promedio,
+      ROUND(AVG(NULLIF(cpa, 0))::numeric, 2) AS cpa_promedio,
       ROUND(AVG(tasa_engagement)::numeric, 2) AS engagement_promedio
     FROM campana_metricas
     ${where}

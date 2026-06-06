@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Users, Phone,
-  CalendarDays, DollarSign, FileText, User, BarChart2, X, PieChart, Settings, CheckSquare, Kanban, MessageSquare, TrendingUp, Target, Flag,
+  CalendarDays, DollarSign, FileText, User, BarChart2, X, PieChart, Settings, CheckSquare, Kanban, MessageSquare, TrendingUp, Target, Flag, Clock, Trophy,
 } from "lucide-react";
 import { getResumenTareas } from "../../services/tareas.api";
 import { getScoresLeads } from "../../services/prospectos.api";
 
 const navegacion = [
-  { label: "Análisis",      to: "/",               icon: PieChart },
+  { label: "Análisis",      to: "/analisis",       icon: PieChart },
   { label: "Objetivos",     to: "/objetivos",      icon: Target },
   { label: "OKR",           to: "/okr",            icon: Flag },
   { label: "Llamadas",      to: "/llamadas",        icon: Phone },
@@ -18,6 +18,7 @@ const navegacion = [
   { label: "Finanzas",       to: "/finanzas",       icon: DollarSign },
   { label: "Brochures",      to: "/brochures",      icon: FileText },
   { label: "Métricas",       to: "/metricas",       icon: BarChart2 },
+  { label: "Resultados",     to: "/resultados",     icon: Trophy },
   { label: "Inteligencia",   to: "/inteligencia",   icon: TrendingUp },
   { label: "Plantillas",     to: "/plantillas",     icon: MessageSquare },
 ];
@@ -51,7 +52,7 @@ export function lSidebar({ abierto, onCerrar }: Props) {
     return (
       <NavLink
         to={to}
-        end={to === "/"}
+        end
         onClick={onCerrar}
         className={({ isActive }) =>
           `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all duration-150 ${
@@ -129,7 +130,8 @@ export function lSidebar({ abierto, onCerrar }: Props) {
             <NavItem key={to} label={label} to={to} icon={icon} />
           ))}
 
-          <NavItem label="Tareas" to="/tareas" icon={CheckSquare} badge={tareasUrgentes} />
+          <NavItem label="Mi Jornada" to="/jornada"  icon={Clock} />
+          <NavItem label="Tareas"     to="/tareas"   icon={CheckSquare} badge={tareasUrgentes} />
 
           <div className="my-2 border-t border-gray-100" />
 

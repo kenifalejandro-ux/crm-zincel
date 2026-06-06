@@ -26,6 +26,7 @@ export async function actualizarPropuesta(
   payload: Partial<{
     servicio:        string;
     descripcion:     string;
+    subcategoria:    string | null;
     monto_propuesto: number;
     monto_cerrado:   number | null;
     moneda:          string;
@@ -35,6 +36,8 @@ export async function actualizarPropuesta(
     fecha_negociacion:     string | null;
     fecha_cierre:          string | null;
     notas:                 string;
+    notas_negociacion:     string | null;
+    notas_cierre:          string | null;
     motivo_cierre_perdido: string | null;
   }>
 ): Promise<Propuesta> {
@@ -172,12 +175,23 @@ export interface DetallePropuesta {
   empresa:               string;
 }
 
+export interface SubcategoriaAnalisis {
+  servicio:     string;
+  subcategoria: string;
+  total:        number;
+  activas:      number;
+  ganadas:      number;
+  perdidas:     number;
+  monto_ganado: number;
+}
+
 export interface AnalisisPipelineData {
-  por_empresa:      EmpresaAnalisis[];
-  por_servicio:     ServicioAnalisis[];
-  mes_actual:       MesActual;
-  detalle_empresa:  Record<string, DetallePropuesta[]>;
-  detalle_servicio: Record<string, DetallePropuesta[]>;
+  por_empresa:       EmpresaAnalisis[];
+  por_servicio:      ServicioAnalisis[];
+  por_subcategoria:  SubcategoriaAnalisis[];
+  mes_actual:        MesActual;
+  detalle_empresa:   Record<string, DetallePropuesta[]>;
+  detalle_servicio:  Record<string, DetallePropuesta[]>;
 }
 
 export async function getAnalisisPipeline(): Promise<AnalisisPipelineData> {

@@ -372,6 +372,7 @@ export const ESTADOS_LEAD = [
   { value: "suspension_temporal", label: "Suspensión temporal" },
   { value: "no_habido",           label: "No habido" },
   { value: "perdida",             label: "Venta perdida" },
+  { value: "venta_ganada",        label: "Venta ganada" },
 ];
 
 export const COLOR_ESTADO: Record<string, string> = {
@@ -392,6 +393,7 @@ export const COLOR_ESTADO: Record<string, string> = {
   suspension_temporal: "bg-amber-100 text-amber-700",
   no_habido:           "bg-slate-100 text-slate-500",
   perdida:             "bg-red-100 text-red-700",
+  venta_ganada:        "bg-emerald-100 text-emerald-700",
 };
 
 export const COLOR_PRIORIDAD: Record<string, string> = {

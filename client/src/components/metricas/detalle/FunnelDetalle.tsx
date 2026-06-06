@@ -5,8 +5,9 @@ import { FunnelData } from "../../../utils/metricas.calc";
 interface Props { funnel: FunnelData }
 
 const COLOR_ETIQUETA: Record<string, string> = {
-  TOFU:    "bg-blue-100  text-blue-700",
+  TOFU:    "bg-blue-100   text-blue-700",
   MOFU:    "bg-purple-100 text-purple-700",
+  DOFU:    "bg-amber-100  text-amber-700",
   BOFU:    "bg-orange-100 text-orange-700",
   REVENUE: "bg-green-100  text-green-700",
 };
