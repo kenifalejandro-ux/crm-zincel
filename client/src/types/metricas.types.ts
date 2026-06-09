@@ -54,6 +54,8 @@ export interface Metrica {
   tasa_reproduccion:  number;
 
   notas?:             string;
+  objetivo?:          "venta" | "branding" | "comunidad";
+  proyecto?:          string | null;
   creado_en:          string;
 }
 
@@ -77,6 +79,7 @@ export interface FiltrosMetrica {
   sub_plataforma?: SubPlataforma | "";
   desde?:          string;
   hasta?:          string;
+  proyecto?:       string;
 }
 
 export type FormMetrica = {
@@ -130,4 +133,6 @@ export type FormMetrica = {
   tasa_reproduccion:  string;
 
   notas:              string;
+  objetivo:           "venta" | "branding" | "comunidad";
+  proyecto:           string;
 };

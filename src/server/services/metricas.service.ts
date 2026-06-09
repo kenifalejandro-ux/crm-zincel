@@ -38,12 +38,30 @@ export async function crearMetricaService(input: MetricaInput) {
   return result.rows[0];
 }
 
+export async function getProyectosService(empresa?: string): Promise<string[]> {
+  const where = empresa ? `WHERE empresa ILIKE $1 AND proyecto IS NOT NULL` : `WHERE proyecto IS NOT NULL`;
+  const vals  = empresa ? [`%${empresa}%`] : [];
+  const result = await pool.query(
+    `SELECT DISTINCT proyecto FROM campana_metricas ${where} ORDER BY proyecto`,
+    vals
+  );
+  return result.rows.map((r: any) => r.proyecto);
+}
+
+export async function asignarProyectoBulkService(ids: string[], proyecto: string) {
+  await pool.query(
+    `UPDATE campana_metricas SET proyecto = $1 WHERE id = ANY($2::uuid[])`,
+    [proyecto || null, ids]
+  );
+}
+
 export async function listarMetricasService(filtros?: {
   empresa?: string;
   plataforma?: string;
   sub_plataforma?: string;
   desde?: string;
   hasta?: string;
+  proyecto?: string;
 }) {
   const condiciones: string[] = [];
   const valores: any[] = [];
@@ -68,6 +86,10 @@ export async function listarMetricasService(filtros?: {
   if (filtros?.hasta) {
     condiciones.push(`periodo_inicio <= $${i++}`);
     valores.push(filtros.hasta);
+  }
+  if (filtros?.proyecto) {
+    condiciones.push(`proyecto = $${i++}`);
+    valores.push(filtros.proyecto);
   }
 
   const where = condiciones.length ? `WHERE ${condiciones.join(" AND ")}` : "";

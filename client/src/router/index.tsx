@@ -24,6 +24,7 @@ import AnalisisIntentosPage   from "../pages/AnalisisIntentosPage";
 import AnalisisComercialPage  from "../pages/AnalisisComercialPage";
 import JornadaPage            from "../pages/JornadaPage";
 import ResultadosPage         from "../pages/ResultadosPage";
+import SegundaVueltaPage     from "../pages/SegundaVueltaPage";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { estaAutenticado, cargando } = useAuth();
@@ -74,6 +75,7 @@ export function AppRouter() {
           <Route path="/analisis-comercial" element={<AnalisisComercialPage />} />
           <Route path="/jornada"            element={<JornadaPage />} />
           <Route path="/resultados"         element={<ResultadosPage />} />
+          <Route path="/segunda-vuelta"     element={<SegundaVueltaPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

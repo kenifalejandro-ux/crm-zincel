@@ -1,21 +1,46 @@
 /** client/src/pages/ResultadosPage.tsx */
 
 import { useEffect, useState } from "react";
-import { Trophy, Plus, Trash2, Pencil, TrendingUp, DollarSign, ShoppingBag } from "lucide-react";
+import { Trophy, Plus, Trash2, Pencil, TrendingUp, DollarSign, ShoppingBag, Check, HelpCircle } from "lucide-react";
 import { listarResultados, crearResultado, actualizarResultado, eliminarResultado } from "../services/resultados.api";
 import { getMetricas } from "../services/metricas.api";
-import type { Resultado, ResultadoInput } from "../types/resultado.types";
+import type { Resultado, ResultadoInput, ConfianzaAtribucion } from "../types/resultado.types";
 import type { Metrica } from "../types/metricas.types";
 
 const EMPTY_FORM: ResultadoInput = {
-  empresa:        "",
-  metrica_id:     "",
-  campana_nombre: "",
-  proyecto:       "",
-  monto:          0,
-  costo_venta:    0,
-  fecha_venta:    new Date().toISOString().slice(0, 10),
-  notas:          "",
+  empresa:              "",
+  metrica_ids:          [],
+  campana_nombre:       "",
+  proyecto:             "",
+  monto:                0,
+  costo_venta:          0,
+  fecha_venta:          new Date().toISOString().slice(0, 10),
+  confianza_atribucion: "confirmada",
+  notas:                "",
+};
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+const S = (v: number) => `S/ ${v.toLocaleString("es-PE", { minimumFractionDigits: 0 })}`;
+
+const CONFIANZA_CFG: Record<ConfianzaAtribucion, { label: string; color: string; bg: string; desc: string }> = {
+  confirmada: {
+    label: "Confirmada",
+    color: "text-emerald-700",
+    bg:    "bg-emerald-50 border-emerald-200",
+    desc:  "Sabes exactamente qué campaña cerró la venta",
+  },
+  probable: {
+    label: "Probable",
+    color: "text-amber-700",
+    bg:    "bg-amber-50 border-amber-200",
+    desc:  "La campaña es la más probable pero no es seguro",
+  },
+  sin_datos: {
+    label: "Sin datos",
+    color: "text-zinc-500",
+    bg:    "bg-zinc-50 border-zinc-200",
+    desc:  "No se puede identificar la campaña de origen",
+  },
 };
 
 export default function ResultadosPage() {
@@ -31,9 +56,7 @@ export default function ResultadosPage() {
   const [errorCarga,   setErrorCarga]   = useState<string | null>(null);
 
   useEffect(() => {
-    getMetricas({})
-      .then((m) => { setMetricas(m); })
-      .catch(() => {});
+    getMetricas({}).then(setMetricas).catch(() => {});
   }, []);
 
   const cargar = async (emp: string) => {
@@ -42,8 +65,7 @@ export default function ResultadosPage() {
       const r = await listarResultados(emp ? { empresa: emp } : {});
       setResultados(Array.isArray(r) ? r : []);
     } catch (e: any) {
-      const msg = e?.response?.data?.message ?? e?.message ?? JSON.stringify(e?.response?.data);
-      setErrorCarga(msg);
+      setErrorCarga(e?.response?.data?.message ?? e?.message ?? "Error al cargar");
       setResultados([]);
     } finally {
       setLoading(false);
@@ -52,10 +74,28 @@ export default function ResultadosPage() {
 
   useEffect(() => { cargar(filtroEmp); }, [filtroEmp]);
 
-  const empresas = [...new Set(metricas.map((m) => m.empresa))].sort();
+  const empresas            = [...new Set(metricas.map((m) => m.empresa))].sort();
+  const campanasDeLaEmpresa = metricas
+    .filter((m) => !form.empresa || m.empresa === form.empresa)
+    .sort((a, b) => b.periodo_inicio.localeCompare(a.periodo_inicio)); // más recientes primero
 
-  const campanasDeLaEmpresa = metricas.filter((m) => !form.empresa || m.empresa === form.empresa);
+  // ── Toggle campaña ───────────────────────────────────────────────────────
+  const toggleCampana = (metricaId: string) => {
+    setForm((f) => {
+      const ya       = f.metrica_ids.includes(metricaId);
+      const nuevosIds = ya
+        ? f.metrica_ids.filter((id) => id !== metricaId)
+        : [...f.metrica_ids, metricaId];
+      const primero  = metricas.find((x) => x.id === nuevosIds[0]);
+      return {
+        ...f,
+        metrica_ids:    nuevosIds,
+        campana_nombre: primero?.campana_nombre ?? f.campana_nombre,
+      };
+    });
+  };
 
+  // ── Modales ──────────────────────────────────────────────────────────────
   const abrirNuevo = () => {
     setEditando(null);
     setForm({ ...EMPTY_FORM, fecha_venta: new Date().toISOString().slice(0, 10) });
@@ -66,41 +106,49 @@ export default function ResultadosPage() {
   const abrirEditar = (r: Resultado) => {
     setErrorGuardar(null);
     setEditando(r);
+    const ids     = r.metrica_ids?.length ? r.metrica_ids : r.metrica_id ? [r.metrica_id] : [];
+    const primero = metricas.find((x) => x.id === ids[0]);
     setForm({
-      empresa:        r.empresa,
-      metrica_id:     r.metrica_id,
-      campana_nombre: r.campana_nombre,
-      proyecto:       r.proyecto ?? "",
-      monto:          Number(r.monto),
-      costo_venta:    Number(r.costo_venta ?? 0),
-      fecha_venta:    r.fecha_venta.slice(0, 10),
-      notas:          r.notas ?? "",
+      empresa:              r.empresa,
+      metrica_ids:          ids,
+      campana_nombre:       r.campana_nombre,
+      proyecto:             r.proyecto ?? "",
+      monto:                Number(r.monto),
+      costo_venta:          Number(r.costo_venta ?? 0),
+      fecha_venta:          r.fecha_venta.slice(0, 10),
+      confianza_atribucion: r.confianza_atribucion ?? "confirmada",
+      notas:                r.notas ?? "",
     });
+    void primero;
     setModal(true);
   };
 
-  const handleCampana = (metrica_id: string) => {
-    const m = metricas.find((x) => x.id === metrica_id);
-    setForm((f) => ({ ...f, metrica_id, campana_nombre: m?.campana_nombre ?? "" }));
-  };
-
+  // ── Guardar ──────────────────────────────────────────────────────────────
   const guardar = async () => {
-    if (!form.empresa || !form.metrica_id || form.monto <= 0 || !form.fecha_venta) return;
+    if (!form.empresa || form.monto <= 0 || !form.fecha_venta) return;
+    // Si sin_datos, nombre de campaña por defecto
+    const payload: ResultadoInput = {
+      ...form,
+      campana_nombre: form.metrica_ids.length > 0
+        ? form.campana_nombre
+        : form.campana_nombre || "Sin campaña identificada",
+    };
     setGuardando(true);
     setErrorGuardar(null);
     try {
       if (editando) {
-        await actualizarResultado(editando.id, form);
+        await actualizarResultado(editando.id, payload);
       } else {
-        await crearResultado(form);
+        await crearResultado(payload);
       }
       setModal(false);
       await cargar(filtroEmp);
     } catch (e: any) {
-      const msg = e?.response?.data?.errors?.[0]?.message
-        ?? e?.response?.data?.message
-        ?? "Error al guardar. Intenta de nuevo.";
-      setErrorGuardar(msg);
+      setErrorGuardar(
+        e?.response?.data?.errors?.[0]?.message ??
+        e?.response?.data?.message ??
+        "Error al guardar."
+      );
     } finally {
       setGuardando(false);
     }
@@ -112,12 +160,11 @@ export default function ResultadosPage() {
     await cargar(filtroEmp);
   };
 
-  // ── KPIs agregados ────────────────────────────────────────────────────────────
+  // ── KPIs ─────────────────────────────────────────────────────────────────
   const totalIngresos  = resultados.reduce((a, r) => a + Number(r.monto), 0);
   const totalVentas    = resultados.length;
   const ticketPromedio = totalVentas > 0 ? totalIngresos / totalVentas : 0;
 
-  // Agrupado por empresa
   const porEmpresa = resultados.reduce<Record<string, { ventas: number; ingresos: number }>>((acc, r) => {
     if (!acc[r.empresa]) acc[r.empresa] = { ventas: 0, ingresos: 0 };
     acc[r.empresa].ventas++;
@@ -151,7 +198,7 @@ export default function ResultadosPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-xl border border-zinc-200 bg-white px-5 py-4 space-y-1">
           <p className="text-xs text-zinc-400 flex items-center gap-1.5"><DollarSign size={12}/> Total ingresos atribuidos</p>
-          <p className="text-2xl font-bold text-green-600">S/ {totalIngresos.toLocaleString("es-PE", { minimumFractionDigits: 2 })}</p>
+          <p className="text-2xl font-bold text-green-600">{S(totalIngresos)}</p>
         </div>
         <div className="rounded-xl border border-zinc-200 bg-white px-5 py-4 space-y-1">
           <p className="text-xs text-zinc-400 flex items-center gap-1.5"><ShoppingBag size={12}/> Total ventas registradas</p>
@@ -159,7 +206,7 @@ export default function ResultadosPage() {
         </div>
         <div className="rounded-xl border border-zinc-200 bg-white px-5 py-4 space-y-1">
           <p className="text-xs text-zinc-400 flex items-center gap-1.5"><TrendingUp size={12}/> Ticket promedio</p>
-          <p className="text-2xl font-bold text-violet-600">S/ {ticketPromedio.toLocaleString("es-PE", { maximumFractionDigits: 0 })}</p>
+          <p className="text-2xl font-bold text-violet-600">{S(ticketPromedio)}</p>
         </div>
       </div>
 
@@ -174,7 +221,7 @@ export default function ResultadosPage() {
               <tr>
                 <th className="px-5 py-2.5 text-left font-medium">Empresa</th>
                 <th className="px-4 py-2.5 text-right font-medium">Ventas</th>
-                <th className="px-4 py-2.5 text-right font-medium">Ingresos totales</th>
+                <th className="px-4 py-2.5 text-right font-medium">Ingresos</th>
                 <th className="px-4 py-2.5 text-right font-medium">Ticket promedio</th>
               </tr>
             </thead>
@@ -183,8 +230,8 @@ export default function ResultadosPage() {
                 <tr key={emp} className="hover:bg-zinc-50">
                   <td className="px-5 py-3 font-medium text-zinc-800">{emp}</td>
                   <td className="px-4 py-3 text-right text-blue-600 font-medium">{d.ventas}</td>
-                  <td className="px-4 py-3 text-right text-green-600 font-bold">S/ {d.ingresos.toLocaleString("es-PE", { minimumFractionDigits: 2 })}</td>
-                  <td className="px-4 py-3 text-right text-zinc-600">S/ {(d.ingresos / d.ventas).toLocaleString("es-PE", { maximumFractionDigits: 0 })}</td>
+                  <td className="px-4 py-3 text-right text-green-600 font-bold">{S(d.ingresos)}</td>
+                  <td className="px-4 py-3 text-right text-zinc-600">{S(d.ingresos / d.ventas)}</td>
                 </tr>
               ))}
             </tbody>
@@ -192,7 +239,7 @@ export default function ResultadosPage() {
         </div>
       )}
 
-      {/* ── Filtro + Tabla ── */}
+      {/* ── Tabla ── */}
       <div className="space-y-3">
         <div className="flex items-center gap-3 flex-wrap">
           <p className="text-sm font-semibold text-zinc-800">Todas las ventas</p>
@@ -222,10 +269,11 @@ export default function ResultadosPage() {
               <thead className="bg-zinc-50 text-zinc-500 uppercase text-[10px]">
                 <tr>
                   <th className="px-5 py-2.5 text-left font-medium">Empresa</th>
-                  <th className="px-4 py-2.5 text-left font-medium">Campaña</th>
+                  <th className="px-4 py-2.5 text-left font-medium">Campaña(s)</th>
+                  <th className="px-4 py-2.5 text-left font-medium">Atribución</th>
                   <th className="px-4 py-2.5 text-left font-medium">Proyecto</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Monto venta</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Costo venta</th>
+                  <th className="px-4 py-2.5 text-right font-medium">Monto</th>
+                  <th className="px-4 py-2.5 text-right font-medium">Costo</th>
                   <th className="px-4 py-2.5 text-right font-medium">Margen</th>
                   <th className="px-4 py-2.5 text-center font-medium">Fecha</th>
                   <th className="px-4 py-2.5"></th>
@@ -233,35 +281,54 @@ export default function ResultadosPage() {
               </thead>
               <tbody className="divide-y divide-zinc-50">
                 {resultados.map((r) => {
-                  const monto = Number(r.monto);
-                  const costo = Number(r.costo_venta ?? 0);
-                  const margen = monto > 0 ? ((monto - costo) / monto) * 100 : 0;
+                  const monto    = Number(r.monto);
+                  const costo    = Number(r.costo_venta ?? 0);
+                  const margen   = monto > 0 ? ((monto - costo) / monto) * 100 : 0;
+                  const conf     = r.confianza_atribucion ?? "confirmada";
+                  const confCfg  = CONFIANZA_CFG[conf];
+                  const numCamps = r.metrica_ids?.length ?? (r.metrica_id ? 1 : 0);
                   return (
-                  <tr key={r.id} className="hover:bg-zinc-50 transition">
-                    <td className="px-5 py-3 font-medium text-zinc-800">{r.empresa}</td>
-                    <td className="px-4 py-3 text-zinc-600 max-w-[180px] truncate">{r.campana_nombre}</td>
-                    <td className="px-4 py-3 text-zinc-500">{r.proyecto ?? "—"}</td>
-                    <td className="px-4 py-3 text-right font-bold text-green-600">
-                      S/ {monto.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
-                    </td>
-                    <td className="px-4 py-3 text-right text-red-500">
-                      {costo > 0 ? `S/ ${costo.toLocaleString("es-PE", { minimumFractionDigits: 0 })}` : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {costo > 0
-                        ? <span className={margen >= 50 ? "text-green-600 font-medium" : "text-amber-600 font-medium"}>{margen.toFixed(1)}%</span>
-                        : <span className="text-zinc-300">—</span>}
-                    </td>
-                    <td className="px-4 py-3 text-center text-zinc-500">
-                      {new Date(r.fecha_venta).toLocaleDateString("es-PE")}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2 justify-end">
-                        <button onClick={() => abrirEditar(r)} className="text-zinc-400 hover:text-brand transition"><Pencil size={13} /></button>
-                        <button onClick={() => eliminar(r.id)} className="text-zinc-400 hover:text-red-500 transition"><Trash2 size={13} /></button>
-                      </div>
-                    </td>
-                  </tr>
+                    <tr key={r.id} className="hover:bg-zinc-50 transition">
+                      <td className="px-5 py-3 font-medium text-zinc-800">{r.empresa}</td>
+                      <td className="px-4 py-3 text-zinc-600 max-w-[180px]">
+                        {r.metrica_id || numCamps > 0 ? (
+                          <>
+                            <span className="truncate block">{r.campana_nombre}</span>
+                            {numCamps > 1 && (
+                              <span className="text-[10px] text-violet-500">+{numCamps - 1} adicional{numCamps - 1 > 1 ? "es" : ""}</span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-zinc-400 italic flex items-center gap-1">
+                            <HelpCircle size={10} /> Sin identificar
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${confCfg.bg} ${confCfg.color}`}>
+                          {confCfg.label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-zinc-500">{r.proyecto ?? "—"}</td>
+                      <td className="px-4 py-3 text-right font-bold text-green-600">{S(monto)}</td>
+                      <td className="px-4 py-3 text-right text-red-500">
+                        {costo > 0 ? S(costo) : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {costo > 0
+                          ? <span className={margen >= 50 ? "text-green-600 font-medium" : "text-amber-600 font-medium"}>{margen.toFixed(1)}%</span>
+                          : <span className="text-zinc-300">—</span>}
+                      </td>
+                      <td className="px-4 py-3 text-center text-zinc-500">
+                        {new Date(r.fecha_venta).toLocaleDateString("es-PE")}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2 justify-end">
+                          <button onClick={() => abrirEditar(r)} className="text-zinc-400 hover:text-brand transition"><Pencil size={13} /></button>
+                          <button onClick={() => eliminar(r.id)} className="text-zinc-400 hover:text-red-500 transition"><Trash2 size={13} /></button>
+                        </div>
+                      </td>
+                    </tr>
                   );
                 })}
               </tbody>
@@ -273,7 +340,7 @@ export default function ResultadosPage() {
       {/* ── Modal ── */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-5">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
             <h2 className="text-sm font-bold text-zinc-900">
               {editando ? "Editar venta" : "Registrar venta"}
             </h2>
@@ -284,13 +351,13 @@ export default function ResultadosPage() {
               </div>
             )}
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {/* Empresa */}
               <label className="block space-y-1">
                 <span className="text-xs text-zinc-500">Empresa *</span>
                 <select
                   value={form.empresa}
-                  onChange={(e) => setForm((f) => ({ ...f, empresa: e.target.value, metrica_id: "", campana_nombre: "" }))}
+                  onChange={(e) => setForm((f) => ({ ...f, empresa: e.target.value, metrica_ids: [], campana_nombre: "" }))}
                   className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand/30"
                 >
                   <option value="">Selecciona empresa</option>
@@ -298,41 +365,98 @@ export default function ResultadosPage() {
                 </select>
               </label>
 
-              {/* Campaña */}
-              <label className="block space-y-1">
-                <span className="text-xs text-zinc-500">Campaña *</span>
-                <select
-                  value={form.metrica_id}
-                  onChange={(e) => handleCampana(e.target.value)}
-                  disabled={!form.empresa}
-                  className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:opacity-50"
-                >
-                  <option value="">Selecciona campaña</option>
-                  {campanasDeLaEmpresa.map((m) => (
-                    <option key={m.id} value={m.id}>{m.campana_nombre}</option>
-                  ))}
-                </select>
-              </label>
+              {/* Confianza de atribución */}
+              <div className="space-y-1.5">
+                <span className="text-xs text-zinc-500">¿Qué tan seguro es el origen de esta venta?</span>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["confirmada", "probable", "sin_datos"] as ConfianzaAtribucion[]).map((c) => {
+                    const cfg = CONFIANZA_CFG[c];
+                    return (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, confianza_atribucion: c, metrica_ids: c === "sin_datos" ? [] : f.metrica_ids }))}
+                        className={`py-2 px-2 rounded-xl text-[11px] font-medium border transition text-center ${
+                          form.confianza_atribucion === c
+                            ? `${cfg.bg} ${cfg.color} border-current`
+                            : "bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300"
+                        }`}
+                      >
+                        {cfg.label}
+                        <span className="block text-[9px] font-normal opacity-70 mt-0.5 leading-tight">{cfg.desc}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
+              {/* Campaña(s) — oculto si sin_datos */}
+              {form.confianza_atribucion !== "sin_datos" && (
+                <div className="space-y-1.5">
+                  <span className="text-xs text-zinc-500">
+                    Campaña(s) que generaron la venta
+                    {form.metrica_ids.length > 0 && (
+                      <span className="ml-1.5 text-violet-600 font-medium">
+                        · {form.metrica_ids.length} seleccionada{form.metrica_ids.length > 1 ? "s" : ""}
+                      </span>
+                    )}
+                  </span>
+                  {!form.empresa ? (
+                    <p className="text-xs text-zinc-400 italic">Selecciona primero la empresa</p>
+                  ) : (
+                    <div className="border border-zinc-200 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
+                      {campanasDeLaEmpresa.map((m) => {
+                        const sel       = form.metrica_ids.includes(m.id);
+                        const esPrimaria = form.metrica_ids[0] === m.id;
+                        return (
+                          <label
+                            key={m.id}
+                            className={`flex items-start gap-3 px-3 py-2.5 cursor-pointer transition border-b border-zinc-50 last:border-b-0 ${
+                              sel ? "bg-violet-50" : "hover:bg-zinc-50"
+                            }`}
+                          >
+                            <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5 transition ${
+                              sel ? "bg-violet-600" : "border-2 border-zinc-300"
+                            }`}>
+                              {sel && <Check size={10} className="text-white" strokeWidth={3} />}
+                            </div>
+                            <input type="checkbox" className="sr-only" checked={sel} onChange={() => toggleCampana(m.id)} />
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-xs font-medium truncate ${sel ? "text-violet-800" : "text-zinc-700"}`}>
+                                {m.campana_nombre}
+                              </p>
+                              <p className="text-[10px] text-zinc-400">
+                                {m.plataforma.toUpperCase()} · {m.periodo_inicio?.slice(0, 7)}
+                                {esPrimaria && sel && <span className="ml-1.5 text-violet-500 font-medium">· principal</span>}
+                              </p>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {form.confianza_atribucion === "probable" && form.metrica_ids.length === 0 && (
+                    <p className="text-[10px] text-amber-600">Selecciona la campaña más probable aunque no sea segura</p>
+                  )}
+                </div>
+              )}
+
+              {/* Monto + Costo */}
               <div className="grid grid-cols-2 gap-3">
-                {/* Monto */}
                 <label className="block space-y-1">
                   <span className="text-xs text-zinc-500">Monto venta (S/) *</span>
                   <input
-                    type="number"
-                    min={0}
+                    type="number" min={0}
                     value={form.monto || ""}
                     onChange={(e) => setForm((f) => ({ ...f, monto: Number(e.target.value) }))}
-                    placeholder="ej. 240000"
+                    placeholder="ej. 300000"
                     className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30"
                   />
                 </label>
-                {/* Costo de venta */}
                 <label className="block space-y-1">
                   <span className="text-xs text-zinc-500">Costo de venta (S/)</span>
                   <input
-                    type="number"
-                    min={0}
+                    type="number" min={0}
                     value={form.costo_venta || ""}
                     onChange={(e) => setForm((f) => ({ ...f, costo_venta: Number(e.target.value) }))}
                     placeholder="ej. 2500"
@@ -341,19 +465,18 @@ export default function ResultadosPage() {
                 </label>
               </div>
 
+              {/* Proyecto + Fecha */}
               <div className="grid grid-cols-2 gap-3">
-                {/* Proyecto */}
                 <label className="block space-y-1">
                   <span className="text-xs text-zinc-500">Proyecto vendido</span>
                   <input
                     type="text"
                     value={form.proyecto ?? ""}
                     onChange={(e) => setForm((f) => ({ ...f, proyecto: e.target.value }))}
-                    placeholder="ej. Terrenos Villa"
+                    placeholder="ej. Casa Villa del Sol"
                     className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30"
                   />
                 </label>
-                {/* Fecha */}
                 <label className="block space-y-1">
                   <span className="text-xs text-zinc-500">Fecha de venta *</span>
                   <input
@@ -372,7 +495,7 @@ export default function ResultadosPage() {
                   value={form.notas ?? ""}
                   onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))}
                   rows={2}
-                  placeholder="Detalles adicionales..."
+                  placeholder="Ej: Lead de campaña anterior que cerró tras ver nueva campaña..."
                   className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30 resize-none"
                 />
               </label>
@@ -387,7 +510,7 @@ export default function ResultadosPage() {
               </button>
               <button
                 onClick={guardar}
-                disabled={guardando || !form.empresa || !form.metrica_id || form.monto <= 0}
+                disabled={guardando || !form.empresa || form.monto <= 0}
                 className="flex-1 py-2 text-sm bg-brand text-white rounded-xl hover:bg-brand-hover disabled:opacity-40 transition font-medium"
               >
                 {guardando ? "Guardando..." : editando ? "Guardar cambios" : "Registrar venta"}

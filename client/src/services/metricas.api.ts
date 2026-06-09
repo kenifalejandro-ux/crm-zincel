@@ -70,3 +70,78 @@ export const getResumenPorEmpresa = async (empresa: string): Promise<ResumenPlat
   const { data } = await api.get("/metricas/resumen", { params: { empresa } });
   return data.data ?? data;
 };
+
+export const getHistoricoPlataforma = async (empresa?: string): Promise<HistoricoPlataforma[]> => {
+  const { data } = await api.get("/metricas/historico-plataforma", { params: empresa ? { empresa } : {} });
+  return data.data ?? [];
+};
+
+export interface HistoricoPlataforma {
+  plataforma:        "meta" | "google" | "tiktok";
+  campanas:          number;
+  gasto_total:       number;
+  leads_total:       number;
+  clics_total:       number;
+  impresiones_total: number;
+  mensajes_total:    number;
+  cpl_promedio:      number;
+  cpc_promedio:      number;
+  ctr_promedio:      number;
+  meses_con_datos:   number;
+  fecha_inicio:      string;
+  fecha_fin:         string;
+}
+
+export interface FormatoData {
+  formato:              "instáform" | "trafico_mensajes";
+  campanas:             number;
+  gasto_total:          number;
+  impresiones_total:    number;
+  clics_total:          number;
+  mensajes_total:       number;
+  leads_total:          number;
+  ctr_promedio:         number;
+  cpm_promedio:         number;
+  cpc_promedio:         number;
+  frecuencia_promedio:  number;
+  ventas:               number;
+  revenue_total:        number;
+  costo_venta_total:    number;
+  costo_por_mensaje:    number | null;
+  costo_por_lead:       number | null;
+  mensajes_por_1000_imp: number | null;
+  leads_por_1000_imp:   number | null;
+  roas_real:            number | null;
+  costo_por_venta:      number | null;
+  margen_pct:           number | null;
+}
+
+export const getFormatos = async (empresa?: string): Promise<FormatoData[]> => {
+  const { data } = await api.get("/metricas/formatos", { params: empresa ? { empresa } : {} });
+  return data.data ?? [];
+};
+
+export const getProyectos = async (empresa?: string): Promise<string[]> => {
+  const { data } = await api.get("/metricas/proyectos", { params: empresa ? { empresa } : {} });
+  return data.data ?? [];
+};
+
+export const asignarProyectoBulk = async (ids: string[], proyecto: string): Promise<void> => {
+  await api.put("/metricas/bulk-proyecto", { ids, proyecto });
+};
+
+export const getAlertasMetricas = async (empresa?: string): Promise<AlertaMetrica[]> => {
+  const { data } = await api.get("/metricas/alertas", { params: empresa ? { empresa } : {} });
+  return data.data ?? [];
+};
+
+export interface AlertaMetrica {
+  campana_nombre: string;
+  plataforma:     string;
+  empresa:        string;
+  periodo_fin:    string;
+  tipo:           "cpl_alto" | "frecuencia_alta" | "ctr_bajo";
+  mensaje:        string;
+  valor:          number;
+}
+

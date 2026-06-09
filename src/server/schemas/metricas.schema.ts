@@ -54,6 +54,12 @@ export const MetricaSchema = z.object({
   tasa_reproduccion:  z.number().default(0),
 
   notas:              z.string().optional(),
+
+  // Objetivo de la campaña
+  objetivo: z.enum(["venta", "branding", "comunidad"]).default("venta"),
+
+  // Proyecto inmobiliario / comercial al que pertenece la campaña
+  proyecto: z.string().nullable().optional(),
 });
 
 export type MetricaInput = z.infer<typeof MetricaSchema>;

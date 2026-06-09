@@ -7,6 +7,7 @@ import {
 } from "recharts";
 import { BarChart2 } from "lucide-react";
 import { Metrica } from "../../types/metricas.types";
+import { useEffect, useState } from "react";
 
 interface Props { metricas: Metrica[] }
 
@@ -37,6 +38,8 @@ const TooltipRadar = ({ active, payload }: any) => {
 };
 
 export const MetricasBarChart = ({ metricas }: Props) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const mapa: Record<string, { leads: number; conversiones: number; gasto: number }> = {};
 
   metricas.forEach(m => {
@@ -72,7 +75,7 @@ export const MetricasBarChart = ({ metricas }: Props) => {
         Comparativa por plataforma
       </h3>
       <p className="text-[10px] text-zinc-500 -mt-3 mb-4">Índice relativo — 100 = mejor valor en cada métrica</p>
-      <ResponsiveContainer width="100%" height={240}>
+      {mounted && <ResponsiveContainer width="100%" height={240}>
         <RadarChart data={radarData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
           <PolarGrid stroke="#e4e4e7" />
           <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: "#71717a", fontWeight: 500 }} />
@@ -90,7 +93,7 @@ export const MetricasBarChart = ({ metricas }: Props) => {
           ))}
           <Legend wrapperStyle={{ fontSize: 11 }} />
         </RadarChart>
-      </ResponsiveContainer>
+      </ResponsiveContainer>}
     </div>
   );
 };

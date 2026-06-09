@@ -1,6 +1,22 @@
 /** src/pages/MetricasPage.tsx */
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Component, ReactNode } from "react";
+
+class ComparativaErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(e: Error) { return { error: e }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="p-6 bg-red-50 border border-red-200 rounded-xl text-sm text-red-800 space-y-2">
+          <p className="font-bold">Error en Comparativa:</p>
+          <pre className="text-xs whitespace-pre-wrap">{(this.state.error as Error).message}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import { Plus, Upload, Zap, FileDown }  from "lucide-react";
 
 import { useMetricas }            from "../hooks/useMetricas";
@@ -18,11 +34,15 @@ import { ImportarCSVMetrica }     from "../components/metricas/ImportarCSVMetric
 import { ModalImportarAPI }      from "../components/metricas/ModalImportarAPI";
 import { ProyeccionTab }          from "../components/metricas/ProyeccionTab";
 import { ComparativaTab }         from "../components/metricas/ComparativaTab";
+import { RentabilidadTab }        from "../components/metricas/RentabilidadTab";
 import { BenchmarksTab }          from "../components/metricas/BenchmarksTab";
+import { AlertasMetricas }        from "../components/metricas/AlertasMetricas";
+import { BudgetOptimizerTab }     from "../components/metricas/BudgetOptimizerTab";
+import { FormatosTab }            from "../components/metricas/FormatosTab";
 
 import { TableBulkActions }       from "../components/ui/TableBulkActions";
 
-import { deleteMetricasMasivo, updateMetrica } from "../services/metricas.api";
+import { deleteMetricasMasivo, updateMetrica, getProyectos, asignarProyectoBulk } from "../services/metricas.api";
 import { exportarReportePDF }                  from "../utils/exportarPDF";
 import { fechaHoy }                            from "../utils/date";
 
@@ -32,6 +52,8 @@ import {
   Metrica,
   Plataforma,
 } from "../types/metricas.types";
+
+type TabPlataforma = Plataforma | "todas" | "proyeccion" | "comparativa" | "rentabilidad" | "benchmarks" | "optimizador" | "formatos";
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 const hoy = () => fechaHoy();
@@ -87,9 +109,9 @@ const FORM_INICIAL: FormMetrica = {
   tasa_reproduccion:  "0",
 
   notas:              "",
+  objetivo:           "venta",
+  proyecto:           "",
 };
-
-type TabPlataforma = Plataforma | "todas" | "proyeccion" | "comparativa" | "benchmarks";
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 export default function MetricasPage() {
@@ -102,6 +124,8 @@ export default function MetricasPage() {
   // ── Estado ──────────────────────────────────────────────────────────────────
   const [filtros,        setFiltros]        = useState<FiltrosMetrica>({});
   const [tabPlataforma,  setTabPlataforma]  = useState<TabPlataforma>("todas");
+  const [soloVentas,     setSoloVentas]     = useState(false);
+  const [proyectos,      setProyectos]      = useState<string[]>([]);
   const [modal,          setModal]          = useState(false);
   const [modalCSV,       setModalCSV]       = useState(false);
   const [modalAPI,       setModalAPI]       = useState(false);
@@ -125,9 +149,14 @@ export default function MetricasPage() {
     cargarMetricas(filtros);
   }, [filtros]);
 
-  // ── Cargar resumen cuando cambia empresa ────────────────────────────────────
+  // ── Cargar resumen y proyectos cuando cambia empresa ────────────────────────
   useEffect(() => {
-    if (filtros.empresa) cargarResumen(filtros.empresa);
+    if (filtros.empresa) {
+      cargarResumen(filtros.empresa);
+      getProyectos(filtros.empresa).then(setProyectos).catch(() => {});
+    } else {
+      getProyectos().then(setProyectos).catch(() => {});
+    }
   }, [filtros.empresa]);
 
   // ── Limpiar selección al cambiar tab de plataforma ──────────────────────────
@@ -142,13 +171,14 @@ export default function MetricasPage() {
   );
 
   // ── Métricas filtradas por tab de plataforma ─────────────────────────────────
-  const metricasFiltradas = useMemo(
-    () =>
-      tabPlataforma === "todas" || tabPlataforma === "comparativa" || tabPlataforma === "proyeccion" || tabPlataforma === "benchmarks"
-        ? metricas
-        : metricas.filter((m) => m.plataforma === tabPlataforma),
-    [metricas, tabPlataforma]
-  );
+  const tabsCompletas = new Set(["todas", "comparativa", "proyeccion", "rentabilidad", "benchmarks", "optimizador", "formatos"]);
+  const metricasFiltradas = useMemo(() => {
+    let base = tabsCompletas.has(tabPlataforma)
+      ? metricas
+      : metricas.filter((m) => m.plataforma === tabPlataforma);
+    if (soloVentas) base = base.filter((m) => !m.objetivo || m.objetivo === "venta");
+    return base;
+  }, [metricas, tabPlataforma, soloVentas]);
 
   // ── Selección masiva ─────────────────────────────────────────────────────────
   const toggleUno = (id: string) =>
@@ -172,6 +202,18 @@ export default function MetricasPage() {
     await deleteMetricasMasivo(seleccionados);
     setSeleccionados([]);
     cargarMetricas(filtros);
+  };
+
+  const asignarProyecto = async (proyecto: string) => {
+    await asignarProyectoBulk(seleccionados, proyecto);
+    setSeleccionados([]);
+    cargarMetricas(filtros);
+    getProyectos(filtros.empresa).then(setProyectos).catch(() => {});
+  };
+
+  const recargarProyectos = () => {
+    cargarMetricas(filtros);
+    getProyectos(filtros.empresa).then(setProyectos).catch(() => {});
   };
 
   // ── Guardar registro manual ──────────────────────────────────────────────────
@@ -214,7 +256,9 @@ export default function MetricasPage() {
           {/* Bulk delete */}
           <TableBulkActions
             count={seleccionados.length}
+            proyectos={proyectos}
             onDelete={eliminarSeleccionados}
+            onAsignarProyecto={asignarProyecto}
           />
 
           {/* Exportar PDF */}
@@ -272,8 +316,32 @@ export default function MetricasPage() {
       <FiltrosMetricas
         filtros={filtros}
         empresas={empresas}
+        proyectos={proyectos}
         onChange={setFiltros}
       />
+
+      {/* ── Alertas inteligentes (Brecha 3) ── */}
+      <AlertasMetricas empresa={filtros.empresa} />
+
+      {/* ── Filtro de objetivo ── */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setSoloVentas((v) => !v)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition ${
+            soloVentas
+              ? "bg-emerald-50 border-emerald-300 text-emerald-700"
+              : "bg-white border-zinc-200 text-zinc-500 hover:border-zinc-300"
+          }`}
+        >
+          <span className={`w-2 h-2 rounded-full ${soloVentas ? "bg-emerald-500" : "bg-zinc-300"}`} />
+          Solo campañas de venta
+        </button>
+        {soloVentas && (
+          <span className="text-[10px] text-zinc-400">
+            Excluye campañas de branding y comunidad del KPI total
+          </span>
+        )}
+      </div>
 
       {/* ── KPIs globales ── */}
       {metricasFiltradas.length > 0 && (
@@ -286,19 +354,32 @@ export default function MetricasPage() {
         onChange={setTabPlataforma}
       />
 
-      {/* ── Tab Proyección ── */}
+      {/* ── Tabs analíticos ── */}
       {tabPlataforma === "proyeccion" ? (
         <ProyeccionTab metricas={metricas} empresa={filtros.empresa} />
       ) : tabPlataforma === "comparativa" ? (
-        <ComparativaTab metricas={metricasFiltradas} empresa={filtros.empresa} />
+        <ComparativaErrorBoundary>
+          <ComparativaTab metricas={metricasFiltradas} empresa={filtros.empresa} />
+        </ComparativaErrorBoundary>
+      ) : tabPlataforma === "rentabilidad" ? (
+        <RentabilidadTab metricas={metricas} empresa={filtros.empresa} />
+      ) : tabPlataforma === "optimizador" ? (
+        <BudgetOptimizerTab empresa={filtros.empresa} />
       ) : tabPlataforma === "benchmarks" ? (
         <BenchmarksTab />
+      ) : tabPlataforma === "formatos" ? (
+        <FormatosTab empresa={filtros.empresa} />
       ) : (
         <>
           {/* ── Resumen por plataforma (solo si hay empresa seleccionada) ── */}
-          {filtros.empresa && resumen.length > 0 && (
-            <ResumenPlataforma resumen={resumen} />
-          )}
+          {filtros.empresa && resumen.length > 0 && (() => {
+            const resumenFiltrado = tabsCompletas.has(tabPlataforma)
+              ? resumen
+              : resumen.filter((r) => r.plataforma === tabPlataforma);
+            return resumenFiltrado.length > 0
+              ? <ResumenPlataforma resumen={resumenFiltrado} />
+              : null;
+          })()}
 
           {/* ── Charts ── */}
           {metricasFiltradas.length > 0 && (
@@ -313,10 +394,12 @@ export default function MetricasPage() {
             metricas={metricasFiltradas}
             seleccionados={seleccionados}
             todosSeleccionados={todosSeleccionados}
+            proyectos={proyectos}
             onToggleUno={toggleUno}
             onToggleTodos={toggleTodos}
             onEditar={editar.abrir}
             onBorrar={borrarMetrica}
+            onProyectoGuardado={recargarProyectos}
           />
         </>
       )}

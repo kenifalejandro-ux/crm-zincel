@@ -3,9 +3,10 @@
 import { FiltrosMetrica, Plataforma, SubPlataforma } from "../../types/metricas.types";
 
 interface Props {
-  filtros:  FiltrosMetrica;
-  empresas: string[];
-  onChange: (f: FiltrosMetrica) => void;
+  filtros:   FiltrosMetrica;
+  empresas:  string[];
+  proyectos: string[];
+  onChange:  (f: FiltrosMetrica) => void;
 }
 
 const PLATAFORMAS = [
@@ -24,13 +25,13 @@ const SUB_PLATAFORMAS = [
 
 const inputCls = "text-xs border border-zinc-200 rounded-lg px-3 py-2 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-brand/50";
 
-export const FiltrosMetricas = ({ filtros, empresas, onChange }: Props) => (
+export const FiltrosMetricas = ({ filtros, empresas, proyectos, onChange }: Props) => (
   <div className="flex flex-wrap gap-3 items-center">
 
     {/* Empresa */}
     <select
       value={filtros.empresa ?? ""}
-      onChange={(e) => onChange({ ...filtros, empresa: e.target.value || undefined })}
+      onChange={(e) => onChange({ ...filtros, empresa: e.target.value || undefined, proyecto: undefined })}
       className={inputCls}
     >
       <option value="">Todas las empresas</option>
@@ -38,6 +39,21 @@ export const FiltrosMetricas = ({ filtros, empresas, onChange }: Props) => (
         <option key={emp} value={emp}>{emp}</option>
       ))}
     </select>
+
+    {/* Proyecto — visible solo si hay empresa seleccionada y hay proyectos */}
+    {filtros.empresa && (
+      <select
+        value={filtros.proyecto ?? ""}
+        onChange={(e) => onChange({ ...filtros, proyecto: e.target.value || undefined })}
+        className={`${inputCls} ${filtros.proyecto ? "border-violet-400 text-violet-700 font-medium" : ""}`}
+      >
+        <option value="">Todos los proyectos</option>
+        {proyectos.map((p) => (
+          <option key={p} value={p}>{p}</option>
+        ))}
+        <option value="__sin_proyecto__" disabled className="text-zinc-300">— Sin asignar —</option>
+      </select>
+    )}
 
     {/* Plataforma */}
     <select
@@ -92,13 +108,13 @@ export const FiltrosMetricas = ({ filtros, empresas, onChange }: Props) => (
       />
     </div>
 
-    {/* Limpiar fechas */}
-    {(filtros.desde || filtros.hasta) && (
+    {/* Limpiar */}
+    {(filtros.desde || filtros.hasta || filtros.proyecto) && (
       <button
-        onClick={() => onChange({ ...filtros, desde: undefined, hasta: undefined })}
-        className="text-xs text-zinc-600 hover:text-zinc-600 underline"
+        onClick={() => onChange({ ...filtros, desde: undefined, hasta: undefined, proyecto: undefined })}
+        className="text-xs text-zinc-500 hover:text-zinc-700 underline"
       >
-        Limpiar fechas
+        Limpiar filtros
       </button>
     )}
 

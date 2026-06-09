@@ -149,7 +149,7 @@ export const ModalRegistroMetrica = ({
 
         <div className="px-6 py-4 space-y-4">
 
-          {/* Empresa + Campaña */}
+          {/* Empresa + Campaña + Objetivo */}
           <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Empresa *</label>
@@ -162,6 +162,29 @@ export const ModalRegistroMetrica = ({
               <input value={form.campana_nombre} onChange={(e) => set("campana_nombre", e.target.value)}
                 className="w-full bg-zinc-900/60 border border-zinc-600 rounded-xl px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/50"
                 placeholder="Ej: Black Friday 2026" />
+            </div>
+            <div className="col-span-2 space-y-1.5">
+              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Objetivo de la campaña</label>
+              <div className="flex gap-2">
+                {(["venta", "branding", "comunidad"] as const).map((obj) => (
+                  <button
+                    key={obj}
+                    type="button"
+                    onClick={() => set("objetivo", obj)}
+                    className={`flex-1 py-2 rounded-xl text-xs font-medium border transition ${
+                      form.objetivo === obj
+                        ? obj === "venta"
+                          ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300"
+                          : obj === "branding"
+                          ? "bg-violet-500/20 border-violet-500/50 text-violet-300"
+                          : "bg-blue-500/20 border-blue-500/50 text-blue-300"
+                        : "bg-zinc-900/40 border-zinc-700 text-zinc-500 hover:border-zinc-500"
+                    }`}
+                  >
+                    {obj === "venta" ? "Venta" : obj === "branding" ? "Branding" : "Comunidad"}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

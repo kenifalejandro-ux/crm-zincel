@@ -7,6 +7,7 @@ import {
 } from "recharts";
 import { TrendingUp } from "lucide-react";
 import { Metrica } from "../../types/metricas.types";
+import { useEffect, useState } from "react";
 
 interface Props { metricas: Metrica[] }
 
@@ -17,6 +18,8 @@ const COLORES: Record<string, string> = {
 };
 
 export const MetricasLineChart = ({ metricas }: Props) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   // Agrupar por periodo_inicio y plataforma → gasto
   const mapaFechas: Record<string, Record<string, number>> = {};
 
@@ -42,10 +45,9 @@ export const MetricasLineChart = ({ metricas }: Props) => {
   return (
     <div className={CARD_CLASS}>
       <h3 className={HEADER_CLASS}><TrendingUp size={14} className="mr-2.5 text-emerald-500" strokeWidth={2} />Evolución de gasto por plataforma</h3>
-      <ResponsiveContainer width="100%" height={240}>
+      {mounted && <ResponsiveContainer width="100%" height={240}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} />
-          //fecha formato dd/mm/yyyy
           <XAxis
            dataKey="fecha"
            tick={{ fontSize: 10 }}
@@ -66,7 +68,7 @@ export const MetricasLineChart = ({ metricas }: Props) => {
             />
           ))}
         </LineChart>
-      </ResponsiveContainer>
+      </ResponsiveContainer>}
     </div>
   );
 };

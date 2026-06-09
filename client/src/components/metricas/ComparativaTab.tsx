@@ -1,21 +1,25 @@
 /** client/src/components/metricas/ComparativaTab.tsx */
 
 import { useState, useMemo, useEffect } from "react";
-import { TrendingUp, TrendingDown, Award, BarChart2, Calendar, Target } from "lucide-react";
+import { TrendingUp, TrendingDown, Award, Target, BarChart2 } from "lucide-react";
 import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, CartesianGrid, Legend, ReferenceLine,
+  LineChart, Line, BarChart, Bar, Cell,
+  XAxis, YAxis, Tooltip,
+  ResponsiveContainer, CartesianGrid, ReferenceLine,
 } from "recharts";
 import { Metrica } from "../../types/metricas.types";
 import type { BenchmarkSector } from "../../types/benchmark.types";
+import type { Resultado } from "../../types/resultado.types";
 import { getBenchmarkPorEmpresa } from "../../services/benchmarks.api";
+import { listarResultados } from "../../services/resultados.api";
 import { sectorLabel } from "../../utils/sectores";
 import { COLORS } from "../../lib/tokens";
 
 interface Props { metricas: Metrica[]; empresa?: string }
 
-type OrdenRanking = "cpl" | "ctr" | "gasto" | "clics" | "cpc";
-type Agrupacion   = "mes" | "anio";
+type Vista       = "campana" | "mes" | "anio";
+type MetricaVista = "gasto" | "cpl" | "ctr" | "mensajes";
+
 
 const FMT_SOL = (v: number) => `S/ ${v.toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const FMT_PCT = (v: number) => `${v.toFixed(2)}%`;
@@ -97,9 +101,11 @@ const BENCHMARKS_INMOBILIARIA: BenchmarkDef[] = [
 function aplicarDinamico(defs: BenchmarkDef[], din: BenchmarkSector | null): BenchmarkDef[] {
   if (!din) return defs;
   return defs.map((b) => {
-    const exc = (din as any)[`${b.key}_excelente`] as number | null | undefined;
-    const ace = (din as any)[`${b.key}_aceptable`] as number | null | undefined;
-    if ((exc === null || exc === undefined) && (ace === null || ace === undefined)) return b;
+    const rawExc = (din as any)[`${b.key}_excelente`];
+    const rawAce = (din as any)[`${b.key}_aceptable`];
+    const exc: number | null = rawExc != null ? Number(rawExc) : null;
+    const ace: number | null = rawAce != null ? Number(rawAce) : null;
+    if (exc === null && ace === null) return b;
     const newExc: BenchmarkDef["excelente"] = b.mayor_es_mejor
       ? { min: exc ?? b.excelente.min, max: null }
       : { min: null, max: exc ?? b.excelente.max };
@@ -122,6 +128,91 @@ const FUENTES_URLS = [
 
 const CPL_VERDE_DEFAULT    = 80;
 const CPL_AMARILLO_DEFAULT = 200;
+
+// ── Benchmarks de rentabilidad de ventas — por sector ────────────────────────
+// Métricas: pctCosto (% del valor vendido que debería costar la inversión)
+//           roasVenta (valor_vendido / inversión_total_comercial)
+// Estas son distintas a las métricas de anuncio (CTR/CPL/CPC) — miden si
+// el gasto total fue rentable respecto al valor de la propiedad/proyecto vendido.
+interface BenchmarkVentaSector {
+  label:     string;
+  pctCosto:  { excelente: number; aceptable: number }; // ≤ X% del valor vendido
+  roasVenta: { excelente: number; aceptable: number }; // ≥ Xx sobre inversión
+  ejemploS:  number;   // precio referencial de unidad en soles (para ejemplificar)
+  fuentes:   { label: string; url: string }[];
+}
+
+const BENCHMARKS_VENTA_SECTOR: Record<string, BenchmarkVentaSector> = {
+  inmobiliaria: {
+    label: "Inmobiliaria residencial",
+    pctCosto:  { excelente: 2, aceptable: 5 },
+    roasVenta: { excelente: 20, aceptable: 8 },
+    ejemploS:  120_000,
+    // Lectura: para un depa de S/120k, inversión excelente ≤ S/2,400 (ROAS 50x).
+    // Aceptable ≤ S/6,000 (ROAS 20x). Sobre 5% = por mejorar.
+    // En inmobiliaria el ticket alto justifica ROAS elevados:
+    // S/5,000 en ads para vender un inmueble de S/200k = ROAS 40x = Excelente.
+    fuentes: [
+      { label: "NAR Profile of Home Buyers and Sellers 2024", url: "https://www.nar.realtor/research-and-statistics/research-reports/highlights-from-the-profile-of-home-buyers-and-sellers" },
+      { label: "Meta Real Estate Industry Insights 2025",      url: "https://www.facebook.com/business/industries/real-estate" },
+      { label: "HubSpot State of Marketing 2025 — Real Estate", url: "https://www.hubspot.com/state-of-marketing" },
+      { label: "Properati LatAm Real Estate Marketing Study 2024", url: "https://properati.com" },
+      { label: "ASEI Asociación de Empresas Inmobiliarias del Perú", url: "https://asei.com.pe" },
+    ],
+  },
+  construccion: {
+    label: "Construcción e ingeniería",
+    pctCosto:  { excelente: 3, aceptable: 8 },
+    roasVenta: { excelente: 12, aceptable: 5 },
+    ejemploS:  500_000,
+    fuentes: [
+      { label: "ENR Top 500 Contractors Marketing Report 2024", url: "https://www.enr.com/toplists" },
+      { label: "AGC Construction Industry Marketing Benchmarks 2025", url: "https://www.agc.org" },
+      { label: "HubSpot Construction Marketing Report 2025", url: "https://www.hubspot.com/state-of-marketing" },
+    ],
+  },
+  tecnologia: {
+    label: "Tecnología / SaaS",
+    pctCosto:  { excelente: 8, aceptable: 20 },
+    roasVenta: { excelente: 8, aceptable: 3 },
+    ejemploS:  50_000,
+    fuentes: [
+      { label: "OpenView SaaS Benchmarks 2024", url: "https://openviewpartners.com/saas-benchmarks" },
+      { label: "SaaS Capital Metrics Report 2025", url: "https://www.saas-capital.com" },
+    ],
+  },
+  retail: {
+    label: "Retail / Comercio",
+    pctCosto:  { excelente: 5, aceptable: 12 },
+    roasVenta: { excelente: 10, aceptable: 4 },
+    ejemploS:  5_000,
+    fuentes: [
+      { label: "NRF Retail Marketing Benchmarks 2024", url: "https://nrf.com" },
+      { label: "Shopify Commerce Trends Report 2025", url: "https://www.shopify.com/research" },
+    ],
+  },
+  educacion: {
+    label: "Educación / Capacitación",
+    pctCosto:  { excelente: 10, aceptable: 25 },
+    roasVenta: { excelente: 6, aceptable: 3 },
+    ejemploS:  8_000,
+    fuentes: [
+      { label: "HubSpot Education Marketing Report 2025", url: "https://www.hubspot.com/state-of-marketing" },
+      { label: "Wordstream Education Ads Benchmarks 2025", url: "https://www.wordstream.com/blog/facebook-ads-benchmarks-2025" },
+    ],
+  },
+};
+
+const BENCHMARK_VENTA_DEFAULT: BenchmarkVentaSector = {
+  label: "Industria general",
+  pctCosto:  { excelente: 5, aceptable: 12 },
+  roasVenta: { excelente: 8, aceptable: 3 },
+  ejemploS:  50_000,
+  fuentes: [
+    { label: "HubSpot State of Marketing 2025", url: "https://www.hubspot.com/state-of-marketing" },
+    { label: "Gartner CMO Spend Survey 2024", url: "https://www.gartner.com/en/marketing" },
+  ],
+};
 
 function estadoBenchmark(valor: number, b: BenchmarkDef): "excelente" | "aceptable" | "alto" {
   if (b.mayor_es_mejor) {
@@ -146,17 +237,36 @@ function desviacionPct(valor: number, b: BenchmarkDef): { pct: number; texto: st
 }
 
 export function ComparativaTab({ metricas, empresa }: Props) {
-  const [orden,         setOrden]         = useState<OrdenRanking>("cpl");
-  const [agrupacion,    setAgrupacion]    = useState<Agrupacion>("mes");
-  const [benchmarkDin,  setBenchmarkDin]  = useState<BenchmarkSector | null>(null);
-  const [sectorActivo,   setSectorActivo]  = useState<string | null>(null);
+  const [benchmarkDin,       setBenchmarkDin]       = useState<BenchmarkSector | null>(null);
+  const [sectorActivo,        setSectorActivo]        = useState<string | null>(null);
+  const [chartsMounted,       setChartsMounted]       = useState(false);
+  const [vista,               setVista]               = useState<Vista>("mes");
+  const [metricaActiva,       setMetricaActiva]       = useState<MetricaVista>("gasto");
+  const [resultados,          setResultados]          = useState<Resultado[]>([]);
+
+  useEffect(() => { setChartsMounted(true); }, []);
+
+  // Si no hay empresa explícita pero todas las métricas son de una sola empresa, usarla
+  const empresaEfectiva = useMemo(() => {
+    if (empresa) return empresa;
+    const unicas = [...new Set(metricas.map((m) => m.empresa).filter(Boolean))];
+    return unicas.length === 1 ? unicas[0] : null;
+  }, [empresa, metricas]);
 
   useEffect(() => {
-    if (!empresa) { setBenchmarkDin(null); setSectorActivo(null); return; }
-    getBenchmarkPorEmpresa(empresa)
+    if (!empresaEfectiva) { setBenchmarkDin(null); setSectorActivo(null); return; }
+    getBenchmarkPorEmpresa(empresaEfectiva)
       .then((b) => { setBenchmarkDin(b); setSectorActivo(b?.sector ?? null); })
       .catch(() => { setBenchmarkDin(null); setSectorActivo(null); });
-  }, [empresa]);
+  }, [empresaEfectiva]);
+
+  // Carga ventas registradas para cruzar con métricas
+  useEffect(() => {
+    if (!empresaEfectiva) { setResultados([]); return; }
+    listarResultados({ empresa: empresaEfectiva })
+      .then(setResultados)
+      .catch(() => setResultados([]));
+  }, [empresaEfectiva]);
 
   const benchmarksActivos = useMemo(
     () => aplicarDinamico(BENCHMARKS_INMOBILIARIA, benchmarkDin),
@@ -171,10 +281,10 @@ export function ComparativaTab({ metricas, empresa }: Props) {
     () => benchmarksActivos.find((b) => b.key === "cpl")?.aceptable.max ?? CPL_AMARILLO_DEFAULT,
     [benchmarksActivos]
   );
-  const cplColor = (cpl: number) =>
-    cpl <= cplVerde ? "text-green-600" : cpl <= cplAmarillo ? "text-amber-500" : "text-red-500";
+  const cplBgColor = (cpl: number): string =>
+    cpl <= Number(cplVerde) ? "#16a34a" : cpl <= Number(cplAmarillo) ? "#f59e0b" : "#ef4444";
 
-  // ── Ranking ──────────────────────────────────────────────────────────────────
+  // ── Ranking (para highlights) ─────────────────────────────────────────────
   const ranking = useMemo(() => {
     return [...metricas]
       .map((m) => ({
@@ -182,28 +292,24 @@ export function ComparativaTab({ metricas, empresa }: Props) {
         cpl: Number(m.leads) > 0 ? Number(m.gasto) / Number(m.leads) : null,
       }))
       .sort((a, b) => {
-        if (orden === "cpl") {
-          if (a.cpl === null) return 1;
-          if (b.cpl === null) return -1;
-          return a.cpl - b.cpl;
-        }
-        if (orden === "ctr")   return Number(b.ctr)   - Number(a.ctr);
-        if (orden === "gasto") return Number(b.gasto) - Number(a.gasto);
-        if (orden === "clics") return Number(b.clics) - Number(a.clics);
-        if (orden === "cpc")   return Number(a.cpc)   - Number(b.cpc);
-        return 0;
+        if (a.cpl === null) return 1;
+        if (b.cpl === null) return -1;
+        return a.cpl - b.cpl;
       });
-  }, [metricas, orden]);
+  }, [metricas]);
 
   // ── Tendencia CPL + regresión lineal ─────────────────────────────────────────
   const { tendenciaCpl, tendenciaSlope } = useMemo(() => {
     const puntos = metricas
       .filter((m) => Number(m.leads) > 0)
-      .map((m) => ({
-        nombre: m.campana_nombre.length > 20 ? m.campana_nombre.slice(0, 20) + "…" : m.campana_nombre,
-        cpl:    Math.round(Number(m.gasto) / Number(m.leads)),
-        fecha:  m.periodo_inicio,
-      }))
+      .map((m) => {
+        const nombre = m.campana_nombre ?? "—";
+        return {
+          nombre: nombre.length > 20 ? nombre.slice(0, 20) + "…" : nombre,
+          cpl:    Math.round(Number(m.gasto) / Number(m.leads)),
+          fecha:  m.periodo_inicio,
+        };
+      })
       .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
 
     // Regresión lineal simple sobre índice (x) vs CPL (y)
@@ -226,52 +332,6 @@ export function ComparativaTab({ metricas, empresa }: Props) {
     return { tendenciaCpl, tendenciaSlope: slope };
   }, [metricas]);
 
-  // ── Comparativa por período ───────────────────────────────────────────────────
-  const porPeriodo = useMemo(() => {
-    const mapa = new Map<string, { gasto: number; leads: number; clics: number; impresiones: number; campanas: number }>();
-    for (const m of metricas) {
-      const fecha = new Date(m.periodo_inicio);
-      const key   = agrupacion === "mes"
-        ? `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`
-        : `${fecha.getFullYear()}`;
-      const prev = mapa.get(key) ?? { gasto: 0, leads: 0, clics: 0, impresiones: 0, campanas: 0 };
-      mapa.set(key, {
-        gasto:       prev.gasto       + Number(m.gasto),
-        leads:       prev.leads       + Number(m.leads),
-        clics:       prev.clics       + Number(m.clics),
-        impresiones: prev.impresiones + Number(m.impresiones),
-        campanas:    prev.campanas    + 1,
-      });
-    }
-    return Array.from(mapa.entries())
-      .map(([periodo, d]) => ({
-        periodo, ...d,
-        cpl: d.leads > 0 ? Math.round(d.gasto / d.leads) : 0,
-        ctr: d.impresiones > 0 ? Number((d.clics / d.impresiones * 100).toFixed(2)) : 0,
-      }))
-      .sort((a, b) => a.periodo.localeCompare(b.periodo));
-  }, [metricas, agrupacion]);
-
-  // ── Estacionalidad: mejor y peor período por CPL ──────────────────────────────
-  const { mejorPeriodo, peorPeriodo } = useMemo(() => {
-    const conCpl = porPeriodo.filter((p) => p.cpl > 0);
-    if (!conCpl.length) return { mejorPeriodo: null, peorPeriodo: null };
-    const mejor = conCpl.reduce((a, b) => a.cpl < b.cpl ? a : b);
-    const peor  = conCpl.reduce((a, b) => a.cpl > b.cpl ? a : b);
-    return { mejorPeriodo: mejor.periodo, peorPeriodo: peor.periodo };
-  }, [porPeriodo]);
-
-  // ── Alerta de declive CTR: últimos 2 períodos consecutivos bajando ────────────
-  const alertaDeclive = useMemo(() => {
-    const conCtr = porPeriodo.filter((p) => p.ctr > 0);
-    if (conCtr.length < 2) return null;
-    const ult = conCtr.slice(-2);
-    if (ult[1].ctr < ult[0].ctr) {
-      const caida = (((ult[0].ctr - ult[1].ctr) / ult[0].ctr) * 100).toFixed(1);
-      return { desde: ult[0].periodo, hasta: ult[1].periodo, caida };
-    }
-    return null;
-  }, [porPeriodo]);
 
   const mejorCpl    = ranking.find((m) => m.cpl !== null);
   const mejorCtr    = [...metricas].sort((a, b) => Number(b.ctr)   - Number(a.ctr))[0];
@@ -296,20 +356,159 @@ export function ComparativaTab({ metricas, empresa }: Props) {
     };
   }, [metricas]);
 
+  // ── Datos agrupados según vista ──────────────────────────────────────────────
+  const datosVista = useMemo(() => {
+    if (vista === "campana") {
+      return metricas.map((m) => {
+        const nombre = m.campana_nombre ?? "—";
+        return {
+          nombre:   nombre.length > 24 ? nombre.slice(0, 24) + "…" : nombre,
+          gasto:    Number(m.gasto),
+          cpl:      Number(m.leads) > 0 ? Number(m.gasto) / Number(m.leads) : null,
+          ctr:      Number(m.impresiones) > 0 ? (Number(m.clics) / Number(m.impresiones)) * 100 : 0,
+          mensajes: Number(m.mensajes),
+          leads:    Number(m.leads),
+        };
+      }).sort((a, b) => b.gasto - a.gasto);
+    }
+    const mapa = new Map<string, { gasto: number; leads: number; mensajes: number; clics: number; impresiones: number }>();
+    for (const m of metricas) {
+      const fecha = new Date(m.periodo_inicio);
+      const key   = vista === "mes"
+        ? `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`
+        : `${fecha.getFullYear()}`;
+      const prev = mapa.get(key) ?? { gasto: 0, leads: 0, mensajes: 0, clics: 0, impresiones: 0 };
+      mapa.set(key, {
+        gasto:       prev.gasto       + Number(m.gasto),
+        leads:       prev.leads       + Number(m.leads),
+        mensajes:    prev.mensajes    + Number(m.mensajes),
+        clics:       prev.clics       + Number(m.clics),
+        impresiones: prev.impresiones + Number(m.impresiones),
+      });
+    }
+    return Array.from(mapa.entries())
+      .map(([nombre, d]) => ({
+        nombre,
+        gasto:    d.gasto,
+        cpl:      d.leads > 0 ? d.gasto / d.leads : null,
+        ctr:      d.impresiones > 0 ? (d.clics / d.impresiones) * 100 : 0,
+        mensajes: d.mensajes,
+        leads:    d.leads,
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
+  }, [metricas, vista]);
+
+  // Filtra nulos para la métrica activa (CPL sin leads no se grafica)
+  const datosChart = useMemo(
+    () => metricaActiva === "cpl" ? datosVista.filter((d) => d.cpl !== null) : datosVista,
+    [datosVista, metricaActiva]
+  );
+
+  // Resumen global para las cards — misma lógica que valoresAgregados para consistencia
+  const resumenTotal = useMemo(() => {
+    const conLeads  = metricas.filter((m) => Number(m.leads) > 0);
+    const ctrVals   = metricas.map((m) => Number(m.ctr)).filter((v) => v > 0);
+    return {
+      gasto:    metricas.reduce((a, m) => a + Number(m.gasto), 0),
+      mensajes: metricas.reduce((a, m) => a + Number(m.mensajes), 0),
+      cpl:      conLeads.length > 0
+                  ? conLeads.reduce((a, m) => a + Number(m.gasto), 0) / conLeads.reduce((a, m) => a + Number(m.leads), 0)
+                  : null,
+      ctr:      ctrVals.length > 0 ? ctrVals.reduce((a, b) => a + b, 0) / ctrVals.length : 0,
+    };
+  }, [metricas]);
+
+  // Umbrales CTR dinámicos desde benchmarksActivos
+  const ctrExcelente = useMemo(() => Number(benchmarksActivos.find((b) => b.key === "ctr")?.excelente.min ?? 3.5), [benchmarksActivos]);
+  const ctrAceptable = useMemo(() => Number(benchmarksActivos.find((b) => b.key === "ctr")?.aceptable.min ?? 2.2), [benchmarksActivos]);
+
+  // Alerta declive CTR (siempre por mes, independiente de la vista)
+  const alertaDeclive = useMemo(() => {
+    const mapa = new Map<string, { clics: number; impresiones: number }>();
+    for (const m of metricas) {
+      const fecha = new Date(m.periodo_inicio);
+      const key   = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`;
+      const prev  = mapa.get(key) ?? { clics: 0, impresiones: 0 };
+      mapa.set(key, { clics: prev.clics + Number(m.clics), impresiones: prev.impresiones + Number(m.impresiones) });
+    }
+    const meses = Array.from(mapa.entries())
+      .map(([periodo, d]) => ({ periodo, ctr: d.impresiones > 0 ? (d.clics / d.impresiones) * 100 : 0 }))
+      .filter((p) => p.ctr > 0)
+      .sort((a, b) => a.periodo.localeCompare(b.periodo));
+    if (meses.length < 2) return null;
+    const ult = meses.slice(-2);
+    if (ult[1].ctr < ult[0].ctr) {
+      const caida = (((ult[0].ctr - ult[1].ctr) / ult[0].ctr) * 100).toFixed(1);
+      return { desde: ult[0].periodo, hasta: ult[1].periodo, caida };
+    }
+    return null;
+  }, [metricas]);
+
+  // ── Cruce de ventas registradas con métricas ────────────────────────────────
+  const retornoAtribuido = useMemo(() => {
+    if (!resultados.length) return null;
+
+    const porCampana = new Map<string, {
+      nombre: string; ventas: number; ingresos: number; costoVenta: number; gasto: number; proyecto: string[];
+    }>();
+
+    for (const r of resultados) {
+      const metrica   = metricas.find((m) => m.id === r.metrica_id);
+      const gasto     = metrica ? Number(metrica.gasto) : 0;
+      const prev      = porCampana.get(r.metrica_id) ?? { nombre: r.campana_nombre, ventas: 0, ingresos: 0, costoVenta: 0, gasto, proyecto: [] };
+      const proyecto  = r.proyecto && !prev.proyecto.includes(r.proyecto) ? [...prev.proyecto, r.proyecto] : prev.proyecto;
+      porCampana.set(r.metrica_id, {
+        nombre:     prev.nombre,
+        ventas:     prev.ventas + 1,
+        ingresos:   prev.ingresos + Number(r.monto),
+        costoVenta: prev.costoVenta + Number(r.costo_venta),
+        gasto:      prev.gasto,
+        proyecto,
+      });
+    }
+
+    const campanas        = Array.from(porCampana.values());
+    const totalVentas     = campanas.reduce((a, c) => a + c.ventas, 0);
+    const totalIngresos   = campanas.reduce((a, c) => a + c.ingresos, 0);
+    const totalHonorarios = campanas.reduce((a, c) => a + c.costoVenta, 0);
+    const totalGasto      = campanas.reduce((a, c) => a + c.gasto, 0);
+    const totalCostoTotal = totalGasto + totalHonorarios;
+
+    return {
+      totalVentas,
+      totalIngresos,
+      totalGasto,
+      totalHonorarios,
+      totalCostoTotal,
+      costoPorVenta:      totalVentas > 0     ? totalCostoTotal / totalVentas         : null,
+      pctCostoComercial:  totalIngresos > 0   ? (totalCostoTotal / totalIngresos) * 100 : null,
+      roas: totalGasto      > 0 ? totalIngresos / totalGasto      : null,
+      roi:  totalCostoTotal > 0 ? ((totalIngresos - totalCostoTotal) / totalCostoTotal) * 100 : null,
+      campanas: campanas
+        .map((c) => ({ ...c, roas: c.gasto > 0 ? c.ingresos / c.gasto : null }))
+        .sort((a, b) => (b.roas ?? 0) - (a.roas ?? 0)),
+    };
+  }, [resultados, metricas]);
+
   // ── Diagnóstico vs benchmarks ────────────────────────────────────────────────
   const diagnostico = useMemo(() => {
+    // ROAS y ROI: primero los de la BD (m.roas > 0), sino los calculados desde resultados
+    const roasVal = valoresAgregados.roas ?? (retornoAtribuido?.roas ?? null);
+    const roiVal  = valoresAgregados.roi  ?? (retornoAtribuido?.roi  ?? null);
     const vals: Record<string, number | null> = {
       ctr: valoresAgregados.ctr, cpc: valoresAgregados.cpc, cpm: valoresAgregados.cpm,
-      cpl: valoresAgregados.cpl, cpa: valoresAgregados.cpa, roas: valoresAgregados.roas,
-      roi: valoresAgregados.roi, frecuencia: valoresAgregados.frecuencia,
+      cpl: valoresAgregados.cpl, cpa: valoresAgregados.cpa,
+      roas: roasVal, roi: roiVal,
+      frecuencia: valoresAgregados.frecuencia,
     };
     return benchmarksActivos.map((b) => {
       const val = vals[b.key] ?? null;
       if (val === null) return { ...b, val: null, valorFmt: null, benchmarkFmt: benchmarkRef(b), desv: null, estado: "sin_datos" as const };
-      const valorFmt = b.unidad === "%" ? `${val.toFixed(2)}%` : b.unidad === "sol" ? FMT_SOL(val) : `${val.toFixed(2)}x`;
+      const n = Number(val);
+      const valorFmt = b.unidad === "%" ? `${n.toFixed(2)}%` : b.unidad === "sol" ? FMT_SOL(n) : `${n.toFixed(2)}x`;
       return { ...b, val, valorFmt, benchmarkFmt: benchmarkRef(b), desv: desviacionPct(val, b), estado: estadoBenchmark(val, b) };
     });
-  }, [valoresAgregados, benchmarksActivos]);
+  }, [valoresAgregados, benchmarksActivos, retornoAtribuido]);
 
   return (
     <div className="space-y-8">
@@ -345,72 +544,6 @@ export function ComparativaTab({ metricas, empresa }: Props) {
         )}
       </div>
 
-      {/* ── Ranking ── */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2">
-            <BarChart2 size={15} className="text-zinc-500" />
-            <span className="text-sm font-semibold text-zinc-800">Ranking de campañas</span>
-          </div>
-          <div className="flex gap-1 bg-zinc-100 rounded-xl p-1">
-            {(["cpl", "ctr", "gasto", "clics", "cpc"] as OrdenRanking[]).map((o) => (
-              <button
-                key={o}
-                onClick={() => setOrden(o)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
-                  orden === o ? "bg-white shadow-sm text-zinc-900" : "text-zinc-500 hover:text-zinc-700"
-                }`}
-              >
-                {o.toUpperCase()}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-zinc-200 overflow-hidden">
-          <table className="w-full text-xs">
-            <thead className="bg-zinc-50 text-zinc-500 uppercase text-[10px]">
-              <tr>
-                <th className="px-4 py-2.5 text-left font-medium w-6">#</th>
-                <th className="px-4 py-2.5 text-left font-medium">Campaña</th>
-                <th className="px-4 py-2.5 text-right font-medium">Gasto</th>
-                <th className="px-4 py-2.5 text-right font-medium">Leads</th>
-                <th className="px-4 py-2.5 text-right font-medium">Clics</th>
-                <th className="px-4 py-2.5 text-right font-medium">CTR</th>
-                <th className="px-4 py-2.5 text-right font-medium">CPC</th>
-                <th className="px-4 py-2.5 text-right font-medium">CPL</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-50">
-              {ranking.map((m, i) => (
-                <tr key={m.id} className={`hover:bg-zinc-50 transition ${i === 0 ? "bg-green-50/40" : ""}`}>
-                  <td className="px-4 py-2.5 text-zinc-400 font-medium">{i + 1}</td>
-                  <td className="px-4 py-2.5 text-zinc-700 font-medium max-w-[200px] truncate">
-                    {i === 0 && <span className="mr-1">🏆</span>}
-                    {m.campana_nombre}
-                  </td>
-                  <td className="px-4 py-2.5 text-right text-zinc-600">{FMT_SOL(Number(m.gasto))}</td>
-                  <td className="px-4 py-2.5 text-right font-medium text-zinc-800">{Number(m.leads)}</td>
-                  <td className="px-4 py-2.5 text-right text-zinc-600">{Number(m.clics).toLocaleString()}</td>
-                  <td className="px-4 py-2.5 text-right">
-                    <span className={Number(m.ctr) >= 3 ? "text-green-600 font-semibold" : Number(m.ctr) >= 1.5 ? "text-amber-500" : "text-red-500"}>
-                      {FMT_PCT(Number(m.ctr))}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2.5 text-right text-zinc-600">{FMT_SOL(Number(m.cpc))}</td>
-                  <td className="px-4 py-2.5 text-right font-semibold">
-                    {m.cpl !== null
-                      ? <span className={cplColor(m.cpl!)}>{FMT_SOL(m.cpl)}</span>
-                      : <span className="text-zinc-300">—</span>
-                    }
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
       {/* ── Tendencia CPL ── */}
       {tendenciaCpl.length > 0 && (
         <div className="space-y-3">
@@ -430,8 +563,8 @@ export function ComparativaTab({ metricas, empresa }: Props) {
               </span>
             )}
           </div>
-          <div className="bg-white border border-zinc-200 rounded-xl p-4 h-56">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="bg-white border border-zinc-200 rounded-xl p-4" style={{ height: 224 }}>
+            {chartsMounted && <ResponsiveContainer width="100%" height={192}>
               <LineChart data={tendenciaCpl} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
                 <XAxis dataKey="nombre" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
@@ -443,12 +576,12 @@ export function ComparativaTab({ metricas, empresa }: Props) {
                     (name as string) === "tendencia" ? "Tendencia (regresión)" : "CPL real",
                   ]}
                 />
-                <ReferenceLine y={cplVerde}    stroke="#16a34a" strokeDasharray="4 2" strokeWidth={1} label={{ value: `Obj S/${cplVerde}`,    position: "right", fontSize: 9, fill: "#16a34a" }} />
-                <ReferenceLine y={cplAmarillo} stroke="#f59e0b" strokeDasharray="4 2" strokeWidth={1} label={{ value: `Lím S/${cplAmarillo}`, position: "right", fontSize: 9, fill: "#f59e0b" }} />
+                <ReferenceLine y={cplVerde}    stroke="#16a34a" strokeDasharray="4 2" strokeWidth={1} label={`Obj S/${cplVerde}`} />
+                <ReferenceLine y={cplAmarillo} stroke="#f59e0b" strokeDasharray="4 2" strokeWidth={1} label={`Lím S/${cplAmarillo}`} />
                 <Line dataKey="cpl"       stroke={COLORS.primary} strokeWidth={2} dot={{ r: 4, fill: COLORS.primary }} />
                 <Line dataKey="tendencia" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
               </LineChart>
-            </ResponsiveContainer>
+            </ResponsiveContainer>}
           </div>
         </div>
       )}
@@ -464,95 +597,181 @@ export function ComparativaTab({ metricas, empresa }: Props) {
         </div>
       )}
 
-      {/* ── Comparativa por período ── */}
-      <div className="space-y-3">
+      {/* ── Análisis comparativo ── */}
+      <div className="space-y-4">
+
+        {/* Header + toggles de vista */}
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <Calendar size={15} className="text-zinc-500" />
-            <span className="text-sm font-semibold text-zinc-800">Inversión por período</span>
+            <BarChart2 size={15} className="text-zinc-500" />
+            <span className="text-sm font-semibold text-zinc-800">Análisis comparativo</span>
           </div>
           <div className="flex gap-1 bg-zinc-100 rounded-xl p-1">
-            {(["mes", "anio"] as Agrupacion[]).map((a) => (
-              <button
-                key={a}
-                onClick={() => setAgrupacion(a)}
+            {([
+              { v: "campana", label: "Por campaña" },
+              { v: "mes",     label: "Por mes"     },
+              { v: "anio",    label: "Por año"     },
+            ] as { v: Vista; label: string }[]).map(({ v, label }) => (
+              <button key={v} onClick={() => setVista(v)}
                 className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
-                  agrupacion === a ? "bg-white shadow-sm text-zinc-900" : "text-zinc-500 hover:text-zinc-700"
-                }`}
-              >
-                {a === "mes" ? "Por mes" : "Por año"}
+                  vista === v ? "bg-white shadow-sm text-zinc-900" : "text-zinc-500 hover:text-zinc-700"
+                }`}>
+                {label}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="bg-white border border-zinc-200 rounded-xl p-4 h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={porPeriodo} margin={{ top: 5, right: 10, left: -10, bottom: 5 }} barCategoryGap="30%">
-              <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
-              <XAxis dataKey="periodo" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => `S/${(v/1000).toFixed(0)}k`} />
-              <Tooltip
-                contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
-                formatter={(v, name) => [
-                  (name as string) === "gasto" ? FMT_SOL(Number(v)) : Number(v).toLocaleString(),
-                  (name as string) === "gasto" ? "Gasto" : (name as string) === "leads" ? "Leads" : "Clics",
-                ]}
-              />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="gasto" name="Gasto"  fill={COLORS.primary}     radius={[4,4,0,0]} />
-              <Bar dataKey="clics" name="Clics"  fill={COLORS.muted}       radius={[4,4,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        {/* Selector de métrica */}
+        <div className="flex gap-2 flex-wrap">
+          {([
+            { k: "gasto",    label: "Gasto",      color: "bg-amber-100 text-amber-700 border-amber-300"   },
+            { k: "cpl",      label: "Costo/Lead",  color: "bg-red-100 text-red-700 border-red-300"         },
+            { k: "ctr",      label: "CTR",         color: "bg-emerald-100 text-emerald-700 border-emerald-300" },
+            { k: "mensajes", label: "Mensajes",    color: "bg-violet-100 text-violet-700 border-violet-300" },
+          ] as { k: MetricaVista; label: string; color: string }[]).map(({ k, label, color }) => (
+            <button key={k} onClick={() => setMetricaActiva(k)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
+                metricaActiva === k ? color + " ring-1 ring-offset-1 ring-current" : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300"
+              }`}>
+              {label}
+            </button>
+          ))}
         </div>
 
-        {/* Tabla resumen por período */}
-        <div className="rounded-xl border border-zinc-200 overflow-hidden">
-          <table className="w-full text-xs">
-            <thead className="bg-zinc-50 text-zinc-500 uppercase text-[10px]">
-              <tr>
-                <th className="px-4 py-2.5 text-left font-medium">Período</th>
-                <th className="px-4 py-2.5 text-right font-medium">Campañas</th>
-                <th className="px-4 py-2.5 text-right font-medium">Gasto</th>
-                <th className="px-4 py-2.5 text-right font-medium">Leads</th>
-                <th className="px-4 py-2.5 text-right font-medium">CTR</th>
-                <th className="px-4 py-2.5 text-right font-medium">CPL</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-50">
-              {porPeriodo.map((p) => {
-                const esMejor = mejorPeriodo === p.periodo && p.cpl > 0;
-                const esPeor  = peorPeriodo  === p.periodo && p.cpl > 0 && mejorPeriodo !== peorPeriodo;
-                return (
-                  <tr key={p.periodo} className={`transition ${esMejor ? "bg-green-50/60" : esPeor ? "bg-red-50/40" : "hover:bg-zinc-50"}`}>
-                    <td className="px-4 py-2.5 font-medium text-zinc-800 flex items-center gap-1.5">
-                      {esMejor && <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-semibold">Mejor</span>}
-                      {esPeor  && <span className="text-[10px] bg-red-100   text-red-600   px-1.5 py-0.5 rounded-full font-semibold">Peor</span>}
-                      {p.periodo}
-                    </td>
-                    <td className="px-4 py-2.5 text-right text-zinc-500">{p.campanas}</td>
-                    <td className="px-4 py-2.5 text-right text-zinc-700">{FMT_SOL(p.gasto)}</td>
-                    <td className="px-4 py-2.5 text-right font-medium text-zinc-800">{p.leads}</td>
-                    <td className="px-4 py-2.5 text-right">
-                      {p.ctr > 0
-                        ? <span className={p.ctr >= 3.5 ? "text-green-600 font-semibold" : p.ctr >= 2.2 ? "text-amber-500" : "text-red-500"}>
-                            {FMT_PCT(p.ctr)}
-                          </span>
-                        : <span className="text-zinc-300">—</span>
-                      }
-                    </td>
-                    <td className="px-4 py-2.5 text-right font-semibold">
-                      {p.cpl > 0
-                        ? <span className={cplColor(p.cpl)}>{FMT_SOL(p.cpl)}</span>
-                        : <span className="text-zinc-300">—</span>
-                      }
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        {/* Cards resumen global con estado de benchmark */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {/* Gasto */}
+          <div className={`bg-white border border-zinc-200 border-l-4 border-l-amber-400 rounded-xl px-4 py-3 transition ${metricaActiva === "gasto" ? "shadow-sm" : "opacity-60"}`}>
+            <p className="text-[10px] text-zinc-500 uppercase font-medium">Total gasto</p>
+            <p className="text-sm font-bold text-zinc-900 mt-0.5">{FMT_SOL(resumenTotal.gasto)}</p>
+          </div>
+
+          {/* CPL */}
+          {(() => {
+            const bCpl = benchmarksActivos.find((b) => b.key === "cpl");
+            const est  = resumenTotal.cpl !== null && bCpl ? estadoBenchmark(resumenTotal.cpl, bCpl) : null;
+            const badge: Record<string, string> = { excelente: "bg-green-100 text-green-700", aceptable: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
+            const label: Record<string, string> = { excelente: "Excelente", aceptable: "Aceptable", alto: "Alto" };
+            return (
+              <div className={`bg-white border border-zinc-200 border-l-4 border-l-red-400 rounded-xl px-4 py-3 transition ${metricaActiva === "cpl" ? "shadow-sm" : "opacity-60"}`}>
+                <p className="text-[10px] text-zinc-500 uppercase font-medium">CPL promedio</p>
+                <p className="text-sm font-bold text-zinc-900 mt-0.5">{resumenTotal.cpl !== null ? FMT_SOL(resumenTotal.cpl) : "Sin leads"}</p>
+                {est && <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${badge[est]}`}>{label[est]}</span>}
+              </div>
+            );
+          })()}
+
+          {/* CTR */}
+          {(() => {
+            const bCtr = benchmarksActivos.find((b) => b.key === "ctr");
+            const est  = bCtr ? estadoBenchmark(resumenTotal.ctr, bCtr) : null;
+            const badge: Record<string, string> = { excelente: "bg-green-100 text-green-700", aceptable: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
+            const label: Record<string, string> = { excelente: "Excelente", aceptable: "Aceptable", alto: "Alto" };
+            return (
+              <div className={`bg-white border border-zinc-200 border-l-4 border-l-emerald-400 rounded-xl px-4 py-3 transition ${metricaActiva === "ctr" ? "shadow-sm" : "opacity-60"}`}>
+                <p className="text-[10px] text-zinc-500 uppercase font-medium">CTR promedio</p>
+                <p className="text-sm font-bold text-zinc-900 mt-0.5">{`${resumenTotal.ctr.toFixed(2)}%`}</p>
+                {est && <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${badge[est]}`}>{label[est]}</span>}
+              </div>
+            );
+          })()}
+
+          {/* Mensajes */}
+          <div className={`bg-white border border-zinc-200 border-l-4 border-l-violet-400 rounded-xl px-4 py-3 transition ${metricaActiva === "mensajes" ? "shadow-sm" : "opacity-60"}`}>
+            <p className="text-[10px] text-zinc-500 uppercase font-medium">Mensajes</p>
+            <p className="text-sm font-bold text-zinc-900 mt-0.5">{resumenTotal.mensajes.toLocaleString()}</p>
+          </div>
         </div>
+
+        {/* Gráfico de barras */}
+        {datosChart.length > 0 && (
+          <div className="bg-white border border-zinc-200 rounded-xl p-4" style={{ height: 280 }}>
+            {chartsMounted && <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={datosChart} margin={{ top: 5, right: 16, left: 0, bottom: vista === "campana" ? 60 : 5 }} barCategoryGap="28%">
+                <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+                <XAxis
+                  dataKey="nombre"
+                  tick={{ fontSize: 9 }}
+                  tickLine={false}
+                  axisLine={false}
+                  angle={vista === "campana" ? -35 : 0}
+                  textAnchor={vista === "campana" ? "end" : "middle"}
+                  interval={0}
+                />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(v) =>
+                    metricaActiva === "gasto" ? `S/${(v / 1000).toFixed(0)}k` :
+                    metricaActiva === "cpl"   ? `S/${v}`                       :
+                    metricaActiva === "ctr"   ? `${v.toFixed(1)}%`             :
+                    String(v)
+                  }
+                />
+                <Tooltip
+                  contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
+                  formatter={(v, _name, props) => {
+                    const d = props.payload as typeof datosChart[0];
+                    const val = Number(v);
+                    const valFmt =
+                      metricaActiva === "gasto"    ? FMT_SOL(val)              :
+                      metricaActiva === "cpl"      ? FMT_SOL(val)              :
+                      metricaActiva === "ctr"      ? `${val.toFixed(2)}%`      :
+                      val.toLocaleString("es-PE");
+                    const metLabel =
+                      metricaActiva === "gasto"    ? "Gasto"        :
+                      metricaActiva === "cpl"      ? "Costo / Lead" :
+                      metricaActiva === "ctr"      ? "CTR"          : "Mensajes";
+
+                    // Estado vs benchmark
+                    let estLabel = "";
+                    if (metricaActiva === "cpl" && d?.cpl !== null) {
+                      const b = benchmarksActivos.find((x) => x.key === "cpl");
+                      if (b) estLabel = estadoBenchmark(val, b) === "excelente" ? " ✓ Excelente" : estadoBenchmark(val, b) === "aceptable" ? " ~ Aceptable" : " ✗ Alto";
+                    } else if (metricaActiva === "ctr") {
+                      const b = benchmarksActivos.find((x) => x.key === "ctr");
+                      if (b) estLabel = estadoBenchmark(val, b) === "excelente" ? " ✓ Excelente" : estadoBenchmark(val, b) === "aceptable" ? " ~ Aceptable" : " ✗ Bajo";
+                    }
+                    return [`${valFmt}${estLabel}`, metLabel];
+                  }}
+                />
+
+                {/* Líneas de referencia benchmark — solo para CPL y CTR */}
+                {metricaActiva === "cpl" && <>
+                  <ReferenceLine y={Number(cplVerde)}    stroke="#16a34a" strokeDasharray="5 3" strokeWidth={1.5}
+                    label={{ value: `Exc ≤ S/${Number(cplVerde).toFixed(0)}`,    position: "insideTopRight", fontSize: 9, fill: "#16a34a" }} />
+                  <ReferenceLine y={Number(cplAmarillo)} stroke="#f59e0b" strokeDasharray="5 3" strokeWidth={1.5}
+                    label={{ value: `Ace ≤ S/${Number(cplAmarillo).toFixed(0)}`, position: "insideTopRight", fontSize: 9, fill: "#f59e0b" }} />
+                </>}
+                {metricaActiva === "ctr" && <>
+                  <ReferenceLine y={ctrExcelente} stroke="#16a34a" strokeDasharray="5 3" strokeWidth={1.5}
+                    label={{ value: `Exc ≥ ${ctrExcelente}%`, position: "insideTopRight", fontSize: 9, fill: "#16a34a" }} />
+                  <ReferenceLine y={ctrAceptable} stroke="#f59e0b" strokeDasharray="5 3" strokeWidth={1.5}
+                    label={{ value: `Ace ≥ ${ctrAceptable}%`, position: "insideTopRight", fontSize: 9, fill: "#f59e0b" }} />
+                </>}
+
+                <Bar dataKey={metricaActiva} radius={[4, 4, 0, 0]}>
+                  {datosChart.map((d, i) => {
+                    const fill: string =
+                      metricaActiva === "cpl" && d.cpl !== null ? cplBgColor(d.cpl)
+                      : metricaActiva === "ctr" ? (d.ctr >= ctrExcelente ? "#16a34a" : d.ctr >= ctrAceptable ? "#f59e0b" : "#ef4444")
+                      : metricaActiva === "mensajes" ? "#8b5cf6"
+                      : "#ceab11";
+                    return <Cell key={i} fill={fill as any} />;
+                  })}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>}
+          </div>
+        )}
+
+        {datosChart.length === 0 && (
+          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-8 text-center text-xs text-zinc-400">
+            Sin datos para graficar con la métrica seleccionada
+          </div>
+        )}
       </div>
 
       {/* ── Diagnóstico por Métrica ── */}
@@ -654,20 +873,25 @@ export function ComparativaTab({ metricas, empresa }: Props) {
   );
 }
 
+function fmtRef(v: unknown): string {
+  if (typeof v !== "number") return "—";
+  return Number.isInteger(v) ? String(v) : v.toFixed(1);
+}
+
 function benchmarkRef(b: BenchmarkDef): string {
   if (b.key === "frecuencia") return "Óptimo 1.5 – 2.5x";
   if (b.mayor_es_mejor) {
     const ref = b.excelente.min ?? b.aceptable.min;
-    if (ref === null) return "—";
-    if (b.unidad === "%")   return `≥ ${ref}%`;
-    if (b.unidad === "sol") return `≥ S/ ${ref.toFixed(2)}`;
-    return `≥ ${ref}x`;
+    if (typeof ref !== "number") return "—";
+    if (b.unidad === "%")   return `≥ ${fmtRef(ref)}%`;
+    if (b.unidad === "sol") return `≥ S/ ${fmtRef(ref)}`;
+    return `≥ ${fmtRef(ref)}x`;
   } else {
     const ref = b.excelente.max ?? b.aceptable.max;
-    if (ref === null) return "—";
-    if (b.unidad === "%")   return `< ${ref}%`;
-    if (b.unidad === "sol") return `< S/ ${ref.toFixed(0)}`;
-    return `< ${ref}x`;
+    if (typeof ref !== "number") return "—";
+    if (b.unidad === "%")   return `< ${fmtRef(ref)}%`;
+    if (b.unidad === "sol") return `< S/ ${fmtRef(ref)}`;
+    return `< ${fmtRef(ref)}x`;
   }
 }
 

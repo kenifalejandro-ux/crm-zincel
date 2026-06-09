@@ -5,6 +5,7 @@ import { Settings, Plus, Pencil, Trash2, Building2 } from "lucide-react";
 import type { BenchmarkSector, BenchmarkInput } from "../../types/benchmark.types";
 import type { MetaCuenta } from "../../types/metaCuentas.types";
 import { SECTORES, sectorLabel } from "../../utils/sectores";
+import { BENCHMARK_DEFAULTS } from "../../utils/benchmarkDefaults";
 import {
   listarBenchmarks,
   crearBenchmark,
@@ -310,7 +311,11 @@ export function BenchmarksTab() {
                 <label className="block text-xs font-medium text-zinc-600 mb-1">Sector *</label>
                 <select
                   value={form.sector}
-                  onChange={(e) => setForm((p) => ({ ...p, sector: e.target.value }))}
+                  onChange={(e) => {
+                    const sector = e.target.value;
+                    const def = BENCHMARK_DEFAULTS[sector];
+                    setForm((p) => ({ ...p, sector, ...(def ?? {}) }));
+                  }}
                   disabled={!!editando}
                   className="w-full text-xs border border-zinc-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand disabled:opacity-60 disabled:bg-zinc-50"
                 >

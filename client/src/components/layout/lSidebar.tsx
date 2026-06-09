@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Users, Phone,
-  CalendarDays, DollarSign, FileText, User, BarChart2, X, PieChart, Settings, CheckSquare, Kanban, MessageSquare, TrendingUp, Target, Flag, Clock, Trophy,
+  CalendarDays, DollarSign, FileText, User, BarChart2, X, PieChart, Settings, CheckSquare, Kanban, MessageSquare, TrendingUp, Target, Flag, Clock, Trophy, Globe,
 } from "lucide-react";
 import { getResumenTareas } from "../../services/tareas.api";
 import { getScoresLeads } from "../../services/prospectos.api";
@@ -132,6 +132,10 @@ export function lSidebar({ abierto, onCerrar }: Props) {
 
           <NavItem label="Mi Jornada" to="/jornada"  icon={Clock} />
           <NavItem label="Tareas"     to="/tareas"   icon={CheckSquare} badge={tareasUrgentes} />
+
+          <div className="my-2 border-t border-gray-100" />
+
+          <NavItem label="2da Vuelta 🗳️" to="/segunda-vuelta" icon={Globe} />
 
           <div className="my-2 border-t border-gray-100" />
 

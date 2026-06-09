@@ -43,6 +43,15 @@ benchmarksRouter.post("/", validate(BenchmarkSchema), async (req, res) => {
   } catch (e: any) { res.status(500).json({ ok: false, message: e.message }); }
 });
 
+benchmarksRouter.put("/empresa-sector", async (req, res) => {
+  try {
+    const { empresa, sector } = req.body;
+    if (!empresa) return res.status(400).json({ ok: false, message: "empresa requerida" });
+    await updateEmpresaSectorService(empresa, sector ?? "");
+    res.json({ ok: true });
+  } catch (e: any) { res.status(500).json({ ok: false, message: e.message }); }
+});
+
 benchmarksRouter.put("/:id", async (req, res) => {
   try {
     const data = await actualizarBenchmarkService(req.params.id, req.body);
@@ -53,15 +62,6 @@ benchmarksRouter.put("/:id", async (req, res) => {
 benchmarksRouter.delete("/:id", async (req, res) => {
   try {
     await eliminarBenchmarkService(req.params.id);
-    res.json({ ok: true });
-  } catch (e: any) { res.status(500).json({ ok: false, message: e.message }); }
-});
-
-benchmarksRouter.put("/empresa-sector", async (req, res) => {
-  try {
-    const { empresa, sector } = req.body;
-    if (!empresa) return res.status(400).json({ ok: false, message: "empresa requerida" });
-    await updateEmpresaSectorService(empresa, sector ?? "");
     res.json({ ok: true });
   } catch (e: any) { res.status(500).json({ ok: false, message: e.message }); }
 });
