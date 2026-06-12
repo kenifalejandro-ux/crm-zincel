@@ -296,3 +296,112 @@ body {
 .image-container div[style*="background-image"] {
   pointer-events: auto !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   CRM PREMIUM DESIGN SYSTEM — "CRM de 2030"
+   Agrega depth, jerarquía y precisión sin tocar lógica existente
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── CSS Custom Properties ──────────────────────────────────── */
+:root {
+  --text-primary:    #0f172a;   /* slate-900 — máximo contraste */
+  --text-secondary:  #334155;   /* slate-700 — secundario legible */
+  --text-muted:      #64748b;   /* slate-500 — auxiliar / metadatos */
+  --border-default:  #e2e8f0;   /* slate-200 — bordes sutiles */
+  --shadow-card:     0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.05);
+  --shadow-elevated: 0 4px 16px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-glass:    0 1px 3px rgba(0,0,0,0.04), 0 8px 30px rgba(0,0,0,0.08);
+  --radius-card:     1rem;
+}
+
+/* ── Base: tipografía nítida ────────────────────────────────── */
+body {
+  color: var(--text-primary);
+  font-feature-settings: "cv02","cv03","cv04","cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar premium (thin, slate) ───────────────────────── */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #cbd5e1; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── Tablas — encabezados nítidos ───────────────────────────── */
+table th {
+  color: #0f172a;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ── Clases reutilizables CRM premium ───────────────────────── */
+@layer components {
+
+  /* Card glass estándar con hover — espejo de GLASS_BASE (lib/tokens.ts) */
+  .crm-card {
+    @apply rounded-2xl border p-6 transition-shadow duration-200;
+    background-color: rgba(255, 255, 255, 0.70);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-color: rgba(255, 255, 255, 0.60);
+    box-shadow: var(--shadow-glass);
+  }
+  .crm-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  }
+
+  /* Panel de sección glass sin hover (contenedor estático) */
+  .crm-section-panel {
+    @apply rounded-2xl border p-6;
+    background-color: rgba(255, 255, 255, 0.70);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-color: rgba(255, 255, 255, 0.60);
+    box-shadow: var(--shadow-glass);
+  }
+
+  /* Número / valor principal */
+  .crm-data-value {
+    @apply text-2xl font-bold tabular-nums leading-tight;
+  }
+
+  /* Label eyebrow de KPI */
+  .crm-label {
+    @apply text-[10px] font-semibold uppercase tracking-widest text-slate-400;
+  }
+
+  /* Título de sección dentro de un panel */
+  .crm-section-title {
+    @apply text-sm font-semibold text-slate-800;
+  }
+
+  /* Barra de acento gold — marca visual del header de cada página */
+  .crm-section-accent {
+    @apply w-1 rounded-full bg-brand shrink-0;
+  }
+
+  /* Header de página con barra de acento gold */
+  .crm-page-header {
+    @apply flex flex-col gap-1 pb-5 mb-6;
+    border-bottom: 2px solid #e2e8f0;
+    position: relative;
+  }
+  .crm-page-header::before {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 3rem;
+    height: 2px;
+    background: #ceab11;
+    border-radius: 99px;
+  }
+  .crm-page-header h1,
+  .crm-page-header h2 {
+    @apply text-2xl font-bold text-slate-900 tracking-tight;
+  }
+  .crm-page-header p {
+    @apply text-sm text-slate-500;
+  }
+}

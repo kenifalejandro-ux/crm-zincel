@@ -3,7 +3,7 @@
 import axios from "axios";
 import { env } from "../config/env";
 import { pool } from "../config/database";
-import { obtenerCuentaPorEmpresaYPlataforma } from "./plataformaCuentas.service";
+import { obtenerCuentaPorEmpresaYPlataforma, registrarSync } from "./plataformaCuentas.service";
 
 const TIKTOK_API = "https://business-api.tiktok.com/open_api/v1.3";
 
@@ -134,8 +134,7 @@ export async function syncTikTokAdsService(empresa: string, desde: string, hasta
         interacciones,
         me_gusta, comentarios, compartidos, guardados, tasa_engagement,
         costo_por_mensaje, reproducciones, tasa_reproduccion,
-        moneda_gasto,
-        notas
+        moneda_gasto, notas, platform_campaign_id
       ) VALUES (
         $1,$2,'tiktok',NULL,
         $3,$4,
@@ -146,24 +145,35 @@ export async function syncTikTokAdsService(empresa: string, desde: string, hasta
         0,
         0,0,0,0,0,
         0,0,0,
-        'USD',
-        $12
+        'USD',$12,$13
       )
-      ON CONFLICT DO NOTHING
-      RETURNING id`,
+      ON CONFLICT (empresa, plataforma, platform_campaign_id, periodo_inicio, periodo_fin)
+        WHERE platform_campaign_id IS NOT NULL
+      DO UPDATE SET
+        impresiones  = EXCLUDED.impresiones,
+        alcance      = EXCLUDED.alcance,
+        clics        = EXCLUDED.clics,
+        ctr          = EXCLUDED.ctr,
+        gasto        = EXCLUDED.gasto,
+        cpc          = EXCLUDED.cpc,
+        cpm          = EXCLUDED.cpm,
+        actualizado_en = NOW()
+      RETURNING id, (xmax = 0) AS es_nuevo`,
       [
         empresa, ins.campaign_name,
         desde, hasta,
         impresiones, alcance, clics, ctr,
         gasto, cpc, cpm,
         `Importado TikTok Ads · ID: ${ins.campaign_id}`,
+        ins.campaign_id,
       ]
     );
 
-    if (result.rowCount && result.rowCount > 0) insertados++;
+    if (result.rows[0]?.es_nuevo) insertados++;
     else duplicados++;
   }
 
+  await registrarSync(empresa, "tiktok", null);
   return { total: insights.length, insertados, duplicados, campanas: insights.map(i => i.campaign_name) };
 }
 

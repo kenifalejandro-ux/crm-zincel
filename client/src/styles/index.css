@@ -117,13 +117,11 @@ html {
 @property --sun-color { syntax: '<color>';      inherits: false; initial-value: rgba(255, 210, 80, 0.45); }
 
 @keyframes sun-travel {
-  0%   { --sun-x: 10%;  --sun-y: 90%; --sun-color: rgba(255, 210, 80,  0.45); } /* dorado  — inferior izq  */
-  17%  { --sun-x: 90%;  --sun-y: 90%; --sun-color: rgba(255, 140, 160, 0.40); } /* rosa    — inferior der  */
-  34%  { --sun-x: 50%;  --sun-y: 90%; --sun-color: rgba(0,   210, 200, 0.40); } /* cyan    — inferior centro */
-  50%  { --sun-x: 90%;  --sun-y: 10%; --sun-color: rgba(130, 190, 255, 0.40); } /* azul    — superior der  */
-  67%  { --sun-x: 10%;  --sun-y: 10%; --sun-color: rgba(190, 150, 255, 0.40); } /* lila    — superior izq  */
-  83%  { --sun-x: 10%;  --sun-y: 50%; --sun-color: rgba(52,  211, 153, 0.40); } /* emerald — lateral izq   */
-  100% { --sun-x: 10%;  --sun-y: 90%; --sun-color: rgba(255, 210, 80,  0.45); } /* vuelve al dorado        */
+  0%   { --sun-x: 10%;  --sun-y: 90%; --sun-color: rgba(206, 171, 17,  0.30); } /* gold brand  */
+  25%  { --sun-x: 90%;  --sun-y: 80%; --sun-color: rgba(251, 191, 36,  0.25); } /* amber warm  */
+  50%  { --sun-x: 80%;  --sun-y: 10%; --sun-color: rgba(206, 171, 17,  0.20); } /* gold soft   */
+  75%  { --sun-x: 10%;  --sun-y: 20%; --sun-color: rgba(245, 208, 100, 0.28); } /* yellow warm */
+  100% { --sun-x: 10%;  --sun-y: 90%; --sun-color: rgba(206, 171, 17,  0.30); } /* vuelve      */
 }
 
 .crm-sun-bg {

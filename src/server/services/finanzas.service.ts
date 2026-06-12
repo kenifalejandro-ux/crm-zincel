@@ -391,6 +391,141 @@ export async function eliminarPrestamosMasivoService(ids: string[]) {
   return result.rowCount;
 }
 
+// ── ANÁLISIS FINANCIERO (8 indicadores Vértice) ────────────────
+
+export async function analisisFinancieroService() {
+  const toPEN = (col: string) =>
+    `CASE WHEN moneda = 'USD' THEN ${col} * tipo_cambio ELSE ${col} END`;
+
+  const [r1, r2, r3, r4, r5, r6, r7] = await Promise.all([
+    pool.query(`SELECT COALESCE(SUM(${toPEN("adelanto")}), 0) AS total FROM ingresos`),
+    pool.query(`SELECT COALESCE(SUM(${toPEN("monto")}),   0) AS total FROM egresos   WHERE estado = 'pagado'`),
+    pool.query(`SELECT COALESCE(SUM(${toPEN("saldo_pendiente")}), 0) AS total FROM ingresos WHERE estado IN ('por_cobrar','cobrado_parcial','vencido')`),
+    pool.query(`SELECT COALESCE(SUM(${toPEN("monto")}), 0) AS total FROM egresos   WHERE estado = 'pendiente'`),
+    pool.query(`SELECT COALESCE(SUM(${toPEN("monto")}), 0) AS total FROM prestamos WHERE estado IN ('por_pagar','vencido')`),
+    pool.query(`SELECT COALESCE(SUM(${toPEN("adelanto")}), 0) AS total FROM ingresos WHERE EXTRACT(YEAR FROM fecha) = EXTRACT(YEAR FROM CURRENT_DATE)`),
+    pool.query(`SELECT COALESCE(SUM(${toPEN("monto")}),   0) AS total FROM egresos   WHERE estado = 'pagado' AND EXTRACT(YEAR FROM fecha) = EXTRACT(YEAR FROM CURRENT_DATE)`),
+  ]);
+
+  const totalCobrado      = Number(r1.rows[0].total);
+  const totalEgresosPag   = Number(r2.rows[0].total);
+  const cxc               = Number(r3.rows[0].total);
+  const pasivosCorrientes = Number(r4.rows[0].total);
+  const prestamosPend     = Number(r5.rows[0].total);
+  const ingresosAnio      = Number(r6.rows[0].total);
+  const egresosAnio       = Number(r7.rows[0].total);
+
+  const cajaYBancos       = totalCobrado - totalEgresosPag;
+  const cajaPositiva      = Math.max(0, cajaYBancos);
+  const activosCorrientes = cajaYBancos + cxc;
+  const activosTotales    = activosCorrientes;
+  const pasivosTotales    = pasivosCorrientes + prestamosPend;
+  const patrimonio        = activosTotales - pasivosTotales;
+  const utilidad          = ingresosAnio - egresosAnio;
+
+  const safe = (num: number, den: number, fallback = 0) =>
+    den !== 0 ? num / den : fallback;
+
+  const liquidezCorriente       = safe(activosCorrientes, pasivosCorrientes, 999);
+  const capitalTrabajo          = activosCorrientes - pasivosCorrientes;
+  const endeudamiento           = safe(pasivosTotales, activosTotales) * 100;
+  const deudaPatrimonio         = patrimonio > 0 ? safe(pasivosTotales, patrimonio) : null;
+  const roe                     = patrimonio > 0 ? safe(utilidad, patrimonio) * 100 : null;
+  const roa                     = activosTotales > 0 ? safe(utilidad, activosTotales) * 100 : null;
+  const concentracionCxC        = safe(cxc, activosCorrientes) * 100;
+  const disponibilidadInmediata = safe(cajaPositiva, pasivosCorrientes, 100) * 100;
+
+  const clasifLiquidez = (v: number) =>
+    v >= 1.5 ? "optimo" : v >= 1.0 ? "aceptable" : "critico";
+  const clasifCapital  = (v: number) => v > 0 ? "optimo" : "critico";
+  const clasifEndeud   = (v: number) => v < 50 ? "riesgo_bajo" : v <= 70 ? "moderado" : "riesgo_alto";
+  const clasifDP       = (v: number | null) =>
+    v === null ? "sin_datos" : v < 1 ? "riesgo_bajo" : v <= 2 ? "moderado" : "riesgo_alto";
+  const clasifRoe      = (v: number | null) =>
+    v === null ? "sin_datos" : v >= 20 ? "excelente" : v >= 10 ? "bueno" : "por_mejorar";
+  const clasifRoa      = (v: number | null) =>
+    v === null ? "sin_datos" : v >= 10 ? "excelente" : v >= 5 ? "bueno" : "por_mejorar";
+  const clasifCxC      = (v: number) => v < 50 ? "riesgo_bajo" : v <= 70 ? "moderado" : "alto_riesgo";
+  const clasifDisp     = (v: number) => v >= 30 ? "optimo" : v >= 20 ? "atencion" : "critico";
+
+  const hallazgos: { tipo: "positivo" | "negativo"; texto: string }[] = [];
+
+  if (liquidezCorriente >= 1.5)
+    hallazgos.push({ tipo: "positivo", texto: "La liquidez corriente es óptima. La empresa puede cubrir sus obligaciones de corto plazo." });
+  else if (liquidezCorriente < 1.0)
+    hallazgos.push({ tipo: "negativo", texto: "Liquidez corriente crítica: los activos corrientes no cubren los pasivos de corto plazo." });
+
+  if (cajaYBancos > 0)
+    hallazgos.push({ tipo: "positivo", texto: "La empresa mantiene una posición de caja positiva." });
+  else
+    hallazgos.push({ tipo: "negativo", texto: "La posición de caja es negativa. Revisar el flujo operativo urgentemente." });
+
+  if (roe !== null && roe >= 20)
+    hallazgos.push({ tipo: "positivo", texto: `Excelente rentabilidad del patrimonio (ROE ${roe.toFixed(1)}%). Fuerte retorno para los socios.` });
+  else if (roe !== null && roe < 10)
+    hallazgos.push({ tipo: "negativo", texto: `Rentabilidad del patrimonio baja (ROE ${roe.toFixed(1)}%). Analizar eficiencia operativa.` });
+
+  if (roa !== null && roa >= 10)
+    hallazgos.push({ tipo: "positivo", texto: `Los activos generan una rentabilidad atractiva (ROA ${roa.toFixed(1)}%).` });
+
+  if (concentracionCxC > 70)
+    hallazgos.push({ tipo: "negativo", texto: `El ${concentracionCxC.toFixed(0)}% de los activos está concentrado en cuentas por cobrar, limitando el flujo de caja.` });
+
+  if (endeudamiento > 70)
+    hallazgos.push({ tipo: "negativo", texto: `Alto endeudamiento (${endeudamiento.toFixed(0)}%): más del 70% de los activos son financiados por terceros.` });
+
+  if (disponibilidadInmediata < 20 && pasivosCorrientes > 0)
+    hallazgos.push({ tipo: "negativo", texto: `Solo el ${disponibilidadInmediata.toFixed(0)}% de las obligaciones corrientes puede cubrirse con efectivo inmediato.` });
+
+  if (patrimonio > 0 && pasivosTotales < patrimonio)
+    hallazgos.push({ tipo: "positivo", texto: "Los fondos propios superan los pasivos totales. Estructura financiera sólida." });
+
+  const negativos = hallazgos.filter(h => h.tipo === "negativo").length;
+  const semaforo  = negativos >= 3 ? "critico" : negativos >= 1 ? "en_riesgo" : "estable";
+
+  const recomendaciones: string[] = [];
+  if (concentracionCxC > 70) {
+    recomendaciones.push("Priorizar la recuperación de las cuentas por cobrar.");
+    recomendaciones.push("Implementar una política de cobranza más agresiva.");
+  }
+  if (disponibilidadInmediata < 30 && pasivosCorrientes > 0)
+    recomendaciones.push("Elaborar un flujo de caja proyectado para los próximos 3 meses.");
+  if (prestamosPend > 0)
+    recomendaciones.push("Revisar el calendario de obligaciones de préstamos.");
+  recomendaciones.push("Mantener reservas de efectivo para fortalecer la posición financiera.");
+
+  const totalActivos = activosCorrientes > 0 ? activosCorrientes : 1;
+
+  return {
+    fecha_analisis: new Date().toISOString(),
+    resumen: {
+      activos_totales:    activosTotales,
+      pasivos_totales:    pasivosTotales,
+      patrimonio,
+      utilidad_ejercicio: utilidad,
+      caja_bancos:        cajaYBancos,
+      cuentas_por_cobrar: cxc,
+    },
+    composicion_activos: [
+      { nombre: "Cuentas por Cobrar", valor: cxc,          porcentaje: (cxc / totalActivos) * 100,          color: "#27272a" },
+      { nombre: "Caja y Bancos",      valor: cajaPositiva, porcentaje: (cajaPositiva / totalActivos) * 100, color: "#22c55e" },
+    ].filter(c => c.valor > 0),
+    indicadores: {
+      liquidez_corriente:       { valor: liquidezCorriente,       estado: clasifLiquidez(liquidezCorriente) },
+      capital_trabajo:          { valor: capitalTrabajo,          estado: clasifCapital(capitalTrabajo) },
+      endeudamiento:            { valor: endeudamiento,           estado: clasifEndeud(endeudamiento) },
+      deuda_patrimonio:         { valor: deudaPatrimonio,         estado: clasifDP(deudaPatrimonio) },
+      roe:                      { valor: roe,                     estado: clasifRoe(roe) },
+      roa:                      { valor: roa,                     estado: clasifRoa(roa) },
+      concentracion_cxc:        { valor: concentracionCxC,        estado: clasifCxC(concentracionCxC) },
+      disponibilidad_inmediata: { valor: disponibilidadInmediata, estado: clasifDisp(disponibilidadInmediata) },
+    },
+    hallazgos,
+    recomendaciones,
+    semaforo,
+  };
+}
+
 // Resumen simplificado para DashboardPage
 export async function resumenFinancieroDashboardService() {
   const result = await pool.query(`

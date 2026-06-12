@@ -12,7 +12,7 @@ export function lHeader({ onToggleSidebar }: Props) {
   const { usuario, logout } = useAuth();
 
   return (
-    <header className="bg-white/50 backdrop-blur-2xl border-b border-white/30 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shrink-0">
+    <header className="bg-amber-400 backdrop-blur-2xl border-b border-white/30 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shrink-0">
 
       {/* Izquierda: hamburger (móvil/tablet) + fecha */}
       <div className="flex items-center gap-3 min-w-0">
@@ -27,10 +27,10 @@ export function lHeader({ onToggleSidebar }: Props) {
         </button>
 
         <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="text-[9px] uppercase tracking-[0.15em] text-zinc-600 font-semibold hidden sm:block">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hidden sm:block">
             Resumen Diario
           </span>
-          <p className="text-xs font-medium text-slate-500 capitalize truncate">
+          <p className="text-sm font-semibold text-slate-700 capitalize truncate">
             {new Date().toLocaleDateString("es-PE", {
               weekday: "long", day: "numeric", month: "long",
             })}
@@ -44,10 +44,10 @@ export function lHeader({ onToggleSidebar }: Props) {
         {/* Info usuario */}
         <div className="flex items-center gap-3 pr-3 sm:pr-5 border-r border-gray-200">
           <div className="text-right hidden sm:block">
-            <p className="text-xs font-semibold text-zinc-800 leading-none">
+            <p className="text-sm font-bold text-slate-900 leading-none">
               {usuario?.nombre}
             </p>
-            <p className="text-[10px] text-amber-500 font-semibold mt-1 uppercase tracking-widest">
+            <p className="text-[9px] text-amber-500 font-semibold mt-1 uppercase tracking-widest">
               {usuario?.rol}
             </p>
           </div>

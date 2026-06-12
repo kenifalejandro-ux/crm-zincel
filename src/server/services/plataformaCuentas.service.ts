@@ -3,7 +3,8 @@ import type { PlataformaCuentaInput } from "../schemas/plataformaCuentas.schema"
 
 export async function listarPlataformaCuentas() {
   const result = await pool.query(
-    `SELECT id, empresa, plataforma, account_id, activo, notas, token_vence_en, creado_en, actualizado_en
+    `SELECT id, empresa, plataforma, account_id, activo, notas, token_vence_en,
+            ultimo_sync, sync_error, sync_automatico, creado_en, actualizado_en
      FROM plataforma_cuentas ORDER BY empresa ASC, plataforma ASC`
   );
   return result.rows;
@@ -63,4 +64,22 @@ export async function actualizarPlataformaCuenta(id: string, input: Partial<Plat
 
 export async function eliminarPlataformaCuenta(id: string) {
   await pool.query(`DELETE FROM plataforma_cuentas WHERE id = $1`, [id]);
+}
+
+export async function registrarSync(empresa: string, plataforma: string, error?: string | null) {
+  await pool.query(
+    `UPDATE plataforma_cuentas
+     SET ultimo_sync = NOW(), sync_error = $3, actualizado_en = NOW()
+     WHERE empresa ILIKE $1 AND plataforma = $2`,
+    [empresa, plataforma, error ?? null]
+  );
+}
+
+export async function listarCuentasAutoSync(): Promise<{ id: string; empresa: string; plataforma: string }[]> {
+  const result = await pool.query(
+    `SELECT id, empresa, plataforma FROM plataforma_cuentas
+     WHERE activo = true AND COALESCE(sync_automatico, true) = true
+     ORDER BY empresa ASC, plataforma ASC`
+  );
+  return result.rows;
 }

@@ -199,9 +199,12 @@ export default function LlamadasPage() {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Llamadas</h1>
-          <p className="text-xs text-zinc-600 mt-0.5">Registro de contactos realizados</p>
+        <div className="flex items-center gap-3">
+          <div className="crm-section-accent h-8" />
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Llamadas</h1>
+            <p className="text-xs text-slate-500 mt-0.5">Registro de contactos realizados</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <TableBulkActions count={seleccionados.length} onDelete={handleEliminarMasivo} />

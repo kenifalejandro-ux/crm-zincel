@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte Financiero Ejecutivo — RL SAFETY SAC — Abril 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --verde:    #16a34a;
+      --verde-l:  #bbf7d0;
+      --ambar:    #d97706;
+      --ambar-l:  #fde68a;
+      --rojo:     #ef4444;
+      --rojo-l:   #fecaca;
+      --gris:     #334155;
+      --gris-l:   #e4e4e7;
+      --oscuro:   #0f172a;
+      --primario: #2563eb;
+      --prim-l:   #bfdbfe;
+      --violeta:  #7c3aed;
+      --viol-l:   #ddd6fe;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ═══════════════════ PORTADA ═══════════════════ */
+    .portada {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f172a 100%);
+      color: white;
+      padding: 60px 60px 50px;
+      position: relative;
+      overflow: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .portada-spacer { flex: 1; }
+    .portada::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      background: rgba(37,99,235,0.12);
+    }
+    .portada::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -40px;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: rgba(124,58,237,0.08);
+    }
+    .portada-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 60px;
+    }
+    .portada-logo-badge {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 18px;
+    }
+    .portada-logo-text { font-size: 13px; font-weight: 600; color: #94a3b8; letter-spacing: 2px; text-transform: uppercase; }
+    .portada-empresa {
+      margin-bottom: 8px;
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+    .portada-sub {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 40px;
+      font-weight: 400;
+    }
+    .portada-meta {
+      display: flex;
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+    .portada-meta-item label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .portada-meta-item span {
+      font-size: 15px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+    .portada-semaforo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      width: fit-content;
+    }
+    .semaforo-luces {
+      display: flex;
+      gap: 8px;
+    }
+    .semaforo-luz {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+    }
+    .semaforo-luz.verde  { background: #22c55e; box-shadow: 0 0 10px rgba(34,197,94,0.6); }
+    .semaforo-luz.ambar  { background: #d97706; opacity: 0.3; }
+    .semaforo-luz.rojo   { background: #ef4444; opacity: 0.3; }
+    .semaforo-texto h3   { font-size: 15px; font-weight: 700; color: #e2e8f0; }
+    .semaforo-texto p    { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    /* ═══════════════════ LAYOUT ═══════════════════ */
+    .contenido { max-width: 1100px; margin: 0 auto; padding: 40px 40px; }
+    .seccion { margin-bottom: 44px; }
+    .seccion-titulo {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .seccion-titulo::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e4e4e7;
+    }
+    .card {
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+    }
+    .card-titulo {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #334155;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .grid-2  { display: grid; grid-template-columns: 1fr 1fr;   gap: 16px; }
+    .grid-3  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .grid-4  { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+    .grid-5  { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+
+    /* ═══════════════════ BADGES ═══════════════════ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
+    .badge.verde   { background: var(--verde-l);  color: var(--verde);  }
+    .badge.verde .badge-dot  { background: var(--verde); }
+    .badge.ambar   { background: var(--ambar-l);  color: var(--ambar);  }
+    .badge.ambar .badge-dot  { background: var(--ambar); }
+    .badge.rojo    { background: var(--rojo-l);   color: var(--rojo);   }
+    .badge.rojo .badge-dot   { background: var(--rojo); }
+    .badge.gris    { background: var(--gris-l);   color: var(--gris);   }
+    .badge.gris .badge-dot   { background: var(--gris); }
+    .badge.azul    { background: var(--prim-l);   color: var(--primario); }
+    .badge.violeta { background: var(--viol-l);   color: var(--violeta);  }
+
+    /* ═══════════════════ KPI CARDS ═══════════════════ */
+    .kpi-card {
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+    }
+    .kpi-card-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+    .kpi-card-valor {
+      font-size: 18px;
+      font-weight: 900;
+      color: #18181b;
+      letter-spacing: -0.5px;
+    }
+    .kpi-card-valor.rojo  { color: var(--rojo); }
+    .kpi-card-valor.verde { color: var(--verde); }
+    .kpi-card-sub {
+      font-size: 9px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    /* ═══════════════════ GAUGE SVG ═══════════════════ */
+    .gauge-card {
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .gauge-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+    .gauge-num {
+      font-size: 9px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .gauge-svg {
+      width: 140px;
+      height: 92px;
+      overflow: visible;
+    }
+    .gauge-valor {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-top: -4px;
+    }
+    .gauge-desc {
+      font-size: 9px;
+      color: #475569;
+      text-align: center;
+      line-height: 1.4;
+      border-top: 1px solid #f4f4f5;
+      padding-top: 8px;
+      width: 100%;
+      min-height: 30px;
+    }
+
+    /* ═══════════════════ TABLAS ═══════════════════ */
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #6b7280;
+      padding: 8px 10px;
+      border-bottom: 1px solid #e4e4e7;
+    }
+    td {
+      padding: 10px 10px;
+      border-bottom: 1px solid #f4f4f5;
+      font-size: 11px;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #fafafa; }
+    .td-center { text-align: center; }
+    .td-right  { text-align: right; font-feature-settings: "tnum"; }
+    .td-bold   { font-weight: 700; }
+    .td-rojo   { color: var(--rojo);   font-weight: 700; }
+    .td-verde  { color: var(--verde);  font-weight: 700; }
+    .td-ambar  { color: var(--ambar);  font-weight: 700; }
+    .td-gris   { color: var(--gris); }
+
+    /* ═══════════════════ CHARTS ═══════════════════ */
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      height: 260px;
+    }
+    .chart-wrap-sm {
+      position: relative;
+      width: 100%;
+      height: 200px;
+    }
+
+    /* ═══════════════════ HALLAZGOS ═══════════════════ */
+    .hallazgo {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f4f4f5;
+    }
+    .hallazgo:last-child { border-bottom: none; }
+    .hallazgo-icono {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      margin-top: 1px;
+    }
+    .hallazgo-icono.positivo { background: var(--verde-l); }
+    .hallazgo-icono.negativo { background: var(--rojo-l); }
+    .hallazgo-texto { font-size: 11px; color: #1e293b; line-height: 1.5; flex: 1; }
+
+    /* ═══════════════════ RECOMENDACIONES ═══════════════════ */
+    .rec-item {
+      display: flex;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid #f4f4f5;
+    }
+    .rec-item:last-child { border-bottom: none; }
+    .rec-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #18181b;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rec-content h4 { font-size: 12px; font-weight: 700; color: #18181b; margin-bottom: 3px; }
+    .rec-content p  { font-size: 11px; color: #334155; line-height: 1.5; }
+    .rec-urgencia {
+      display: inline-block;
+      margin-top: 5px;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .rec-urgencia.urgente  { background: #fee2e2; color: #dc2626; }
+    .rec-urgencia.media    { background: #fef3c7; color: #d97706; }
+    .rec-urgencia.normal   { background: #d1fae5; color: #059669; }
+
+    /* ═══════════════════ BENCHMARK ═══════════════════ */
+    .bench-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 5px;
+    }
+    .bench-bar-track {
+      flex: 1;
+      height: 6px;
+      background: #f4f4f5;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .bench-bar-fill { height: 100%; border-radius: 3px; }
+    .bench-bar-ref {
+      font-size: 9px;
+      color: #6b7280;
+      white-space: nowrap;
+    }
+
+    /* ═══════════════════ ANÁLISIS POR IND ═══════════════════ */
+    .ind-card {
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+    }
+    .ind-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .ind-header-left h3 { font-size: 14px; font-weight: 800; color: #18181b; }
+    .ind-header-left p  { font-size: 11px; color: #475569; margin-top: 2px; }
+    .ind-valor-big {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+    .ind-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .ind-mini {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .ind-mini-label { font-size: 9px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+    .ind-mini-valor { font-size: 13px; font-weight: 700; color: #18181b; }
+
+    /* ═══════════════════ FOOTER ═══════════════════ */
+    .footer {
+      background: #18181b;
+      color: #475569;
+      padding: 30px 60px;
+      font-size: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 60px;
+    }
+    .footer-logo { font-weight: 800; font-size: 12px; color: #e4e4e7; }
+    .footer-right { text-align: right; }
+
+    /* ═══════════════════ PRINT ═══════════════════ */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 16mm 18mm;
+      }
+      body {
+        background: white;
+        margin: 0;
+        padding: 0;
+        font-size: 11px;
+      }
+      /* Portada ocupa exactamente una página */
+      .portada {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        height: 100vh;       /* = área de contenido de una página impresa */
+        min-height: unset;
+        padding: 44px 52px 36px;
+        page-break-after: always;
+        break-after: page;
+      }
+      .contenido {
+        padding: 20px 24px;
+        max-width: 100%;
+      }
+      .seccion { page-break-inside: avoid; break-inside: avoid; margin-bottom: 28px; }
+      .ind-card { page-break-inside: avoid; break-inside: avoid; }
+      .gauge-card { page-break-inside: avoid; break-inside: avoid; }
+      .kpi-card  { page-break-inside: avoid; break-inside: avoid; }
+      .footer {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        margin-top: 28px;
+        padding: 20px 40px;
+      }
+      /* Asegurar colores de fondo en print */
+      .highlight-box, .badge, .semaforo-luz,
+      .ind-mini, .portada-semaforo, .portada-logo-badge {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    /* ═══════════════════ UTILIDADES ═══════════════════ */
+    .flex-row { display: flex; align-items: center; gap: 8px; }
+    .mt-2 { margin-top: 8px; }
+    .mt-3 { margin-top: 12px; }
+    .texto-sm { font-size: 11px; color: #334155; line-height: 1.6; }
+    .highlight-box {
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-top: 12px;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .highlight-box.verde  { background: #f0fdf4; border-left: 3px solid var(--verde);  color: #14532d; }
+    .highlight-box.ambar  { background: #fffbeb; border-left: 3px solid var(--ambar);  color: #78350f; }
+    .highlight-box.rojo   { background: #fef2f2; border-left: 3px solid var(--rojo);   color: #7f1d1d; }
+    .highlight-box.azul   { background: #eff6ff; border-left: 3px solid var(--primario); color: #1e3a8a; }
+    .divider { height: 1px; background: #e4e4e7; margin: 20px 0; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     PORTADA
+════════════════════════════════════════════════════ -->
+<div class="portada">
+  <div class="portada-logo">
+    <div class="portada-logo-badge">Z</div>
+    <span class="portada-logo-text">Análisis Financiero Empresarial · Zincel Ideas</span>
+  </div>
+
+  <p style="font-size:11px; color:#64748b; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">
+    Reporte Ejecutivo de Desempeño Financiero
+  </p>
+  <div class="portada-empresa">RL SAFETY SAC</div>
+  <div class="portada-sub">Empresa de servicios de seguridad — Análisis integral de ratios financieros clave</div>
+
+  <div class="portada-meta">
+    <div class="portada-meta-item">
+      <label>Período analizado</label>
+      <span>Abril 2026</span>
+    </div>
+    <div class="portada-meta-item">
+      <label>Fecha de cierre</label>
+      <span>30 de abril de 2026</span>
+    </div>
+    <div class="portada-meta-item">
+      <label>Sector</label>
+      <span>Seguridad</span>
+    </div>
+    <div class="portada-meta-item">
+      <label>Moneda</label>
+      <span>PEN — Soles</span>
+    </div>
+    <div class="portada-meta-item">
+      <label>Fecha de reporte</label>
+      <span>Junio 2026</span>
+    </div>
+  </div>
+
+  <div class="portada-semaforo">
+    <div class="semaforo-luces">
+      <div class="semaforo-luz verde"></div>
+      <div class="semaforo-luz ambar"></div>
+      <div class="semaforo-luz rojo"></div>
+    </div>
+    <div class="semaforo-texto">
+      <h3>Situación General: Estable con alertas</h3>
+      <p>Alta rentabilidad y liquidez adecuada · Riesgo elevado en concentración de CxC</p>
+    </div>
+  </div>
+
+  <!-- Espaciador que empuja el pie al fondo de la página -->
+  <div class="portada-spacer"></div>
+
+  <!-- Pie de portada -->
+  <div style="border-top: 1px solid rgba(255,255,255,0.12); padding-top: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+    <div>
+      <div style="font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">Elaborado por</div>
+      <div style="font-size: 14px; font-weight: 800; color: #e2e8f0;">Zincel Ideas</div>
+      <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Análisis Financiero Empresarial · Junio 2026</div>
+    </div>
+    <div style="text-align: right;">
+      <div style="font-size: 10px; color: #475569; line-height: 1.6;">
+        Este reporte es de carácter confidencial.<br>
+        Elaborado exclusivamente para RL Safety SAC.<br>
+        Información con fines de gestión interna.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CONTENIDO PRINCIPAL
+════════════════════════════════════════════════════ -->
+<div class="contenido">
+
+  <!-- ─── RESUMEN EJECUTIVO ─── -->
+  <div class="seccion">
+    <div class="seccion-titulo">01 · Resumen Ejecutivo</div>
+
+    <div class="highlight-box azul" style="margin-top:0; margin-bottom:16px;">
+      <strong>RL Safety SAC</strong> presenta al cierre de abril 2026 un perfil financiero <strong>dual</strong>: rentabilidades excepcionalmente altas
+      (ROE 73.4%, ROA 26.4%) que superan ampliamente los benchmarks del sector seguridad, combinadas con un
+      riesgo de concentración elevado en cuentas por cobrar (85.9% de activos corrientes). La empresa opera
+      con liquidez adecuada y capital de trabajo positivo, pero toda su deuda es de corto plazo y la caja
+      sólo cubre el 21.3% de las obligaciones inmediatas.
+    </div>
+
+    <div class="grid-5">
+      <div class="kpi-card">
+        <div class="kpi-card-label">Activos Totales</div>
+        <div class="kpi-card-valor">S/ 124,967</div>
+        <div class="kpi-card-sub">124,967.35</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card-label">Pasivos Totales</div>
+        <div class="kpi-card-valor rojo">S/ 80,002</div>
+        <div class="kpi-card-sub">100% corriente</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card-label">Patrimonio</div>
+        <div class="kpi-card-valor">S/ 44,966</div>
+        <div class="kpi-card-sub">Capital propio</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card-label">Utilidad del Período</div>
+        <div class="kpi-card-valor verde">S/ 32,993</div>
+        <div class="kpi-card-sub">Neta estimada</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card-label">Capital de Trabajo</div>
+        <div class="kpi-card-valor verde">S/ 40,978</div>
+        <div class="kpi-card-sub">Positivo ✓</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ESTADO DE SITUACIÓN FINANCIERA ─── -->
+  <div class="seccion">
+    <div class="seccion-titulo">02 · Estado de Situación Financiera</div>
+    <div class="card">
+      <div class="grid-2">
+
+        <!-- ACTIVOS -->
+        <div>
+          <div class="card-titulo" style="color: var(--primario);">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="5" stroke="#2563eb" stroke-width="1.5"/>
+              <path d="M4 6h4M6 4v4" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Activos
+          </div>
+          <table>
+            <tr><th>Descripción</th><th style="text-align:right">S/</th><th style="text-align:right">%</th></tr>
+            <tr>
+              <td><strong>Activos Corrientes</strong></td>
+              <td class="td-right td-bold">120,979.21</td>
+              <td class="td-right td-bold" style="color:var(--primario)">96.81%</td>
+            </tr>
+            <tr>
+              <td style="padding-left:20px; color:#334155">Caja y Bancos</td>
+              <td class="td-right">17,069.36</td>
+              <td class="td-right td-gris">13.66%</td>
+            </tr>
+            <tr>
+              <td style="padding-left:20px; color:#334155">Cuentas por Cobrar</td>
+              <td class="td-right">103,909.85</td>
+              <td class="td-right td-gris">83.15%</td>
+            </tr>
+            <tr>
+              <td style="padding-left:20px; color:#334155">Otros Activos Corrientes</td>
+              <td class="td-right td-gris">0.00</td>
+              <td class="td-right td-gris">—</td>
+            </tr>
+            <tr>
+              <td><strong>Activos No Corrientes</strong></td>
+              <td class="td-right td-bold">3,988.14</td>
+              <td class="td-right td-bold" style="color:var(--gris)">3.19%</td>
+            </tr>
+            <tr>
+              <td style="padding-left:20px; color:#334155">Activo Fijo Neto</td>
+              <td class="td-right">3,988.14</td>
+              <td class="td-right td-gris">3.19%</td>
+            </tr>
+            <tr style="background:#f8fafc">
+              <td class="td-bold" style="font-size:12px">TOTAL ACTIVOS</td>
+              <td class="td-right td-bold" style="font-size:13px">124,967.35</td>
+              <td class="td-right td-bold">100%</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- PASIVOS Y PATRIMONIO -->
+        <div>
+          <div class="card-titulo" style="color: var(--rojo);">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="5" stroke="#dc2626" stroke-width="1.5"/>
+              <path d="M4 6h4" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Pasivos y Patrimonio
+          </div>
+          <table>
+            <tr><th>Descripción</th><th style="text-align:right">S/</th><th style="text-align:right">%</th></tr>
+            <tr>
+              <td><strong>Pasivos Corrientes</strong></td>
+              <td class="td-right td-bold td-rojo">80,001.66</td>
+              <td class="td-right td-bold" style="color:var(--rojo)">64.02%</td>
+            </tr>
+            <tr>
+              <td style="padding-left:20px; color:#334155">Deudas corto plazo</td>
+              <td class="td-right td-rojo">80,001.66</td>
+              <td class="td-right td-gris">100% del pasivo</td>
+            </tr>
+            <tr>
+              <td><strong>Pasivos No Corrientes</strong></td>
+              <td class="td-right td-gris">0.00</td>
+              <td class="td-right td-gris">—</td>
+            </tr>
+            <tr>
+              <td><strong>Total Pasivos</strong></td>
+              <td class="td-right td-bold td-rojo">80,001.66</td>
+              <td class="td-right td-bold" style="color:var(--rojo)">64.02%</td>
+            </tr>
+            <tr>
+              <td><strong>Patrimonio Neto</strong></td>
+              <td class="td-right td-bold td-verde">44,965.69</td>
+              <td class="td-right td-bold" style="color:var(--verde)">35.98%</td>
+            </tr>
+            <tr>
+              <td style="padding-left:20px; color:#334155">Capital y Reservas</td>
+              <td class="td-right">11,972.31</td>
+              <td class="td-right td-gris">9.58%</td>
+            </tr>
+            <tr>
+              <td style="padding-left:20px; color:#334155">Utilidad del Ejercicio</td>
+              <td class="td-right td-verde">32,993.38</td>
+              <td class="td-right td-gris">26.40%</td>
+            </tr>
+            <tr style="background:#f8fafc">
+              <td class="td-bold" style="font-size:12px">TOTAL PAS. + PATRIMONIO</td>
+              <td class="td-right td-bold" style="font-size:13px">124,967.35</td>
+              <td class="td-right td-bold">100%</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="highlight-box ambar mt-3" style="margin-bottom:0">
+        <strong>⚠ Nota estructural:</strong> La empresa opera con activos altamente concentrados en cuentas por cobrar
+        (83% del activo total). Los activos fijos son mínimos (S/ 3,988 = 3.2%), lo cual es típico del sector
+        servicios de seguridad donde el capital humano es el principal activo. Sin embargo, esta estructura
+        aumenta la dependencia del ciclo de cobranzas.
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── DASHBOARD 8 INDICADORES ─── -->
+  <div class="seccion">
+    <div class="seccion-titulo">03 · Dashboard de 8 Indicadores Financieros Clave</div>
+
+    <div style="margin-bottom:10px; font-size:10px; color:#475569; display:flex; align-items:center; gap:16px;">
+      <span>Zonas del velocímetro:</span>
+      <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px;height:10px;background:#f87171;border-radius:2px;display:inline-block"></span> Crítico</span>
+      <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px;height:10px;background:#fbbf24;border-radius:2px;display:inline-block"></span> Moderado</span>
+      <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px;height:10px;background:#4ade80;border-radius:2px;display:inline-block"></span> Óptimo</span>
+    </div>
+
+    <div class="grid-4" id="gauges-container">
+      <!-- Gauges se generan por JS -->
+    </div>
+  </div>
+
+  <!-- ─── ANÁLISIS DETALLADO POR INDICADOR ─── -->
+  <div class="seccion">
+    <div class="seccion-titulo">04 · Análisis Detallado por Indicador</div>
+
+    <!-- 1. Liquidez Corriente -->
+    <div class="ind-card">
+      <div class="ind-header">
+        <div class="ind-header-left">
+          <h3>1. Liquidez Corriente</h3>
+          <p>Activos Corrientes ÷ Pasivos Corrientes</p>
+        </div>
+        <div style="text-align:right">
+          <div class="ind-valor-big" style="color:var(--verde)">1.51</div>
+          <span class="badge verde"><span class="badge-dot"></span> Bueno</span>
+        </div>
+      </div>
+      <div class="texto-sm">
+        Por cada <strong>S/ 1.00</strong> de deuda corriente, RL Safety SAC cuenta con <strong>S/ 1.51</strong> en
+        activos líquidos para respaldarla. Esto supera el mínimo recomendado de 1.5× y se ubica por encima
+        del promedio del sector seguridad (ref. 1.40×).
+      </div>
+      <div class="highlight-box verde mt-2">
+        <strong>Lectura sectorial:</strong> Las empresas de seguridad tienen alta rotación de nómina mensual
+        y compromisos de seguros (SCTR, SOAT). Una liquidez de 1.51 es adecuada, pero el riesgo está en
+        que S/ 103,910 (86%) de esos activos corrientes son CxC — si los clientes se atrasan, la liquidez
+        real baja drásticamente. La caja efectiva solo cubre el 21.3% de los pasivos corrientes.
+      </div>
+      <div class="ind-grid">
+        <div class="ind-mini">
+          <div class="ind-mini-label">Valor empresa</div>
+          <div class="ind-mini-valor">1.51×</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Ref. sector Seguridad</div>
+          <div class="ind-mini-valor">1.40×</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Rango óptimo</div>
+          <div class="ind-mini-valor">≥ 1.5×</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Capital de Trabajo -->
+    <div class="ind-card">
+      <div class="ind-header">
+        <div class="ind-header-left">
+          <h3>2. Capital de Trabajo</h3>
+          <p>Activos Corrientes – Pasivos Corrientes</p>
+        </div>
+        <div style="text-align:right">
+          <div class="ind-valor-big" style="color:var(--verde)">S/ 40,978</div>
+          <span class="badge verde"><span class="badge-dot"></span> Positivo</span>
+        </div>
+      </div>
+      <div class="texto-sm">
+        La empresa dispone de <strong>S/ 40,977.55</strong> de holgura financiera después de cubrir todas sus
+        obligaciones de corto plazo. Este capital es el "colchón operativo" que permite mantener operaciones
+        sin depender de financiamiento externo urgente.
+      </div>
+      <div class="highlight-box ambar mt-2">
+        <strong>⚠ Alerta de calidad:</strong> Del capital de trabajo total, solo S/ 17,069 (41.7%) son caja real.
+        Los S/ 23,908 restantes dependen íntegramente de los cobros a clientes. En empresas de seguridad, los
+        clientes corporativos (bancos, retail, mineras) suelen pagar con 30–60 días de retraso, lo que puede
+        comprometer este capital en escenarios de mora.
+      </div>
+      <div class="ind-grid">
+        <div class="ind-mini">
+          <div class="ind-mini-label">Capital total</div>
+          <div class="ind-mini-valor" style="color:var(--verde)">S/ 40,978</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">De ello: en Caja</div>
+          <div class="ind-mini-valor">S/ 17,069</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">En CxC pendientes</div>
+          <div class="ind-mini-valor" style="color:var(--ambar)">S/ 23,909</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Endeudamiento -->
+    <div class="ind-card">
+      <div class="ind-header">
+        <div class="ind-header-left">
+          <h3>3. Nivel de Endeudamiento</h3>
+          <p>Pasivos Totales ÷ Activos Totales × 100</p>
+        </div>
+        <div style="text-align:right">
+          <div class="ind-valor-big" style="color:var(--ambar)">64.02%</div>
+          <span class="badge ambar"><span class="badge-dot"></span> Moderado</span>
+        </div>
+      </div>
+      <div class="texto-sm">
+        El <strong>64.02%</strong> de los activos de RL Safety están financiados por terceros (acreedores).
+        Esto supera el 55% que es el promedio del sector seguridad. El dato más preocupante es que
+        el <strong>100% de la deuda vence en el corto plazo</strong> (menos de 12 meses), lo que genera
+        presión constante de renovación y pago.
+      </div>
+      <div class="highlight-box rojo mt-2">
+        <strong>Riesgo específico del sector:</strong> Las empresas de seguridad tienen pasivos corrientes
+        principalmente por planillas (el personal opera 24/7), aportes sociales, seguros SCTR y compromisos
+        con subcontratistas. Sin deuda de largo plazo, la empresa depende de generar flujo continuo para
+        honrar estos pagos. Si los cobros se retrasan más de 30 días, puede haber tensión de pago de planilla.
+      </div>
+      <div class="ind-grid">
+        <div class="ind-mini">
+          <div class="ind-mini-label">Endeudamiento empresa</div>
+          <div class="ind-mini-valor" style="color:var(--ambar)">64.02%</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Ref. sector Seguridad</div>
+          <div class="ind-mini-valor">55%</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Brecha vs sector</div>
+          <div class="ind-mini-valor" style="color:var(--rojo)">+9.0 pp</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Deuda / Patrimonio -->
+    <div class="ind-card">
+      <div class="ind-header">
+        <div class="ind-header-left">
+          <h3>4. Ratio Deuda / Patrimonio</h3>
+          <p>Pasivos Totales ÷ Patrimonio Neto</p>
+        </div>
+        <div style="text-align:right">
+          <div class="ind-valor-big" style="color:var(--ambar)">1.78×</div>
+          <span class="badge ambar"><span class="badge-dot"></span> Atención</span>
+        </div>
+      </div>
+      <div class="texto-sm">
+        Por cada <strong>S/ 1.00</strong> aportado por los socios, la empresa tiene <strong>S/ 1.78</strong>
+        de deuda con terceros. Este apalancamiento es moderado-alto para el sector, donde el promedio es de
+        1.2×. Indica que si bien hay rentabilidad, la estructura está más sostenida por deuda que por capital propio.
+      </div>
+      <div class="highlight-box ambar mt-2">
+        <strong>Perspectiva de crecimiento:</strong> Un ratio de 1.78× no es alarmante en sí mismo, pero
+        si la empresa quiere acceder a financiamiento bancario para expandir operaciones (nuevos contratos,
+        equipos), los bancos observarán que el 64% de activos ya está comprometido. Para mejorar este ratio,
+        la mejor estrategia es reinvertir las utilidades del período (S/ 32,993) en lugar de distribuirlas.
+      </div>
+      <div class="ind-grid">
+        <div class="ind-mini">
+          <div class="ind-mini-label">Ratio empresa</div>
+          <div class="ind-mini-valor" style="color:var(--ambar)">1.78×</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Ref. sector</div>
+          <div class="ind-mini-valor">1.20×</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Rango saludable</div>
+          <div class="ind-mini-valor">< 1.0×</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. ROE -->
+    <div class="ind-card">
+      <div class="ind-header">
+        <div class="ind-header-left">
+          <h3>5. ROE — Rentabilidad sobre el Patrimonio</h3>
+          <p>Utilidad Neta ÷ Patrimonio × 100</p>
+        </div>
+        <div style="text-align:right">
+          <div class="ind-valor-big" style="color:var(--verde)">73.38%</div>
+          <span class="badge verde"><span class="badge-dot"></span> Óptimo · Excepcional</span>
+        </div>
+      </div>
+      <div class="texto-sm">
+        Cada sol invertido por los socios genera un retorno de <strong>73.38% anual</strong>. Este es el indicador
+        más destacado del reporte. El sector seguridad promedía un ROE del 16%, por lo que RL Safety supera en
+        <strong>4.6 veces</strong> el benchmark del sector.
+      </div>
+      <div class="highlight-box verde mt-2">
+        <strong>Contexto sectorial excepcional:</strong> Un ROE del 73% en servicios de seguridad suele
+        indicar tres factores simultáneos: (1) contratos de alto margen con clientes premium, (2) base
+        patrimonial pequeña que amplifica el ratio, y (3) eficiencia en gestión de costos. Es importante
+        mencionar que el bajo patrimonio (S/ 44,966) también "infla" este indicador — si la empresa
+        capitalizara sus utilidades, el ROE bajaría pero sobre una base más sólida.
+      </div>
+      <div class="ind-grid">
+        <div class="ind-mini">
+          <div class="ind-mini-label">ROE empresa</div>
+          <div class="ind-mini-valor" style="color:var(--verde)">73.38%</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Ref. sector Seguridad</div>
+          <div class="ind-mini-valor">16%</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Ventaja vs sector</div>
+          <div class="ind-mini-valor" style="color:var(--verde)">+4.6× mejor</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. ROA -->
+    <div class="ind-card">
+      <div class="ind-header">
+        <div class="ind-header-left">
+          <h3>6. ROA — Rentabilidad sobre los Activos</h3>
+          <p>Utilidad Neta ÷ Activos Totales × 100</p>
+        </div>
+        <div style="text-align:right">
+          <div class="ind-valor-big" style="color:var(--verde)">26.40%</div>
+          <span class="badge verde"><span class="badge-dot"></span> Óptimo</span>
+        </div>
+      </div>
+      <div class="texto-sm">
+        Cada sol de activo genera <strong>26.40 centavos de utilidad</strong>. El sector seguridad promedia
+        un ROA del 7%, por lo que la empresa triplica la eficiencia promedio. Este indicador es más robusto
+        que el ROE porque no se distorsiona por el nivel de apalancamiento.
+      </div>
+      <div class="highlight-box verde mt-2">
+        <strong>Eficiencia operativa:</strong> Un ROA del 26% en servicios de seguridad es un resultado
+        excepcional y refleja que el modelo de negocio es altamente eficiente: con una base de activos
+        relativamente pequeña (S/ 125K), la empresa genera S/ 33K de utilidad. Esto sugiere buena negociación
+        de contratos y control de costos operativos (uniformes, comunicaciones, transporte, planilla).
+      </div>
+      <div class="ind-grid">
+        <div class="ind-mini">
+          <div class="ind-mini-label">ROA empresa</div>
+          <div class="ind-mini-valor" style="color:var(--verde)">26.40%</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Ref. sector</div>
+          <div class="ind-mini-valor">7%</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Ventaja vs sector</div>
+          <div class="ind-mini-valor" style="color:var(--verde)">3.8× mejor</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Concentración CxC -->
+    <div class="ind-card">
+      <div class="ind-header">
+        <div class="ind-header-left">
+          <h3>7. Concentración en Cuentas por Cobrar</h3>
+          <p>CxC ÷ Activos Corrientes × 100</p>
+        </div>
+        <div style="text-align:right">
+          <div class="ind-valor-big" style="color:var(--rojo)">85.89%</div>
+          <span class="badge rojo"><span class="badge-dot"></span> Crítico — Acción Urgente</span>
+        </div>
+      </div>
+      <div class="texto-sm">
+        <strong>S/ 103,910 de cada S/ 120,979 en activos corrientes son cuentas por cobrar (86%)</strong>.
+        Este es el indicador más crítico del análisis. Significa que la "liquidez" de la empresa es casi
+        completamente dependiente de que sus clientes paguen a tiempo.
+      </div>
+      <div class="highlight-box rojo mt-2">
+        <strong>🚨 Riesgo principal del negocio:</strong> En el sector seguridad de Perú, es común que los
+        clientes corporativos (entidades financieras, retail, instituciones del Estado) paguen con 30, 60
+        o hasta 90 días de retraso. Con S/ 103,910 en CxC, si un cliente importante entra en mora, la empresa
+        podría no tener caja para pagar la planilla del personal (que opera 24/7). El benchmark sectorial
+        es ~40% de concentración en CxC; la empresa casi lo duplica. Se recomienda implementar un sistema
+        de seguimiento de cobros semanal y evaluar el uso de <strong>factoring</strong> para anticipar cobros.
+      </div>
+      <div class="ind-grid">
+        <div class="ind-mini">
+          <div class="ind-mini-label">CxC empresa</div>
+          <div class="ind-mini-valor" style="color:var(--rojo)">85.89%</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Ref. sector</div>
+          <div class="ind-mini-valor">~40%</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Monto en CxC</div>
+          <div class="ind-mini-valor" style="color:var(--rojo)">S/ 103,910</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Disponibilidad Inmediata -->
+    <div class="ind-card">
+      <div class="ind-header">
+        <div class="ind-header-left">
+          <h3>8. Disponibilidad Inmediata (Prueba Ácida de Caja)</h3>
+          <p>Caja y Bancos ÷ Pasivos Corrientes × 100</p>
+        </div>
+        <div style="text-align:right">
+          <div class="ind-valor-big" style="color:var(--verde)">21.34%</div>
+          <span class="badge verde"><span class="badge-dot"></span> Bueno</span>
+        </div>
+      </div>
+      <div class="texto-sm">
+        La empresa puede cubrir con efectivo disponible el <strong>21.34%</strong> de sus obligaciones
+        corrientes. Esto supera el mínimo del 20% recomendado y el benchmark del sector (18%). Sin embargo,
+        el 78.66% restante depende de cobros pendientes.
+      </div>
+      <div class="highlight-box ambar mt-2">
+        <strong>Interpretación práctica:</strong> Si mañana la empresa debiera pagar todos sus compromisos
+        corrientes (S/ 80,002), solo podría cubrir S/ 17,069 con caja (21.3%). Los S/ 62,933 restantes
+        necesitarían liquidarse o cobrarse. En escenarios normales esto no es un problema; en escenarios
+        de estrés (cierre de un contrato grande, retraso masivo de clientes), sí puede serlo.
+        La recomendación es mantener siempre al menos S/ 20,000 en caja como reserva operativa.
+      </div>
+      <div class="ind-grid">
+        <div class="ind-mini">
+          <div class="ind-mini-label">Disponibilidad</div>
+          <div class="ind-mini-valor" style="color:var(--verde)">21.34%</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Caja disponible</div>
+          <div class="ind-mini-valor">S/ 17,069</div>
+        </div>
+        <div class="ind-mini">
+          <div class="ind-mini-label">Ref. sector</div>
+          <div class="ind-mini-valor">18%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TABLA COMPARATIVA (RESUMEN) ─── -->
+  <div class="seccion">
+    <div class="seccion-titulo">05 · Tabla Resumen — Los 8 Indicadores</div>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Indicador</th>
+            <th style="text-align:right">Valor Empresa</th>
+            <th style="text-align:center">Estado</th>
+            <th style="text-align:right">Ref. Seguridad</th>
+            <th style="text-align:center">Brecha</th>
+            <th>Rango Óptimo</th>
+            <th>Acción Prioritaria</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-gris">1</td>
+            <td class="td-bold">Liquidez Corriente</td>
+            <td class="td-right td-verde td-bold">1.51×</td>
+            <td class="td-center"><span class="badge verde"><span class="badge-dot"></span>Bueno</span></td>
+            <td class="td-right td-gris">1.40×</td>
+            <td class="td-center" style="color:var(--verde); font-weight:700">↑ +0.11</td>
+            <td>≥ 1.5×</td>
+            <td class="td-gris">Mantener y monitorear calidad de CxC</td>
+          </tr>
+          <tr>
+            <td class="td-gris">2</td>
+            <td class="td-bold">Capital de Trabajo</td>
+            <td class="td-right td-verde td-bold">S/ 40,978</td>
+            <td class="td-center"><span class="badge verde"><span class="badge-dot"></span>Bueno</span></td>
+            <td class="td-right td-gris">Positivo</td>
+            <td class="td-center" style="color:var(--verde); font-weight:700">↑ OK</td>
+            <td>> S/ 0</td>
+            <td class="td-gris">Mejorar calidad: más caja, menos CxC</td>
+          </tr>
+          <tr>
+            <td class="td-gris">3</td>
+            <td class="td-bold">Endeudamiento</td>
+            <td class="td-right td-ambar td-bold">64.02%</td>
+            <td class="td-center"><span class="badge ambar"><span class="badge-dot"></span>Moderado</span></td>
+            <td class="td-right td-gris">55%</td>
+            <td class="td-center" style="color:var(--ambar); font-weight:700">↑ +9 pp</td>
+            <td>< 50%</td>
+            <td class="td-gris">Capitalizar utilidades; reducir deuda CP</td>
+          </tr>
+          <tr>
+            <td class="td-gris">4</td>
+            <td class="td-bold">Deuda / Patrimonio</td>
+            <td class="td-right td-ambar td-bold">1.78×</td>
+            <td class="td-center"><span class="badge ambar"><span class="badge-dot"></span>Atención</span></td>
+            <td class="td-right td-gris">1.20×</td>
+            <td class="td-center" style="color:var(--ambar); font-weight:700">↑ +0.58</td>
+            <td>< 1.0×</td>
+            <td class="td-gris">Retener utilidades para fortalecer patrimonio</td>
+          </tr>
+          <tr>
+            <td class="td-gris">5</td>
+            <td class="td-bold">ROE</td>
+            <td class="td-right td-verde td-bold">73.38%</td>
+            <td class="td-center"><span class="badge verde"><span class="badge-dot"></span>Óptimo</span></td>
+            <td class="td-right td-gris">16%</td>
+            <td class="td-center" style="color:var(--verde); font-weight:700">↑ +57.4 pp</td>
+            <td>≥ 20%</td>
+            <td class="td-gris">Excepcional — capitalizar para solidificar</td>
+          </tr>
+          <tr>
+            <td class="td-gris">6</td>
+            <td class="td-bold">ROA</td>
+            <td class="td-right td-verde td-bold">26.40%</td>
+            <td class="td-center"><span class="badge verde"><span class="badge-dot"></span>Óptimo</span></td>
+            <td class="td-right td-gris">7%</td>
+            <td class="td-center" style="color:var(--verde); font-weight:700">↑ +19.4 pp</td>
+            <td>≥ 10%</td>
+            <td class="td-gris">Excepcional — monitorear al escalar</td>
+          </tr>
+          <tr>
+            <td class="td-gris">7</td>
+            <td class="td-bold">Concentración CxC</td>
+            <td class="td-right td-rojo td-bold">85.89%</td>
+            <td class="td-center"><span class="badge rojo"><span class="badge-dot"></span>Crítico</span></td>
+            <td class="td-right td-gris">~40%</td>
+            <td class="td-center" style="color:var(--rojo); font-weight:700">↑ +45.9 pp</td>
+            <td>< 30%</td>
+            <td class="td-rojo">Urgente: factoring + gestión de cobros</td>
+          </tr>
+          <tr>
+            <td class="td-gris">8</td>
+            <td class="td-bold">Disponibilidad Inmediata</td>
+            <td class="td-right td-verde td-bold">21.34%</td>
+            <td class="td-center"><span class="badge verde"><span class="badge-dot"></span>Bueno</span></td>
+            <td class="td-right td-gris">18%</td>
+            <td class="td-center" style="color:var(--verde); font-weight:700">↑ +3.3 pp</td>
+            <td>≥ 20%</td>
+            <td class="td-gris">Mantener mínimo S/ 17,000 en caja</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── GRÁFICOS ─── -->
+  <div class="seccion">
+    <div class="seccion-titulo">06 · Análisis Gráfico</div>
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-titulo">Estructura Financiera (S/)</div>
+        <div class="chart-wrap">
+          <canvas id="chartEstructura"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-titulo">Composición de Activos</div>
+        <div class="chart-wrap">
+          <canvas id="chartActivos"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-titulo">Comparativa vs Sector Seguridad (scores 0–100)</div>
+        <div class="chart-wrap">
+          <canvas id="chartRadar"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-titulo">Indicadores clave: Empresa vs Referencia Sector</div>
+        <div class="chart-wrap">
+          <canvas id="chartBenchmark"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── COMPARATIVA SECTORIAL DETALLADA ─── -->
+  <div class="seccion">
+    <div class="seccion-titulo">07 · Posicionamiento vs Sector Seguridad (Perú)</div>
+    <div class="card">
+      <div class="highlight-box azul" style="margin-bottom:16px; margin-top:0">
+        Los valores de referencia corresponden a promedios estimados del sector seguridad privada en Perú,
+        basados en empresas con contratos B2B de vigilancia, seguridad electrónica y seguridad de valores.
+        Fuentes: SBS, SMV y estudios sectoriales.
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Indicador</th>
+            <th style="text-align:right">RL Safety</th>
+            <th style="text-align:right">Sector (ref.)</th>
+            <th>Brecha</th>
+            <th>Posición</th>
+            <th>Interpretación sectorial</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-bold">Liquidez Corriente</td>
+            <td class="td-right td-verde td-bold">1.51×</td>
+            <td class="td-right td-gris">1.40×</td>
+            <td style="color:var(--verde); font-weight:700">+0.11 mejor</td>
+            <td><span class="badge verde"><span class="badge-dot"></span>Sobre promedio</span></td>
+            <td class="td-gris">Mejor que el promedio, pero dependiente de calidad de CxC</td>
+          </tr>
+          <tr>
+            <td class="td-bold">Endeudamiento</td>
+            <td class="td-right td-ambar td-bold">64.02%</td>
+            <td class="td-right td-gris">55%</td>
+            <td style="color:var(--rojo); font-weight:700">+9 pp peor</td>
+            <td><span class="badge ambar"><span class="badge-dot"></span>Bajo promedio</span></td>
+            <td class="td-gris">Más apalancada que pares del sector</td>
+          </tr>
+          <tr>
+            <td class="td-bold">ROE</td>
+            <td class="td-right td-verde td-bold">73.38%</td>
+            <td class="td-right td-gris">16%</td>
+            <td style="color:var(--verde); font-weight:700">+57.4 pp mejor</td>
+            <td><span class="badge verde"><span class="badge-dot"></span>Top 10% sector</span></td>
+            <td class="td-gris">Rentabilidad excepcional para el sector</td>
+          </tr>
+          <tr>
+            <td class="td-bold">ROA</td>
+            <td class="td-right td-verde td-bold">26.40%</td>
+            <td class="td-right td-gris">7%</td>
+            <td style="color:var(--verde); font-weight:700">+19.4 pp mejor</td>
+            <td><span class="badge verde"><span class="badge-dot"></span>Top 5% sector</span></td>
+            <td class="td-gris">Eficiencia de activos muy por encima del promedio</td>
+          </tr>
+          <tr>
+            <td class="td-bold">Deuda / Patrimonio</td>
+            <td class="td-right td-ambar td-bold">1.78×</td>
+            <td class="td-right td-gris">1.20×</td>
+            <td style="color:var(--rojo); font-weight:700">+0.58 peor</td>
+            <td><span class="badge ambar"><span class="badge-dot"></span>Bajo promedio</span></td>
+            <td class="td-gris">Más deuda relativa al capital propio que los pares</td>
+          </tr>
+          <tr>
+            <td class="td-bold">Disponibilidad Inmediata</td>
+            <td class="td-right td-verde td-bold">21.34%</td>
+            <td class="td-right td-gris">18%</td>
+            <td style="color:var(--verde); font-weight:700">+3.3 pp mejor</td>
+            <td><span class="badge verde"><span class="badge-dot"></span>Sobre promedio</span></td>
+            <td class="td-gris">Caja ligeramente mejor que el sector</td>
+          </tr>
+          <tr>
+            <td class="td-bold">Concentración CxC</td>
+            <td class="td-right td-rojo td-bold">85.89%</td>
+            <td class="td-right td-gris">~40%</td>
+            <td style="color:var(--rojo); font-weight:700">+45.9 pp peor</td>
+            <td><span class="badge rojo"><span class="badge-dot"></span>Riesgo alto</span></td>
+            <td class="td-gris">Concentración de cartera crítica vs peers del sector</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── HALLAZGOS Y RECOMENDACIONES ─── -->
+  <div class="seccion">
+    <div class="seccion-titulo">08 · Hallazgos y Recomendaciones Estratégicas</div>
+
+    <div class="grid-2">
+      <!-- HALLAZGOS -->
+      <div class="card">
+        <div class="card-titulo" style="margin-bottom:0">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#475569" stroke-width="1.5"/><path d="M6 4v3M6 8.5v.5" stroke="#475569" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Hallazgos Principales
+        </div>
+        <div class="divider"></div>
+
+        <div class="hallazgo">
+          <div class="hallazgo-icono positivo">✓</div>
+          <div class="hallazgo-texto">
+            <strong>Rentabilidad excepcional:</strong> ROE del 73.4% y ROA del 26.4%, ambos muy por
+            encima del promedio sectorial. La empresa genera valor significativo para sus socios.
+          </div>
+        </div>
+        <div class="hallazgo">
+          <div class="hallazgo-icono positivo">✓</div>
+          <div class="hallazgo-texto">
+            <strong>Capital de trabajo positivo:</strong> Holgura de S/ 40,978 para cubrir operaciones,
+            lo cual indica sostenibilidad operativa en el corto plazo.
+          </div>
+        </div>
+        <div class="hallazgo">
+          <div class="hallazgo-icono positivo">✓</div>
+          <div class="hallazgo-texto">
+            <strong>Caja por encima del sector:</strong> 21.3% de disponibilidad inmediata vs 18% del
+            sector. La empresa tiene mejor colchón de efectivo que sus pares.
+          </div>
+        </div>
+        <div class="hallazgo">
+          <div class="hallazgo-icono positivo">✓</div>
+          <div class="hallazgo-texto">
+            <strong>Sin deuda de largo plazo:</strong> Toda la deuda es corriente, lo que indica que
+            la empresa no tiene compromisos financieros de largo plazo que limiten su flexibilidad estratégica.
+          </div>
+        </div>
+
+        <div class="hallazgo">
+          <div class="hallazgo-icono negativo">✕</div>
+          <div class="hallazgo-texto">
+            <strong>Concentración de CxC crítica (85.9%):</strong> El riesgo más alto del balance.
+            Una mora de clientes puede paralizar el pago de planilla.
+          </div>
+        </div>
+        <div class="hallazgo">
+          <div class="hallazgo-icono negativo">✕</div>
+          <div class="hallazgo-texto">
+            <strong>Endeudamiento sobre el promedio sectorial:</strong> 64% vs 55% del sector.
+            Limita la capacidad de acceder a nuevo financiamiento.
+          </div>
+        </div>
+        <div class="hallazgo">
+          <div class="hallazgo-icono negativo">✕</div>
+          <div class="hallazgo-texto">
+            <strong>Toda la deuda vence en menos de 12 meses:</strong> Sin financiamiento de largo
+            plazo, la empresa tiene presión permanente de renovación de obligaciones.
+          </div>
+        </div>
+        <div class="hallazgo">
+          <div class="hallazgo-icono negativo">✕</div>
+          <div class="hallazgo-texto">
+            <strong>Sin ventas netas registradas:</strong> No es posible calcular margen neto, días
+            de cobro ni rotación de cuentas. Fundamental registrar este dato en el próximo período.
+          </div>
+        </div>
+      </div>
+
+      <!-- RECOMENDACIONES -->
+      <div class="card">
+        <div class="card-titulo" style="margin-bottom:0">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="#475569" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Recomendaciones Estratégicas
+        </div>
+        <div class="divider"></div>
+
+        <div class="rec-item">
+          <div class="rec-num">1</div>
+          <div class="rec-content">
+            <h4>Implementar sistema de gestión de cobranzas</h4>
+            <p>Con S/ 103,910 en CxC (85.9% de activos corrientes), priorizar cobros es la acción
+            más crítica. Implementar seguimiento semanal, recordatorios automáticos, y penalidades
+            contractuales por morosidad. Meta: reducir CxC a menos del 60% de activos corrientes.</p>
+            <span class="rec-urgencia urgente">⚡ Urgente — 30 días</span>
+          </div>
+        </div>
+
+        <div class="rec-item">
+          <div class="rec-num">2</div>
+          <div class="rec-content">
+            <h4>Evaluar factoring para anticipar cobros</h4>
+            <p>Considerar vender las cuentas por cobrar a una entidad financiera (factoring) para
+            convertir la cartera en caja inmediata. El costo del factoring (3-6% típicamente) es
+            manejable dado el ROE del 73%. Esto reduciría drásticamente el riesgo de concentración en CxC.</p>
+            <span class="rec-urgencia media">⚠ Prioridad media — 60 días</span>
+          </div>
+        </div>
+
+        <div class="rec-item">
+          <div class="rec-num">3</div>
+          <div class="rec-content">
+            <h4>Capitalizar utilidades para fortalecer patrimonio</h4>
+            <p>Retener los S/ 32,993 de utilidad del ejercicio como reserva patrimonial en lugar de
+            distribuirlos. Esto mejoraría el ratio Deuda/Patrimonio de 1.78× a ~1.24×, acercándose
+            al benchmark del sector (1.20×) y fortalecería la posición ante bancos.</p>
+            <span class="rec-urgencia media">⚠ Decisión inmediata en JGA</span>
+          </div>
+        </div>
+
+        <div class="rec-item">
+          <div class="rec-num">4</div>
+          <div class="rec-content">
+            <h4>Registrar ventas netas en próximo período</h4>
+            <p>Sin el dato de ventas netas no se puede calcular el margen neto, la rotación de cartera
+            ni los días promedio de cobro (DPO/DSO). Estos indicadores son fundamentales para medir
+            la salud real del ciclo operativo en el sector seguridad.</p>
+            <span class="rec-urgencia normal">✓ Mejora de proceso — inmediato</span>
+          </div>
+        </div>
+
+        <div class="rec-item">
+          <div class="rec-num">5</div>
+          <div class="rec-content">
+            <h4>Mantener reserva mínima de caja operativa</h4>
+            <p>Establecer una política de caja mínima de S/ 20,000 (25% de pasivos corrientes).
+            Con caja actual de S/ 17,069, se está muy cerca del límite. Una línea de crédito
+            bancaria de contingencia (S/ 20-30K) sería un respaldo valioso.</p>
+            <span class="rec-urgencia media">⚠ Gestión financiera — 30-45 días</span>
+          </div>
+        </div>
+
+        <div class="rec-item">
+          <div class="rec-num">6</div>
+          <div class="rec-content">
+            <h4>Diversificar y calificar la cartera de clientes</h4>
+            <p>Dado el alto ROE y ROA, la empresa tiene capacidad para ser selectiva con nuevos
+            contratos. Priorizar clientes con historial de pago puntual; incorporar cláusulas de
+            pago adelantado para contratos nuevos. Limitar la exposición a un solo cliente a
+            máximo 30% del total de CxC.</p>
+            <span class="rec-urgencia normal">✓ Estratégico — próximo ciclo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SCORING FINANCIERO ─── -->
+  <div class="seccion">
+    <div class="seccion-titulo">09 · Scoring Financiero Global</div>
+    <div class="card">
+      <div class="grid-4">
+        <div style="text-align:center; padding:20px">
+          <div style="font-size:52px; font-weight:900; color:var(--primario); line-height:1">68</div>
+          <div style="font-size:11px; color:#475569; margin-top:4px">Score global /100</div>
+          <div class="badge azul" style="margin-top:8px;"><span class="badge-dot"></span>Desempeño sólido</div>
+        </div>
+        <div style="padding:20px">
+          <p style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#6b7280; margin-bottom:12px">Por dimensión</p>
+          <div style="margin-bottom:8px">
+            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px">
+              <span>Rentabilidad</span><span style="font-weight:700; color:var(--verde)">95/100</span>
+            </div>
+            <div style="height:6px; background:#f4f4f5; border-radius:3px">
+              <div style="height:100%; width:95%; background:var(--verde); border-radius:3px"></div>
+            </div>
+          </div>
+          <div style="margin-bottom:8px">
+            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px">
+              <span>Liquidez operativa</span><span style="font-weight:700; color:var(--verde)">72/100</span>
+            </div>
+            <div style="height:6px; background:#f4f4f5; border-radius:3px">
+              <div style="height:100%; width:72%; background:var(--verde); border-radius:3px"></div>
+            </div>
+          </div>
+          <div style="margin-bottom:8px">
+            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px">
+              <span>Estructura deuda</span><span style="font-weight:700; color:var(--ambar)">45/100</span>
+            </div>
+            <div style="height:6px; background:#f4f4f5; border-radius:3px">
+              <div style="height:100%; width:45%; background:var(--ambar); border-radius:3px"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px">
+              <span>Gestión de cartera</span><span style="font-weight:700; color:var(--rojo)">22/100</span>
+            </div>
+            <div style="height:6px; background:#f4f4f5; border-radius:3px">
+              <div style="height:100%; width:22%; background:var(--rojo); border-radius:3px"></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:20px; grid-column: span 2">
+          <p style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#6b7280; margin-bottom:10px">Diagnóstico consolidado</p>
+          <p class="texto-sm">
+            RL Safety SAC es una empresa con <strong>rentabilidad excepcional</strong> que coloca el negocio en el
+            cuartil superior del sector seguridad. Sus principales fortalezas son la generación de
+            utilidades y la eficiencia operativa. El talón de Aquiles es la <strong>gestión de la cartera de
+            cobros</strong>: casi toda la liquidez del negocio depende de que S/ 103,910 en cuentas por cobrar
+            se conviertan en caja a tiempo.
+          </p>
+          <p class="texto-sm mt-2">
+            <strong>Pronóstico:</strong> Si la empresa implementa las recomendaciones de cobranzas (factoring,
+            políticas de crédito, reserva de caja), el score podría subir a 80+ en el próximo período,
+            convirtiéndola en una empresa financieramente sólida y con capacidad real de crecimiento.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /contenido -->
+
+<!-- ─── NOTAS METODOLÓGICAS ─── -->
+<div class="contenido" style="padding-top: 0;">
+  <div class="seccion">
+    <div class="seccion-titulo">09 · Notas Metodológicas y Glosario</div>
+    <div class="grid-2" style="gap:16px;">
+
+      <div class="card" style="padding: 18px 20px;">
+        <div class="card-titulo">Metodología de cálculo</div>
+        <table>
+          <thead><tr><th>Indicador</th><th>Fórmula</th></tr></thead>
+          <tbody>
+            <tr><td class="td-bold">Liquidez Corriente</td><td>Activos Corrientes ÷ Pasivos Corrientes</td></tr>
+            <tr><td class="td-bold">Capital de Trabajo</td><td>Activos Corrientes − Pasivos Corrientes</td></tr>
+            <tr><td class="td-bold">Endeudamiento</td><td>Pasivos Totales ÷ Activos Totales × 100</td></tr>
+            <tr><td class="td-bold">Deuda / Patrimonio</td><td>Pasivos Totales ÷ Patrimonio Neto</td></tr>
+            <tr><td class="td-bold">ROE</td><td>Utilidad Neta ÷ Patrimonio Neto × 100</td></tr>
+            <tr><td class="td-bold">ROA</td><td>Utilidad Neta ÷ Activos Totales × 100</td></tr>
+            <tr><td class="td-bold">Concentración CxC</td><td>Cuentas por Cobrar ÷ Activos Corrientes × 100</td></tr>
+            <tr><td class="td-bold">Disponibilidad</td><td>Caja y Bancos ÷ Pasivos Corrientes × 100</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="card" style="padding: 16px 20px;">
+          <div class="card-titulo">Fuentes y supuestos</div>
+          <ul style="padding-left: 16px; font-size: 11px; color: #334155; line-height: 1.8;">
+            <li>Los datos financieros provienen del registro contable del período abril 2026 ingresado al sistema CRM.</li>
+            <li>Los benchmarks del sector Seguridad son valores de referencia estimados; pueden variar según fuente.</li>
+            <li>El scoring global (68/100) utiliza ponderación interna: rentabilidad 30%, liquidez 25%, estructura 25%, gestión 20%.</li>
+            <li>Las proyecciones y recomendaciones son orientativas; no constituyen asesoría financiera formal.</li>
+          </ul>
+        </div>
+        <div class="card" style="padding: 16px 20px;">
+          <div class="card-titulo">Semáforo de clasificación</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; color: #334155;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="width:12px; height:12px; border-radius:50%; background:#4ade80; flex-shrink:0;"></span>
+              <span><strong>Óptimo</strong> — indicador dentro o por encima del rango saludable del sector.</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="width:12px; height:12px; border-radius:50%; background:#fbbf24; flex-shrink:0;"></span>
+              <span><strong>Moderado</strong> — requiere monitoreo; se aproxima a umbrales de alerta.</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="width:12px; height:12px; border-radius:50%; background:#f87171; flex-shrink:0;"></span>
+              <span><strong>Crítico</strong> — supera el umbral de riesgo; acción correctiva recomendada.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ─── FOOTER ─── -->
+<div class="footer">
+  <div>
+    <div class="footer-logo">Zincel Ideas · Análisis Financiero Empresarial</div>
+    <div style="margin-top:4px">Este reporte es de uso interno y confidencial. Los benchmarks son valores de referencia.</div>
+  </div>
+  <div class="footer-right">
+    <div>RL SAFETY SAC · Sector Seguridad · Período: Abril 2026</div>
+    <div style="margin-top:4px">Generado: junio 2026 · Powered by Zincel CRM</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT: GAUGES + CHARTS
+════════════════════════════════════════════════════ -->
+<script>
+// ── Datos financieros ──────────────────────────────────────────
+const IND = {
+  liquidez:     { titulo: "Liquidez Corriente",       valor: "1.51×",      num: 1.512,  pct: 0.67, estado: "verde",  estadoLabel: "Bueno",      desc: "Por c/ S/1 deuda CP tiene S/1.51 disponible" },
+  capital:      { titulo: "Capital de Trabajo",       valor: "S/ 40,978",  num: 40977,  pct: 0.72, estado: "verde",  estadoLabel: "Positivo",   desc: "Capital positivo; 41.7% en caja efectiva" },
+  endeudamiento:{ titulo: "Endeudamiento",            valor: "64.02%",     num: 64.02,  pct: 0.43, estado: "ambar",  estadoLabel: "Moderado",   desc: "64% activos financiados por terceros" },
+  deudaPat:     { titulo: "Deuda / Patrimonio",       valor: "1.78×",      num: 1.779,  pct: 0.44, estado: "ambar",  estadoLabel: "Atención",   desc: "S/1.78 de deuda por cada S/1 propio" },
+  roe:          { titulo: "ROE — Rent. Patrimonio",   valor: "73.38%",     num: 73.38,  pct: 0.96, estado: "verde",  estadoLabel: "Óptimo",     desc: "Retorno excepcional sobre el patrimonio" },
+  roa:          { titulo: "ROA — Rent. Activos",      valor: "26.40%",     num: 26.40,  pct: 0.88, estado: "verde",  estadoLabel: "Óptimo",     desc: "Cada sol de activo genera S/0.26 de utilidad" },
+  cxc:          { titulo: "Concentración CxC",        valor: "85.89%",     num: 85.89,  pct: 0.11, estado: "rojo",   estadoLabel: "Crítico",    desc: "86% activos corrientes en cuentas por cobrar" },
+  disp:         { titulo: "Disponibilidad Inmediata", valor: "21.34%",     num: 21.34,  pct: 0.68, estado: "verde",  estadoLabel: "Bueno",      desc: "Caja cubre el 21.3% de obligaciones CP" },
+};
+
+const COLORES = { verde: "#16a34a", ambar: "#d97706", rojo: "#ef4444", gris: "#64748b" };
+
+// ── Generar SVG Gauge con aguja velocímetro ───────────────────
+function gaugeSVG(pct, color) {
+  const cx = 70, cy = 78, r = 52, sw = 12;
+  const safe = Math.min(0.998, Math.max(0.002, pct));
+  const f = v => v.toFixed(2);
+
+  function pt(p) {
+    const a = Math.PI * (1 - p);
+    return { x: cx + r * Math.cos(a), y: cy - r * Math.sin(a) };
+  }
+  function arc(p1, p2, stroke, width) {
+    const s = pt(p1), e = pt(p2);
+    const large = (p2 - p1) > 0.5 ? 1 : 0;
+    return `<path d="M ${f(s.x)},${f(s.y)} A ${r},${r} 0 ${large},1 ${f(e.x)},${f(e.y)}" fill="none" stroke="${stroke}" stroke-width="${width}" stroke-linecap="butt"/>`;
+  }
+
+  // Marcas de escala (muescas blancas sobre el track)
+  let ticks = '';
+  [0, 0.167, 0.333, 0.5, 0.667, 0.833, 1.0].forEach(p => {
+    const major = [0, 0.333, 0.667, 1.0].includes(p);
+    const a = Math.PI * (1 - p);
+    const rIn  = r - sw / 2 + (major ? 1 : 3);
+    const rOut = r + sw / 2 - (major ? 1 : 3);
+    ticks += `<line x1="${f(cx + rIn * Math.cos(a))}" y1="${f(cy - rIn * Math.sin(a))}"
+                   x2="${f(cx + rOut * Math.cos(a))}" y2="${f(cy - rOut * Math.sin(a))}"
+                   stroke="white" stroke-width="${major ? 2.5 : 1.5}" stroke-linecap="round"/>`;
+  });
+
+  // Aguja
+  const angle = Math.PI * (1 - safe);
+  const ca = Math.cos(angle), sa = Math.sin(angle);
+  const nLen = r - 6, nW = 4;
+  const tip = [cx + nLen * ca,  cy - nLen * sa];
+  const b1  = [cx + nW * sa,    cy + nW * ca];
+  const b2  = [cx - nW * sa,    cy - nW * ca];
+  // Contrapeso (cola)
+  const tLen = 13, tW = 2.5;
+  const tail = [cx - tLen * ca, cy + tLen * sa];
+  const t1   = [cx + tW * sa,   cy + tW * ca];
+  const t2   = [cx - tW * sa,   cy - tW * ca];
+
+  return `
+    <svg viewBox="0 0 140 92" class="gauge-svg" xmlns="http://www.w3.org/2000/svg">
+      <!-- Fondo del gauge -->
+      <circle cx="${cx}" cy="${cy}" r="${r + sw/2 + 2}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+      <!-- Track zonas -->
+      ${arc(0,     0.333, '#f87171', sw)}
+      ${arc(0.333, 0.667, '#fbbf24', sw)}
+      ${arc(0.667, 0.999, '#4ade80', sw)}
+      <!-- Separadores de zona -->
+      ${arc(0.330, 0.337, 'white', sw + 5)}
+      ${arc(0.663, 0.670, 'white', sw + 5)}
+      <!-- Muescas de escala -->
+      ${ticks}
+      <!-- Sombra aguja -->
+      <polygon points="${f(tip[0]+1.5)},${f(tip[1]+1.5)} ${f(b1[0]+1)},${f(b1[1]+1)} ${f(b2[0]+1)},${f(b2[1]+1)}"
+               fill="rgba(0,0,0,0.12)"/>
+      <!-- Cuerpo de la aguja -->
+      <polygon points="${f(tip[0])},${f(tip[1])} ${f(b1[0])},${f(b1[1])} ${f(b2[0])},${f(b2[1])}"
+               fill="${color}" stroke="rgba(255,255,255,0.8)" stroke-width="0.6"/>
+      <!-- Cola contrapeso -->
+      <polygon points="${f(tail[0])},${f(tail[1])} ${f(t1[0])},${f(t1[1])} ${f(t2[0])},${f(t2[1])}"
+               fill="${color}" opacity="0.55"/>
+      <!-- Pivote central -->
+      <circle cx="${cx}" cy="${cy}" r="10" fill="white" stroke="#e4e4e7" stroke-width="1.5"/>
+      <circle cx="${cx}" cy="${cy}" r="7.5" fill="${color}" opacity="0.18"/>
+      <circle cx="${cx}" cy="${cy}" r="5.5" fill="${color}"/>
+      <circle cx="${cx}" cy="${cy}" r="3" fill="white"/>
+      <!-- Brillo superior -->
+      <circle cx="${f(cx - 1.5)}" cy="${f(cy - 1.5)}" r="1.2" fill="rgba(255,255,255,0.7)"/>
+    </svg>
+  `;
+}
+
+// ── Renderizar las 8 cards de gauge ───────────────────────────
+function renderGauges() {
+  const container = document.getElementById('gauges-container');
+  const orden = ['liquidez','capital','endeudamiento','deudaPat','roe','roa','cxc','disp'];
+  const nums = [1,2,3,4,5,6,7,8];
+
+  orden.forEach((key, idx) => {
+    const ind = IND[key];
+    const color = COLORES[ind.estado];
+    const card = document.createElement('div');
+    card.className = 'gauge-card';
+    card.innerHTML = `
+      <div class="gauge-header">
+        <span class="gauge-num">${nums[idx]}. ${ind.titulo}</span>
+      </div>
+      ${gaugeSVG(ind.pct, color)}
+      <div class="gauge-valor" style="color:${color}">${ind.valor}</div>
+      <span class="badge ${ind.estado}" style="margin-top:2px">
+        <span class="badge-dot"></span>${ind.estadoLabel}
+      </span>
+      <div class="gauge-desc">${ind.desc}</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+renderGauges();
+
+// Registrar plugin datalabels globalmente
+Chart.register(ChartDataLabels);
+
+// ── Chart.js — Estructura Financiera ──────────────────────────
+new Chart(document.getElementById('chartEstructura'), {
+  type: 'bar',
+  data: {
+    labels: ['Activos Totales', 'Activos Corrientes', 'Pasivos Totales', 'Patrimonio', 'Utilidad'],
+    datasets: [{
+      data: [124967, 120979, 80002, 44966, 32993],
+      backgroundColor: ['#2563eb', '#3b82f6', '#ef4444', '#059669', '#10b981'],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` S/ ${ctx.raw.toLocaleString('es-PE')}` } },
+      datalabels: {
+        anchor: 'end', align: 'top',
+        formatter: v => `S/ ${(v/1000).toFixed(0)}K`,
+        font: { size: 9, weight: '600' },
+        color: '#374151',
+        offset: 2,
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: {
+        grid: { color: '#f4f4f5' },
+        ticks: { font: { size: 10 }, callback: v => `S/ ${(v/1000).toFixed(0)}K` }
+      }
+    },
+    layout: { padding: { top: 24 } }
+  }
+});
+
+// ── Chart.js — Composición de Activos ─────────────────────────
+new Chart(document.getElementById('chartActivos'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Cuentas por Cobrar', 'Caja y Bancos', 'Activo Fijo'],
+    datasets: [{
+      data: [103909.85, 17069.36, 3988.14],
+      backgroundColor: ['#ef4444', '#2563eb', '#8b5cf6'],
+      borderWidth: 2, borderColor: '#fff',
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '58%',
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 12 } },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            const pct = ((ctx.raw / 124967) * 100).toFixed(1);
+            return ` S/ ${ctx.raw.toLocaleString('es-PE', {maximumFractionDigits:0})} (${pct}%)`;
+          }
+        }
+      },
+      datalabels: {
+        formatter: (v) => {
+          const pct = ((v / 124967) * 100).toFixed(1);
+          return `${pct}%`;
+        },
+        font: { size: 11, weight: '700' },
+        color: '#fff',
+        textShadow: '0 1px 2px rgba(0,0,0,0.4)',
+      }
+    }
+  }
+});
+
+// ── Chart.js — Radar ──────────────────────────────────────────
+new Chart(document.getElementById('chartRadar'), {
+  type: 'radar',
+  data: {
+    labels: ['Liquidez', 'Capital T.', 'Endeud.', 'Deuda/Pat.', 'ROE', 'ROA', 'Conc.CxC', 'Disponib.'],
+    datasets: [
+      {
+        label: 'RL Safety SAC',
+        data: [67, 72, 43, 44, 96, 88, 11, 68],
+        backgroundColor: 'rgba(37,99,235,0.2)',
+        borderColor: '#2563eb', borderWidth: 2,
+        pointBackgroundColor: '#2563eb', pointRadius: 4,
+        datalabels: {
+          anchor: 'end', align: 'end',
+          formatter: v => v,
+          font: { size: 9, weight: '700' },
+          color: '#2563eb',
+          offset: 4,
+        }
+      },
+      {
+        label: 'Promedio Sector Seguridad',
+        data: [55, 60, 55, 50, 50, 40, 55, 50],
+        backgroundColor: 'rgba(161,161,170,0.1)',
+        borderColor: '#94a3b8', borderWidth: 1.5, borderDash: [4,4],
+        pointBackgroundColor: '#94a3b8', pointRadius: 3,
+        datalabels: { display: false }
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 12 } },
+      datalabels: { display: false }
+    },
+    scales: {
+      r: {
+        min: 0, max: 100,
+        ticks: { stepSize: 25, font: { size: 9 }, backdropColor: 'transparent' },
+        grid: { color: '#f4f4f5' },
+        pointLabels: { font: { size: 10 } },
+      }
+    }
+  }
+});
+
+// ── Chart.js — Benchmark comparativo ─────────────────────────
+new Chart(document.getElementById('chartBenchmark'), {
+  type: 'bar',
+  data: {
+    labels: ['Liquidez (×)', 'ROE (%)', 'ROA (%)', 'Endeud. (%)', 'Dispon. (%)'],
+    datasets: [
+      {
+        label: 'RL Safety SAC',
+        data: [1.51, 73.38, 26.40, 64.02, 21.34],
+        backgroundColor: '#2563eb', borderRadius: 4,
+      },
+      {
+        label: 'Ref. Sector Seguridad',
+        data: [1.40, 16.00, 7.00, 55.00, 18.00],
+        backgroundColor: '#e4e4e7', borderRadius: 4,
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 12 } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}` } },
+      datalabels: {
+        anchor: 'end', align: 'top',
+        formatter: v => v,
+        font: { size: 9, weight: '600' },
+        color: ctx => ctx.datasetIndex === 0 ? '#1d4ed8' : '#64748b',
+        offset: 2,
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { grid: { color: '#f4f4f5' }, ticks: { font: { size: 10 } } }
+    },
+    layout: { padding: { top: 24 } }
+  }
+});
+</script>
+
+</body>
+</html>

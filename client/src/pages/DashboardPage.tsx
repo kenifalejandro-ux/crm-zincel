@@ -231,9 +231,10 @@ export default function DashboardPage() {
       {/* Header + Filtros */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
+          <div className="crm-section-accent h-8" />
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">Análisis</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Análisis</h1>
               {actualizando && (
                 <div className="w-3.5 h-3.5 rounded-full border-2 border-brand border-t-transparent animate-spin" />
               )}

@@ -104,3 +104,10 @@ export async function getResumenFinanciero(filtros?: { mes?: number; anio?: numb
   const { data } = await api.get("/finanzas/resumen", { params: filtros });
   return data.data;
 }
+
+// ── ANÁLISIS FINANCIERO ───────────────────────────────────────
+
+export async function getAnalisisFinanciero() {
+  const { data } = await api.get("/finanzas/analisis");
+  return data.data;
+}

@@ -9,7 +9,8 @@ import { getBenchmarkPorEmpresa } from "../../services/benchmarks.api";
 import { listarResultados } from "../../services/resultados.api";
 import { sectorLabel } from "../../utils/sectores";
 
-interface Props { metricas: Metrica[]; empresa?: string }
+type RentabilidadView = "roas" | "roi";
+interface Props { metricas: Metrica[]; empresa?: string; view?: RentabilidadView }
 
 type VistaRentabilidad = "campana" | "portfolio";
 
@@ -108,7 +109,9 @@ const BENCHMARK_VENTA_DEFAULT: BenchmarkVentaSector = {
 };
 
 // ── Componente ───────────────────────────────────────────────────────────────
-export function RentabilidadTab({ metricas, empresa }: Props) {
+export function RentabilidadTab(props: Props) {
+  const { metricas, empresa, view } = props;
+  const modo = view === "roi" ? "roi" : "roas";
   const [benchmarkDin,     setBenchmarkDin]     = useState<BenchmarkSector | null>(null);
   const [sectorActivo,     setSectorActivo]     = useState<string | null>(null);
   const [resultados,       setResultados]       = useState<Resultado[]>([]);
@@ -147,18 +150,32 @@ export function RentabilidadTab({ metricas, empresa }: Props) {
     }>();
 
     for (const r of resultados) {
-      const metrica = metricas.find((m) => m.id === r.metrica_id);
-      const gasto   = metrica ? Number(metrica.gasto) : 0;
-      const prev    = porCampana.get(r.metrica_id) ?? {
-        nombre: r.campana_nombre, ventas: 0, ingresos: 0, honorarios: 0, gasto,
-      };
-      porCampana.set(r.metrica_id, {
-        nombre:    prev.nombre,
-        ventas:    prev.ventas + 1,
-        ingresos:  prev.ingresos   + Number(r.monto),
-        honorarios: prev.honorarios + Number(r.costo_venta),
-        gasto:     prev.gasto,
-      });
+      const ids = (r.metrica_ids && r.metrica_ids.length > 0)
+        ? r.metrica_ids
+        : r.metrica_id
+          ? [r.metrica_id]
+          : [];
+      const repartoIngresos  = ids.length > 0 ? Number(r.monto) / ids.length : 0;
+      const repartoHonorarios = ids.length > 0 ? Number(r.costo_venta ?? 0) / ids.length : 0;
+
+      for (const id of ids) {
+        const metrica = metricas.find((m) => m.id === id);
+        const gasto   = metrica ? Number(metrica.gasto) : 0;
+        const prev    = porCampana.get(id) ?? {
+          nombre: metrica?.campana_nombre ?? r.campana_nombre,
+          ventas: 0,
+          ingresos: 0,
+          honorarios: 0,
+          gasto,
+        };
+        porCampana.set(id, {
+          nombre:     prev.nombre,
+          ventas:     prev.ventas + 1,
+          ingresos:   prev.ingresos + repartoIngresos,
+          honorarios: prev.honorarios + repartoHonorarios,
+          gasto:      prev.gasto,
+        });
+      }
     }
 
     const campanas          = Array.from(porCampana.values());
@@ -179,7 +196,11 @@ export function RentabilidadTab({ metricas, empresa }: Props) {
       roas:  totalGastoCampanas > 0 ? totalIngresos / totalGastoCampanas : null,
       roi:   totalCostoTotal    > 0 ? ((totalIngresos - totalCostoTotal) / totalCostoTotal) * 100 : null,
       campanas: campanas
-        .map((c) => ({ ...c, roas: c.gasto > 0 ? c.ingresos / c.gasto : null }))
+        .map((c) => ({
+          ...c,
+          roas: c.gasto > 0 ? c.ingresos / c.gasto : null,
+          roi:  c.gasto > 0 ? ((c.ingresos - c.gasto) / c.gasto) * 100 : null,
+        }))
         .sort((a, b) => (b.roas ?? 0) - (a.roas ?? 0)),
     };
   }, [resultados, metricas]);
@@ -242,7 +263,7 @@ export function RentabilidadTab({ metricas, empresa }: Props) {
     return (
       <div className="flex items-start gap-3 bg-zinc-50 border border-dashed border-zinc-300 rounded-xl px-5 py-6 text-xs text-zinc-500">
         <DollarSign size={16} className="mt-0.5 text-zinc-400 shrink-0" />
-        <p>Selecciona una empresa en los filtros para ver el análisis de rentabilidad.</p>
+        <p>Selecciona una empresa en los filtros para ver el análisis de {modo === "roi" ? "ROI" : "ROAS"} atribuido.</p>
       </div>
     );
   }
@@ -255,7 +276,12 @@ export function RentabilidadTab({ metricas, empresa }: Props) {
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <span className="text-base">💰</span>
-            <span className="text-sm font-semibold text-zinc-800">Ventas atribuidas a campañas</span>
+            <div>
+              <p className="text-sm font-semibold text-zinc-800">{modo === "roi" ? "ROI atribuido" : "ROAS atribuido"}</p>
+              <p className="text-xs text-zinc-500">{modo === "roi"
+                ? "Evaluación del retorno neto sobre ventas atribuibles."
+                : "Evaluación del retorno por cada sol invertido en campañas con ventas atribuidas."}</p>
+            </div>
             <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
               {retornoAtribuido.totalVentas} {retornoAtribuido.totalVentas === 1 ? "venta" : "ventas"} registradas
             </span>
@@ -276,26 +302,30 @@ export function RentabilidadTab({ metricas, empresa }: Props) {
               <p className="text-[10px] text-zinc-500 uppercase font-medium">Gasto en campañas</p>
               <p className="text-sm font-bold text-zinc-900 mt-0.5">{FMT_SOL(retornoAtribuido.totalGasto)}</p>
             </div>
-            <div className="bg-white border border-zinc-200 border-l-4 border-l-blue-400 rounded-xl px-4 py-3">
-              <p className="text-[10px] text-zinc-500 uppercase font-medium">ROAS efectivo</p>
-              <p className="text-sm font-bold text-zinc-900 mt-0.5">
-                {retornoAtribuido.roas !== null ? `${retornoAtribuido.roas.toFixed(1)}x` : "—"}
-              </p>
-              {retornoAtribuido.roas !== null && (() => {
-                const est = roasEstado(retornoAtribuido.roas!);
-                return <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${BADGE_STYLE[est]}`}>{BADGE_LABEL[est]}</span>;
-              })()}
-            </div>
-            <div className="bg-white border border-zinc-200 border-l-4 border-l-violet-400 rounded-xl px-4 py-3">
-              <p className="text-[10px] text-zinc-500 uppercase font-medium">ROI neto</p>
-              <p className="text-sm font-bold text-zinc-900 mt-0.5">
-                {retornoAtribuido.roi !== null ? `${retornoAtribuido.roi.toFixed(0)}%` : "—"}
-              </p>
-              {retornoAtribuido.roi !== null && (() => {
-                const est = roiEstado(retornoAtribuido.roi!);
-                return <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${BADGE_STYLE[est]}`}>{BADGE_LABEL[est]}</span>;
-              })()}
-            </div>
+            {modo === "roas" ? (
+              <div className="bg-white border border-zinc-200 border-l-4 border-l-blue-400 rounded-xl px-4 py-3">
+                <p className="text-[10px] text-zinc-500 uppercase font-medium">ROAS efectivo</p>
+                <p className="text-sm font-bold text-zinc-900 mt-0.5">
+                  {retornoAtribuido.roas !== null ? `${retornoAtribuido.roas.toFixed(1)}x` : "—"}
+                </p>
+                {retornoAtribuido.roas !== null && (() => {
+                  const est = roasEstado(retornoAtribuido.roas!);
+                  return <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${BADGE_STYLE[est]}`}>{BADGE_LABEL[est]}</span>;
+                })()}
+              </div>
+            ) : null}
+            {modo === "roi" ? (
+              <div className="bg-white border border-zinc-200 border-l-4 border-l-violet-400 rounded-xl px-4 py-3">
+                <p className="text-[10px] text-zinc-500 uppercase font-medium">ROI neto</p>
+                <p className="text-sm font-bold text-zinc-900 mt-0.5">
+                  {retornoAtribuido.roi !== null ? `${retornoAtribuido.roi.toFixed(0)}%` : "—"}
+                </p>
+                {retornoAtribuido.roi !== null && (() => {
+                  const est = roiEstado(retornoAtribuido.roi!);
+                  return <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${BADGE_STYLE[est]}`}>{BADGE_LABEL[est]}</span>;
+                })()}
+              </div>
+            ) : null}
           </div>
 
           {/* Detalle por campaña */}
@@ -307,7 +337,7 @@ export function RentabilidadTab({ metricas, empresa }: Props) {
                   <th className="px-4 py-2.5 text-right font-medium">Ventas</th>
                   <th className="px-4 py-2.5 text-right font-medium">Ingresos</th>
                   <th className="px-4 py-2.5 text-right font-medium">Gasto pauta</th>
-                  <th className="px-4 py-2.5 text-right font-medium">ROAS</th>
+                  <th className="px-4 py-2.5 text-right font-medium">{modo === "roi" ? "ROI" : "ROAS"}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-50">
@@ -318,11 +348,19 @@ export function RentabilidadTab({ metricas, empresa }: Props) {
                     <td className="px-4 py-2.5 text-right font-semibold text-green-700">{FMT_SOL(c.ingresos)}</td>
                     <td className="px-4 py-2.5 text-right text-zinc-600">{FMT_SOL(c.gasto)}</td>
                     <td className="px-4 py-2.5 text-right font-bold">
-                      {c.roas !== null ? (
-                        <span className={c.roas >= 5 ? "text-green-600" : c.roas >= 2 ? "text-amber-500" : "text-red-500"}>
-                          {c.roas.toFixed(1)}x
-                        </span>
-                      ) : "—"}
+                      {modo === "roi" ? (
+                        c.roi !== null ? (
+                          <span className={c.roi >= 100 ? "text-green-600" : c.roi >= 0 ? "text-amber-500" : "text-red-500"}>
+                            {c.roi.toFixed(0)}%
+                          </span>
+                        ) : "—"
+                      ) : (
+                        c.roas !== null ? (
+                          <span className={c.roas >= 5 ? "text-green-600" : c.roas >= 2 ? "text-amber-500" : "text-red-500"}>
+                            {c.roas.toFixed(1)}x
+                          </span>
+                        ) : "—"
+                      )}
                     </td>
                   </tr>
                 ))}

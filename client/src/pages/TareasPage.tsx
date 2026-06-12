@@ -65,16 +65,16 @@ export default function TareasPage() {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold text-zinc-900 flex items-center gap-2">
-            <CheckSquare size={20} className="text-amber-500" />
-            Tareas de seguimiento
-          </h1>
-          <p className="text-xs text-zinc-600 mt-0.5">Recordatorios y pendientes de tus prospectos</p>
+        <div className="flex items-center gap-3">
+          <div className="crm-section-accent h-8" />
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Tareas de seguimiento</h1>
+            <p className="text-xs text-slate-500 mt-0.5">Recordatorios y pendientes de tus prospectos</p>
+          </div>
         </div>
         <button
           onClick={() => setMostrarForm(v => !v)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
+          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-brand hover:bg-brand-hover text-zinc-900 rounded-xl transition shadow-sm"
         >
           <Plus size={13} /> Nueva tarea
         </button>
@@ -83,25 +83,25 @@ export default function TareasPage() {
       {/* Resumen cards */}
       {resumen && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
-            <AlertCircle size={16} className="mx-auto text-red-500 mb-1" />
-            <p className="text-xl font-bold text-red-600">{resumen.vencidas}</p>
-            <p className="text-[10px] text-red-400 font-medium uppercase tracking-wide">Vencidas</p>
+          <div className="bg-white border border-red-100 rounded-2xl p-4 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <AlertCircle size={16} className="mx-auto text-red-500 mb-2" />
+            <p className="text-2xl font-black text-red-600 tabular-nums leading-tight">{resumen.vencidas}</p>
+            <p className="text-[10px] text-red-400 font-semibold uppercase tracking-widest mt-1">Vencidas</p>
           </div>
-          <div className="bg-orange-50 border border-orange-100 rounded-xl p-3 text-center">
-            <Clock size={16} className="mx-auto text-orange-500 mb-1" />
-            <p className="text-xl font-bold text-orange-600">{resumen.hoy}</p>
-            <p className="text-[10px] text-orange-400 font-medium uppercase tracking-wide">Para hoy</p>
+          <div className="bg-white border border-orange-100 rounded-2xl p-4 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <Clock size={16} className="mx-auto text-orange-500 mb-2" />
+            <p className="text-2xl font-black text-orange-600 tabular-nums leading-tight">{resumen.hoy}</p>
+            <p className="text-[10px] text-orange-400 font-semibold uppercase tracking-widest mt-1">Para hoy</p>
           </div>
-          <div className="bg-zinc-50 border border-zinc-100 rounded-xl p-3 text-center">
-            <Calendar size={16} className="mx-auto text-brand mb-1" />
-            <p className="text-xl font-bold text-brand">{resumen.proximas}</p>
-            <p className="text-[10px] text-brand/70 font-medium uppercase tracking-wide">Próximas</p>
+          <div className="bg-white border border-brand/20 rounded-2xl p-4 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <Calendar size={16} className="mx-auto text-brand mb-2" />
+            <p className="text-2xl font-black text-brand tabular-nums leading-tight">{resumen.proximas}</p>
+            <p className="text-[10px] text-brand/70 font-semibold uppercase tracking-widest mt-1">Próximas</p>
           </div>
-          <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 text-center">
-            <CheckSquare size={16} className="mx-auto text-zinc-600 mb-1" />
-            <p className="text-xl font-bold text-zinc-600">{resumen.total}</p>
-            <p className="text-[10px] text-zinc-600 font-medium uppercase tracking-wide">Total</p>
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <CheckSquare size={16} className="mx-auto text-slate-500 mb-2" />
+            <p className="text-2xl font-black text-slate-700 tabular-nums leading-tight">{resumen.total}</p>
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest mt-1">Total</p>
           </div>
         </div>
       )}

@@ -10,13 +10,14 @@ export const KpisMetricas = ({ metricas }: Props) => {
   const total = (key: keyof Metrica) =>
     metricas.reduce((a, m) => a + Number(m[key] || 0), 0);
 
-  const totalGasto   = total("gasto");
-  const totalLeads   = total("leads");
-  const totalClics   = total("clics");
+  const totalGasto = total("gasto");
+  const totalLeads = total("leads");
+  const totalClics = total("clics");
+
   const roasPromedio = metricas.length
     ? (metricas.reduce((a, m) => a + Number(m.roas), 0) / metricas.length).toFixed(2)
     : "0.00";
-  // CPL: gasto total ÷ leads totales — solo campañas con Instant Form activo (leads > 0)
+
   const conLeads      = metricas.filter((m) => Number(m.leads) > 0);
   const gastoConLeads = conLeads.reduce((a, m) => a + Number(m.gasto), 0);
   const cplPromedio   = conLeads.length > 0 && totalLeads > 0

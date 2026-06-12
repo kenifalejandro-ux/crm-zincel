@@ -228,6 +228,8 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
             periodo_inicio:     periodoI,
             periodo_fin:        periodoF,
             campana_nombre:     fila.campana_nombre     || "Sin nombre",
+            objetivo:           "venta",
+            proyectos:          [],
 
             // Alcance
             impresiones:        fila.impresiones        || "0",

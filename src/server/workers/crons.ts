@@ -3,6 +3,13 @@
 import cron from "node-cron";
 import { pool } from "../config/database";
 import { crearNotificacion, yaNotificadoHoy } from "../services/notificaciones.service";
+import { listarCuentasAutoSync, registrarSync } from "../services/plataformaCuentas.service";
+import { syncMetaAdsService } from "../services/metaAds.service";
+import { syncTikTokAdsService } from "../services/tiktokAds.service";
+import { syncGoogleAdsService } from "../services/googleAds.service";
+import { syncInstagramOrganicoService } from "../services/instagramOrganico.service";
+import { syncFacebookOrganicoService }  from "../services/facebookOrganico.service";
+import { syncTikTokOrganicoService }    from "../services/tiktokOrganico.service";
 import { logger } from "../config/logger";
 
 // ── Cron 1: Recordatorio de reuniones próximas ────────────────────────────────
@@ -87,8 +94,52 @@ function cronLeadsSinActividad() {
   });
 }
 
+// ── Cron 3: Auto-sync plataformas de ads (2:00 am diario) ────────────────────
+// Sincroniza los últimos 30 días de campañas para todas las cuentas activas.
+// También sincroniza Instagram orgánico para cuentas Meta.
+function cronAutoSyncAds() {
+  cron.schedule("0 2 * * *", async () => {
+    logger.info("Auto-sync ads iniciado");
+
+    const hasta = new Date().toISOString().split("T")[0];
+    const desde = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+    let cuentas: { id: string; empresa: string; plataforma: string }[] = [];
+    try {
+      cuentas = await listarCuentasAutoSync();
+    } catch (err) {
+      logger.error({ err }, "Auto-sync: no se pudo obtener cuentas");
+      return;
+    }
+
+    for (const cuenta of cuentas) {
+      try {
+        if (cuenta.plataforma === "meta") {
+          await syncMetaAdsService(cuenta.empresa, desde, hasta);
+          await syncInstagramOrganicoService(cuenta.empresa, 50);
+          await syncFacebookOrganicoService(cuenta.empresa, 30).catch(() => {});
+          logger.info({ empresa: cuenta.empresa }, "Auto-sync meta + instagram + facebook ok");
+        } else if (cuenta.plataforma === "tiktok") {
+          await syncTikTokAdsService(cuenta.empresa, desde, hasta);
+          await syncTikTokOrganicoService(cuenta.empresa, 30).catch(() => {});
+          logger.info({ empresa: cuenta.empresa }, "Auto-sync tiktok + tiktok-organico ok");
+        } else if (cuenta.plataforma === "google") {
+          await syncGoogleAdsService(cuenta.empresa, desde, hasta);
+          logger.info({ empresa: cuenta.empresa }, "Auto-sync google ok");
+        }
+      } catch (err: any) {
+        await registrarSync(cuenta.empresa, cuenta.plataforma, err.message).catch(() => {});
+        logger.error({ empresa: cuenta.empresa, plataforma: cuenta.plataforma, err: err.message }, "Auto-sync falló");
+      }
+    }
+
+    logger.info({ cuentas: cuentas.length }, "Auto-sync ads completado");
+  });
+}
+
 export function startCrons() {
   cronRecordatorioReuniones();
   cronLeadsSinActividad();
-  logger.info("⏰ Crons iniciados: reuniones (*/15 min) · leads sin actividad (9:00 am)");
+  cronAutoSyncAds();
+  logger.info("⏰ Crons iniciados: reuniones (*/15 min) · leads sin actividad (9:00 am) · auto-sync ads (2:00 am)");
 }

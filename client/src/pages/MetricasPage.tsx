@@ -1,6 +1,7 @@
 /** src/pages/MetricasPage.tsx */
 
 import { useEffect, useState, useMemo, Component, ReactNode } from "react";
+import { useSearchParams } from "react-router-dom";
 
 class ComparativaErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state = { error: null };
@@ -24,7 +25,6 @@ import { useEditar }              from "../hooks/useEditar";
 import { FiltrosMetricas }        from "../components/metricas/FiltrosMetricas";
 import { KpisMetricas }           from "../components/metricas/KpisMetricas";
 import { TablaMetricas }          from "../components/metricas/detalle/TablaMetricas";
-import { TabsPlataforma }         from "../components/metricas/TabsPlataforma";
 import { ResumenPlataforma }      from "../components/metricas/ResumenPlataforma";
 import { MetricasLineChart }      from "../components/metricas/MetricasLineChart";
 import { MetricasBarChart }       from "../components/metricas/MetricasBarChart";
@@ -35,14 +35,19 @@ import { ModalImportarAPI }      from "../components/metricas/ModalImportarAPI";
 import { ProyeccionTab }          from "../components/metricas/ProyeccionTab";
 import { ComparativaTab }         from "../components/metricas/ComparativaTab";
 import { RentabilidadTab }        from "../components/metricas/RentabilidadTab";
+import { CostoLeadTab }           from "../components/metricas/CostoLeadTab";
 import { BenchmarksTab }          from "../components/metricas/BenchmarksTab";
 import { AlertasMetricas }        from "../components/metricas/AlertasMetricas";
 import { BudgetOptimizerTab }     from "../components/metricas/BudgetOptimizerTab";
 import { FormatosTab }            from "../components/metricas/FormatosTab";
+import { CicloVentaTab }          from "../components/metricas/CicloVentaTab";
+import { OrganicoTab }            from "../components/metricas/OrganicoTab";
+import { CompetidoresTab }        from "../components/metricas/CompetidoresTab";
+import { TikTokAdsTab }           from "../components/metricas/TikTokAdsTab";
 
 import { TableBulkActions }       from "../components/ui/TableBulkActions";
 
-import { deleteMetricasMasivo, updateMetrica, getProyectos, asignarProyectoBulk } from "../services/metricas.api";
+import { deleteMetricasMasivo, updateMetrica, getProyectos, asignarProyectosBulk } from "../services/metricas.api";
 import { exportarReportePDF }                  from "../utils/exportarPDF";
 import { fechaHoy }                            from "../utils/date";
 
@@ -53,7 +58,7 @@ import {
   Plataforma,
 } from "../types/metricas.types";
 
-type TabPlataforma = Plataforma | "todas" | "proyeccion" | "comparativa" | "rentabilidad" | "benchmarks" | "optimizador" | "formatos";
+type TabPlataforma = Plataforma | "todas" | "cpl" | "roi" | "proyeccion" | "comparativa" | "rentabilidad" | "benchmarks" | "optimizador" | "formatos" | "ciclo" | "organico" | "competidores";
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 const hoy = () => fechaHoy();
@@ -110,7 +115,7 @@ const FORM_INICIAL: FormMetrica = {
 
   notas:              "",
   objetivo:           "venta",
-  proyecto:           "",
+  proyectos:          [],
 };
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
@@ -122,8 +127,19 @@ export default function MetricasPage() {
   } = useMetricas();
 
   // ── Estado ──────────────────────────────────────────────────────────────────
-  const [filtros,        setFiltros]        = useState<FiltrosMetrica>({});
-  const [tabPlataforma,  setTabPlataforma]  = useState<TabPlataforma>("todas");
+  const [searchParams,   setSearchParams]   = useSearchParams();
+  const tabPlataforma = (searchParams.get("tab") as TabPlataforma) || "todas";
+  const setTabPlataforma = (tab: TabPlataforma) =>
+    setSearchParams(prev => { prev.set("tab", tab); return prev; }, { replace: true });
+
+  // empresa viene del sidebar via URL param
+  const empresaUrl = searchParams.get("empresa") || undefined;
+  const [filtros, setFiltros] = useState<FiltrosMetrica>({ empresa: empresaUrl });
+
+  // sincronizar filtros.empresa cuando cambia en la URL (desde el sidebar)
+  useEffect(() => {
+    setFiltros(f => ({ ...f, empresa: empresaUrl || undefined }));
+  }, [empresaUrl]);
   const [soloVentas,     setSoloVentas]     = useState(false);
   const [proyectos,      setProyectos]      = useState<string[]>([]);
   const [modal,          setModal]          = useState(false);
@@ -159,8 +175,20 @@ export default function MetricasPage() {
     }
   }, [filtros.empresa]);
 
-  // ── Limpiar selección al cambiar tab de plataforma ──────────────────────────
+  // ── Detectar callback OAuth (Meta/TikTok) y abrir tab Orgánico ──────────────
   useEffect(() => {
+    if (searchParams.get("meta_conectado") === "1" || searchParams.get("tiktok_conectado") === "1") {
+      setSearchParams(prev => { prev.set("tab", "organico"); return prev; }, { replace: true });
+    }
+  }, []);
+
+  // ── Sincronizar tab de plataforma con filtros (para que el server también filtre) ──
+  const PLATS_DIRECTAS = new Set(["meta", "google", "tiktok"]);
+  useEffect(() => {
+    setFiltros(f => ({
+      ...f,
+      plataforma: PLATS_DIRECTAS.has(tabPlataforma) ? tabPlataforma as any : undefined,
+    }));
     setSeleccionados([]);
   }, [tabPlataforma]);
 
@@ -171,7 +199,7 @@ export default function MetricasPage() {
   );
 
   // ── Métricas filtradas por tab de plataforma ─────────────────────────────────
-  const tabsCompletas = new Set(["todas", "comparativa", "proyeccion", "rentabilidad", "benchmarks", "optimizador", "formatos"]);
+  const tabsCompletas = new Set(["todas", "comparativa", "proyeccion", "rentabilidad", "cpl", "roi", "benchmarks", "optimizador", "formatos", "ciclo", "organico", "competidores"]);
   const metricasFiltradas = useMemo(() => {
     let base = tabsCompletas.has(tabPlataforma)
       ? metricas
@@ -179,6 +207,32 @@ export default function MetricasPage() {
     if (soloVentas) base = base.filter((m) => !m.objetivo || m.objetivo === "venta");
     return base;
   }, [metricas, tabPlataforma, soloVentas]);
+
+  // ── Resumen calculado desde metricasFiltradas (respeta filtro de proyecto) ───
+  const resumenCalculado = useMemo(() => {
+    const porPlataforma: Record<string, typeof resumen[0]> = {};
+    for (const m of metricasFiltradas) {
+      const key = m.plataforma;
+      if (!porPlataforma[key]) {
+        porPlataforma[key] = {
+          plataforma: m.plataforma, sub_plataforma: null,
+          campanas: 0, total_gasto: 0, total_leads: 0,
+          total_conversiones: 0, total_seguidores: 0, total_reproducciones: 0,
+          roas_promedio: 0, cpa_promedio: 0, engagement_promedio: 0,
+        };
+      }
+      const r = porPlataforma[key];
+      r.campanas         += 1;
+      r.total_gasto      += Number(m.gasto);
+      r.total_leads      += Number(m.leads);
+      r.total_conversiones += Number(m.conversiones);
+      r.roas_promedio    += Number(m.roas);
+    }
+    return Object.values(porPlataforma).map(r => ({
+      ...r,
+      roas_promedio: r.campanas > 0 ? Math.round((r.roas_promedio / r.campanas) * 100) / 100 : 0,
+    }));
+  }, [metricasFiltradas]);
 
   // ── Selección masiva ─────────────────────────────────────────────────────────
   const toggleUno = (id: string) =>
@@ -204,8 +258,8 @@ export default function MetricasPage() {
     cargarMetricas(filtros);
   };
 
-  const asignarProyecto = async (proyecto: string) => {
-    await asignarProyectoBulk(seleccionados, proyecto);
+  const asignarProyecto = async (proyectos: string[]) => {
+    await asignarProyectosBulk(seleccionados, proyectos);
     setSeleccionados([]);
     cargarMetricas(filtros);
     getProyectos(filtros.empresa).then(setProyectos).catch(() => {});
@@ -239,120 +293,86 @@ export default function MetricasPage() {
     if (filtros.empresa) cargarResumen(filtros.empresa);
   };
 
+  // ── Pestañas de ads/detalle: solo estas muestran el resumen grande de campañas ──
+  const esTabAds = new Set(["todas", "meta", "google", "tiktok"]).has(tabPlataforma);
+
   // ─── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-5">
 
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Métricas de campañas</h1>
-          <p className="text-xs text-zinc-600 mt-0.5">
-            Meta Ads · Google Ads · TikTok Ads
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="crm-section-accent h-8" />
+          <div>
+            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Métricas de campañas</h1>
+            <p className="text-xs text-zinc-500 mt-0.5">Meta Ads · Google Ads · TikTok Ads</p>
+          </div>
         </div>
 
-        <div className="flex gap-2">
-          {/* Bulk delete */}
-          <TableBulkActions
-            count={seleccionados.length}
-            proyectos={proyectos}
-            onDelete={eliminarSeleccionados}
-            onAsignarProyecto={asignarProyecto}
-          />
+        {/* Acciones (registrar + masivas) — SOLO en pestañas de ads/detalle */}
+        {esTabAds && (
+          <div className="flex gap-2">
+            {/* Bulk delete */}
+            <TableBulkActions
+              count={seleccionados.length}
+              proyectos={proyectos}
+              onDelete={eliminarSeleccionados}
+              onAsignarProyectos={asignarProyecto}
+            />
 
-          {/* Exportar PDF */}
-          {metricasFiltradas.length > 0 && (
+            {/* Registro manual */}
             <button
-              onClick={() => {
-                const paraExportar = seleccionados.length > 0
-                  ? metricasFiltradas.filter(m => seleccionados.includes(m.id))
-                  : metricasFiltradas;
-                exportarReportePDF(paraExportar, filtros.empresa ?? "");
-              }}
-              className="relative group p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white transition"
+              onClick={() => setModal(true)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
             >
-              <FileDown size={17} />
-              <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
-                {seleccionados.length > 0 ? `Exportar (${seleccionados.length})` : "Exportar PDF"}
-              </span>
+              <Plus size={12} />
+              Registrar métricas
             </button>
-          )}
-
-          {/* Importar desde API */}
-          <button
-            onClick={() => setModalAPI(true)}
-            className="relative group p-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white transition"
-          >
-            <Zap size={17} />
-            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
-              Importar desde API
-            </span>
-          </button>
-
-          {/* Importar CSV */}
-          <button
-            onClick={() => setModalCSV(true)}
-            className="relative group p-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition"
-          >
-            <Upload size={17} />
-            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
-              Importar CSV
-            </span>
-          </button>
-
-          {/* Registro manual */}
-          <button
-            onClick={() => setModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
-          >
-            <Plus size={12} />
-            Registrar métricas
-          </button>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* ── Filtros empresa + plataforma ── */}
       <FiltrosMetricas
         filtros={filtros}
         empresas={empresas}
-        proyectos={proyectos}
         onChange={setFiltros}
       />
 
-      {/* ── Alertas inteligentes (Brecha 3) ── */}
-      <AlertasMetricas empresa={filtros.empresa} />
+      {/* ── Resumen grande de campañas (alertas + filtro + KPIs) — SOLO en pestañas de ads/detalle ── */}
+      {esTabAds && (
+        <>
+          {/* ── Alertas inteligentes ── */}
+          <AlertasMetricas empresa={filtros.empresa} />
 
-      {/* ── Filtro de objetivo ── */}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => setSoloVentas((v) => !v)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition ${
-            soloVentas
-              ? "bg-emerald-50 border-emerald-300 text-emerald-700"
-              : "bg-white border-zinc-200 text-zinc-500 hover:border-zinc-300"
-          }`}
-        >
-          <span className={`w-2 h-2 rounded-full ${soloVentas ? "bg-emerald-500" : "bg-zinc-300"}`} />
-          Solo campañas de venta
-        </button>
-        {soloVentas && (
-          <span className="text-[10px] text-zinc-400">
-            Excluye campañas de branding y comunidad del KPI total
-          </span>
-        )}
-      </div>
+          {/* ── Filtro de objetivo ── */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSoloVentas((v) => !v)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition ${
+                soloVentas
+                  ? "bg-emerald-50 border-emerald-300 text-emerald-700"
+                  : "bg-white border-zinc-200 text-zinc-500 hover:border-zinc-300"
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${soloVentas ? "bg-emerald-500" : "bg-zinc-300"}`} />
+              Solo campañas de venta
+            </button>
+            {soloVentas && (
+              <span className="text-[10px] text-zinc-400">
+                Excluye campañas de branding y comunidad del KPI total
+              </span>
+            )}
+          </div>
 
-      {/* ── KPIs globales ── */}
-      {metricasFiltradas.length > 0 && (
-        <KpisMetricas metricas={metricasFiltradas} />
+          {/* ── KPIs globales ── */}
+          {metricasFiltradas.length > 0 && (
+            <KpisMetricas metricas={metricasFiltradas} />
+          )}
+        </>
       )}
 
-      {/* ── Tabs Meta | Google | TikTok | Todas | Proyección ── */}
-      <TabsPlataforma
-        activa={tabPlataforma}
-        onChange={setTabPlataforma}
-      />
 
       {/* ── Tabs analíticos ── */}
       {tabPlataforma === "proyeccion" ? (
@@ -362,20 +382,36 @@ export default function MetricasPage() {
           <ComparativaTab metricas={metricasFiltradas} empresa={filtros.empresa} />
         </ComparativaErrorBoundary>
       ) : tabPlataforma === "rentabilidad" ? (
-        <RentabilidadTab metricas={metricas} empresa={filtros.empresa} />
+        <RentabilidadTab metricas={metricas} empresa={filtros.empresa} view="roas" />
+      ) : tabPlataforma === "roi" ? (
+        <RentabilidadTab metricas={metricas} empresa={filtros.empresa} view="roi" />
+      ) : tabPlataforma === "cpl" ? (
+        <CostoLeadTab metricas={metricas} empresa={filtros.empresa} />
       ) : tabPlataforma === "optimizador" ? (
         <BudgetOptimizerTab empresa={filtros.empresa} />
       ) : tabPlataforma === "benchmarks" ? (
         <BenchmarksTab />
       ) : tabPlataforma === "formatos" ? (
         <FormatosTab empresa={filtros.empresa} />
+      ) : tabPlataforma === "ciclo" ? (
+        <CicloVentaTab empresa={filtros.empresa} />
+      ) : tabPlataforma === "tiktok" ? (
+        <TikTokAdsTab
+          metricas={metricasFiltradas}
+          empresa={filtros.empresa}
+          onSync={() => { cargarMetricas(filtros); if (filtros.empresa) cargarResumen(filtros.empresa); }}
+        />
+      ) : tabPlataforma === "organico" ? (
+        <OrganicoTab empresa={filtros.empresa} />
+      ) : tabPlataforma === "competidores" ? (
+        <CompetidoresTab empresa={filtros.empresa} />
       ) : (
         <>
           {/* ── Resumen por plataforma (solo si hay empresa seleccionada) ── */}
-          {filtros.empresa && resumen.length > 0 && (() => {
+          {filtros.empresa && resumenCalculado.length > 0 && (() => {
             const resumenFiltrado = tabsCompletas.has(tabPlataforma)
-              ? resumen
-              : resumen.filter((r) => r.plataforma === tabPlataforma);
+              ? resumenCalculado
+              : resumenCalculado.filter((r) => r.plataforma === tabPlataforma);
             return resumenFiltrado.length > 0
               ? <ResumenPlataforma resumen={resumenFiltrado} />
               : null;

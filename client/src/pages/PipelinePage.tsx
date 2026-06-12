@@ -234,12 +234,12 @@ export default function PipelinePage() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-100 bg-white flex items-center justify-between gap-4 flex-wrap shrink-0">
-        <div className="flex items-center gap-2">
-          <Kanban size={20} className="text-amber-500" />
+      <div className="px-6 py-4 border-b border-slate-100 bg-white/80 backdrop-blur-xl flex items-center justify-between gap-4 flex-wrap shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="crm-section-accent h-8" />
           <div>
-            <h1 className="text-lg font-semibold text-zinc-900">Pipeline de ventas</h1>
-            <p className="text-xs text-zinc-600">{totalProspectos} prospectos en el pipeline</p>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Pipeline de ventas</h1>
+            <p className="text-xs text-slate-500">{totalProspectos} prospectos en el pipeline</p>
           </div>
         </div>
         <div className="flex items-center gap-3 flex-wrap">

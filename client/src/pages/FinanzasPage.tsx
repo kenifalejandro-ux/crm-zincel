@@ -19,9 +19,10 @@ import { ModalEditarEgreso }      from "../components/finanzas/ModalEditarEgreso
 import { TablaPrestamos }         from "../components/finanzas/TablaPrestamos";
 import { ModalPrestamo }          from "../components/finanzas/ModalPrestamo";
 import { ModalEditarPrestamo }    from "../components/finanzas/ModalEditarPrestamo";
-import { ResumenFinanzas }        from "../components/finanzas/ResumenFinanzas";
-import { AlertasVencimiento }     from "../components/finanzas/AlertasVencimiento";
-import { FiltrosFinanzas }        from "../components/finanzas/FiltrosFinanzas";
+import { ResumenFinanzas }          from "../components/finanzas/ResumenFinanzas";
+import { AlertasVencimiento }       from "../components/finanzas/AlertasVencimiento";
+import { FiltrosFinanzas }          from "../components/finanzas/FiltrosFinanzas";
+import { TablaEmpresasAnalisis }    from "../components/finanzas/TablaEmpresasAnalisis";
 import { FiltroPeriodoBotones, type FiltroPeriodo } from "../components/shared/FiltroPeriodoBotones";
 
 import {
@@ -375,9 +376,12 @@ export default function FinanzasPage() {
       {/* Header */}
       <div className="flex flex-col gap-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Finanzas</h1>
-            <p className="text-xs text-zinc-600 mt-0.5">Sistema contable digital personal</p>
+          <div className="flex items-center gap-3">
+            <div className="crm-section-accent h-8" />
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Finanzas</h1>
+              <p className="text-xs text-slate-500 mt-0.5">Sistema contable digital personal</p>
+            </div>
           </div>
           <div className="flex gap-2">
             {(ingresos.length > 0 || egresos.length > 0 || prestamos.length > 0) && (
@@ -391,7 +395,7 @@ export default function FinanzasPage() {
                 </span>
               </button>
             )}
-            {tab !== "resumen" && (
+            {tab !== "resumen" && tab !== "empresas" && (
               <>
                 <TableBulkActions count={seleccionados.length} onDelete={eliminarSeleccionados} />
                 <button
@@ -423,15 +427,17 @@ export default function FinanzasPage() {
       {/* Tabs */}
       <TabsFinanzas tab={tab} onChange={setTab} />
 
-      {/* Filtro categoría (solo en egresos/préstamos) */}
-      <FiltrosFinanzas
-        tab={tab}
-        filtroMes={filtroMes}
-        filtroAnio={filtroAnio}
-        filtroCategoria={filtroCategoria}
-        onMesChange={(mes, anio) => { setFiltroMes(mes); setFiltroAnio(anio); setSeleccionados([]); }}
-        onCategoriaChange={(cat) => { setFiltroCategoria(cat); setSeleccionados([]); }}
-      />
+      {/* Filtro categoría (solo en egresos/préstamos, no en empresas) */}
+      {tab !== "empresas" && (
+        <FiltrosFinanzas
+          tab={tab}
+          filtroMes={filtroMes}
+          filtroAnio={filtroAnio}
+          filtroCategoria={filtroCategoria}
+          onMesChange={(mes, anio) => { setFiltroMes(mes); setFiltroAnio(anio); setSeleccionados([]); }}
+          onCategoriaChange={(cat) => { setFiltroCategoria(cat); setSeleccionados([]); }}
+        />
+      )}
 
       {/* Contenido */}
       {tab === "ingresos" && (
@@ -480,6 +486,8 @@ export default function FinanzasPage() {
       {tab === "resumen" && !resumen && (
         <div className="text-center py-12 text-xs text-zinc-600">Cargando resumen…</div>
       )}
+
+      {tab === "empresas" && <TablaEmpresasAnalisis />}
 
       {/* Modales editar */}
       {editarIngreso.editando && (

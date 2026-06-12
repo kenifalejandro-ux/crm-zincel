@@ -41,14 +41,14 @@ async function sincronizarMetrica(metrica_id: string) {
        costo_total = cm.gasto + r.total_costos,
        roas = CASE
          WHEN cm.gasto > 0
-         THEN LEAST(ROUND(r.total_ingresos / cm.gasto, 2), 9999.99)
+         THEN ROUND(r.total_ingresos / cm.gasto, 2)
          ELSE 0 END,
        roi = CASE
          WHEN (cm.gasto + r.total_costos) > 0
-         THEN LEAST(ROUND(
+         THEN ROUND(
            (r.total_ingresos - (cm.gasto + r.total_costos))
            / (cm.gasto + r.total_costos) * 100, 2
-         ), 9999.99) ELSE 0 END
+         ) ELSE 0 END
      FROM (
        SELECT
          COALESCE(SUM(monto),       0) AS total_ingresos,

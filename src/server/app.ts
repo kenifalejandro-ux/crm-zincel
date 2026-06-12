@@ -1,6 +1,7 @@
 /** src/app.ts */
 
 import { randomUUID } from "crypto";
+import path from "path";
 import compression from "compression";
 import cors from "cors";
 import express, { type ErrorRequestHandler, type RequestHandler } from "express";
@@ -99,6 +100,9 @@ export function createApp() {
   app.use(jsonMiddleware);
   app.use(urlencodedMiddleware);
   app.use(noStoreMiddleware);
+
+  // Reportes HTML estáticos
+  app.use("/reportes", express.static(path.resolve("reports")));
 
   // Rutas generales (sin prefijo)
   app.use(createSystemRouter());

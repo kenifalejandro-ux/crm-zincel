@@ -35,6 +35,7 @@ import type { Reunion } from "../../types/reunion.types";
 import type { Propuesta, FormPropuesta } from "../../types/propuesta.types";
 import type { Tarea } from "../../types/tarea.types";
 import { fechaHoy, toLocalISOString } from "../../utils/date";
+import { ModalWhatsApp } from "../whatsapp/ModalWhatsApp";
 
 
 const COLOR_ESTADO: Record<string, string> = {
@@ -490,9 +491,10 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
 
   const [speechAbierto, setSpeechAbierto] = useState(false);
 
-  const [modalLlamada,  setModalLlamada]  = useState(false);
-  const [modalReunion,  setModalReunion]  = useState(false);
-  const [modalBrochure, setModalBrochure] = useState(false);
+  const [modalLlamada,   setModalLlamada]   = useState(false);
+  const [modalReunion,   setModalReunion]   = useState(false);
+  const [modalBrochure,  setModalBrochure]  = useState(false);
+  const [modalWhatsApp,  setModalWhatsApp]  = useState(false);
   const [refetchLlamadas, setRefetchLlamadas] = useState(0);
 
   const editarLlamada  = useEditar<any>();
@@ -898,12 +900,19 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
                   </div>
                 )}
                 {detalle.telefono && (
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start gap-2 flex-wrap">
                     <a href={`tel:${detalle.telefono}`}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors text-xs font-semibold"
                       title="Llamar">
                       <Phone size={13} /> {detalle.telefono}
                     </a>
+                    <button
+                      onClick={() => setModalWhatsApp(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-colors text-xs font-semibold"
+                      title="Enviar WhatsApp"
+                    >
+                      <MessageSquare size={13} /> WhatsApp
+                    </button>
                   </div>
                 )}
                 {detalle.email_contacto && (
@@ -1177,6 +1186,18 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
             cargarDetalle();
             onActualizado?.(detalle.id);
           }}
+        />
+      )}
+
+      {/* Modal WhatsApp */}
+      {detalle && (
+        <ModalWhatsApp
+          open={modalWhatsApp}
+          onClose={() => setModalWhatsApp(false)}
+          nombre={detalle.nombre_contacto || detalle.empresa}
+          telefono={detalle.telefono || ""}
+          prospectoId={prospecto.id}
+          empresa={detalle.empresa}
         />
       )}
 

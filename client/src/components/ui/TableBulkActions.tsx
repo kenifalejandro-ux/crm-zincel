@@ -1,76 +1,89 @@
 /** client/src/ui/TableBulkActions.tsx */
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Tag } from "lucide-react";
+import { PROYECTOS_LISTA } from "@/components/metricas/detalle/TablaMetricas";
+
+const PROY_STYLE: Record<string, string> = {
+  "Alborada":      "accent-violet-600",
+  "Terrenos Villa":"accent-emerald-600",
+  "San Fernando":  "accent-sky-600",
+};
 
 interface TableBulkActionsProps {
-  count:              number;
-  proyectos?:         string[];
-  onDelete?:          () => void;
-  onAsignarProyecto?: (proyecto: string) => void;
+  count:                number;
+  proyectos?:           string[];
+  onDelete?:            () => void;
+  onAsignarProyectos?:  (proyectos: string[]) => void;
 }
 
-export function TableBulkActions({ count, proyectos = [], onDelete, onAsignarProyecto }: TableBulkActionsProps) {
-  const [showInput, setShowInput] = useState(false);
-  const [valor,     setValor]     = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+export function TableBulkActions({ count, proyectos = [], onDelete, onAsignarProyectos }: TableBulkActionsProps) {
+  const [showPanel, setShowPanel] = useState(false);
+  const [seleccion, setSeleccion] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (showInput) inputRef.current?.focus();
-  }, [showInput]);
+  const todosProyectos = Array.from(new Set([...PROYECTOS_LISTA, ...proyectos]));
+
+  const toggle = (p: string) =>
+    setSeleccion(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
 
   const confirmar = () => {
-    if (valor.trim() && onAsignarProyecto) {
-      onAsignarProyecto(valor.trim());
-      setValor("");
-      setShowInput(false);
-    }
+    if (onAsignarProyectos) onAsignarProyectos(seleccion);
+    setSeleccion([]);
+    setShowPanel(false);
   };
 
   if (count === 0) return null;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 relative">
 
-      {/* Asignar proyecto */}
-      {onAsignarProyecto && (
-        showInput ? (
-          <div className="flex items-center gap-1.5">
-            <input
-              ref={inputRef}
-              value={valor}
-              onChange={(e) => setValor(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") confirmar(); if (e.key === "Escape") setShowInput(false); }}
-              list="proyectos-list"
-              placeholder="Nombre del proyecto..."
-              className="text-xs border border-violet-300 rounded-lg px-2.5 py-1.5 w-44 focus:outline-none focus:ring-2 focus:ring-violet-300"
-            />
-            <datalist id="proyectos-list">
-              {proyectos.map((p) => <option key={p} value={p} />)}
-            </datalist>
-            <button
-              onClick={confirmar}
-              disabled={!valor.trim()}
-              className="px-2.5 py-1.5 text-xs bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-40 transition"
-            >
-              Asignar
-            </button>
-            <button
-              onClick={() => { setShowInput(false); setValor(""); }}
-              className="text-xs text-zinc-400 hover:text-zinc-600"
-            >
-              ✕
-            </button>
-          </div>
-        ) : (
+      {/* Asignar proyectos */}
+      {onAsignarProyectos && (
+        <>
           <button
-            onClick={() => setShowInput(true)}
+            onClick={() => setShowPanel(v => !v)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-violet-50 border border-violet-200 text-violet-700 rounded-lg hover:bg-violet-100 transition"
           >
             <Tag size={11} />
-            Asignar proyecto ({count})
+            Asignar proyectos ({count})
           </button>
-        )
+
+          {showPanel && (
+            <div className="absolute z-50 top-full left-0 mt-1 bg-white border border-zinc-200 rounded-xl shadow-lg p-3 min-w-[200px]">
+              <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-wide mb-2">
+                Asignar a {count} campaña{count > 1 ? "s" : ""}
+              </p>
+              <div className="flex flex-col gap-2 mb-3">
+                {todosProyectos.map(p => (
+                  <label key={p} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={seleccion.includes(p)}
+                      onChange={() => toggle(p)}
+                      className={`w-3.5 h-3.5 rounded ${PROY_STYLE[p] ?? "accent-zinc-500"}`}
+                    />
+                    <span className="text-xs text-zinc-700">{p}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="flex gap-1.5">
+                <button
+                  onClick={confirmar}
+                  disabled={seleccion.length === 0}
+                  className="flex-1 text-xs bg-zinc-800 text-white rounded-lg py-1.5 hover:bg-zinc-700 disabled:opacity-40 transition"
+                >
+                  Asignar
+                </button>
+                <button
+                  onClick={() => { setShowPanel(false); setSeleccion([]); }}
+                  className="text-xs text-zinc-400 hover:text-zinc-600 px-2"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {onDelete && (

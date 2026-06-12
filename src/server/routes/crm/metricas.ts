@@ -13,7 +13,9 @@ import {
   eliminarMetricasMasivoService,
   resumenMetricasService,
   getProyectosService,
-  asignarProyectoBulkService,
+  asignarProyectosBulkService,
+  actualizarProyectosMetricaService,
+  refreshMetricaService,
 } from "../../services/metricas.service";
 
 export const metricasRouter = Router();
@@ -30,6 +32,19 @@ metricasRouter.get("/", async (req, res) => {
   }
 });
 
+// GET /metricas/empresas — lista empresas únicas con campañas registradas
+metricasRouter.get("/empresas", async (_req, res) => {
+  try {
+    const { pool } = await import("../../config/database");
+    const { rows } = await pool.query(
+      `SELECT DISTINCT empresa FROM campana_metricas WHERE empresa IS NOT NULL ORDER BY empresa`
+    );
+    res.json({ ok: true, data: rows.map((r: any) => r.empresa) });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
 // GET /metricas/proyectos?empresa=X — lista proyectos únicos para el selector
 metricasRouter.get("/proyectos", async (req, res) => {
   try {
@@ -41,14 +56,156 @@ metricasRouter.get("/proyectos", async (req, res) => {
   }
 });
 
-// PUT /metricas/bulk-proyecto — asigna proyecto a múltiples campañas
+// PUT /metricas/bulk-proyecto — asigna proyectos (array) a múltiples campañas
 metricasRouter.put("/bulk-proyecto", async (req, res) => {
   try {
-    const { ids, proyecto } = req.body as { ids: string[]; proyecto: string };
+    const { ids, proyectos } = req.body as { ids: string[]; proyectos: string[] };
     if (!Array.isArray(ids) || ids.length === 0)
       return res.status(400).json({ ok: false, message: "ids requerido" });
-    await asignarProyectoBulkService(ids, proyecto);
+    await asignarProyectosBulkService(ids, proyectos ?? []);
     res.json({ ok: true });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// PUT /metricas/:id/proyectos — actualiza proyectos de una campaña individual
+metricasRouter.put("/:id/proyectos", async (req, res) => {
+  try {
+    const { proyectos } = req.body as { proyectos: string[] };
+    await actualizarProyectosMetricaService(req.params.id, proyectos ?? []);
+    res.json({ ok: true });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /metricas/por-proyecto?empresa=X
+metricasRouter.get("/por-proyecto", async (req, res) => {
+  try {
+    const { empresa } = req.query as { empresa?: string };
+    const { pool } = await import("../../config/database");
+    const where  = empresa ? `AND cm.empresa ILIKE $1` : "";
+    const params = empresa ? [`%${empresa}%`] : [];
+
+    const { rows } = await pool.query(`
+      WITH dedicadas AS (
+        -- Solo campañas asignadas a UN único proyecto
+        SELECT
+          cm.proyectos[1]          AS proyecto,
+          COUNT(DISTINCT cm.id)::int AS campanas,
+          SUM(cm.gasto)            AS gasto,
+          SUM(cm.leads)::int       AS leads,
+          SUM(cm.clics)::int       AS clics
+        FROM campana_metricas cm
+        WHERE cardinality(cm.proyectos) = 1 ${where}
+        GROUP BY cm.proyectos[1]
+      ),
+      generales AS (
+        -- Campañas compartidas entre varios proyectos
+        SELECT
+          COUNT(DISTINCT cm.id)::int AS campanas,
+          SUM(cm.gasto)              AS gasto,
+          SUM(cm.leads)::int         AS leads,
+          SUM(cm.clics)::int         AS clics
+        FROM campana_metricas cm
+        WHERE cardinality(cm.proyectos) > 1 ${where}
+      ),
+      venta_stats AS (
+        SELECT
+          CASE
+            WHEN rc.proyecto ILIKE '%Alborada%'  THEN 'Alborada'
+            WHEN rc.proyecto ILIKE '%Villa%'      THEN 'Terrenos Villa'
+            WHEN rc.proyecto ILIKE '%Fernando%'   THEN 'San Fernando'
+            ELSE rc.proyecto
+          END           AS proyecto,
+          COUNT(*)::int AS ventas,
+          SUM(rc.monto) AS revenue
+        FROM resultados_campana rc
+        WHERE rc.proyecto IS NOT NULL
+        GROUP BY 1
+      )
+      SELECT
+        d.proyecto,
+        d.campanas,
+        d.gasto,
+        d.leads,
+        d.clics,
+        COALESCE(vs.ventas,  0) AS ventas,
+        COALESCE(vs.revenue, 0) AS revenue,
+        CASE WHEN d.gasto > 0
+          THEN ROUND(COALESCE(vs.revenue,0) / d.gasto, 1)
+          ELSE 0 END            AS roas_real,
+        CASE WHEN d.leads > 0
+          THEN ROUND(d.gasto / d.leads, 2)
+          ELSE NULL END         AS cpl,
+        false                   AS es_general
+      FROM dedicadas d
+      LEFT JOIN venta_stats vs ON vs.proyecto = d.proyecto
+
+      UNION ALL
+
+      SELECT
+        'General (multi-proyecto)' AS proyecto,
+        g.campanas, g.gasto, g.leads, g.clics,
+        0 AS ventas, 0 AS revenue, 0 AS roas_real, NULL AS cpl,
+        true AS es_general
+      FROM generales g
+      WHERE g.campanas > 0
+
+      ORDER BY es_general, gasto DESC
+    `, params);
+    res.json({ ok: true, data: rows });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// GET /metricas/ciclo?empresa=X
+metricasRouter.get("/ciclo", async (req, res) => {
+  try {
+    const { empresa } = req.query as { empresa?: string };
+    const { pool } = await import("../../config/database");
+    const w = empresa ? `WHERE cm.empresa ILIKE $1` : "";
+    const p = empresa ? [`%${empresa}%`] : [];
+
+    // Campañas atribuidas a ventas (con ciclo)
+    const { rows: ciclos } = await pool.query(`
+      SELECT
+        cm.id            AS metrica_id,
+        cm.campana_nombre,
+        cm.periodo_inicio::text,
+        cm.periodo_fin::text,
+        cm.proyectos,
+        cm.gasto,
+        r.id             AS resultado_id,
+        r.fecha_venta::text,
+        r.monto,
+        r.proyecto       AS proyecto_venta,
+        r.confianza_atribucion,
+        (r.fecha_venta - cm.periodo_inicio) AS dias_ciclo
+      FROM campana_metricas cm
+      JOIN resultado_campana_rel rcr ON rcr.metrica_id = cm.id
+      JOIN resultados_campana r      ON r.id = rcr.resultado_id
+      ${w}
+      ORDER BY r.fecha_venta, cm.periodo_inicio
+    `, p);
+
+    // Todas las campañas para el Gantt
+    const { rows: campanas } = await pool.query(`
+      SELECT id, campana_nombre, periodo_inicio::text, periodo_fin::text, proyectos, gasto
+      FROM campana_metricas cm ${w}
+      ORDER BY periodo_inicio
+    `, p);
+
+    // Todas las ventas para los marcadores
+    const { rows: ventas } = await pool.query(`
+      SELECT id, fecha_venta::text, monto, proyecto
+      FROM resultados_campana
+      ORDER BY fecha_venta
+    `);
+
+    res.json({ ok: true, data: { ciclos, campanas, ventas } });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
   }
@@ -323,5 +480,16 @@ metricasRouter.delete("/:id", async (req, res) => {
     res.status(200).json({ ok: true });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// POST /metricas/:id/refresh — jala datos frescos de la plataforma y actualiza el registro
+metricasRouter.post("/:id/refresh", async (req, res) => {
+  try {
+    const data = await refreshMetricaService(req.params.id);
+    res.status(200).json({ ok: true, data });
+  } catch (err: any) {
+    const status = err.message?.includes("No tiene platform_campaign_id") ? 422 : 500;
+    res.status(status).json({ ok: false, message: err.message });
   }
 });

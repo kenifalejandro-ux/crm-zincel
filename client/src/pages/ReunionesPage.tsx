@@ -200,9 +200,12 @@ export default function ReunionesPage() {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Reuniones</h1>
-          <p className="text-xs text-zinc-600 mt-0.5">{reuniones.length} reuniones</p>
+        <div className="flex items-center gap-3">
+          <div className="crm-section-accent h-8" />
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Reuniones</h1>
+            <p className="text-xs text-slate-500 mt-0.5">{reuniones.length} reuniones</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <TableBulkActions count={seleccionados.length} onDelete={eliminarSeleccionados} />

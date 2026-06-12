@@ -53,10 +53,17 @@ export interface Metrica {
   reproducciones:     number;
   tasa_reproduccion:  number;
 
-  notas?:             string;
-  objetivo?:          "venta" | "branding" | "comunidad";
-  proyecto?:          string | null;
-  creado_en:          string;
+  notas?:                 string;
+  platform_campaign_id?:  string | null;
+  objetivo?:              "venta" | "branding" | "comunidad";
+  proyecto?:              string | null;
+  proyectos:              string[];
+  creado_en:              string;
+
+  // Ventas atribuidas (calculado en join)
+  ventas_count?:          number;
+  ingresos_atribuidos?:   number;
+  mejor_confianza?:       "confirmada" | "probable" | "sin_datos" | null;
 }
 
 export interface ResumenPlataforma {
@@ -134,5 +141,5 @@ export type FormMetrica = {
 
   notas:              string;
   objetivo:           "venta" | "branding" | "comunidad";
-  proyecto:           string;
+  proyectos:          string[];
 };

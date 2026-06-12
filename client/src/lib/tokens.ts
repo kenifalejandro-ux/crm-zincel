@@ -34,9 +34,33 @@ export const CHART_PALETTE: string[] = [
 ];
 
 
-// ── Clases Tailwind reutilizables ─────────────────────────────────────────────
+// ── Glass · ÚNICA fuente de verdad del efecto glassmorphism ───────────────────
+// Cambia SOLO esta constante para ajustar el glass en todo el CRM.
+// La consumen: <GlassCard>, CARD_CLASS, SECTION_PANEL y las clases .crm-card/.crm-section-panel.
+export const GLASS_BASE =
+  "bg-amber-400/10 backdrop-blur-xl border border-white/60 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04),_0_8px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/[0.03]"
+
+export const GLASS_HOVER =
+  "transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.12)]"
+
+// ── Clases Tailwind reutilizables (derivadas del glass) ───────────────────────
 export const CARD_CLASS =
-  "bg-white rounded-2xl border border-zinc-100 shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_6px_20px_rgba(0,0,0,0.06)] p-6"
+  `${GLASS_BASE} ${GLASS_HOVER} p-6`
+
+export const SECTION_PANEL =
+  `${GLASS_BASE} p-6`
+
+export const DATA_VALUE_CLASS =
+  "text-2xl font-bold tabular-nums leading-tight"
+
+export const LABEL_CLASS_SM =
+  "text-[10px] font-semibold uppercase tracking-widest text-slate-400"
+
+export const PAGE_TITLE =
+  "text-2xl font-bold text-slate-900 tracking-tight"
+
+export const SECTION_TITLE =
+  "text-sm font-semibold text-slate-800"
 
 export const HEADER_CLASS =
-  "text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-5 flex items-center gap-0";
+  "text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-5 flex items-center gap-0";

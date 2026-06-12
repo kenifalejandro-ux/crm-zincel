@@ -3,7 +3,7 @@
 import axios from "axios";
 import { env } from "../config/env";
 import { pool } from "../config/database";
-import { obtenerCuentaPorEmpresaYPlataforma } from "./plataformaCuentas.service";
+import { obtenerCuentaPorEmpresaYPlataforma, registrarSync } from "./plataformaCuentas.service";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
@@ -167,6 +167,9 @@ export async function syncMetaAdsService(empresa: string, desde: string, hasta: 
     const costo_por_lead    = leads > 0     ? parseFloat((gasto / leads).toFixed(2))    : 0;
     const costo_por_mensaje = mensajes > 0  ? parseFloat((gasto / mensajes).toFixed(2)) : 0;
 
+    const periodoInicio = campaignDates.get(ins.campaign_id)?.start ?? ins.date_start;
+    const periodoFin    = campaignDates.get(ins.campaign_id)?.stop  ?? ins.date_stop;
+
     const result = await pool.query(
       `INSERT INTO campana_metricas (
         empresa, campana_nombre, plataforma, sub_plataforma,
@@ -178,8 +181,7 @@ export async function syncMetaAdsService(empresa: string, desde: string, hasta: 
         interacciones,
         me_gusta, comentarios, compartidos, guardados, tasa_engagement,
         costo_por_mensaje, reproducciones, tasa_reproduccion,
-        moneda_gasto,
-        notas
+        moneda_gasto, notas, platform_campaign_id
       ) VALUES (
         $1,$2,'meta',NULL,
         $3,$4,
@@ -190,15 +192,32 @@ export async function syncMetaAdsService(empresa: string, desde: string, hasta: 
         $19,
         0,0,0,0,0,
         $20,0,0,
-        'USD',
-        $21
+        'USD',$21,$22
       )
-      ON CONFLICT DO NOTHING
-      RETURNING id`,
+      ON CONFLICT (empresa, plataforma, platform_campaign_id, periodo_inicio, periodo_fin)
+        WHERE platform_campaign_id IS NOT NULL
+      DO UPDATE SET
+        impresiones     = EXCLUDED.impresiones,
+        alcance         = EXCLUDED.alcance,
+        clics           = EXCLUDED.clics,
+        ctr             = EXCLUDED.ctr,
+        gasto           = EXCLUDED.gasto,
+        cpc             = EXCLUDED.cpc,
+        cpm             = EXCLUDED.cpm,
+        cpa             = EXCLUDED.cpa,
+        conversiones    = EXCLUDED.conversiones,
+        leads           = EXCLUDED.leads,
+        mensajes        = EXCLUDED.mensajes,
+        roas            = EXCLUDED.roas,
+        costo_por_lead  = EXCLUDED.costo_por_lead,
+        frecuencia      = EXCLUDED.frecuencia,
+        interacciones   = EXCLUDED.interacciones,
+        costo_por_mensaje = EXCLUDED.costo_por_mensaje,
+        actualizado_en  = NOW()
+      RETURNING id, (xmax = 0) AS es_nuevo`,
       [
         empresa, ins.campaign_name,
-        campaignDates.get(ins.campaign_id)?.start ?? ins.date_start,
-        campaignDates.get(ins.campaign_id)?.stop  ?? ins.date_stop,
+        periodoInicio, periodoFin,
         impresiones, alcance, clics, ctr,
         gasto, cpc, cpm, cpa,
         conversiones, leads, mensajes, roas, costo_por_lead,
@@ -206,13 +225,15 @@ export async function syncMetaAdsService(empresa: string, desde: string, hasta: 
         interacciones,
         costo_por_mensaje,
         `Importado Meta Ads · ID: ${ins.campaign_id}`,
+        ins.campaign_id,
       ]
     );
 
-    if (result.rowCount && result.rowCount > 0) insertados++;
+    if (result.rows[0]?.es_nuevo) insertados++;
     else duplicados++;
   }
 
+  await registrarSync(empresa, "meta", null);
   return {
     total:     insights.length,
     insertados,

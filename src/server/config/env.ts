@@ -68,6 +68,24 @@ export const env = {
   tiktokAppSecret:     process.env.TIKTOK_APP_SECRET     || "",
   tiktokAccessToken:   process.env.TIKTOK_ACCESS_TOKEN   || "",
   tiktokAdvertiserId:  process.env.TIKTOK_ADVERTISER_ID  || "",
+  tiktokBcId:          process.env.TIKTOK_BC_ID          || "",
+  // --- TIKTOK LOGIN KIT (orgánico) ---
+  tiktokLoginClientKey:    process.env.TIKTOK_LOGIN_CLIENT_KEY    || "",
+  tiktokLoginClientSecret: process.env.TIKTOK_LOGIN_CLIENT_SECRET || "",
+  tiktokLoginRedirectUri:  process.env.TIKTOK_LOGIN_REDIRECT_URI  || "",
+  // --- META OAUTH ---
+  metaOAuthRedirectUri: process.env.META_OAUTH_REDIRECT_URI || "http://localhost:3000/api/crm/meta-oauth/callback",
+  appBaseUrl: process.env.APP_BASE_URL || "http://localhost:5173",
+  // --- WHATSAPP BUSINESS API ---
+  waPhoneNumberId: process.env.WA_PHONE_NUMBER_ID || "",
+  waWabaId:        process.env.WA_WABA_ID        || "",
+  waAccessToken:   process.env.WA_ACCESS_TOKEN   || "",
+  // --- GOOGLE ADS ---
+  googleClientId:       process.env.GOOGLE_CLIENT_ID       || "",
+  googleClientSecret:   process.env.GOOGLE_CLIENT_SECRET   || "",
+  googleDeveloperToken: process.env.GOOGLE_DEVELOPER_TOKEN || "",
+  googleRefreshToken:   process.env.GOOGLE_REFRESH_TOKEN   || "",
+  googleCustomerId:     process.env.GOOGLE_CUSTOMER_ID     || "",
   // --- VARIABLES DEL CRM ---
   dbHost: process.env.PG_HOST || "localhost",
   dbPort: readNumber(process.env.PG_PORT, 5432),

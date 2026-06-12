@@ -24,7 +24,13 @@ import { inicioRouter }            from "./inicio";
 import { okrRouter }               from "./okr";
 import { jornadaRouter }           from "./jornada";
 import { resultadosRouter }        from "./resultados";
-import { benchmarksRouter }        from "./benchmarks";
+import { benchmarksRouter }          from "./benchmarks";
+import { analisisEmpresasRouter }    from "./analisisEmpresas";
+import { googleAdsRouter }           from "./googleAds";
+import { instagramOrganicoRouter }   from "./instagramOrganico";
+import { competidoresRouter }        from "./competidores";
+import { whatsappRouter }            from "./whatsapp";
+import { metaOAuthRouter }           from "./metaOAuth";
 
 export function createCrmRouter(): Router {
   const router = Router();
@@ -52,7 +58,13 @@ export function createCrmRouter(): Router {
   router.use("/okr",               okrRouter);
   router.use("/jornada",           jornadaRouter);
   router.use("/resultados",        resultadosRouter);
-  router.use("/benchmarks",        benchmarksRouter);
+  router.use("/benchmarks",            benchmarksRouter);
+  router.use("/empresas-analisis",     analisisEmpresasRouter);
+  router.use("/google-ads",            googleAdsRouter);
+  router.use("/organico",              instagramOrganicoRouter);
+  router.use("/competidores",          competidoresRouter);
+  router.use("/whatsapp",              whatsappRouter);
+  router.use("/meta-oauth",            metaOAuthRouter);
 
   return router;
 }

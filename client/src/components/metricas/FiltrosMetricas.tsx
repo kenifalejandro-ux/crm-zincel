@@ -1,20 +1,12 @@
 /** src/components/metricas/FiltrosMetricas.tsx */
 
-import { FiltrosMetrica, Plataforma, SubPlataforma } from "../../types/metricas.types";
+import { FiltrosMetrica, SubPlataforma } from "../../types/metricas.types";
 
 interface Props {
-  filtros:   FiltrosMetrica;
-  empresas:  string[];
-  proyectos: string[];
-  onChange:  (f: FiltrosMetrica) => void;
+  filtros:  FiltrosMetrica;
+  empresas: string[];
+  onChange: (f: FiltrosMetrica) => void;
 }
-
-const PLATAFORMAS = [
-  { value: "",       label: "Todas las plataformas" },
-  { value: "meta",   label: "Meta Ads"   },
-  { value: "google", label: "Google Ads" },
-  { value: "tiktok", label: "TikTok Ads" },
-];
 
 const SUB_PLATAFORMAS = [
   { value: "",                  label: "Facebook + Instagram" },
@@ -23,54 +15,12 @@ const SUB_PLATAFORMAS = [
   { value: "audience_network",  label: "Audience Network"     },
 ];
 
-const inputCls = "text-xs border border-zinc-200 rounded-lg px-3 py-2 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-brand/50";
+const inputCls = "text-xs border border-slate-200 rounded-xl px-3 py-2 bg-white text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand/30 transition";
 
-export const FiltrosMetricas = ({ filtros, empresas, proyectos, onChange }: Props) => (
-  <div className="flex flex-wrap gap-3 items-center">
+export const FiltrosMetricas = ({ filtros, empresas, onChange }: Props) => (
+  <div className="flex flex-wrap gap-2.5 items-center">
 
-    {/* Empresa */}
-    <select
-      value={filtros.empresa ?? ""}
-      onChange={(e) => onChange({ ...filtros, empresa: e.target.value || undefined, proyecto: undefined })}
-      className={inputCls}
-    >
-      <option value="">Todas las empresas</option>
-      {empresas.map((emp) => (
-        <option key={emp} value={emp}>{emp}</option>
-      ))}
-    </select>
-
-    {/* Proyecto — visible solo si hay empresa seleccionada y hay proyectos */}
-    {filtros.empresa && (
-      <select
-        value={filtros.proyecto ?? ""}
-        onChange={(e) => onChange({ ...filtros, proyecto: e.target.value || undefined })}
-        className={`${inputCls} ${filtros.proyecto ? "border-violet-400 text-violet-700 font-medium" : ""}`}
-      >
-        <option value="">Todos los proyectos</option>
-        {proyectos.map((p) => (
-          <option key={p} value={p}>{p}</option>
-        ))}
-        <option value="__sin_proyecto__" disabled className="text-zinc-300">— Sin asignar —</option>
-      </select>
-    )}
-
-    {/* Plataforma */}
-    <select
-      value={filtros.plataforma ?? ""}
-      onChange={(e) => onChange({
-        ...filtros,
-        plataforma:     e.target.value as Plataforma | "",
-        sub_plataforma: "",
-      })}
-      className={inputCls}
-    >
-      {PLATAFORMAS.map((p) => (
-        <option key={p.value} value={p.value}>{p.label}</option>
-      ))}
-    </select>
-
-    {/* Sub plataforma — solo si es Meta */}
+    {/* Sub plataforma — solo si es Meta (filtro desde sidebar) */}
     {filtros.plataforma === "meta" && (
       <select
         value={filtros.sub_plataforma ?? ""}
@@ -84,11 +34,11 @@ export const FiltrosMetricas = ({ filtros, empresas, proyectos, onChange }: Prop
     )}
 
     {/* Separador visual */}
-    <div className="h-6 w-px bg-zinc-200" />
+    <div className="h-5 w-px bg-slate-200" />
 
     {/* Desde */}
-    <div className="flex items-center gap-1.5">
-      <span className="text-xs text-zinc-600">Desde</span>
+    <div className="flex items-center gap-2">
+      <span className="text-[11px] font-medium text-slate-500">Desde</span>
       <input
         type="date"
         value={filtros.desde ?? ""}
@@ -98,8 +48,8 @@ export const FiltrosMetricas = ({ filtros, empresas, proyectos, onChange }: Prop
     </div>
 
     {/* Hasta */}
-    <div className="flex items-center gap-1.5">
-      <span className="text-xs text-zinc-600">Hasta</span>
+    <div className="flex items-center gap-2">
+      <span className="text-[11px] font-medium text-slate-500">Hasta</span>
       <input
         type="date"
         value={filtros.hasta ?? ""}
@@ -109,12 +59,12 @@ export const FiltrosMetricas = ({ filtros, empresas, proyectos, onChange }: Prop
     </div>
 
     {/* Limpiar */}
-    {(filtros.desde || filtros.hasta || filtros.proyecto) && (
+    {(filtros.desde || filtros.hasta) && (
       <button
-        onClick={() => onChange({ ...filtros, desde: undefined, hasta: undefined, proyecto: undefined })}
-        className="text-xs text-zinc-500 hover:text-zinc-700 underline"
+        onClick={() => onChange({ ...filtros, desde: undefined, hasta: undefined })}
+        className="text-[11px] text-slate-400 hover:text-slate-600 underline transition"
       >
-        Limpiar filtros
+        Limpiar
       </button>
     )}
 

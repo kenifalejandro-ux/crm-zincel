@@ -1,11 +1,11 @@
 /** client/src/pages/ConfiguracionPage.tsx */
 
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Eye, EyeOff, CheckCircle, XCircle, AlertTriangle, RefreshCw, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, CheckCircle, XCircle, AlertTriangle, RefreshCw, ExternalLink, Play, Loader2 } from "lucide-react";
 import { PlataformaCuenta, PlataformaCuentaForm, PlataformaAPI } from "../types/plataformaCuentas.types";
 import {
   getPlataformaCuentas, createPlataformaCuenta,
-  updatePlataformaCuenta, deletePlataformaCuenta,
+  updatePlataformaCuenta, deletePlataformaCuenta, syncManualCuenta,
 } from "../services/plataformaCuentas.api";
 import api from "../services/api";
 
@@ -80,9 +80,11 @@ export default function ConfiguracionPage() {
   const [modal,     setModal]     = useState(false);
   const [editando,  setEditando]  = useState<PlataformaCuenta | null>(null);
   const [form,      setForm]      = useState<PlataformaCuentaForm>(FORM_VACIO);
-  const [guardando, setGuardando] = useState(false);
-  const [error,     setError]     = useState<string | null>(null);
-  const [verToken,  setVerToken]  = useState(false);
+  const [guardando,   setGuardando]   = useState(false);
+  const [error,       setError]       = useState<string | null>(null);
+  const [verToken,    setVerToken]    = useState(false);
+  const [sincronizando, setSincronizando] = useState<string | null>(null);
+  const [syncMsg,     setSyncMsg]     = useState<{ id: string; msg: string; ok: boolean } | null>(null);
   const [tabPlat,   setTabPlat]   = useState<PlataformaAPI | "todas">("todas");
   const [modalRenovar, setModalRenovar] = useState<PlataformaCuenta | null>(null);
   const [urlRedireccion, setUrlRedireccion] = useState("");
@@ -93,7 +95,9 @@ export default function ConfiguracionPage() {
     try { setCuentas(await getPlataformaCuentas()); } catch {}
   };
 
-  useEffect(() => { cargar(); }, []);
+  useEffect(() => {
+    cargar();
+  }, []);
 
   const set = (key: keyof PlataformaCuentaForm, value: any) =>
     setForm(f => ({ ...f, [key]: value }));
@@ -164,6 +168,20 @@ export default function ConfiguracionPage() {
     try { await deletePlataformaCuenta(c.id); cargar(); } catch {}
   };
 
+  const handleSyncManual = async (c: PlataformaCuenta) => {
+    setSincronizando(c.id);
+    setSyncMsg(null);
+    try {
+      const res = await syncManualCuenta(c.empresa, c.plataforma);
+      setSyncMsg({ id: c.id, msg: `✓ ${res.insertados ?? 0} nuevas, ${res.duplicados ?? 0} duplicadas`, ok: true });
+      cargar();
+    } catch (err: any) {
+      setSyncMsg({ id: c.id, msg: err.response?.data?.message || "Error al sincronizar", ok: false });
+    } finally {
+      setSincronizando(null);
+    }
+  };
+
   // Alertas globales de tokens próximos a vencer
   const alertas = cuentas.filter(c => {
     const dias = diasParaVencer(c.token_vence_en);
@@ -224,7 +242,7 @@ export default function ConfiguracionPage() {
             <p className="text-sm font-semibold text-zinc-800">Cuentas publicitarias</p>
             <p className="text-[11px] text-zinc-600">Meta Ads · TikTok Ads · Google Ads</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {(["meta", "tiktok", "google"] as PlataformaAPI[]).map(p => (
               <button key={p} onClick={() => abrirNueva(p)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded-lg transition ${PLATAFORMAS[p].bg} hover:opacity-90`}>
@@ -257,36 +275,66 @@ export default function ConfiguracionPage() {
         ) : (
           <div className="divide-y divide-zinc-50 mt-3">
             {cuentasFiltradas.map(c => {
-              const p = PLATAFORMAS[c.plataforma];
+              const p        = PLATAFORMAS[c.plataforma];
+              const sincing  = sincronizando === c.id;
+              const msg      = syncMsg?.id === c.id ? syncMsg : null;
               return (
                 <div key={c.id} className="flex items-center justify-between px-6 py-4 hover:bg-zinc-50/60 transition">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div className={`w-7 h-7 rounded-lg ${p.bg} flex items-center justify-center shrink-0`}>
                       <span className="text-white text-xs font-bold">{p.icon}</span>
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-medium text-zinc-800">{c.empresa}</p>
                         <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${p.color} ${p.border} bg-white`}>
                           {p.label}
                         </span>
                         <SemaforoToken fecha={c.token_vence_en} />
+                        {c.sync_error && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200" title={c.sync_error}>
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                            Error sync
+                          </span>
+                        )}
                       </div>
                       <p className="text-[11px] text-zinc-600 font-mono mt-0.5">{c.account_id}</p>
-                      {c.token_vence_en && (
-                        <p className="text-[11px] text-zinc-600 mt-0.5">
-                          Vence: {new Date(c.token_vence_en).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })}
+
+                      {/* Último sync */}
+                      <p className="text-[11px] text-zinc-500 mt-0.5">
+                        {c.ultimo_sync
+                          ? <>Último sync: {new Date(c.ultimo_sync).toLocaleString("es-PE", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</>
+                          : "Sin sync previo — sync diario a las 2:00 am"
+                        }
+                      </p>
+
+                      {/* Feedback sync manual */}
+                      {msg && (
+                        <p className={`text-[11px] mt-0.5 font-medium ${msg.ok ? "text-emerald-600" : "text-red-600"}`}>
+                          {msg.msg}
                         </p>
                       )}
-                      {c.notas && <p className="text-[11px] text-zinc-600">{c.notas}</p>}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
                       c.activo ? "bg-green-50 text-green-600" : "bg-zinc-100 text-zinc-600"
                     }`}>
                       {c.activo ? "Activo" : "Inactivo"}
                     </span>
+
+                    {/* Sync manual */}
+                    {c.activo && (
+                      <button
+                        onClick={() => handleSyncManual(c)}
+                        disabled={sincing}
+                        title="Sincronizar ahora (últimos 30 días)"
+                        className="p-1.5 text-violet-600 hover:bg-violet-50 rounded-lg transition disabled:opacity-40"
+                      >
+                        {sincing ? <Loader2 size={13} className="animate-spin" /> : <Play size={13} />}
+                      </button>
+                    )}
+
                     {c.plataforma === "tiktok" && (
                       <button onClick={() => abrirRenovar(c)}
                         title="Renovar token TikTok"
@@ -312,8 +360,9 @@ export default function ConfiguracionPage() {
         {/* Info */}
         <div className="px-6 py-3 border-t border-zinc-50 bg-zinc-50/50 rounded-b-2xl mt-2">
           <p className="text-[11px] text-zinc-600">
-            Al importar métricas, el CRM usa automáticamente las credenciales registradas aquí según la empresa y plataforma.
-            Si no hay cuenta configurada, usa las del archivo <code className="bg-zinc-100 px-1 rounded">.env</code>.
+            El CRM sincroniza automáticamente todas las cuentas activas <strong>cada día a las 2:00 am</strong> (últimos 30 días).
+            Usa el botón <span className="inline-flex items-center gap-1 align-middle"><Play size={10} className="text-violet-600" /> sync</span> para forzar una sincronización manual.
+            Si no hay cuenta configurada, usa las variables del archivo <code className="bg-zinc-100 px-1 rounded">.env</code>.
           </p>
         </div>
       </div>

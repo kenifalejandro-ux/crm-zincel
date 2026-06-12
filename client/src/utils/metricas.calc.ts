@@ -131,8 +131,10 @@ export const calcularMetricas = (m: Metrica): MetricasCalculadas => {
   const cpc               = r(safe(m.gasto / m.clics));
   const cpm               = r(safe(m.gasto / m.impresiones * 1000));
   const cpa               = r(safe(m.gasto / m.conversiones));
-  const roas              = r(safe(m.ingresos / m.gasto));
-  const roi               = r(safe((m.ingresos - m.costo_total) / m.costo_total * 100));
+  const roas              = m.gasto > 0 ? r(safe(m.ingresos / m.gasto)) : 0;
+  const roi               = m.costo_total > 0
+    ? r(safe((m.ingresos - m.costo_total) / m.costo_total * 100))
+    : 0;
   const frecuencia        = r(safe(m.impresiones / m.alcance));
   const costo_por_lead    = r(safe(m.gasto / m.leads));
   const costo_por_mensaje = r(safe(m.gasto / m.mensajes));

@@ -6,6 +6,7 @@ import { listarResultados, crearResultado, actualizarResultado, eliminarResultad
 import { getMetricas } from "../services/metricas.api";
 import type { Resultado, ResultadoInput, ConfianzaAtribucion } from "../types/resultado.types";
 import type { Metrica } from "../types/metricas.types";
+import { GLASS_BASE } from "../lib/tokens";
 
 const EMPTY_FORM: ResultadoInput = {
   empresa:              "",
@@ -173,17 +174,15 @@ export default function ResultadosPage() {
   }, {});
 
   return (
-    <div className="p-6 space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto">
 
       {/* ── Header ── */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center">
-            <Trophy size={18} className="text-amber-600" />
-          </div>
+          <div className="crm-section-accent h-8" />
           <div>
-            <h1 className="text-lg font-bold text-zinc-900">Resultados de campaña</h1>
-            <p className="text-xs text-zinc-400">Ventas atribuidas a campañas publicitarias</p>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Resultados de campaña</h1>
+            <p className="text-xs text-slate-400 mt-0.5">Ventas atribuidas a campañas publicitarias</p>
           </div>
         </div>
         <button
@@ -196,42 +195,42 @@ export default function ResultadosPage() {
 
       {/* ── KPIs ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-zinc-200 bg-white px-5 py-4 space-y-1">
-          <p className="text-xs text-zinc-400 flex items-center gap-1.5"><DollarSign size={12}/> Total ingresos atribuidos</p>
-          <p className="text-2xl font-bold text-green-600">{S(totalIngresos)}</p>
+        <div className={`${GLASS_BASE} px-5 py-5 space-y-1.5`}>
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><DollarSign size={11}/> Total ingresos atribuidos</p>
+          <p className="text-3xl font-black text-green-600 tabular-nums leading-tight">{S(totalIngresos)}</p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-5 py-4 space-y-1">
-          <p className="text-xs text-zinc-400 flex items-center gap-1.5"><ShoppingBag size={12}/> Total ventas registradas</p>
-          <p className="text-2xl font-bold text-blue-600">{totalVentas}</p>
+        <div className={`${GLASS_BASE} px-5 py-5 space-y-1.5`}>
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><ShoppingBag size={11}/> Total ventas registradas</p>
+          <p className="text-3xl font-black text-blue-600 tabular-nums leading-tight">{totalVentas}</p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-5 py-4 space-y-1">
-          <p className="text-xs text-zinc-400 flex items-center gap-1.5"><TrendingUp size={12}/> Ticket promedio</p>
-          <p className="text-2xl font-bold text-violet-600">{S(ticketPromedio)}</p>
+        <div className={`${GLASS_BASE} px-5 py-5 space-y-1.5`}>
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><TrendingUp size={11}/> Ticket promedio</p>
+          <p className="text-3xl font-black text-violet-600 tabular-nums leading-tight">{S(ticketPromedio)}</p>
         </div>
       </div>
 
       {/* ── Resumen por empresa ── */}
       {Object.keys(porEmpresa).length > 0 && (
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-          <div className="px-5 py-3 border-b border-zinc-100">
-            <p className="text-sm font-semibold text-zinc-800">Por empresa</p>
+        <div className={`${GLASS_BASE} overflow-hidden`}>
+          <div className="px-5 py-4 border-b border-slate-100">
+            <p className="text-sm font-bold text-slate-800">Por empresa</p>
           </div>
           <table className="w-full text-xs">
-            <thead className="bg-zinc-50 text-zinc-500 uppercase text-[10px]">
+            <thead className="bg-slate-50 text-slate-500 uppercase text-[10px]">
               <tr>
-                <th className="px-5 py-2.5 text-left font-medium">Empresa</th>
-                <th className="px-4 py-2.5 text-right font-medium">Ventas</th>
-                <th className="px-4 py-2.5 text-right font-medium">Ingresos</th>
-                <th className="px-4 py-2.5 text-right font-medium">Ticket promedio</th>
+                <th className="px-5 py-2.5 text-left font-semibold">Empresa</th>
+                <th className="px-4 py-2.5 text-right font-semibold">Ventas</th>
+                <th className="px-4 py-2.5 text-right font-semibold">Ingresos</th>
+                <th className="px-4 py-2.5 text-right font-semibold">Ticket promedio</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-50">
+            <tbody className="divide-y divide-slate-50">
               {Object.entries(porEmpresa).map(([emp, d]) => (
-                <tr key={emp} className="hover:bg-zinc-50">
-                  <td className="px-5 py-3 font-medium text-zinc-800">{emp}</td>
+                <tr key={emp} className="hover:bg-slate-50/60 transition">
+                  <td className="px-5 py-3 font-semibold text-slate-800">{emp}</td>
                   <td className="px-4 py-3 text-right text-blue-600 font-medium">{d.ventas}</td>
                   <td className="px-4 py-3 text-right text-green-600 font-bold">{S(d.ingresos)}</td>
-                  <td className="px-4 py-3 text-right text-zinc-600">{S(d.ingresos / d.ventas)}</td>
+                  <td className="px-4 py-3 text-right text-slate-600">{S(d.ingresos / d.ventas)}</td>
                 </tr>
               ))}
             </tbody>

@@ -15,7 +15,7 @@ import {
   eliminarEgresoService, eliminarEgresosMasivoService,
   crearPrestamoService, obtenerPrestamosService, actualizarPrestamoService,
   eliminarPrestamoService, eliminarPrestamosMasivoService,
-  resumenFinancieroService,
+  resumenFinancieroService, analisisFinancieroService,
 } from "../../services/finanzas.service";
 
 export const finanzasRouter = Router();
@@ -30,6 +30,18 @@ finanzasRouter.get("/resumen", async (req, res) => {
     const anio        = req.query.anio        ? Number(req.query.anio)        : undefined;
     const tipo_cambio = req.query.tipo_cambio ? Number(req.query.tipo_cambio) : 1;
     const data = await resumenFinancieroService({ mes, anio, tipo_cambio });
+    res.status(200).json({ ok: true, data });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
+// ── ANÁLISIS FINANCIERO ────────────────────────────────────────
+
+// GET /api/crm/finanzas/analisis
+finanzasRouter.get("/analisis", async (req, res) => {
+  try {
+    const data = await analisisFinancieroService();
     res.status(200).json({ ok: true, data });
   } catch (err: any) {
     res.status(500).json({ ok: false, message: err.message });

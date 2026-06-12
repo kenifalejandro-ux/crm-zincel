@@ -121,13 +121,27 @@ export const getFormatos = async (empresa?: string): Promise<FormatoData[]> => {
   return data.data ?? [];
 };
 
+export const getEmpresasMetricas = async (): Promise<string[]> => {
+  const { data } = await api.get("/metricas/empresas");
+  return data.data ?? [];
+};
+
 export const getProyectos = async (empresa?: string): Promise<string[]> => {
   const { data } = await api.get("/metricas/proyectos", { params: empresa ? { empresa } : {} });
   return data.data ?? [];
 };
 
-export const asignarProyectoBulk = async (ids: string[], proyecto: string): Promise<void> => {
-  await api.put("/metricas/bulk-proyecto", { ids, proyecto });
+export const asignarProyectosBulk = async (ids: string[], proyectos: string[]): Promise<void> => {
+  await api.put("/metricas/bulk-proyecto", { ids, proyectos });
+};
+
+export const actualizarProyectosMetrica = async (id: string, proyectos: string[]): Promise<void> => {
+  await api.put(`/metricas/${id}/proyectos`, { proyectos });
+};
+
+export const refreshMetrica = async (id: string): Promise<Metrica> => {
+  const { data } = await api.post(`/metricas/${id}/refresh`);
+  return data.data;
 };
 
 export const getAlertasMetricas = async (empresa?: string): Promise<AlertaMetrica[]> => {

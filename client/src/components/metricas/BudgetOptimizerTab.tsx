@@ -11,6 +11,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Zap, RotateCcw, Info, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
 import { getHistoricoPlataforma, type HistoricoPlataforma } from "../../services/metricas.api";
+import { GLASS_BASE } from "../../lib/tokens";
 
 interface Props { empresa?: string }
 
@@ -224,9 +225,9 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
 
   if (!empresa && historico.length === 0 && !cargando) {
     return (
-      <div className="flex flex-col items-center justify-center h-48 gap-2 bg-zinc-50 rounded-xl border border-dashed border-zinc-200">
-        <Zap size={20} className="text-zinc-300" />
-        <p className="text-sm text-zinc-400">Selecciona una empresa para cargar datos históricos de CPL</p>
+      <div className="flex flex-col items-center justify-center h-48 gap-2 bg-white rounded-2xl border border-dashed border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+        <Zap size={20} className="text-slate-300" />
+        <p className="text-sm text-slate-400">Selecciona una empresa para cargar datos históricos de CPL</p>
       </div>
     );
   }
@@ -236,48 +237,51 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
 
       {/* ── Header ── */}
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-bold text-zinc-800 flex items-center gap-2">
-            <Zap size={16} className="text-violet-500" />
-            Budget Optimizer Multi-Plataforma
-          </h2>
-          <p className="text-xs text-zinc-400 mt-0.5">
-            Distribuye tu presupuesto entre plataformas para maximizar leads al menor CPL posible
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="crm-section-accent h-8" />
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Budget Optimizer</h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Distribuye tu presupuesto para maximizar leads al menor CPL posible
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <label className="flex items-center gap-1.5 text-xs text-zinc-600">
-            <span>Tasa de cierre</span>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 text-xs text-slate-600">
+            <span className="font-medium">Tasa de cierre</span>
             <input
               type="number" min={0} max={100}
               value={tasaCierre}
               onChange={(e) => setTasaCierre(e.target.value)}
-              className="w-14 border border-zinc-200 rounded-lg px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-violet-300"
+              className="w-14 border border-slate-200 rounded-lg px-2 py-1.5 text-center font-semibold focus:outline-none focus:ring-2 focus:ring-brand/30 bg-white shadow-sm"
             />
-            <span className="text-zinc-400">%</span>
+            <span className="text-slate-400">%</span>
           </label>
         </div>
       </div>
 
       {/* ── Presupuesto total + botones ── */}
-      <div className="bg-white rounded-xl border border-zinc-200 p-4 flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-zinc-700">Presupuesto total</span>
-          <span className="text-sm text-zinc-500">S/</span>
-          <input
-            type="number" min={0}
-            value={presupuesto}
-            onChange={(e) => setPresupuesto(e.target.value)}
-            className="w-28 border border-zinc-200 rounded-lg px-3 py-1.5 text-sm font-bold text-zinc-800 focus:outline-none focus:ring-2 focus:ring-violet-300 text-center"
-            placeholder="5000"
-          />
-          <span className="text-xs text-zinc-400">/mes</span>
+      <div className={`${GLASS_BASE} p-5 flex flex-wrap items-center gap-4`}>
+        <div className="flex items-center gap-3">
+          <div>
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Presupuesto mensual</p>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm text-slate-500 font-medium">S/</span>
+              <input
+                type="number" min={0}
+                value={presupuesto}
+                onChange={(e) => setPresupuesto(e.target.value)}
+                className="w-32 border border-slate-200 rounded-xl px-3 py-2 text-xl font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand/30 bg-white text-center"
+                placeholder="5000"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="ml-auto flex gap-2">
           <button
             onClick={aplicarOptimo}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-violet-600 hover:bg-violet-500 text-white rounded-lg transition"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-brand hover:bg-brand-hover text-zinc-900 rounded-xl transition shadow-sm"
           >
             <Zap size={12} /> Optimizar automáticamente
           </button>
@@ -290,7 +294,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
               if (activas.length > 0) next[activas[0]].pct += 100 - base * activas.length;
               return next;
             })}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-zinc-200 text-zinc-600 hover:bg-zinc-50 rounded-lg transition"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl transition"
           >
             <RotateCcw size={12} /> Distribuir igual
           </button>
@@ -311,8 +315,8 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
           return (
             <div
               key={plat}
-              className={`rounded-xl border p-4 space-y-3 transition ${
-                e.activa ? `${cfg.bg} ${cfg.border}` : "bg-zinc-50 border-zinc-200 opacity-60"
+              className={`rounded-2xl border p-5 space-y-4 transition shadow-[0_1px_3px_rgba(0,0,0,0.08),_0_8px_24px_rgba(0,0,0,0.05)] ${
+                e.activa ? `${cfg.bg} ${cfg.border}` : "bg-slate-50 border-slate-200 opacity-50"
               }`}
             >
               {/* Header plataforma */}
@@ -392,7 +396,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
               </div>
 
               {/* Resultado proyectado */}
-              <div className={`rounded-lg p-3 space-y-1.5 ${e.activa ? "bg-white/70" : "bg-zinc-100"}`}>
+              <div className={`rounded-xl p-3.5 space-y-2 border ${e.activa ? "bg-white/80 border-white/50" : "bg-slate-100 border-transparent"}`}>
                 <div className="flex justify-between text-xs">
                   <span className="text-zinc-500">Presupuesto</span>
                   <span className="font-semibold text-zinc-800">
@@ -430,13 +434,13 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
 
       {/* ── Resultado consolidado ── */}
       {sumaValida && budgetTotal > 0 && (
-        <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
-          <div className="px-4 py-3 bg-violet-50 border-b border-violet-100 flex items-center gap-2">
-            <TrendingUp size={15} className="text-violet-500" />
-            <span className="text-sm font-semibold text-zinc-800">Resultado proyectado</span>
+        <div className={`${GLASS_BASE} overflow-hidden`}>
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2.5">
+            <TrendingUp size={15} className="text-brand" />
+            <span className="text-sm font-bold text-slate-800">Resultado proyectado</span>
           </div>
 
-          <div className="p-4 space-y-4">
+          <div className="p-5 space-y-4">
             {/* KPIs principales */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <ResultKpi
@@ -475,47 +479,47 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
 
             {/* Comparativa visual actual vs óptima */}
             {gananciaLeads > 0.5 && (
-              <div className="rounded-xl border border-violet-100 bg-violet-50 p-4 space-y-3">
-                <p className="text-xs font-semibold text-violet-800">
-                  Comparativa: distribución actual vs óptima
+              <div className="rounded-xl border border-brand/20 bg-brand/5 p-5 space-y-4">
+                <p className="text-xs font-bold text-slate-800 uppercase tracking-widest">
+                  Distribución actual vs óptima
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {/* Actual */}
-                  <div className="bg-white rounded-lg p-3 space-y-2">
-                    <p className="text-[10px] text-zinc-500 font-semibold uppercase">Distribución actual</p>
+                  <div className="bg-white rounded-xl p-4 space-y-2.5 border border-slate-200 shadow-sm">
+                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Distribución actual</p>
                     {PLATAFORMAS.filter(p => estado[p].activa).map((p) => (
                       <div key={p} className="flex items-center gap-2 text-xs">
-                        <span className={`w-14 shrink-0 ${PLAT_CONFIG[p].color} font-medium`}>{PLAT_CONFIG[p].label.replace(" Ads","")}</span>
-                        <div className="flex-1 bg-zinc-100 rounded-full h-2">
+                        <span className={`w-14 shrink-0 ${PLAT_CONFIG[p].color} font-semibold`}>{PLAT_CONFIG[p].label.replace(" Ads","")}</span>
+                        <div className="flex-1 bg-slate-100 rounded-full h-1.5">
                           <div className={`h-full rounded-full ${PLAT_CONFIG[p].color.replace("text-","bg-").replace("700","400")}`}
                             style={{ width: `${estado[p].pct}%` }} />
                         </div>
-                        <span className="text-zinc-500 w-8 text-right">{estado[p].pct}%</span>
+                        <span className="text-slate-500 w-8 text-right">{estado[p].pct}%</span>
                       </div>
                     ))}
-                    <p className="text-xs font-bold text-zinc-700 pt-1">~{Math.round(totalLeadsActual)} leads</p>
+                    <p className="text-sm font-black text-slate-800 pt-1 tabular-nums">~{Math.round(totalLeadsActual)} leads</p>
                   </div>
                   {/* Óptima */}
-                  <div className="bg-violet-100/50 rounded-lg p-3 space-y-2">
-                    <p className="text-[10px] text-violet-700 font-semibold uppercase">Distribución óptima</p>
+                  <div className="bg-white rounded-xl p-4 space-y-2.5 border border-brand/30 shadow-sm">
+                    <p className="text-[10px] text-brand font-bold uppercase tracking-widest">Distribución óptima</p>
                     {PLATAFORMAS.filter(p => estado[p].activa).map((p) => (
                       <div key={p} className="flex items-center gap-2 text-xs">
-                        <span className={`w-14 shrink-0 ${PLAT_CONFIG[p].color} font-medium`}>{PLAT_CONFIG[p].label.replace(" Ads","")}</span>
-                        <div className="flex-1 bg-violet-200 rounded-full h-2">
-                          <div className="h-full rounded-full bg-violet-500"
+                        <span className={`w-14 shrink-0 ${PLAT_CONFIG[p].color} font-semibold`}>{PLAT_CONFIG[p].label.replace(" Ads","")}</span>
+                        <div className="flex-1 bg-brand/15 rounded-full h-1.5">
+                          <div className="h-full rounded-full bg-brand"
                             style={{ width: `${optimoDistribucion[p]}%` }} />
                         </div>
-                        <span className="text-violet-700 w-8 text-right font-medium">{optimoDistribucion[p]}%</span>
+                        <span className="text-brand w-8 text-right font-semibold">{optimoDistribucion[p]}%</span>
                       </div>
                     ))}
-                    <p className="text-xs font-bold text-violet-700 pt-1">
-                      ~{Math.round(totalLeadsOptimo)} leads (+{Math.round(gananciaLeads)})
+                    <p className="text-sm font-black text-brand pt-1 tabular-nums">
+                      ~{Math.round(totalLeadsOptimo)} leads <span className="text-xs font-semibold">(+{Math.round(gananciaLeads)})</span>
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={aplicarOptimo}
-                  className="w-full text-xs font-medium py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg transition flex items-center justify-center gap-1.5"
+                  className="w-full text-xs font-semibold py-2.5 bg-brand hover:bg-brand-hover text-zinc-900 rounded-xl transition flex items-center justify-center gap-1.5"
                 >
                   <Zap size={12} /> Aplicar distribución óptima
                 </button>
@@ -527,19 +531,19 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
 
       {/* ── Datos históricos (collapsible) ── */}
       {historico.length > 0 && (
-        <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
+        <div className={`${GLASS_BASE} overflow-hidden`}>
           <button
             onClick={() => setMostrarDatos(!mostrarDatos)}
-            className="w-full flex items-center justify-between px-4 py-3 hover:bg-zinc-50 transition"
+            className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50/60 transition"
           >
-            <span className="text-sm font-semibold text-zinc-700">Historial por plataforma</span>
-            {mostrarDatos ? <ChevronUp size={15} className="text-zinc-400" /> : <ChevronDown size={15} className="text-zinc-400" />}
+            <span className="text-sm font-bold text-slate-800">Historial por plataforma</span>
+            {mostrarDatos ? <ChevronUp size={15} className="text-slate-400" /> : <ChevronDown size={15} className="text-slate-400" />}
           </button>
           {mostrarDatos && (
-            <div className="border-t border-zinc-100 overflow-x-auto">
+            <div className="border-t border-slate-100 overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="bg-zinc-50 text-zinc-500 uppercase text-[10px]">
+                  <tr className="bg-slate-50 text-slate-500 uppercase text-[10px]">
                     <th className="px-3 py-2.5 text-left font-medium">Plataforma</th>
                     <th className="px-3 py-2.5 text-right font-medium">Campañas</th>
                     <th className="px-3 py-2.5 text-right font-medium">Gasto total</th>
@@ -549,9 +553,9 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
                     <th className="px-3 py-2.5 text-right font-medium">Meses</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-50">
+                <tbody className="divide-y divide-slate-50">
                   {historico.map((h) => (
-                    <tr key={h.plataforma} className="hover:bg-zinc-50 transition">
+                    <tr key={h.plataforma} className="hover:bg-slate-50/60 transition">
                       <td className="px-3 py-2.5">
                         <span className={`font-semibold ${PLAT_CONFIG[h.plataforma as Plataforma]?.color ?? "text-zinc-700"}`}>
                           {PLAT_CONFIG[h.plataforma as Plataforma]?.label ?? h.plataforma}
@@ -592,13 +596,13 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
 function ResultKpi({ label, value, sub, color }: { label: string; value: string; sub: string; color: string }) {
   const colors: Record<string, string> = {
     violet: "text-violet-700", emerald: "text-emerald-700",
-    green: "text-green-600", red: "text-red-600", zinc: "text-zinc-700",
+    green: "text-green-600", red: "text-red-600", zinc: "text-slate-700",
   };
   return (
-    <div className="rounded-xl bg-zinc-50 border border-zinc-100 p-3 space-y-0.5">
-      <p className="text-[10px] text-zinc-400 uppercase tracking-wide">{label}</p>
-      <p className={`text-lg font-bold ${colors[color] ?? colors.zinc}`}>{value}</p>
-      <p className="text-[10px] text-zinc-400">{sub}</p>
+    <div className="rounded-xl bg-white border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.06)] p-4 space-y-1">
+      <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">{label}</p>
+      <p className={`text-xl font-black tabular-nums leading-tight ${colors[color] ?? colors.zinc}`}>{value}</p>
+      <p className="text-[10px] text-slate-400">{sub}</p>
     </div>
   );
 }

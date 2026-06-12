@@ -136,6 +136,47 @@ export interface FormPrestamo {
   notas:             string;
 }
 
+// ── ANÁLISIS FINANCIERO ───────────────────────────────────────
+
+export type EstadoIndicador =
+  | "optimo" | "aceptable" | "critico"
+  | "riesgo_bajo" | "moderado" | "riesgo_alto" | "alto_riesgo"
+  | "excelente" | "bueno" | "por_mejorar"
+  | "atencion" | "sin_datos";
+
+export type SemaforoFinanciero = "estable" | "en_riesgo" | "critico";
+
+export interface IndicadorFinanciero {
+  valor: number | null;
+  estado: EstadoIndicador;
+}
+
+export interface AnalisisFinanciero {
+  fecha_analisis: string;
+  resumen: {
+    activos_totales:    number;
+    pasivos_totales:    number;
+    patrimonio:         number;
+    utilidad_ejercicio: number;
+    caja_bancos:        number;
+    cuentas_por_cobrar: number;
+  };
+  composicion_activos: { nombre: string; valor: number; porcentaje: number; color: string }[];
+  indicadores: {
+    liquidez_corriente:       IndicadorFinanciero;
+    capital_trabajo:          IndicadorFinanciero;
+    endeudamiento:            IndicadorFinanciero;
+    deuda_patrimonio:         IndicadorFinanciero;
+    roe:                      IndicadorFinanciero;
+    roa:                      IndicadorFinanciero;
+    concentracion_cxc:        IndicadorFinanciero;
+    disponibilidad_inmediata: IndicadorFinanciero;
+  };
+  hallazgos:        { tipo: "positivo" | "negativo"; texto: string }[];
+  recomendaciones:  string[];
+  semaforo:         SemaforoFinanciero;
+}
+
 // ── RESUMEN ───────────────────────────────────────────────────
 
 export interface ResumenFinanciero {

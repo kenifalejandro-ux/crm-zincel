@@ -453,6 +453,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
     }>();
 
     for (const r of resultados) {
+      if (!r.metrica_id) continue;   // sin métrica atribuida → no se agrega a la campaña
       const metrica   = metricas.find((m) => m.id === r.metrica_id);
       const gasto     = metrica ? Number(metrica.gasto) : 0;
       const prev      = porCampana.get(r.metrica_id) ?? { nombre: r.campana_nombre, ventas: 0, ingresos: 0, costoVenta: 0, gasto, proyecto: [] };
@@ -511,7 +512,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
   }, [valoresAgregados, benchmarksActivos, retornoAtribuido]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
 
       {/* ── Highlights ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -546,7 +547,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
 
       {/* ── Tendencia CPL ── */}
       {tendenciaCpl.length > 0 && (
-        <div className="space-y-3">
+        <section className="bg-white border border-zinc-200 rounded-2xl p-5 space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <TrendingUp size={15} className="text-zinc-500" />
@@ -563,7 +564,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
               </span>
             )}
           </div>
-          <div className="bg-white border border-zinc-200 rounded-xl p-4" style={{ height: 224 }}>
+          <div style={{ height: 200 }}>
             {chartsMounted && <ResponsiveContainer width="100%" height={192}>
               <LineChart data={tendenciaCpl} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
@@ -583,7 +584,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
               </LineChart>
             </ResponsiveContainer>}
           </div>
-        </div>
+        </section>
       )}
 
       {/* ── Alerta declive CTR ── */}
@@ -598,7 +599,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
       )}
 
       {/* ── Análisis comparativo ── */}
-      <div className="space-y-4">
+      <section className="bg-white border border-zinc-200 rounded-2xl p-5 space-y-4">
 
         {/* Header + toggles de vista */}
         <div className="flex items-center justify-between flex-wrap gap-2">
@@ -642,7 +643,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
         {/* Cards resumen global con estado de benchmark */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {/* Gasto */}
-          <div className={`bg-white border border-zinc-200 border-l-4 border-l-amber-400 rounded-xl px-4 py-3 transition ${metricaActiva === "gasto" ? "shadow-sm" : "opacity-60"}`}>
+          <div className={`bg-zinc-50 border border-zinc-100 border-l-4 border-l-amber-400 rounded-xl px-4 py-3 transition ${metricaActiva === "gasto" ? "shadow-sm" : "opacity-60"}`}>
             <p className="text-[10px] text-zinc-500 uppercase font-medium">Total gasto</p>
             <p className="text-sm font-bold text-zinc-900 mt-0.5">{FMT_SOL(resumenTotal.gasto)}</p>
           </div>
@@ -654,7 +655,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
             const badge: Record<string, string> = { excelente: "bg-green-100 text-green-700", aceptable: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
             const label: Record<string, string> = { excelente: "Excelente", aceptable: "Aceptable", alto: "Alto" };
             return (
-              <div className={`bg-white border border-zinc-200 border-l-4 border-l-red-400 rounded-xl px-4 py-3 transition ${metricaActiva === "cpl" ? "shadow-sm" : "opacity-60"}`}>
+              <div className={`bg-zinc-50 border border-zinc-100 border-l-4 border-l-red-400 rounded-xl px-4 py-3 transition ${metricaActiva === "cpl" ? "shadow-sm" : "opacity-60"}`}>
                 <p className="text-[10px] text-zinc-500 uppercase font-medium">CPL promedio</p>
                 <p className="text-sm font-bold text-zinc-900 mt-0.5">{resumenTotal.cpl !== null ? FMT_SOL(resumenTotal.cpl) : "Sin leads"}</p>
                 {est && <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${badge[est]}`}>{label[est]}</span>}
@@ -669,7 +670,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
             const badge: Record<string, string> = { excelente: "bg-green-100 text-green-700", aceptable: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
             const label: Record<string, string> = { excelente: "Excelente", aceptable: "Aceptable", alto: "Alto" };
             return (
-              <div className={`bg-white border border-zinc-200 border-l-4 border-l-emerald-400 rounded-xl px-4 py-3 transition ${metricaActiva === "ctr" ? "shadow-sm" : "opacity-60"}`}>
+              <div className={`bg-zinc-50 border border-zinc-100 border-l-4 border-l-emerald-400 rounded-xl px-4 py-3 transition ${metricaActiva === "ctr" ? "shadow-sm" : "opacity-60"}`}>
                 <p className="text-[10px] text-zinc-500 uppercase font-medium">CTR promedio</p>
                 <p className="text-sm font-bold text-zinc-900 mt-0.5">{`${resumenTotal.ctr.toFixed(2)}%`}</p>
                 {est && <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${badge[est]}`}>{label[est]}</span>}
@@ -678,7 +679,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
           })()}
 
           {/* Mensajes */}
-          <div className={`bg-white border border-zinc-200 border-l-4 border-l-violet-400 rounded-xl px-4 py-3 transition ${metricaActiva === "mensajes" ? "shadow-sm" : "opacity-60"}`}>
+          <div className={`bg-zinc-50 border border-zinc-100 border-l-4 border-l-violet-400 rounded-xl px-4 py-3 transition ${metricaActiva === "mensajes" ? "shadow-sm" : "opacity-60"}`}>
             <p className="text-[10px] text-zinc-500 uppercase font-medium">Mensajes</p>
             <p className="text-sm font-bold text-zinc-900 mt-0.5">{resumenTotal.mensajes.toLocaleString()}</p>
           </div>
@@ -686,7 +687,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
 
         {/* Gráfico de barras */}
         {datosChart.length > 0 && (
-          <div className="bg-white border border-zinc-200 rounded-xl p-4" style={{ height: 280 }}>
+          <div style={{ height: 280 }}>
             {chartsMounted && <ResponsiveContainer width="100%" height="100%">
               <BarChart data={datosChart} margin={{ top: 5, right: 16, left: 0, bottom: vista === "campana" ? 60 : 5 }} barCategoryGap="28%">
                 <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
@@ -772,10 +773,10 @@ export function ComparativaTab({ metricas, empresa }: Props) {
             Sin datos para graficar con la métrica seleccionada
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── Diagnóstico por Métrica ── */}
-      <div className="space-y-3">
+      <section className="bg-white border border-zinc-200 rounded-2xl p-5 space-y-3">
         <div className="flex items-center gap-2 flex-wrap">
           <Target size={15} className="text-zinc-500" />
           <span className="text-sm font-semibold text-zinc-800">Diagnóstico por métrica</span>
@@ -867,7 +868,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
             </a>
           ))}
         </div>
-      </div>
+      </section>
 
     </div>
   );
