@@ -1,9 +1,14 @@
-/** client/src/pages/ProspectosPage.tsx */
-
+/** client/src/pages/ProspectosPage.tsx — REDISEÑO NEON
+ * Cambios SOLO de presentación:
+ *  - Header con kicker + botones de acción unificados (antes bg-violet-600/teal-600/zinc-800 sueltos).
+ *  - Banner de leads calientes neon (antes from-red-50 to-orange-50 / text-orange-700 — parche claro).
+ *  - Error de importación neon (antes bg-red-50 border-red-100 text-red-600).
+ *  Toda la lógica (Excel import/export, filtros, selección masiva, modales) queda INTACTA.
+ */
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useProspectos } from "../hooks/useProspectos";
-import { Plus, Upload, AlertTriangle, FileDown, BarChart2 } from "lucide-react";
+import { Plus, Upload, AlertTriangle, FileDown, BarChart2, Flame } from "lucide-react";
 import * as XLSX from "xlsx";
 import api from "../services/api";
 import { getScoresLeads, getResumenProspectos } from "../services/prospectos.api";
@@ -16,11 +21,7 @@ import { TablaProspectos } from "../components/prospectos/TablaProspectos";
 import { PreviewImportacion } from "../components/prospectos/PreviewImportacion";
 import { KpisProspectos } from "../components/prospectos/KpisProspectos";
 import { mapearExcelACRM } from "../utils/prospectos.mappers";
-
-// ✅ Importar componentes reutilizables
 import { TableBulkActions } from "../components/ui/TableBulkActions";
-
-
 
 const LIMITE = 50;
 
@@ -43,88 +44,47 @@ export default function ProspectosPage() {
   const [prospectoEditar, setProspectoEditar]             = useState<any | null>(null);
   const [mostrarNuevo, setMostrarNuevo]                   = useState(false);
 
-  // ✅ Estado selección masiva
   const [seleccionados, setSeleccionados] = useState<string[]>([]);
-
-  // Scores — carga independiente, no bloquea la tabla
   const [scores, setScores] = useState<Record<string, ScoreLead>>({});
-
   const [resumen, setResumen] = useState<ResumenProspectos | null>(null);
 
-  // ── Cargar al cambiar filtros ───────────────────────────
   useEffect(() => {
     cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE });
-    getScoresLeads()
-      .then(s => setScores(Object.fromEntries(s.map(sc => [sc.id, sc]))))
-      .catch(console.error);
-    getResumenProspectos()
-      .then(setResumen)
-      .catch(console.error);
+    getScoresLeads().then(s => setScores(Object.fromEntries(s.map(sc => [sc.id, sc])))).catch(console.error);
+    getResumenProspectos().then(setResumen).catch(console.error);
   }, [busqueda, estadoFiltro, pagina]);
 
-  // Leads calientes primero
   const prospectosOrdenados = useMemo(() => {
     if (Object.keys(scores).length === 0) return prospectos;
     return [...prospectos].sort((a, b) => (scores[b.id]?.score ?? 0) - (scores[a.id]?.score ?? 0));
   }, [prospectos, scores]);
 
-  // ── Handlers de filtros ─────────────────────────────────
-  const handleBusqueda = (valor: string) => {
-    setBusqueda(valor);
-    setPagina(1);
+  const handleBusqueda = (valor: string) => { setBusqueda(valor); setPagina(1); };
+  const handleEstado = (valor: string) => { setEstadoFiltro(valor); setPagina(1); };
+
+  const toggleSeleccion = (id: string) => {
+    setSeleccionados((prev) => prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]);
   };
-
-  const handleEstado = (valor: string) => {
-    setEstadoFiltro(valor);
-    setPagina(1);
+  const toggleTodos = () => {
+    if (seleccionados.length === prospectos.length) setSeleccionados([]);
+    else setSeleccionados(prospectos.map((p) => p.id as string));
   };
-
-  // ✅ Toggle individual
-const toggleSeleccion = (id: string) => {   // ← string, no number
-  setSeleccionados((prev) =>
-    prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-  );
-};
-
-  // ✅ Toggle todos
-const toggleTodos = () => {
-  if (seleccionados.length === prospectos.length) {
+  const eliminarSeleccionados = async () => {
+    if (!confirm(`¿Eliminar ${seleccionados.length} prospectos?`)) return;
+    await Promise.all(seleccionados.map((id) => eliminar(id)));
     setSeleccionados([]);
-  } else {
-    setSeleccionados(prospectos.map((p) => p.id as string)); // ← cast por si acaso
-  }
-};
+    cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE });
+  };
 
-  // ✅ Eliminar masivo
-const eliminarSeleccionados = async () => {
-  if (!confirm(`¿Eliminar ${seleccionados.length} prospectos?`)) return;
-  await Promise.all(seleccionados.map((id) => eliminar(id)));
-  setSeleccionados([]);
-  cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE });
-};
-
-  // ── Exportar Excel ──────────────────────────────────────
   const exportarExcel = () => {
     const rows = prospectos.map((p) => ({
-      "Empresa":         p.empresa,
-      "Actividad Economica": p.actividad_economica ?? "",
-      "Sector":          p.sector             ?? "",
-      "Perfil":          p.perfil_empresa     ?? "",
-      "Trabajadores":    p.cantidad_trabajadores ?? "",
-      "Contacto":        p.nombre_contacto    ?? "",
-      "Cargo":           p.cargo              ?? "",
-      "Teléfono":        p.telefono           ?? "",
-      "Email":           p.email_contacto     ?? "",
-      "Ciudad":          p.ciudad             ?? "",
-      "País":            p.pais,
-      "Estado lead":     p.estado_lead,
-      "Clasificación":   p.clasificacion,
-      "Estado venta":    p.estado_venta,
-      "Prioridad":       p.prioridad,
-      "Fuente":          p.fuente             ?? "",
-      "Página web":      p.pagina_web         ?? "",
-      "Notas":           p.notas              ?? "",
-      "Creado":          new Date(p.creado_en).toLocaleDateString("es-PE"),
+      "Empresa": p.empresa, "Actividad Economica": p.actividad_economica ?? "", "Sector": p.sector ?? "",
+      "Perfil": p.perfil_empresa ?? "", "Trabajadores": p.cantidad_trabajadores ?? "",
+      "Contacto": p.nombre_contacto ?? "", "Cargo": p.cargo ?? "", "Teléfono": p.telefono ?? "",
+      "Email": p.email_contacto ?? "", "Ciudad": p.ciudad ?? "", "País": p.pais,
+      "Estado lead": p.estado_lead, "Clasificación": p.clasificacion, "Estado venta": p.estado_venta,
+      "Prioridad": p.prioridad, "Fuente": p.fuente ?? "", "Página web": p.pagina_web ?? "",
+      "Notas": p.notas ?? "", "Creado": new Date(p.creado_en).toLocaleDateString("es-PE"),
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
@@ -132,14 +92,11 @@ const eliminarSeleccionados = async () => {
     XLSX.writeFile(wb, `prospectos_${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
-  // ── Leer Excel ──────────────────────────────────────────
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrorImport(null);
     setPreview([]);
-
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
@@ -158,7 +115,6 @@ const eliminarSeleccionados = async () => {
     e.target.value = "";
   };
 
-  // ── Confirmar importación ───────────────────────────────
   const confirmarImportacion = async () => {
     setImportando(true);
     try {
@@ -179,89 +135,50 @@ const eliminarSeleccionados = async () => {
     }
   };
 
+  const calientes = Object.values(scores).filter(s => s.nivel === "caliente" && s.etapa_pipeline !== "cerrado_ganado" && s.etapa_pipeline !== "perdido" && !["venta_ganada","baja_de_oficio","suspension_temporal","no_habido","perdida"].includes(s.estado_lead)).length;
+
+  // Botón de acción del header (estilo unificado, solo cambia el ícono/color de acento)
+  const accion = "relative group p-2.5 btn-ghost text-zinc-300";
+
   return (
     <div className="space-y-5">
-
-      {/* Modal detalle */}
       {prospectoSeleccionado && (
-        <ProspectoDetalle
-          prospecto={prospectoSeleccionado}
-          onCerrar={() => setProspectoSeleccionado(null)}
-          onActualizado={(_id) => cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE })}
-        />
+        <ProspectoDetalle prospecto={prospectoSeleccionado} onCerrar={() => setProspectoSeleccionado(null)}
+          onActualizado={(_id) => cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE })} />
       )}
-
-      {/* Modal editar */}
       {prospectoEditar && (
-        <ProspectoForm
-          prospecto={prospectoEditar}
-          onCerrar={() => setProspectoEditar(null)}
-          onGuardado={() => {
-            setProspectoEditar(null);
-            cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE });
-          }}
-        />
+        <ProspectoForm prospecto={prospectoEditar} onCerrar={() => setProspectoEditar(null)}
+          onGuardado={() => { setProspectoEditar(null); cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE }); }} />
       )}
-
-      {/* Modal nuevo */}
       {mostrarNuevo && (
-        <ProspectoForm
-          onCerrar={() => setMostrarNuevo(false)}
-          onGuardado={() => {
-            setMostrarNuevo(false);
-            cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE });
-          }}
-        />
+        <ProspectoForm onCerrar={() => setMostrarNuevo(false)}
+          onGuardado={() => { setMostrarNuevo(false); cargar({ busqueda, estado_lead: estadoFiltro, pagina, limite: LIMITE }); }} />
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="crm-section-accent h-8" />
-          <div>
-            <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Prospectos</h1>
-            <p className="text-xs text-slate-500 mt-0.5">{total} registros en total</p>
-          </div>
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-accent">Comercial</p>
+          <h1 className="font-display text-[26px] font-bold text-zinc-50 tracking-tight leading-tight mt-1">Prospectos</h1>
+          <p className="text-[13px] text-zinc-500 mt-1">{total} registros en total</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <TableBulkActions count={seleccionados.length} onDelete={eliminarSeleccionados} />
 
-          {/* ✅ Aparece solo cuando hay seleccionados */}
-          <TableBulkActions
-            count={seleccionados.length}
-            onDelete={eliminarSeleccionados}
-          />
-
-          <label className="relative group p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white transition cursor-pointer">
-            <Upload size={17} />
+          <label className={accion + " cursor-pointer"}>
+            <Upload size={16} />
             <input type="file" accept=".xlsx,.xls" onChange={handleFile} className="hidden" />
-            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
-              Importar Excel
-            </span>
+            <Tip>Importar Excel</Tip>
           </label>
-          <button
-            onClick={() => navigate("/analisis-comercial")}
-            className="relative group p-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition"
-          >
-            <BarChart2 size={17} />
-            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
-              Análisis comercial
-            </span>
+          <button onClick={() => navigate("/analisis-comercial")} className={accion}>
+            <BarChart2 size={16} /><Tip>Análisis comercial</Tip>
           </button>
           {prospectos.length > 0 && (
-            <button
-              onClick={exportarExcel}
-              className="relative group p-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white transition"
-            >
-              <FileDown size={17} />
-              <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
-                Exportar Excel
-              </span>
+            <button onClick={exportarExcel} className={accion}>
+              <FileDown size={16} /><Tip>Exportar Excel</Tip>
             </button>
           )}
-          <button
-            onClick={() => setMostrarNuevo(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
-          >
+          <button onClick={() => setMostrarNuevo(true)} className="btn-primary flex items-center gap-1.5 px-4 py-2.5 text-[13px]">
             <Plus size={15} /> Nuevo
           </button>
         </div>
@@ -269,72 +186,58 @@ const eliminarSeleccionados = async () => {
 
       {/* KPIs resumen */}
       {resumen && (
-        <KpisProspectos
-          resumen={resumen}
-          filtroActivo={estadoFiltro}
-          onFiltro={(key) => { handleEstado(key); }}
-        />
+        <KpisProspectos resumen={resumen} filtroActivo={estadoFiltro} onFiltro={(key) => handleEstado(key)} />
       )}
 
-      {/* Alerta leads calientes */}
-      {Object.values(scores).filter(s => s.nivel === "caliente" && s.etapa_pipeline !== "cerrado_ganado" && s.etapa_pipeline !== "perdido" && !["venta_ganada","baja_de_oficio","suspension_temporal","no_habido","perdida"].includes(s.estado_lead)).length > 0 && (
-        <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-red-50 to-orange-50 border border-orange-200 rounded-xl">
-          <span className="text-lg">🔥</span>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-orange-700">
-              {Object.values(scores).filter(s => s.nivel === "caliente" && s.etapa_pipeline !== "cerrado_ganado" && s.etapa_pipeline !== "perdido" && !["venta_ganada","baja_de_oficio","suspension_temporal","no_habido","perdida"].includes(s.estado_lead)).length} leads calientes listos para cierre
-            </p>
-            <p className="text-[11px] text-orange-500 mt-0.5">
-              Están en la parte superior de la lista — prioriza el contacto hoy
-            </p>
+      {/* Banner leads calientes — neon */}
+      {calientes > 0 && (
+        <div className="flex items-center gap-3.5 px-4 py-3 rounded-xl"
+             style={{ background: "linear-gradient(90deg, rgba(248,113,113,0.12), rgba(251,146,60,0.06) 70%)", border: "1px solid rgba(248,113,113,0.25)" }}>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(248,113,113,0.14)", border: "1px solid rgba(248,113,113,0.3)" }}>
+            <Flame size={16} className="text-red-400" />
           </div>
-          <span className="text-[10px] font-medium text-orange-400 shrink-0">Score 75+</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-semibold text-red-300">{calientes} leads calientes listos para cierre</p>
+            <p className="text-[11.5px] text-zinc-500 mt-0.5">Están en la parte superior de la lista — prioriza el contacto hoy</p>
+          </div>
+          <span className="text-[10px] font-bold text-red-400/80 shrink-0 uppercase tracking-wider">Score 75+</span>
         </div>
       )}
 
       {/* Filtros */}
-      <FiltrosProspectos
-        busqueda={busqueda}
-        estadoFiltro={estadoFiltro}
-        onBusqueda={handleBusqueda}
-        onEstado={handleEstado}
-      />
+      <FiltrosProspectos busqueda={busqueda} estadoFiltro={estadoFiltro} onBusqueda={handleBusqueda} onEstado={handleEstado} />
 
-      {/* Error importación */}
+      {/* Error importación — neon */}
       {errorImport && (
-        <div className="bg-red-50 border border-red-100 text-red-600 text-xs px-4 py-3 rounded-lg flex items-center gap-2">
-          <AlertTriangle size={15} />
-          {errorImport}
+        <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-xs text-red-300"
+             style={{ background: "rgba(248,113,113,0.10)", border: "1px solid rgba(248,113,113,0.3)" }}>
+          <AlertTriangle size={15} /> {errorImport}
         </div>
       )}
 
       {/* Preview importación */}
-      <PreviewImportacion
-        preview={preview}
-        importando={importando}
-        onCancelar={() => setPreview([])}
-        onConfirmar={confirmarImportacion}
-      />
+      <PreviewImportacion preview={preview} importando={importando} onCancelar={() => setPreview([])} onConfirmar={confirmarImportacion} />
 
-      {/* Tabla de prospectos */}
+      {/* Tabla */}
       <TablaProspectos
-        prospectos={prospectosOrdenados}
-        total={total}
-        cargando={cargando}
-        pagina={pagina}
-        limite={LIMITE}
-        onVerDetalle={setProspectoSeleccionado}
-        onEditar={setProspectoEditar}
-        onEliminar={eliminar}
+        prospectos={prospectosOrdenados} total={total} cargando={cargando} pagina={pagina} limite={LIMITE}
+        onVerDetalle={setProspectoSeleccionado} onEditar={setProspectoEditar} onEliminar={eliminar}
         onPaginaAnterior={() => setPagina((p) => Math.max(1, p - 1))}
         onPaginaSiguiente={() => setPagina((p) => p + 1)}
-        seleccionados={seleccionados}
-        onToggleSeleccion={toggleSeleccion}
-        onToggleTodos={toggleTodos}
+        seleccionados={seleccionados} onToggleSeleccion={toggleSeleccion} onToggleTodos={toggleTodos}
         todosSeleccionados={seleccionados.length === prospectos.length && prospectos.length > 0}
         scores={scores}
       />
-
     </div>
+  );
+}
+
+/** Tooltip neon reutilizable para los botones-ícono del header. */
+function Tip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-[#0a101f] text-zinc-200 px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50"
+          style={{ border: "1px solid rgb(var(--accent) / 0.3)" }}>
+      {children}
+    </span>
   );
 }

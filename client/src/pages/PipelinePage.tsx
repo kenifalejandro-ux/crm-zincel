@@ -1,7 +1,12 @@
-/**client/src/pages/PipelinePage.tsx */
-
+/**client/src/pages/PipelinePage.tsx — REDISEÑO NEON
+ * Cambios SOLO de presentación:
+ *  - Header con kicker + banda de KPIs con glow (antes textos sueltos text-amber-600/green-600 apretados).
+ *  - Toggle de vista coherente (antes bg-zinc-900 casi invisible sobre el dark).
+ *  - Toast "deshacer" neon (antes bg-zinc-900 + clase inválida hover:bg-white/8/25).
+ *  - Bordes válidos (antes border-white/8 ×4 — no pintaban).
+ *  Toda la lógica (cargar, drag/drop, moverCard, undo, optimistic) queda INTACTA.
+ */
 import { useEffect, useRef, useState } from "react";
-import { GLASS_BASE } from "../lib/tokens";
 import { Kanban, RefreshCw, Undo2, LayoutGrid } from "lucide-react";
 import { getPipeline, actualizarEtapaPipeline, actualizarEstadoLead, getScoresLeads, getProspecto, type PipelineEtapa, type ScoreLead } from "../services/prospectos.api";
 
@@ -12,7 +17,6 @@ import { ProspectoForm } from "../components/prospectos/ProspectoForm";
 import { getKanbanOportunidades } from "../services/propuestas.api";
 import type { Prospecto, EtapaPipeline } from "../types/prospecto.types";
 
-// Pre-pipeline columns driven by estado_lead (aligned with ProspectosPage)
 const PRE_PIPELINE = new Set(["volver_a_llamar","solicita_informacion","interesado"]);
 
 const ETAPAS: { key: string; label: string; color: string }[] = [
@@ -28,11 +32,8 @@ const ETAPAS: { key: string; label: string; color: string }[] = [
 const LABEL: Record<string, string> = Object.fromEntries(ETAPAS.map(e => [e.key, e.label]));
 
 interface UndoState {
-  id:          string;
-  empresa:     string;
-  etapaOrigen: string;
-  etapaDestino: string;
-  timer:       ReturnType<typeof setTimeout>;
+  id: string; empresa: string; etapaOrigen: string; etapaDestino: string;
+  timer: ReturnType<typeof setTimeout>;
 }
 
 export default function PipelinePage() {
@@ -49,8 +50,6 @@ export default function PipelinePage() {
   const dragId = useRef<string | null>(null);
 
   useEffect(() => { cargar(); }, []);
-
-  // Clean up undo timer on unmount
   useEffect(() => () => { if (undo) clearTimeout(undo.timer); }, [undo]);
 
   async function cargar() {
@@ -62,34 +61,22 @@ export default function PipelinePage() {
     }
     catch (err) { console.error(err); }
     finally { setCargando(false); }
-    getScoresLeads()
-      .then(s => setScores(Object.fromEntries(s.map(sc => [sc.id, sc]))))
-      .catch(console.error);
-    getKanbanOportunidades()
-      .then(({ stats }) => setStatsOport(stats))
-      .catch(console.error);
+    getScoresLeads().then(s => setScores(Object.fromEntries(s.map(sc => [sc.id, sc])))).catch(console.error);
+    getKanbanOportunidades().then(({ stats }) => setStatsOport(stats)).catch(console.error);
   }
 
-  // Recarga solo el card afectado y lo mueve a su nueva columna sin recargar todo
   async function actualizarCardPipeline(id: string) {
     try {
       const actualizado = await getProspecto(id);
       const nuevaEtapa  = actualizado.etapa_pipeline;
       setPipeline(prev => {
         const next = structuredClone(prev);
-        // Buscar en qué columna está actualmente
-        const etapaActual = Object.keys(next).find(k =>
-          next[k].prospectos.some(p => p.id === id)
-        );
+        const etapaActual = Object.keys(next).find(k => next[k].prospectos.some(p => p.id === id));
         if (!etapaActual) return prev;
         if (etapaActual === nuevaEtapa) {
-          // Solo actualizar datos del card sin moverlo
-          next[etapaActual].prospectos = next[etapaActual].prospectos.map(p =>
-            p.id === id ? { ...p, ...actualizado } : p
-          );
+          next[etapaActual].prospectos = next[etapaActual].prospectos.map(p => p.id === id ? { ...p, ...actualizado } : p);
           return next;
         }
-        // Mover el card a la nueva columna
         const card = next[etapaActual].prospectos.find(p => p.id === id);
         if (!card) return prev;
         next[etapaActual].prospectos = next[etapaActual].prospectos.filter(p => p.id !== id);
@@ -100,15 +87,10 @@ export default function PipelinePage() {
         next[nuevaEtapa].total++;
         return next;
       });
-    } catch {
-      // Si falla, recarga completa como fallback
-      cargar();
-    }
+    } catch { cargar(); }
   }
 
-  function handleDragStart(_e: React.DragEvent, id: string) {
-    dragId.current = id;
-  }
+  function handleDragStart(_e: React.DragEvent, id: string) { dragId.current = id; }
 
   async function handleDrop(_e: React.DragEvent, etapaDestino: string) {
     setDragOver(null);
@@ -116,33 +98,20 @@ export default function PipelinePage() {
     if (!id) return;
     dragId.current = null;
 
-    const etapaOrigen = Object.entries(pipeline).find(([, v]) =>
-      v.prospectos.some(p => p.id === id)
-    )?.[0];
+    const etapaOrigen = Object.entries(pipeline).find(([, v]) => v.prospectos.some(p => p.id === id))?.[0];
     if (!etapaOrigen || etapaOrigen === etapaDestino) return;
 
     const empresa = pipeline[etapaOrigen].prospectos.find(p => p.id === id)?.empresa ?? "";
-
-    // Optimistic UI update
     moverCard(id, etapaOrigen, etapaDestino);
 
-    // Show undo toast for 5 seconds
     if (undo) clearTimeout(undo.timer);
     const timer = setTimeout(() => setUndo(null), 5000);
     setUndo({ id, empresa, etapaOrigen, etapaDestino, timer });
 
     try {
-      if (PRE_PIPELINE.has(etapaDestino)) {
-        // Pre-pipeline: update estado_lead
-        await actualizarEstadoLead(id, etapaDestino);
-      } else {
-        // Pipeline activo: update etapa_pipeline
-        await actualizarEtapaPipeline(id, etapaDestino);
-      }
-    } catch (err) {
-      console.error(err);
-      cargar();
-    }
+      if (PRE_PIPELINE.has(etapaDestino)) await actualizarEstadoLead(id, etapaDestino);
+      else await actualizarEtapaPipeline(id, etapaDestino);
+    } catch (err) { console.error(err); cargar(); }
   }
 
   function moverCard(id: string, origen: string, destino: string) {
@@ -163,12 +132,9 @@ export default function PipelinePage() {
       else       next[origen].valor_usd = Math.max(0, (next[origen].valor_usd ?? 0) - v);
       card.etapa_pipeline = destino as EtapaPipeline;
 
-      // Sincronizar estado de propuesta igual que el backend (PROPUESTA_MAP)
       const PROPUESTA_MAP: Record<string, string> = {
-        propuesta_enviada: "enviada",
-        negociacion:       "en_negociacion",
-        cerrado_ganado:    "cerrada_ganada",
-        perdido:           "cerrada_perdida",
+        propuesta_enviada: "enviada", negociacion: "en_negociacion",
+        cerrado_ganado: "cerrada_ganada", perdido: "cerrada_perdida",
       };
       const nuevoPropuestaEstado = PROPUESTA_MAP[destino];
       if (nuevoPropuestaEstado && card.propuestas_list && card.propuestas_list.length > 0) {
@@ -191,19 +157,12 @@ export default function PipelinePage() {
       return next;
     });
 
-    // Actualizar contadores del header de forma optimista
     if (valor > 0) {
       const activaKeys = new Set(etapasActivas.map(e => e.key));
-      const deltaActivo =
-        (activaKeys.has(destino) ? valor : 0) - (activaKeys.has(origen) ? valor : 0);
-      const deltaGanado =
-        (destino === "cerrado_ganado" ? valor : 0) - (origen === "cerrado_ganado" ? valor : 0);
-
+      const deltaActivo = (activaKeys.has(destino) ? valor : 0) - (activaKeys.has(origen) ? valor : 0);
+      const deltaGanado = (destino === "cerrado_ganado" ? valor : 0) - (origen === "cerrado_ganado" ? valor : 0);
       if (deltaActivo !== 0 || deltaGanado !== 0) {
-        setStatsOport(prev => prev ? {
-          total_activo: prev.total_activo + deltaActivo,
-          total_ganado: prev.total_ganado + deltaGanado,
-        } : null);
+        setStatsOport(prev => prev ? { total_activo: prev.total_activo + deltaActivo, total_ganado: prev.total_ganado + deltaGanado } : null);
       }
       if (destino === "perdido") setValorPerdido(p => p + valor);
       if (origen  === "perdido") setValorPerdido(p => Math.max(0, p - valor));
@@ -217,11 +176,8 @@ export default function PipelinePage() {
     setUndo(null);
     moverCard(id, etapaDestino, etapaOrigen);
     try {
-      if (PRE_PIPELINE.has(etapaOrigen)) {
-        await actualizarEstadoLead(id, etapaOrigen);
-      } else {
-        await actualizarEtapaPipeline(id, etapaOrigen);
-      }
+      if (PRE_PIPELINE.has(etapaOrigen)) await actualizarEstadoLead(id, etapaOrigen);
+      else await actualizarEtapaPipeline(id, etapaOrigen);
     } catch (err) { console.error(err); cargar(); }
   }
 
@@ -232,87 +188,64 @@ export default function PipelinePage() {
   const valorCerradoPen = pipeline["cerrado_ganado"]?.valor_pen ?? 0;
   const valorCerradoUsd = pipeline["cerrado_ganado"]?.valor_usd ?? 0;
 
+  const soles = (v: number) => `S/ ${v.toLocaleString("es-PE", { minimumFractionDigits: 0 })}`;
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className={`px-6 py-4 border-b border-white/8 ${GLASS_BASE} rounded-none flex items-center justify-between gap-4 flex-wrap shrink-0`}>
-        <div className="flex items-center gap-3">
-          <div className="crm-section-accent h-8" />
-          <div>
-            <h1 className="text-xl font-bold text-slate-100 tracking-tight">Pipeline de ventas</h1>
-            <p className="text-xs text-slate-500">{totalProspectos} prospectos en el pipeline</p>
+      <div className="px-6 sm:px-8 py-4 border-b border-white/[0.07] bg-[#070b16]/70 backdrop-blur-2xl shrink-0">
+        <div className="flex items-end justify-between gap-4 flex-wrap">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-accent">Comercial</p>
+            <h1 className="font-display text-[26px] font-bold text-zinc-50 tracking-tight leading-tight mt-1">Pipeline de ventas</h1>
+            <p className="text-[13px] text-zinc-500 mt-1">{totalProspectos} prospectos en el pipeline</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex rounded-lg border border-white/10 overflow-hidden text-xs font-semibold">
+              <button onClick={() => setVista("prospectos")}
+                className={`flex items-center gap-1.5 px-3 py-2 transition ${vista === "prospectos" ? "bg-accent-15 text-accent" : "text-zinc-400 hover:bg-white/[0.05]"}`}>
+                <Kanban size={12} /> Prospectos
+              </button>
+              <button onClick={() => setVista("oportunidades")}
+                className={`flex items-center gap-1.5 px-3 py-2 transition ${vista === "oportunidades" ? "bg-accent-15 text-accent" : "text-zinc-400 hover:bg-white/[0.05]"}`}>
+                <LayoutGrid size={12} /> Oportunidades
+              </button>
+            </div>
+            <button onClick={cargar} className="btn-ghost p-2.5 text-zinc-300" title="Actualizar">
+              <RefreshCw size={14} className={cargando ? "animate-spin" : ""} />
+            </button>
           </div>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Pipeline activo — desde propuestas directamente */}
-          <div className="text-right border-r border-white/8 pr-3">
-            <p className="text-[10px] text-zinc-100 uppercase tracking-wide">Pipeline activo</p>
-            <span className="text-sm font-bold text-amber-600">
-              S/ {valorActivo.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
-            </span>
-            <p className="text-[10px] text-zinc-400">
-              Total S/ {valorActivo.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
-            </p>
-          </div>
-          {/* Cerrado — desglose por moneda */}
-          <div className="text-right border-r border-white/8 pr-3">
-            <p className="text-[10px] text-zinc-100 uppercase tracking-wide">Cerrado</p>
-            <div className="flex items-center gap-2">
-              {valorCerradoPen > 0 && (
-                <span className="text-sm font-bold text-green-600">
-                  S/ {valorCerradoPen.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
-                </span>
-              )}
-              {valorCerradoUsd > 0 && (
-                <span className="text-sm font-bold text-green-400">
-                  $ {valorCerradoUsd.toLocaleString("en-US", { minimumFractionDigits: 0 })}
-                </span>
-              )}
-            </div>
-            <p className="text-[10px] text-zinc-400">
-              Total S/ {valorCerrado.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
-            </p>
-          </div>
-          {/* Perdido */}
-          {valorPerdido > 0 && (
-            <div className="text-right">
-              <p className="text-[10px] text-zinc-100 uppercase tracking-wide">Perdido</p>
-              <span className="text-sm font-bold text-red-500">
-                S/ {valorPerdido.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
-              </span>
-              <p className="text-[10px] text-zinc-400">
-                Total S/ {valorPerdido.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
-              </p>
-            </div>
-          )}
-          {/* Toggle vista */}
-          <div className="flex rounded-lg border border-white/10 overflow-hidden text-xs font-semibold">
-            <button
-              onClick={() => setVista("prospectos")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 transition ${vista === "prospectos" ? "bg-zinc-900 text-white" : "bg-slate-800/60 text-zinc-400 hover:bg-zinc-800/40"}`}
-            >
-              <Kanban size={12} /> Prospectos
-            </button>
-            <button
-              onClick={() => setVista("oportunidades")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 transition ${vista === "oportunidades" ? "bg-zinc-900 text-white" : "bg-slate-800/60 text-zinc-400 hover:bg-zinc-800/40"}`}
-            >
-              <LayoutGrid size={12} /> Oportunidades
-            </button>
-          </div>
 
-          <button onClick={cargar}
-            className="p-2 rounded-lg border border-white/10 hover:bg-zinc-800/40 transition text-zinc-300"
-            title="Actualizar">
-            <RefreshCw size={14} className={cargando ? "animate-spin" : ""} />
-          </button>
+        {/* Banda de KPIs */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px rounded-2xl overflow-hidden border border-white/[0.07] bg-white/[0.06] mt-4 max-w-3xl">
+          <div className="bg-[#0a101f]/90 px-4 py-2.5">
+            <p className="font-display text-[17px] font-bold leading-none tabular-nums text-accent" style={{ textShadow: "0 0 14px rgb(var(--accent) / calc(0.5*var(--glow)))" }}>{soles(valorActivo)}</p>
+            <p className="text-[9px] text-zinc-500 mt-1.5 uppercase tracking-[0.16em]">Pipeline activo</p>
+          </div>
+          <div className="bg-[#0a101f]/90 px-4 py-2.5">
+            <div className="flex items-baseline gap-2 flex-wrap">
+              {valorCerradoPen > 0 && <span className="font-display text-[17px] font-bold leading-none tabular-nums text-emerald-400">{soles(valorCerradoPen)}</span>}
+              {valorCerradoUsd > 0 && <span className="font-display text-[14px] font-bold leading-none tabular-nums text-emerald-300">$ {valorCerradoUsd.toLocaleString("en-US", { minimumFractionDigits: 0 })}</span>}
+              {valorCerradoPen === 0 && valorCerradoUsd === 0 && <span className="font-display text-[17px] font-bold leading-none tabular-nums text-emerald-400">{soles(valorCerrado)}</span>}
+            </div>
+            <p className="text-[9px] text-zinc-500 mt-1.5 uppercase tracking-[0.16em]">Cerrado ganado</p>
+          </div>
+          <div className="bg-[#0a101f]/90 px-4 py-2.5">
+            <p className="font-display text-[17px] font-bold leading-none tabular-nums text-red-400">{soles(valorPerdido)}</p>
+            <p className="text-[9px] text-zinc-500 mt-1.5 uppercase tracking-[0.16em]">Perdido</p>
+          </div>
+          <div className="bg-[#0a101f]/90 px-4 py-2.5">
+            <p className="font-display text-[17px] font-bold leading-none tabular-nums text-zinc-100">{totalProspectos}</p>
+            <p className="text-[9px] text-zinc-500 mt-1.5 uppercase tracking-[0.16em]">Prospectos</p>
+          </div>
         </div>
       </div>
 
-      {/* Vista Prospectos — kanban original */}
+      {/* Vista Prospectos */}
       {vista === "prospectos" && (
         <div className="flex-1 overflow-x-auto overflow-y-hidden">
-          <div className="flex gap-3 p-4 h-full" style={{ minWidth: "max-content" }}>
+          <div className="flex gap-3.5 p-5 h-full" style={{ minWidth: "max-content" }}>
             {ETAPAS.map(etapa => (
               <KanbanColumn
                 key={etapa.key}
@@ -334,47 +267,32 @@ export default function PipelinePage() {
         </div>
       )}
 
-      {/* Vista Oportunidades — kanban por propuesta */}
+      {/* Vista Oportunidades */}
       {vista === "oportunidades" && (
-        <div className="flex-1 overflow-y-auto">
-          <OportunidadesKanban />
-        </div>
+        <div className="flex-1 overflow-y-auto"><OportunidadesKanban /></div>
       )}
 
-      {/* Toast de deshacer */}
+      {/* Toast de deshacer — neon */}
       {undo && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3
-                        bg-zinc-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl animate-fade-in">
+                        text-zinc-100 text-xs px-4 py-3 rounded-xl fade-up"
+             style={{ background: "rgba(10,16,31,0.96)", border: "1px solid rgb(var(--accent) / 0.35)", boxShadow: "0 0 24px rgb(var(--accent) / calc(0.25*var(--glow))), 0 12px 30px rgba(0,0,0,0.6)" }}>
           <span className="truncate max-w-[200px]">
-            <span className="font-medium">{undo.empresa}</span>
-            {" "}movida a{" "}
-            <span className="font-medium">{LABEL[undo.etapaDestino]}</span>
+            <span className="font-semibold">{undo.empresa}</span>{" "}movida a{" "}
+            <span className="font-semibold text-accent">{LABEL[undo.etapaDestino]}</span>
           </span>
-          <button
-            onClick={handleUndo}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/8/25 transition font-medium shrink-0"
-          >
+          <button onClick={handleUndo}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent-15 text-accent border border-accent-30 hover:bg-accent-10 transition font-semibold shrink-0">
             <Undo2 size={12} /> Deshacer
           </button>
         </div>
       )}
 
-      {/* Modal detalle */}
       {prospectoDetalle && (
-        <ProspectoDetalle
-          prospecto={prospectoDetalle}
-          onCerrar={() => setProspectoDetalle(null)}
-          onActualizado={actualizarCardPipeline}
-        />
+        <ProspectoDetalle prospecto={prospectoDetalle} onCerrar={() => setProspectoDetalle(null)} onActualizado={actualizarCardPipeline} />
       )}
-
-      {/* Modal editar */}
       {prospectoEditando && (
-        <ProspectoForm
-          prospecto={prospectoEditando}
-          onGuardado={() => { setProspectoEditando(null); cargar(); }}
-          onCerrar={() => setProspectoEditando(null)}
-        />
+        <ProspectoForm prospecto={prospectoEditando} onGuardado={() => { setProspectoEditando(null); cargar(); }} onCerrar={() => setProspectoEditando(null)} />
       )}
     </div>
   );

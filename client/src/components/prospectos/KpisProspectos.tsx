@@ -1,43 +1,51 @@
-/** client/src/components/prospectos/KpisProspectos.tsx */
-
+/** client/src/components/prospectos/KpisProspectos.tsx — REDISEÑO NEON
+ * Cambios: cabeceras de grupo a texto claro (antes text-green-700/text-gray-600 — invisibles
+ * sobre dark), filas activas/hover válidas (antes hover:bg-white/8/5 y bg-white/8 — clases
+ * inválidas que no aplicaban), número del grupo en display. Lógica/props/keys intactos.
+ */
 import { Users } from "lucide-react";
 import { CARD_CLASS, HEADER_CLASS, PANEL_BASE } from "../../lib/tokens";
 import type { ResumenProspectos } from "../../services/prospectos.api";
 
-interface CardDef {
-  key:    string;
-  label:  string;
-  color:  string;
-  bg:     string;
-  dot:    string;
-}
-
-const CARDS_ESTADOS: CardDef[] = [
-  { key: "",               label: "Total leads",     color: "text-zinc-800",  bg: "bg-zinc-50 border-zinc-200",    dot: "bg-zinc-400"   },
-  { key: "nuevo",          label: "Nueva carga",     color: "text-blue-700",  bg: "bg-blue-50 border-blue-200",    dot: "bg-blue-500"   },
-  { key: "por_gestionar",  label: "Por gestionar",   color: "text-slate-700", bg: "bg-slate-50 border-slate-200",  dot: "bg-slate-400"  },
-  { key: "interesado",     label: "Interesados",     color: "text-green-700", bg: "bg-green-50 border-green-200",  dot: "bg-green-500"  },
-  { key: "volver_a_llamar",   label: "Volver a llamar",      color: "text-yellow-700", bg: "bg-yellow-50 border-yellow-200",  dot: "bg-yellow-500" },
-  { key: "ocupado_en_reunion",label: "Ocupado / En reunión", color: "text-yellow-700", bg: "bg-yellow-50 border-yellow-200",  dot: "bg-yellow-400" },
-  { key: "prometio_llamar",   label: "Prometió llamar",      color: "text-purple-700", bg: "bg-purple-50 border-purple-200",  dot: "bg-purple-400" },
-  { key: "no_interesado",     label: "No interesado",        color: "text-red-700",    bg: "bg-red-50 border-red-200",        dot: "bg-red-400"    },
-  { key: "no_contesta",    label: "No contesta",     color: "text-gray-600",  bg: "bg-gray-50 border-gray-200",    dot: "bg-gray-400"   },
-  { key: "ya_tiene_proveedor",   label: "Tiene proveedor",      color: "text-indigo-700", bg: "bg-indigo-50 border-indigo-200",  dot: "bg-indigo-500"  },
-  { key: "solicita_informacion", label: "Solicita información",  color: "text-blue-700",   bg: "bg-blue-50 border-blue-200",      dot: "bg-blue-500"    },
-  { key: "buzon_de_voz",         label: "Buzón de voz",          color: "text-gray-600",   bg: "bg-gray-50 border-gray-200",      dot: "bg-gray-400"    },
-  { key: "fuera_de_servicio",    label: "Fuera de servicio",     color: "text-gray-600",   bg: "bg-gray-50 border-gray-200",      dot: "bg-gray-400"    },
-  { key: "numero_equivocado",    label: "Número equivocado",     color: "text-yellow-700", bg: "bg-yellow-50 border-yellow-200",  dot: "bg-yellow-500"  },
-  { key: "baja_de_oficio",       label: "Baja de oficio",        color: "text-slate-700",  bg: "bg-slate-50 border-slate-200",    dot: "bg-slate-400"   },
-  { key: "suspension_temporal",  label: "Suspensión temporal",   color: "text-amber-700",  bg: "bg-amber-50 border-amber-200",    dot: "bg-amber-400"   },
-  { key: "no_habido",            label: "No habido",             color: "text-slate-600",  bg: "bg-slate-50 border-slate-200",    dot: "bg-slate-300"   },
-  { key: "perdida",              label: "Venta perdida",         color: "text-red-700",    bg: "bg-red-50 border-red-200",        dot: "bg-red-500"     },
-  { key: "venta_ganada",        label: "Venta ganada",          color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200", dot: "bg-emerald-500"  },
+const GRUPOS = [
+  {
+    label: "Contactados", colorHead: "text-emerald-300", dot: "bg-emerald-400",
+    items: [
+      { key: "solicita_informacion", label: "Solicita información", dot: "bg-sky-400"    },
+      { key: "interesado",           label: "Interesados",          dot: "bg-cyan-400"   },
+      { key: "volver_a_llamar",      label: "Volver a llamar",      dot: "bg-amber-400"  },
+      { key: "ocupado_en_reunion",   label: "Ocupado / En reunión", dot: "bg-amber-300"  },
+      { key: "prometio_llamar",      label: "Prometió llamar",      dot: "bg-violet-400" },
+      { key: "no_interesado",        label: "No interesado",        dot: "bg-red-400"    },
+      { key: "ya_tiene_proveedor",   label: "Tiene proveedor",      dot: "bg-indigo-400" },
+      { key: "perdida",              label: "Venta perdida",        dot: "bg-red-500"    },
+      { key: "venta_ganada",         label: "Venta ganada",         dot: "bg-emerald-400" },
+    ],
+  },
+  {
+    label: "No contactados", colorHead: "text-zinc-300", dot: "bg-zinc-400",
+    items: [
+      { key: "buzon_de_voz",      label: "Buzón de voz",      dot: "bg-orange-400" },
+      { key: "fuera_de_servicio", label: "Fuera de servicio", dot: "bg-slate-400"  },
+      { key: "numero_equivocado", label: "Número equivocado", dot: "bg-pink-400"   },
+      { key: "no_contesta",       label: "No contesta",       dot: "bg-zinc-500"   },
+    ],
+  },
+  {
+    label: "Por gestionar", colorHead: "text-sky-300", dot: "bg-sky-400",
+    items: [
+      { key: "por_gestionar", label: "Por gestionar", dot: "bg-sky-400" },
+    ],
+  },
+  {
+    label: "Inactivos", colorHead: "text-slate-300", dot: "bg-slate-400",
+    items: [
+      { key: "baja_de_oficio",      label: "Baja de oficio",      dot: "bg-slate-400" },
+      { key: "suspension_temporal", label: "Suspensión temporal", dot: "bg-amber-400" },
+      { key: "no_habido",           label: "No habido",           dot: "bg-slate-500" },
+    ],
+  },
 ];
-
-function getEstadoValue(resumen: ResumenProspectos, key: string): number {
-  if (key === "") return resumen.total;
-  return (resumen as any)[key] ?? 0;
-}
 
 interface Props {
   resumen:      ResumenProspectos;
@@ -45,98 +53,25 @@ interface Props {
   onFiltro:     (key: string) => void;
 }
 
-function Card({ card, valor, activo, onClick }: { card: CardDef; valor: number; activo: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`${CARD_CLASS} !px-3 !py-2.5 flex flex-col items-start gap-1.5 text-left transition-all ${activo ? 'ring-2 ring-offset-1 ring-zinc-400 shadow-sm' : 'hover:shadow-sm hover:scale-[1.01]'}`}
-    >
-      <div className="flex items-center gap-1.5 w-full">
-        <span className={`w-2 h-2 rounded-full shrink-0 ${card.dot}`} />
-        <span className={`text-[11px] font-medium truncate ${card.color}`}>{card.label}</span>
-      </div>
-      <span className={`text-xl font-bold leading-none ${card.color}`}>
-        {valor.toLocaleString("es-PE")}
-      </span>
-    </button>
-  );
-}
-
-// ─── Grupos resumen ──────────────────────────────────────────────────────────
-
-const GRUPOS = [
-  {
-    label:     "Contactados",
-    colorHead: "text-green-700",
-    bgHead:    "bg-green-50 border-green-200",
-    dot:       "bg-green-500",
-    items: [
-      { key: "solicita_informacion", label: "Solicita información", dot: "bg-blue-400"   },
-      { key: "interesado",           label: "Interesados",          dot: "bg-green-500"  },
-      { key: "volver_a_llamar",      label: "Volver a llamar",      dot: "bg-yellow-500" },
-      { key: "ocupado_en_reunion",   label: "Ocupado / En reunión", dot: "bg-yellow-400" },
-      { key: "prometio_llamar",      label: "Prometió llamar",      dot: "bg-purple-400" },
-      { key: "no_interesado",        label: "No interesado",        dot: "bg-red-400"    },
-      { key: "ya_tiene_proveedor",   label: "Tiene proveedor",      dot: "bg-indigo-500" },
-      { key: "perdida",              label: "Venta perdida",        dot: "bg-red-600"    },
-      { key: "venta_ganada",         label: "Venta ganada",         dot: "bg-emerald-500" },
-    ],
-  },
-  {
-    label:     "No contactados",
-    colorHead: "text-gray-600",
-    bgHead:    "bg-gray-50 border-gray-200",
-    dot:       "bg-gray-400",
-    items: [
-      { key: "buzon_de_voz",      label: "Buzón de voz",      dot: "bg-gray-400"    },
-      { key: "fuera_de_servicio", label: "Fuera de servicio", dot: "bg-slate-400"   },
-      { key: "numero_equivocado", label: "Número equivocado", dot: "bg-yellow-500"  },
-      { key: "no_contesta",       label: "No contesta",       dot: "bg-gray-500"    },
-    ],
-  },
-  {
-    label:     "Por gestionar",
-    colorHead: "text-slate-700",
-    bgHead:    "bg-slate-50 border-slate-200",
-    dot:       "bg-slate-400",
-    items: [
-      { key: "por_gestionar", label: "Por gestionar", dot: "bg-slate-400" },
-    ],
-  },
-  {
-    label:     "Inactivos",
-    colorHead: "text-slate-500",
-    bgHead:    "bg-slate-50 border-slate-300",
-    dot:       "bg-slate-300",
-    items: [
-      { key: "baja_de_oficio",      label: "Baja de oficio",      dot: "bg-slate-400" },
-      { key: "suspension_temporal", label: "Suspensión temporal", dot: "bg-amber-400" },
-      { key: "no_habido",           label: "No habido",           dot: "bg-slate-300" },
-    ],
-  },
-];
-
 function GrupoCard({ grupo, resumen, onFiltro, filtroActivo }: {
-  grupo:       typeof GRUPOS[0];
-  resumen:     ResumenProspectos;
-  onFiltro:    (key: string) => void;
+  grupo: typeof GRUPOS[0];
+  resumen: ResumenProspectos;
+  onFiltro: (key: string) => void;
   filtroActivo: string;
 }) {
   const total = grupo.items.reduce((s, i) => s + ((resumen as any)[i.key] ?? 0), 0);
   return (
     <div className={`${PANEL_BASE} p-4`}>
-      {/* Cabecera */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className={`w-2.5 h-2.5 rounded-full ${grupo.dot}`} />
+          <span className={`w-2.5 h-2.5 rounded-full ${grupo.dot}`} style={{ boxShadow: "0 0 6px currentColor" }} />
           <span className={`text-[11px] font-bold uppercase tracking-wider ${grupo.colorHead}`}>{grupo.label}</span>
         </div>
-        <span className={`text-2xl font-bold leading-none ${grupo.colorHead}`}>{total}</span>
+        <span className={`font-display text-2xl font-bold leading-none tabular-nums ${grupo.colorHead}`}>{total}</span>
       </div>
-      {/* Desglose */}
       <div className="space-y-1.5">
         {grupo.items.map(item => {
-          const val    = (resumen as any)[item.key] ?? 0;
+          const val = (resumen as any)[item.key] ?? 0;
           const activo = filtroActivo === item.key;
           if (val === 0) return null;
           return (
@@ -144,14 +79,14 @@ function GrupoCard({ grupo, resumen, onFiltro, filtroActivo }: {
               key={item.key}
               onClick={() => onFiltro(item.key)}
               className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-left transition-all ${
-                activo ? "bg-white/8 ring-1 ring-zinc-400" : "hover:bg-white/8/5"
+                activo ? "bg-accent-10 border border-accent-30" : "border border-transparent hover:bg-white/[0.05]"
               }`}
             >
               <div className="flex items-center gap-1.5 min-w-0">
                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.dot}`} />
-                <span className="text-[11px] text-zinc-400 truncate">{item.label}</span>
+                <span className={`text-[11px] truncate ${activo ? "text-accent" : "text-zinc-400"}`}>{item.label}</span>
               </div>
-              <span className="text-[11px] font-bold text-zinc-200 shrink-0 ml-2">{val}</span>
+              <span className="text-[11px] font-bold text-zinc-200 shrink-0 ml-2 tabular-nums">{val}</span>
             </button>
           );
         })}
@@ -164,12 +99,11 @@ export function KpisProspectos({ resumen, filtroActivo, onFiltro }: Props) {
   return (
     <div className={`${CARD_CLASS} space-y-3`}>
       <div className="flex items-center justify-between">
-        <p className={HEADER_CLASS}><Users size={12} className="mr-1.5 text-blue-500" />Estado de leads</p>
-        {/* Total leads */}
+        <p className={HEADER_CLASS}><Users size={12} className="mr-1.5 text-accent" />Estado de leads</p>
         <button
           onClick={() => onFiltro("")}
-          className={`text-sm font-bold text-zinc-200 px-3 py-1 rounded-xl border transition-all ${
-            filtroActivo === "" ? "border-zinc-400 bg-zinc-800" : "border-white/10 hover:bg-zinc-800/40"
+          className={`text-sm font-bold px-3 py-1 rounded-xl border transition-all ${
+            filtroActivo === "" ? "border-accent-30 bg-accent-10 text-accent" : "border-white/10 text-zinc-200 hover:bg-white/[0.05]"
           }`}
         >
           {resumen.total.toLocaleString("es-PE")} leads en total
@@ -178,13 +112,7 @@ export function KpisProspectos({ resumen, filtroActivo, onFiltro }: Props) {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {GRUPOS.map(g => (
-          <GrupoCard
-            key={g.label}
-            grupo={g}
-            resumen={resumen}
-            onFiltro={onFiltro}
-            filtroActivo={filtroActivo}
-          />
+          <GrupoCard key={g.label} grupo={g} resumen={resumen} onFiltro={onFiltro} filtroActivo={filtroActivo} />
         ))}
       </div>
     </div>
