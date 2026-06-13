@@ -1,7 +1,8 @@
 /** client/src/components/inteligencia/TiempoPrimeraRespuesta.tsx */
 
 import { useEffect, useState } from "react";
-import { CARD_CLASS, HEADER_CLASS, COLORS, TOOLTIP_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
@@ -27,6 +28,7 @@ function velocidadLabel(dias: number | null): { label: string; cls: string } {
 }
 
 export function TiempoPrimeraRespuestaChart() {
+  const c = useChartColors();
   const [data, setData] = useState<TiempoPrimeraRespuesta | null>(null);
 
   useEffect(() => {
@@ -72,8 +74,8 @@ export function TiempoPrimeraRespuestaChart() {
           <AreaChart data={data.distribucion} margin={{ top: 4, right: 4, bottom: 0, left: -24 }}>
             <defs>
               <linearGradient id="gradTiempo" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor={COLORS.primary} stopOpacity={0.3} />
-                <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0}   />
+                <stop offset="5%"  stopColor={c.accent} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={c.accent} stopOpacity={0}   />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
@@ -87,10 +89,10 @@ export function TiempoPrimeraRespuestaChart() {
             <Area filter="url(#neon-glow)"
               type="monotone"
               dataKey="valor"
-              stroke={COLORS.primary}
+              stroke={c.accent}
               fill="url(#gradTiempo)"
               strokeWidth={2}
-              dot={{ fill: COLORS.primary, r: 3, strokeWidth: 0 }}
+              dot={{ fill: c.accent, r: 3, strokeWidth: 0 }}
             />
           </AreaChart>
         </ResponsiveContainer>

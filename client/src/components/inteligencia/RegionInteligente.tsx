@@ -1,7 +1,9 @@
 /** client/src/components/inteligencia/RegionInteligente.tsx */
 
 import { useState } from "react";
-import { COLORS, CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
+import { CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
+import { accentRgb, readCssVar } from "../../lib/chartTheme";
 import { MapPin, X, Flame, TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
 import type { RegionEtapa } from "../../services/prospectos.api";
 import { PeruMap, normalizeRegion } from "../ui/PeruMap";
@@ -26,8 +28,8 @@ function fmtVal(n: number): string {
 function colorVolumen(total: number, maxTotal: number): string {
   if (total === 0) return "#f4f4f5";
   const r = total / maxTotal;
-  if (r >= 0.6)  return COLORS.dark;
-  if (r >= 0.3)  return COLORS.mutedDark;
+  if (r >= 0.6)  return readCssVar("--chart-2", "#a855f7");
+  if (r >= 0.3)  return "#64748b";
   if (r >= 0.1)  return "#71717a";
   if (r >= 0.02) return "#a1a1aa";
   return "#d4d4d8";
@@ -36,9 +38,9 @@ function colorVolumen(total: number, maxTotal: number): string {
 function colorConversion(tasa: number, hasData: boolean): string {
   if (!hasData) return "#f4f4f5";
   if (tasa === 0) return "#d4d4d8";
-  if (tasa >= 15) return COLORS.primary;
-  if (tasa >= 8)  return COLORS.dark;
-  if (tasa >= 3)  return COLORS.mutedDark;
+  if (tasa >= 15) return accentRgb();
+  if (tasa >= 8)  return readCssVar("--chart-2", "#a855f7");
+  if (tasa >= 3)  return "#64748b";
   return "#a1a1aa";
 }
 
@@ -104,6 +106,7 @@ function calcularOportunidades(data: RegionEtapa[]): ScoreRegion[] {
 
 // ── Embudo de conversión ──────────────────────────────────────────────────────
 function EmbудоConversion({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[] }) {
+  const c = useChartColors();
   const promLlamadas   = todos.reduce((s, x) => s + x.llamadas, 0) / (todos.length || 1);
   const promContest    = todos.reduce((s, x) => s + x.llamadas_contestadas, 0) / (todos.length || 1);
   const promBrochures  = todos.reduce((s, x) => s + (x.brochures ?? 0), 0) / (todos.length || 1);
@@ -112,13 +115,13 @@ function EmbудоConversion({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[
   const promGanadas    = todos.reduce((s, x) => s + x.propuestas_ganadas, 0) / (todos.length || 1);
 
   const etapas = [
-    { label: "Leads",       region: d.total,                prom: todos.reduce((s,x)=>s+x.total,0)/todos.length, color: COLORS.dark      },
-    { label: "Llamadas",    region: d.llamadas,             prom: promLlamadas,   color: COLORS.primary      },
-    { label: "Contestadas", region: d.llamadas_contestadas, prom: promContest,    color: COLORS.mutedDark },
-    { label: "Brochures",   region: d.brochures ?? 0,       prom: promBrochures,  color: COLORS.primary     },
-    { label: "Reuniones",   region: d.reuniones,            prom: promReuniones,  color: COLORS.muted   },
-    { label: "Propuestas",  region: d.propuestas,           prom: promPropuestas, color: COLORS.primary   },
-    { label: "Ganadas",     region: d.propuestas_ganadas,   prom: promGanadas,    color: COLORS.primary   },
+    { label: "Leads",       region: d.total,                prom: todos.reduce((s,x)=>s+x.total,0)/todos.length, color: c.palette[1] },
+    { label: "Llamadas",    region: d.llamadas,             prom: promLlamadas,   color: c.accent     },
+    { label: "Contestadas", region: d.llamadas_contestadas, prom: promContest,    color: c.axis       },
+    { label: "Brochures",   region: d.brochures ?? 0,       prom: promBrochures,  color: c.palette[3] },
+    { label: "Reuniones",   region: d.reuniones,            prom: promReuniones,  color: c.muted      },
+    { label: "Propuestas",  region: d.propuestas,           prom: promPropuestas, color: c.accent     },
+    { label: "Ganadas",     region: d.propuestas_ganadas,   prom: promGanadas,    color: c.success    },
   ];
 
   return (
@@ -144,7 +147,7 @@ function EmbудоConversion({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[
           <Bar filter="url(#neon-glow)" dataKey="region" name="region" radius={[3,3,0,0]} maxBarSize={30}>
             {etapas.map((e, i) => <Cell key={i} fill={e.color} />)}
           </Bar>
-          <Bar filter="url(#neon-glow)" dataKey="prom" name="prom" fill={COLORS.surface} radius={[3,3,0,0]} maxBarSize={30} />
+          <Bar filter="url(#neon-glow)" dataKey="prom" name="prom" fill={c.grid} radius={[3,3,0,0]} maxBarSize={30} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -153,6 +156,7 @@ function EmbудоConversion({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[
 
 // ── Radar de eficiencia ───────────────────────────────────────────────────────
 function RadarEficiencia({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[] }) {
+  const c = useChartColors();
   const max = (fn: (x: RegionEtapa) => number) => Math.max(...todos.map(fn), 1);
 
   const radarData = [
@@ -174,8 +178,8 @@ function RadarEficiencia({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[] })
           <PolarGrid stroke="#f4f4f5" />
           <PolarAngleAxis dataKey="metrica" tick={{ fontSize: 9, fill: "#71797a" }} />
           <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-          <Radar filter="url(#neon-glow)" name="Promedio" dataKey="avg" stroke={COLORS.surface} fill={COLORS.dark} fillOpacity={0.5} />
-          <Radar filter="url(#neon-glow)" name="Región" dataKey="valor" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.25} />
+          <Radar filter="url(#neon-glow)" name="Promedio" dataKey="avg" stroke={c.grid} fill={c.palette[1]} fillOpacity={0.5} />
+          <Radar filter="url(#neon-glow)" name="Región" dataKey="valor" stroke={c.accent} fill={c.accent} fillOpacity={0.25} />
           <Tooltip
             contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
             formatter={((val: any, name: any) => [`${val}%`, name]) as any}
@@ -233,25 +237,26 @@ function InsightRegion({ d }: { d: RegionEtapa }) {
 type Modo = "volumen" | "conversion";
 type VistaRec = "activas" | "oportunidad";
 
-const LEYENDA_VOLUMEN = [
-  { color: COLORS.dark,      label: "Alta concentración" },
-  { color: COLORS.mutedDark, label: "Media" },
-  { color: "#71717a",        label: "Baja" },
-  { color: "#d4d4d8",        label: "Muy baja" },
-  { color: "#f4f4f5",        label: "Sin leads" },
+const LEYENDA_VOLUMEN = () => [
+  { color: readCssVar("--chart-2", "#a855f7"), label: "Alta concentración" },
+  { color: "#64748b",                          label: "Media" },
+  { color: "#71717a",                          label: "Baja" },
+  { color: "#d4d4d8",                          label: "Muy baja" },
+  { color: "#f4f4f5",                          label: "Sin leads" },
 ];
 
-const LEYENDA_CONV = [
-  { color: COLORS.primary,   label: "≥ 15%  Excelente" },
-  { color: COLORS.dark,      label: "8–15%  Bueno" },
-  { color: COLORS.mutedDark, label: "3–8%   Promedio" },
-  { color: "#a1a1aa",        label: "< 3%   Bajo" },
-  { color: "#f4f4f5",        label: "Sin datos" },
+const LEYENDA_CONV = () => [
+  { color: accentRgb(),                        label: "≥ 15%  Excelente" },
+  { color: readCssVar("--chart-2", "#a855f7"), label: "8–15%  Bueno" },
+  { color: "#64748b",                          label: "3–8%   Promedio" },
+  { color: "#a1a1aa",                          label: "< 3%   Bajo" },
+  { color: "#f4f4f5",                          label: "Sin datos" },
 ];
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
 export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
+  const c = useChartColors();
   const [selected,    setSelected]    = useState<RegionEtapa | null>(null);
   const [modo,        setModo]        = useState<Modo>("volumen");
   const [vistaRec,    setVistaRec]    = useState<VistaRec>("activas");
@@ -395,7 +400,7 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
               .filter(([, d]) => d.total > 0)
               .map(([normName, d]) => ({ zona: normName, value: d.total }))}
             selected={selected ? normalizeRegion(selected.zona) : undefined}
-            selectColor={COLORS.primary}
+            selectColor={c.accent}
             onSelect={handleSelectRegion}
             height="100%"
           />
@@ -446,7 +451,7 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
                     {t.den > 0 && (
                       <div className="w-full bg-zinc-800 rounded-full h-1.5">
                         <div className="h-1.5 rounded-full transition-all duration-500"
-                          style={{ width: `${t.val}%`, backgroundColor: t.val >= 50 ? COLORS.dark : t.val >= 25 ? COLORS.mutedDark : COLORS.muted }} />
+                          style={{ width: `${t.val}%`, backgroundColor: t.val >= 50 ? c.palette[1] : t.val >= 25 ? c.axis : c.muted }} />
                       </div>
                     )}
                   </div>
@@ -472,7 +477,7 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
             <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-2.5">
               {modo === "volumen" ? "Cantidad de leads" : "Tasa de cierre"}
             </p>
-            {(modo === "volumen" ? LEYENDA_VOLUMEN : LEYENDA_CONV).map(({ color, label }) => (
+            {(modo === "volumen" ? LEYENDA_VOLUMEN() : LEYENDA_CONV()).map(({ color, label }) => (
               <div key={label} className="flex items-center gap-2 mb-1.5">
                 <div className="w-4 h-3 rounded shrink-0 border border-white/10" style={{ backgroundColor: color }} />
                 <span className="text-[10px] text-zinc-400">{label}</span>

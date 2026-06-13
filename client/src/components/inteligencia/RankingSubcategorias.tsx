@@ -6,7 +6,8 @@ import {
   ResponsiveContainer, Cell,
 } from "recharts";
 import { BarChart2 } from "lucide-react";
-import { CARD_CLASS, COLORS, BADGE_BASE } from "../../lib/tokens";
+import { CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { getAnalisisPipeline } from "../../services/propuestas.api";
 import type { SubcategoriaAnalisis } from "../../services/propuestas.api";
 import { LABEL_SERVICIO } from "../../types/propuesta.types";
@@ -40,6 +41,7 @@ const SERVICIO_COLOR: Record<string, string> = {
 };
 
 export function RankingSubcategorias() {
+  const clr = useChartColors();
   const [datos,    setDatos]    = useState<SubcategoriaAnalisis[] | null>(null);
   const [cargando, setCargando] = useState(true);
 
@@ -71,7 +73,7 @@ export function RankingSubcategorias() {
   const chartData = datos.map(r => ({
     name:  r.subcategoria,
     Total: r.total,
-    color: SERVICIO_COLOR[r.servicio] ?? COLORS.primary,
+    color: SERVICIO_COLOR[r.servicio] ?? clr.accent,
   }));
 
   return (
@@ -131,7 +133,7 @@ export function RankingSubcategorias() {
                   <td className="py-2.5 pr-2">
                     <span
                       className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium text-white"
-                      style={{ backgroundColor: SERVICIO_COLOR[r.servicio] ?? COLORS.primary }}
+                      style={{ backgroundColor: SERVICIO_COLOR[r.servicio] ?? clr.accent }}
                     >
                       {r.subcategoria}
                     </span>

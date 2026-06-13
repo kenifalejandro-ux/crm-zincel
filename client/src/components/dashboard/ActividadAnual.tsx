@@ -1,6 +1,7 @@
 /** client/src/components/dashboard/ActividadAnual.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE, INPUT_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE, INPUT_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { useState, useEffect } from "react";
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, Tooltip,
@@ -12,10 +13,10 @@ import { aniosDisponibles } from "../../utils/date";
 
 
 const SERIES = [
-  { key: "llamadas",  label: "Llamadas",  color: COLORS.dark, barColor: COLORS.mutedLight },
-  { key: "reuniones", label: "Reuniones", color: COLORS.primary, barColor: COLORS.primaryLight },
-  { key: "brochures", label: "Brochures", color: COLORS.muted, barColor: "#e4e4e7" },
-  { key: "ventas",    label: "Ventas",    color: COLORS.mutedDark, barColor: COLORS.surface },
+  { key: "llamadas",  label: "Llamadas",  idx: 0 },
+  { key: "reuniones", label: "Reuniones", idx: 1 },
+  { key: "brochures", label: "Brochures", idx: 2 },
+  { key: "ventas",    label: "Ventas",    idx: 3 },
 ] as const;
 
 type SerieKey = typeof SERIES[number]["key"];
@@ -35,6 +36,8 @@ const TooltipPersonalizado = ({ active, payload, label }: any) => {
 };
 
 export function ActividadAnual() {
+  const c = useChartColors();
+  const colorDe = (idx: number) => c.palette[idx % c.palette.length];
   const anios = aniosDisponibles();
   const [anioSel, setAnioSel] = useState(new Date().getFullYear());
   const [data,    setData]    = useState<ActividadMensual[]>([]);
@@ -81,7 +84,7 @@ export function ActividadAnual() {
                     ? "text-white border-transparent"
                     : "bg-slate-800/60 text-zinc-400 border-white/10"
                 }`}
-                style={series.includes(s.key) ? { background: s.color, borderColor: s.color } : {}}
+                style={series.includes(s.key) ? { background: colorDe(s.idx), borderColor: colorDe(s.idx) } : {}}
               >
                 {s.label}
               </button>
@@ -111,15 +114,15 @@ export function ActividadAnual() {
       ) : (
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={COLORS.surface} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={c.grid} />
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 10, fill: COLORS.muted }}
+              tick={{ fontSize: 10, fill: c.axis }}
               tickLine={false}
               axisLine={false}
             />
             <YAxis
-              tick={{ fontSize: 9, fill: COLORS.muted }}
+              tick={{ fontSize: 9, fill: c.axis }}
               tickLine={false}
               axisLine={false}
               allowDecimals={false}
@@ -134,7 +137,7 @@ export function ActividadAnual() {
                 key={`bar-${s.key}`}
                 dataKey={s.key}
                 name={s.label}
-                fill={s.barColor}
+                fill={colorDe(s.idx)}
                 radius={[3, 3, 0, 0]}
                 maxBarSize={22}
               />
@@ -144,9 +147,9 @@ export function ActividadAnual() {
                 key={`line-${s.key}`}
                 type="monotone"
                 dataKey={s.key}
-                stroke={s.color}
+                stroke={colorDe(s.idx)}
                 strokeWidth={2}
-                dot={{ r: 3, fill: s.color }}
+                dot={{ r: 3, fill: colorDe(s.idx) }}
                 activeDot={{ r: 4 }}
                 name={s.label}
                 legendType="none"

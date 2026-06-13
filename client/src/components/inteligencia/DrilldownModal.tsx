@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { X, Phone, PhoneCall, ExternalLink } from "lucide-react";
-import { COLORS, MODAL_BASE, BADGE_BASE } from "../../lib/tokens";
+import { MODAL_BASE, BADGE_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { LlamadaForm }     from "../llamadas/LlamadaForm";
 import { ProspectoDetalle } from "../prospectos/ProspectoDetalle";
 import { ProspectoForm }    from "../prospectos/ProspectoForm";
@@ -39,6 +40,7 @@ interface Props {
 }
 
 export function DrilldownModal({ titulo, subtitulo, leads, cargando, onCerrar }: Props) {
+  const c = useChartColors();
   const [llamadaLead,    setLlamadaLead]    = useState<LeadDrilldown | null>(null);
   const [prospectoVer,   setProspectoVer]   = useState<Prospecto | null>(null);
   const [prospectoEditar,setProspectoEditar]= useState<Prospecto | null>(null);
@@ -138,7 +140,7 @@ export function DrilldownModal({ titulo, subtitulo, leads, cargando, onCerrar }:
                         href={`tel:${lead.telefono}`}
                         onClick={e => e.stopPropagation()}
                         className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-white text-xs font-semibold transition hover:opacity-90"
-                        style={{ backgroundColor: COLORS.dark }}
+                        style={{ backgroundColor: c.palette[1] }}
                         title={lead.telefono}
                       >
                         <Phone size={12} />

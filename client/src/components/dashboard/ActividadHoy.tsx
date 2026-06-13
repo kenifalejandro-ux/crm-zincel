@@ -1,5 +1,6 @@
 /** client/src/components/dashboard/ActividadHoy.tsx */
-import { CARD_CLASS, HEADER_CLASS, COLORS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { Target } from "lucide-react";
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from "recharts";
 import type { Metricas } from "../../pages/DashboardPage";
@@ -8,15 +9,11 @@ interface Props {
   metricas: Metricas;
 }
 
-const ITEMS = [
-  { name: "Prospectos", fill: COLORS.primary      },
-  { name: "Reuniones",  fill: COLORS.primaryHover },
-  { name: "Brochures",  fill: COLORS.muted        },
-  { name: "Llamadas",   fill: COLORS.dark         },
-  { name: "Propuestas", fill: COLORS.success      },
-];
+const NOMBRES = ["Prospectos", "Reuniones", "Brochures", "Llamadas", "Propuestas"];
 
 export function ActividadHoy({ metricas }: Props) {
+  const c = useChartColors();
+  const fills = [c.accent, c.palette[3], c.muted, c.palette[1], c.success];
   const valores = [
     metricas.prospectos.prospectos_hoy,
     metricas.reuniones.reuniones_hoy,
@@ -26,10 +23,10 @@ export function ActividadHoy({ metricas }: Props) {
   ];
   const maxVal = Math.max(...valores, 1);
 
-  const data = ITEMS.map((item, i) => ({
-    name:  item.name,
+  const data = NOMBRES.map((name, i) => ({
+    name,
     value: valores[i],
-    fill:  item.fill,
+    fill:  fills[i],
   }));
 
   return (

@@ -6,7 +6,8 @@ import {
   ResponsiveContainer, Legend, Cell,
 } from "recharts";
 import { Building2, Briefcase, Tag } from "lucide-react";
-import { CARD_CLASS, HEADER_CLASS, COLORS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { getAnalisisPipeline } from "../../services/propuestas.api";
 import type { AnalisisPipelineData } from "../../services/propuestas.api";
 import { LABEL_SERVICIO } from "../../types/propuesta.types";
@@ -61,6 +62,7 @@ function SubChart({
 }
 
 export function VentasGanadasCharts() {
+  const c = useChartColors();
   const [data,     setData]     = useState<AnalisisPipelineData | null>(null);
   const [cargando, setCargando] = useState(true);
 
@@ -98,7 +100,7 @@ export function VentasGanadasCharts() {
       name:     LABEL_SERVICIO[s.servicio as ServicioPropuesta] ?? s.servicio,
       Ganadas:  s.ganadas,
       Perdidas: s.perdidas,
-      color:    SERVICIO_COLOR[s.servicio] ?? COLORS.primary,
+      color:    SERVICIO_COLOR[s.servicio] ?? c.accent,
     }));
 
   // Por subcategoría

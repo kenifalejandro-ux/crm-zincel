@@ -13,6 +13,17 @@
   --pink:   236 72 153;
   --glow:   1;
   --font-display: "Space Grotesk", sans-serif;
+
+  /* Colores de gráficos (fallbacks; el panel de Tweaks los pisa en runtime) */
+  --chart-1: #06b6d4;
+  --chart-2: #a855f7;
+  --chart-3: #ec4899;
+  --chart-4: #22d3ee;
+  --chart-5: #34d399;
+  --chart-6: #f59e0b;
+  --chart-danger:  #f87171;
+  --chart-warning: #fbbf24;
+  --chart-success: #34d399;
 }
 
 .font-display { font-family: var(--font-display); }

@@ -1,13 +1,12 @@
 /** client/src/components/dashboard/LlamadasCanalChart.tsx */
-import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, Cell, LabelList, CartesianGrid,
 } from "recharts";
 import { MessageSquare } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
-
-const MATTE_COLORS = [COLORS.primary, COLORS.primary, COLORS.mutedDark, COLORS.dark, COLORS.dark];
 
 const TooltipCanal = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -24,17 +23,18 @@ interface Props {
 }
 
 export function LlamadasCanalChart({ metricas }: Props) {
+  const c = useChartColors();
   const total = metricas.llamadas.total_llamadas;
   const datos = metricas.llamadas_por_canal.map((item, i) => ({
     name:  item.canal,
     value: item.cantidad,
-    color: MATTE_COLORS[i % MATTE_COLORS.length],
+    color: c.palette[i % c.palette.length],
     pct:   total > 0 ? Math.round((item.cantidad / total) * 100) : 0,
   }));
 
   const datosGrafico: { name: string; value: number; color: string; pct: number }[] = datos.length > 0
     ? datos
-    : [{ name: "Sin datos", value: 0, color: COLORS.surface, pct: 0 }];
+    : [{ name: "Sin datos", value: 0, color: c.grid, pct: 0 }];
 
   return (
     <div className={CARD_CLASS}>
@@ -56,7 +56,7 @@ export function LlamadasCanalChart({ metricas }: Props) {
             tickLine={false} axisLine={false}
             tickFormatter={v => v.charAt(0).toUpperCase() + v.slice(1)}
           />
-          <YAxis tick={{ fontSize: 10, fill: COLORS.muted }} tickLine={false} axisLine={false} />
+          <YAxis tick={{ fontSize: 10, fill: c.axis }} tickLine={false} axisLine={false} />
           <Tooltip content={<TooltipCanal />} cursor={{ fill: "#f9f9f8" }} />
           <Bar filter="url(#neon-glow)" dataKey="value" radius={[6, 6, 0, 0]}>
             {datosGrafico.map((entry, i) => (
@@ -65,7 +65,7 @@ export function LlamadasCanalChart({ metricas }: Props) {
             <LabelList
               dataKey="value"
               position="top"
-              style={{ fontSize: 12, fontWeight: 700, fill: COLORS.dark }}
+              style={{ fontSize: 12, fontWeight: 700, fill: c.muted }}
             />
           </Bar>
         </BarChart>

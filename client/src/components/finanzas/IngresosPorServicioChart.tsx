@@ -1,6 +1,7 @@
 /** client/src/components/finanzas/IngresosPorServicioChart.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Cell, LabelList,
@@ -30,13 +31,13 @@ const TooltipCustom = ({ active, payload, label }: any) => {
   );
 };
 
-const COLORES = [COLORS.primary, COLORS.dark, COLORS.mutedDark, COLORS.primary, COLORS.dark, COLORS.mutedDark, COLORS.primary];
-
 interface Props {
   por_servicio: ResumenFinanciero["por_servicio"];
 }
 
 export function IngresosPorServicioChart({ por_servicio }: Props) {
+  const c = useChartColors();
+  const COLORES = c.palette;
   const data = por_servicio
     .filter((s) => Number(s.total) > 0)
     .map((s) => ({
@@ -54,9 +55,9 @@ export function IngresosPorServicioChart({ por_servicio }: Props) {
       </h3>
       <ResponsiveContainer width="100%" height={220}>
         <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} vertical={false} />
-          <XAxis dataKey="name" tick={{ fontSize: 10, fill: COLORS.muted }} tickLine={false} axisLine={false} />
-          <YAxis tick={{ fontSize: 11, fill: COLORS.muted }} tickLine={false} axisLine={false}
+          <CartesianGrid strokeDasharray="3 3" stroke={c.grid} vertical={false} />
+          <XAxis dataKey="name" tick={{ fontSize: 10, fill: c.axis }} tickLine={false} axisLine={false} />
+          <YAxis tick={{ fontSize: 11, fill: c.axis }} tickLine={false} axisLine={false}
             tickFormatter={(v) => `S/${(v / 1000).toFixed(0)}k`} />
           <Tooltip content={<TooltipCustom />} />
           <Bar filter="url(#neon-glow)" dataKey="total" name="Total" radius={[4, 4, 0, 0]}>

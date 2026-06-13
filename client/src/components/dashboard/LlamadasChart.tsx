@@ -1,5 +1,6 @@
 /** client/src/components/dashboard/LlamadasChart.tsx */
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { PhoneCall } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function LlamadasChart({ metricas }: Props) {
+  const c = useChartColors();
   const { total_llamadas, llamadas_contestadas, llamadas_no_contestadas } = metricas.llamadas;
 
   const tasaContacto = total_llamadas > 0
@@ -17,10 +19,10 @@ export function LlamadasChart({ metricas }: Props) {
 
   const gaugeData = total_llamadas > 0
     ? [
-        { value: llamadas_contestadas,    fill: COLORS.dark    },
-        { value: llamadas_no_contestadas, fill: COLORS.primary },
+        { value: llamadas_contestadas,    fill: c.palette[1] },
+        { value: llamadas_no_contestadas, fill: c.accent     },
       ]
-    : [{ value: 1, fill: COLORS.surface }];
+    : [{ value: 1, fill: c.grid }];
 
   return (
     <div className={CARD_CLASS}>

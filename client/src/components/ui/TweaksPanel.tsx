@@ -17,7 +17,8 @@
  *  Para ocultarlo en producción: <TweaksPanel enabled={import.meta.env.DEV} />
  */
 import { useEffect, useState } from "react";
-import { Palette, X, Sparkles, Type as TypeIcon, Sun } from "lucide-react";
+import { Palette, X, Sparkles, Type as TypeIcon, Sun, BarChart3 } from "lucide-react";
+import { TWEAKS_EVENT } from "../../hooks/useChartColors";
 
 /* ── Opciones ─────────────────────────────────────────────────────────────── */
 const COLORES = [
@@ -36,18 +37,28 @@ const FUENTES = [
   { nombre: "Inter",         valor: "'Inter', sans-serif" },
 ];
 
+/* Paletas de gráficos (multi-serie). El primer color suele alinearse al acento. */
+const PALETAS = [
+  { nombre: "Neon",      colores: ["#06b6d4", "#a855f7", "#ec4899", "#22d3ee", "#34d399", "#f59e0b"] },
+  { nombre: "Oceánica",  colores: ["#06b6d4", "#3b82f6", "#6366f1", "#22d3ee", "#0ea5e9", "#14b8a6"] },
+  { nombre: "Sunset",    colores: ["#ec4899", "#f59e0b", "#a855f7", "#f43f5e", "#fb7185", "#fbbf24"] },
+  { nombre: "Esmeralda", colores: ["#34d399", "#06b6d4", "#84cc16", "#10b981", "#22d3ee", "#a3e635"] },
+];
+
 const LS_KEY = "crm_tweaks";
 
 interface Tweaks {
   accent: string;   // triplete RGB
   glow: number;     // 0–2
   font: string;     // font-family
+  paleta: number;   // índice en PALETAS
 }
 
 const DEFAULTS: Tweaks = {
   accent: "6 182 212",
   glow: 1,
   font: "'Space Grotesk', sans-serif",
+  paleta: 0,
 };
 
 function leer(): Tweaks {
@@ -63,6 +74,11 @@ function aplicar(t: Tweaks) {
   r.style.setProperty("--accent", t.accent);
   r.style.setProperty("--glow", String(t.glow));
   r.style.setProperty("--font-display", t.font);
+  // Colores de gráficos → --chart-1..6 (los lee chartTheme.ts / useChartColors)
+  const pal = PALETAS[t.paleta]?.colores ?? PALETAS[0].colores;
+  pal.forEach((hex, i) => r.style.setProperty(`--chart-${i + 1}`, hex));
+  // Avisa a los charts para que se repinten con los nuevos colores.
+  window.dispatchEvent(new CustomEvent(TWEAKS_EVENT));
 }
 
 export function TweaksPanel({ enabled = true }: { enabled?: boolean }) {
@@ -193,11 +209,42 @@ export function TweaksPanel({ enabled = true }: { enabled?: boolean }) {
               `}</style>
             </div>
 
+            {/* Colores de gráficos */}
+            <div>
+              <div className="flex items-center gap-1.5 mb-2.5">
+                <BarChart3 size={12} className="text-zinc-500" />
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Colores de gráficos</p>
+              </div>
+              <div className="space-y-1.5">
+                {PALETAS.map((p, i) => {
+                  const activo = t.paleta === i;
+                  return (
+                    <button
+                      key={p.nombre}
+                      onClick={() => set({ paleta: i })}
+                      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all border"
+                      style={{
+                        background: activo ? "rgb(var(--accent) / 0.10)" : "rgba(255,255,255,0.03)",
+                        borderColor: activo ? "rgb(var(--accent) / 0.4)" : "rgba(255,255,255,0.07)",
+                      }}
+                    >
+                      <div className="flex gap-1 shrink-0">
+                        {p.colores.slice(0, 5).map((hex) => (
+                          <span key={hex} className="w-3.5 h-3.5 rounded-full" style={{ background: hex, boxShadow: `0 0 6px ${hex}88` }} />
+                        ))}
+                      </div>
+                      <span className="text-[12px] font-semibold" style={{ color: activo ? "rgb(var(--accent))" : "#a1a1aa" }}>{p.nombre}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Tipografía */}
             <div>
               <div className="flex items-center gap-1.5 mb-2.5">
                 <TypeIcon size={12} className="text-zinc-500" />
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Tipografía</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Tipografía de títulos</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {FUENTES.map((f) => {

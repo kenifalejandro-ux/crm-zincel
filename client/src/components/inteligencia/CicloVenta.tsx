@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { Clock, TrendingUp, AlertTriangle, CheckCircle, Loader2, ArrowRight, Pencil, X, Check } from "lucide-react";
 import { getCicloVenta } from "../../services/prospectos.api";
 import type { CicloVentaData, ProspectoEnRiesgo, CicloVentaTendencia, CicloVentaDetalle, CicloVentaPorServicio } from "../../services/prospectos.api";
-import { COLORS, CARD_CLASS, HEADER_CLASS, INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
+import { accentRgb, readCssVar } from "../../lib/chartTheme";
 
 const CARD = "bg-white rounded-2xl border border-zinc-100 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_6px_20px_rgba(0,0,0,0.06)]";
 const META_KEY = "cicloventa_meta_dias";
@@ -45,7 +47,7 @@ function BarRubroRow({ rubro, total, promedio_dias, max }: { rubro: string; tota
         <span className="text-zinc-400 shrink-0 ml-2">{promedio_dias}d · {total} cierre{total !== 1 ? "s" : ""}</span>
       </div>
       <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: COLORS.primary }} />
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: accentRgb() }} />
       </div>
     </div>
   );
@@ -79,7 +81,7 @@ function TendenciaChart({ data, meta }: { data: CicloVentaTendencia[]; meta: num
             <div key={d.mes} className="flex-1 flex flex-col items-center gap-0.5 group relative">
               <div
                 className="w-full rounded-t transition-colors cursor-default"
-                style={{ height: `${h}px`, backgroundColor: sobreMeta ? COLORS.primary : COLORS.mutedLight }}
+                style={{ height: `${h}px`, backgroundColor: sobreMeta ? accentRgb() : readCssVar("--chart-4", "#22d3ee") }}
               />
               <span className="text-[9px] text-zinc-500">{d.mes.slice(5)}</span>
               <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-20">
@@ -92,11 +94,11 @@ function TendenciaChart({ data, meta }: { data: CicloVentaTendencia[]; meta: num
 
       <div className="flex items-center gap-3 mt-2 text-[9px] text-zinc-500">
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: COLORS.mutedLight }} />
+          <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: readCssVar("--chart-4", "#22d3ee") }} />
           Bajo meta
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: COLORS.primary }} />
+          <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: accentRgb() }} />
           Sobre meta
         </span>
       </div>
@@ -129,14 +131,14 @@ function FaseBar({ f1, f2, total }: { f1: number | null; f2: number | null; tota
     <div className="flex h-4 gap-0.5 rounded-lg overflow-hidden w-full">
       <div
         className="flex items-center justify-center transition-all rounded-l-lg"
-        style={{ width: `${p1}%`, backgroundColor: COLORS.mutedLight }}
+        style={{ width: `${p1}%`, backgroundColor: readCssVar("--chart-4", "#22d3ee") }}
         title={`Contacto→Propuesta: ${f1}d`}
       >
         {p1 > 15 && <span className="text-[9px] font-bold text-zinc-400">{f1}d</span>}
       </div>
       <div
         className="flex items-center justify-center transition-all rounded-r-lg"
-        style={{ width: `${p2}%`, backgroundColor: COLORS.primary }}
+        style={{ width: `${p2}%`, backgroundColor: accentRgb() }}
         title={`Propuesta→Cierre: ${f2}d`}
       >
         {p2 > 15 && <span className="text-[9px] font-bold text-white">{f2}d</span>}
@@ -188,6 +190,7 @@ function MetaEditor({ meta, onChange }: { meta: number; onChange: (v: number) =>
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export function CicloVenta({ anio }: { anio?: number }) {
+  useChartColors(); // suscribe el subárbol al Tweaks (re-render al cambiar colores)
   const [data,     setData]     = useState<CicloVentaData | null>(null);
   const [cargando, setCargando] = useState(true);
   const [meta,     setMeta]     = useState<number>(() => {
@@ -319,8 +322,8 @@ export function CicloVenta({ anio }: { anio?: number }) {
             <div className="mt-4 space-y-2">
               <FaseBar f1={kpis.promedio_contacto_propuesta} f2={kpis.promedio_propuesta_cierre} total={kpis.promedio_dias} />
               <div className="flex gap-3 text-[9px] text-zinc-500">
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: COLORS.mutedLight }} /> Prospección</span>
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: COLORS.primary }} /> Negociación</span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: readCssVar("--chart-4", "#22d3ee") }} /> Prospección</span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: accentRgb() }} /> Negociación</span>
               </div>
             </div>
           )}
@@ -356,7 +359,7 @@ export function CicloVenta({ anio }: { anio?: number }) {
                           <span className="text-zinc-500 shrink-0 ml-2">{d.dias_ciclo}d</span>
                         </div>
                         <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-                          <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: COLORS.muted }} />
+                          <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: "#94a3b8" }} />
                         </div>
                       </div>
                     );
@@ -402,7 +405,7 @@ export function CicloVenta({ anio }: { anio?: number }) {
                         </span>
                       </div>
                       <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: COLORS.primary }} />
+                        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: accentRgb() }} />
                       </div>
                     </div>
                   );

@@ -6,7 +6,9 @@ import {
   ChevronRight, X, Phone, AlertTriangle,
   Users, CheckCircle2, XCircle,
 } from "lucide-react";
-import { COLORS, CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
+import { CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
+import { accentRgb } from "../../lib/chartTheme";
 import { getEtapaLeads } from "../../services/prospectos.api";
 import type { FunnelEtapa, EtapaLead } from "../../services/prospectos.api";
 
@@ -31,7 +33,7 @@ const ETAPA_META: Record<string, { label: string; color: string; bg: string; ico
   volver_a_llamar:      { label: "Volver a llamar",      color: "#ca8a04", bg: "bg-yellow-500",  icon: <Phone size={13} className="text-white" /> },
   solicita_informacion: { label: "Solicita información", color: "#2563eb", bg: "bg-blue-500",    icon: <Users size={13} className="text-white" /> },
   interesado:           { label: "Interesado",           color: "#16a34a", bg: "bg-green-600",   icon: <TrendingUp size={13} className="text-white" /> },
-  propuesta_enviada:    { label: "Propuesta enviada",    color: COLORS.primary, bg: "bg-brand",  icon: <DollarSign size={13} className="text-white" /> },
+  propuesta_enviada:    { label: "Propuesta enviada",    get color() { return accentRgb(); }, bg: "bg-brand",  icon: <DollarSign size={13} className="text-white" /> },
   negociacion:          { label: "Negociación",          color: "#b45309", bg: "bg-amber-700",   icon: <Percent size={13} className="text-white" /> },
   cerrado_ganado:       { label: "Cerrado ✓",            color: "#16a34a", bg: "bg-green-700",   icon: <CheckCircle2 size={13} className="text-white" /> },
   perdido:              { label: "Perdido",              color: "#ef4444", bg: "bg-red-500",     icon: <XCircle size={13} className="text-white" /> },
@@ -52,6 +54,7 @@ function LeadsPanel({
   cargando: boolean;
   onCerrar: () => void;
 }) {
+  const c = useChartColors();
   const meta = ETAPA_META[etapa];
   return (
     <>
@@ -122,7 +125,7 @@ function LeadsPanel({
                         href={`tel:${lead.telefono}`}
                         onClick={e => e.stopPropagation()}
                         className="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-white text-[11px] font-semibold hover:opacity-90 transition"
-                        style={{ backgroundColor: COLORS.dark }}
+                        style={{ backgroundColor: c.palette[1] }}
                       >
                         <Phone size={11} />
                         {lead.telefono}
@@ -146,6 +149,7 @@ interface Props {
 }
 
 export function FunnelConversion({ data }: Props) {
+  const c = useChartColors();
   const [panelEtapa,  setPanelEtapa]  = useState<string | null>(null);
   const [panelLeads,  setPanelLeads]  = useState<EtapaLead[]>([]);
   const [cargandoLds, setCargandoLds] = useState(false);
@@ -280,7 +284,7 @@ export function FunnelConversion({ data }: Props) {
                       className="h-full rounded-full transition-all duration-700"
                       style={{
                         width: `${widthPct}%`,
-                        backgroundColor: isBottle ? COLORS.danger : (meta?.color ?? COLORS.dark),
+                        backgroundColor: isBottle ? c.danger : (meta?.color ?? c.palette[1]),
                       }}
                     />
                   </div>

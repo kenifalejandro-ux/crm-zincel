@@ -1,5 +1,6 @@
 /** client/src/components/dashboard/TasaConversion.tsx */
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from "recharts";
 import { Target } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
@@ -10,11 +11,12 @@ interface Props {
 }
 
 export function TasaConversion({ metricas }: Props) {
+  const c = useChartColors();
   const tasa        = Math.min(metricas.tasa_conversion ?? 0, 100);
   const total       = metricas.prospectos.total_prospectos;
   const interesados = metricas.prospectos.prospectos_interesados;
 
-  const color = COLORS.primary; // Amarillo mate/oro
+  const color = c.accent;
   const label =
     tasa >= 30 ? "Óptimo" :
     tasa >= 15 ? "Regular" :
@@ -45,7 +47,7 @@ export function TasaConversion({ metricas }: Props) {
             <RadialBar filter="url(#neon-glow)"
               dataKey="value"
               cornerRadius={6}
-              background={{ fill: COLORS.surface }}
+              background={{ fill: c.grid }}
               fill={color}
             />
           </RadialBarChart>

@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { ClipboardList, TrendingUp, CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react";
-import { CARD_CLASS, HEADER_CLASS, COLORS, PANEL_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, PANEL_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
+import { accentRgb } from "../../lib/chartTheme";
 import { getResumenEstadosPropuestas, getKanbanOportunidades } from "../../services/propuestas.api";
 import type { ResumenEstadoPropuesta, OportunidadKanban } from "../../services/propuestas.api";
 import { NeonDonut } from "../ui/NeonDonut";
@@ -16,7 +18,7 @@ function fmt(n: number) {
 }
 
 const ESTADOS = [
-  { key: "enviada",        label: "Enviadas",    color: COLORS.primary,  bg: "bg-yellow-50",  border: "border-yellow-200", icon: <Clock size={16} className="text-yellow-500" />        },
+  { key: "enviada",        label: "Enviadas",    get color() { return accentRgb(); },  bg: "bg-yellow-50",  border: "border-yellow-200", icon: <Clock size={16} className="text-yellow-500" />        },
   { key: "en_negociacion", label: "Negociación", color: "#a1a1aa",       bg: "bg-zinc-50",    border: "border-zinc-200",   icon: <TrendingUp size={16} className="text-zinc-500" />      },
   { key: "cerrada_ganada", label: "Ganadas",     color: "#16a34a",       bg: "bg-green-50",   border: "border-green-200",  icon: <CheckCircle2 size={16} className="text-green-600" />   },
   { key: "cerrada_perdida",label: "Perdidas",    color: "#ef4444",       bg: "bg-red-50",     border: "border-red-200",    icon: <XCircle size={16} className="text-red-500" />           },
@@ -30,6 +32,7 @@ interface Props {
 }
 
 export function ResumenEstadosPropuestas({ filtroPeriodo, mesSeleccionado, diaSeleccionado }: Props) {
+  useChartColors(); // re-render al cambiar el acento del Tweaks
   const [data,    setData]    = useState<ResumenEstadoPropuesta[]>([]);
   const [kanban,  setKanban]  = useState<Record<string, OportunidadKanban[]>>({});
   const [drill,   setDrill]   = useState<{ estado: string; label: string } | null>(null);

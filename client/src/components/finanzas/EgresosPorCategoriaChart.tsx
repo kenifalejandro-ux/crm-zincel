@@ -1,6 +1,7 @@
 /** client/src/components/finanzas/EgresosPorCategoriaChart.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { Treemap, ResponsiveContainer, Tooltip } from "recharts";
 import { TrendingDown } from "lucide-react";
 import type { ResumenFinanciero, CategoriaEgreso } from "../../types/finanzas.types";
@@ -13,12 +14,12 @@ const CATEGORIA_LABEL: Record<CategoriaEgreso, string> = {
   subcontratos:            "Subcontratos",
 };
 
-const COLORES: Record<CategoriaEgreso, string> = {
-  publicidad_digital:      COLORS.dark,
-  herramientas_saas:       COLORS.primary,
-  herramientas_ia:         COLORS.mutedDark,
-  infraestructura_digital: COLORS.dark,
-  subcontratos:            COLORS.primary,
+const CATEGORIA_TONO: Record<CategoriaEgreso, string> = {
+  publicidad_digital:      "p1",
+  herramientas_saas:       "accent",
+  herramientas_ia:         "axis",
+  infraestructura_digital: "p1",
+  subcontratos:            "accent",
 };
 
 const TooltipCustom = ({ active, payload }: any) => {
@@ -65,12 +66,14 @@ interface Props {
 }
 
 export function EgresosPorCategoriaChart({ por_categoria }: Props) {
+  const clr = useChartColors();
+  const tono: Record<string, string> = { p1: clr.palette[1], accent: clr.accent, axis: clr.axis };
   const data = por_categoria
     .filter(c => Number(c.total) > 0)
     .map(c => ({
       name:  CATEGORIA_LABEL[c.categoria as CategoriaEgreso] ?? c.categoria,
       value: Number(c.total),
-      fill:  COLORES[c.categoria as CategoriaEgreso] ?? COLORS.muted,
+      fill:  tono[CATEGORIA_TONO[c.categoria as CategoriaEgreso]] ?? clr.muted,
     }));
 
   if (!data.length) return null;

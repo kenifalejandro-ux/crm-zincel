@@ -1,7 +1,8 @@
 /** client/src/components/inteligencia/PrioridadOperacional.tsx */
 
 import { useState } from "react";
-import { CARD_CLASS, HEADER_CLASS, COLORS, MODAL_BASE, BADGE_BASE, PANEL_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, MODAL_BASE, BADGE_BASE, PANEL_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { useNavigate } from "react-router-dom";
 import { X, Phone, Building2, MapPin, ChevronRight, Loader2, Flame, PhoneCall, PhoneOff, SkipForward, CheckCircle2 } from "lucide-react";
 import type { AccionPrioridad, LeadPrioridad } from "../../services/inteligencia.api";
@@ -39,6 +40,7 @@ const ETAPA_LABEL: Record<string, string> = {
 interface Props { acciones: AccionPrioridad[] }
 
 export function PrioridadOperacional({ acciones }: Props) {
+  const c = useChartColors();
   const navigate = useNavigate();
 
   // Modal de lista
@@ -275,7 +277,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                     <button
                       onClick={iniciarCola}
                       className="w-full py-2.5 text-sm font-semibold text-white rounded-xl transition flex items-center justify-center gap-2"
-                      style={{ backgroundColor: COLORS.dark }}
+                      style={{ backgroundColor: c.palette[1] }}
                     >
                       <PhoneCall size={14} />
                       Iniciar cola de llamadas · {leads.length} leads
@@ -299,7 +301,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                   <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-300"
-                      style={{ width: `${pctCola}%`, backgroundColor: COLORS.primary }}
+                      style={{ width: `${pctCola}%`, backgroundColor: c.accent }}
                     />
                   </div>
                   <p className="text-[10px] text-zinc-400 mt-1 text-right">
@@ -322,7 +324,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                     <a
                       href={`tel:${leadActual.telefono}`}
                       className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-semibold text-sm mb-4 transition hover:opacity-90"
-                      style={{ backgroundColor: COLORS.primary }}
+                      style={{ backgroundColor: c.accent }}
                       onClick={e => e.stopPropagation()}
                     >
                       <Phone size={14} />
@@ -351,7 +353,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                       onClick={abrirRegistro}
                       disabled={registrando}
                       className="flex items-center justify-center gap-2 py-3 rounded-xl text-white font-semibold text-sm transition hover:opacity-90 disabled:opacity-50"
-                      style={{ backgroundColor: COLORS.dark }}
+                      style={{ backgroundColor: c.palette[1] }}
                     >
                       <PhoneCall size={14} />
                       Contestó
@@ -391,7 +393,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                     <p className="text-[10px] text-zinc-100 mt-0.5 uppercase tracking-wide">Registradas</p>
                   </div>
                   <div className={`${PANEL_BASE} p-3`}>
-                    <p className="text-xl font-bold" style={{ color: COLORS.dark }}>{colaStats.contestadas}</p>
+                    <p className="text-xl font-bold" style={{ color: c.palette[1] }}>{colaStats.contestadas}</p>
                     <p className="text-[10px] text-zinc-100 mt-0.5 uppercase tracking-wide">Contestadas</p>
                   </div>
                   <div className={`${PANEL_BASE} p-3`}>
@@ -410,7 +412,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                   <button
                     onClick={() => { navigate("/llamadas"); cerrarModal(); }}
                     className="flex-1 py-2.5 text-sm font-semibold text-white rounded-xl transition hover:opacity-90"
-                    style={{ backgroundColor: COLORS.dark }}
+                    style={{ backgroundColor: c.palette[1] }}
                   >
                     Ver llamadas →
                   </button>

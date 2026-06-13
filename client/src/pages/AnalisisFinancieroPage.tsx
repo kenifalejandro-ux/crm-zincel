@@ -17,7 +17,8 @@ import {
 
 import { getAnalisisFinanciero }  from "../services/finanzas.api";
 import { getEmpresas, getPeriodos, getAnalisisEmpresa } from "../services/analisisEmpresas.api";
-import { CARD_CLASS, HEADER_CLASS, COLORS, TOOLTIP_BASE, BADGE_BASE, INPUT_BASE }             from "../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE, BADGE_BASE, INPUT_BASE }             from "../lib/tokens";
+import { useChartColors } from "../hooks/useChartColors";
 import type { AnalisisFinanciero, EstadoIndicador, SemaforoFinanciero } from "../types/finanzas.types";
 import type { EmpresaAnalisis, PeriodoFinanciero, AnalisisEmpresa, IndicadorConGauge } from "../types/analisisEmpresas.types";
 
@@ -511,6 +512,7 @@ function exportarPDF(empresaNombre: string, periodo: string) {
 // ── Panel empresa ────────────────────────────────────────────────
 
 function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: string }) {
+  const c = useChartColors();
   const [datos,    setDatos]    = useState<AnalisisEmpresa | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error,    setError]    = useState<string | null>(null);
@@ -574,10 +576,10 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
   ];
 
   const balanceData = [
-    { name: "Activos Tot.",  valor: calculado.activos_totales,         fill: COLORS.dark    },
+    { name: "Activos Tot.",  valor: calculado.activos_totales,         fill: c.palette[1]    },
     { name: "Pasivos Tot.",  valor: calculado.pasivos_totales,         fill: "#f87171"      },
-    { name: "Patrimonio",    valor: Number(periodo.patrimonio),         fill: COLORS.primary },
-    { name: "Utilidad",      valor: Number(periodo.utilidad_ejercicio), fill: COLORS.success },
+    { name: "Patrimonio",    valor: Number(periodo.patrimonio),         fill: c.accent },
+    { name: "Utilidad",      valor: Number(periodo.utilidad_ejercicio), fill: c.success },
   ];
 
   // Formatear por clave para la tabla
@@ -682,7 +684,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
               <PolarGrid stroke="#f4f4f5" />
               <PolarAngleAxis dataKey="indicador" tick={{ fontSize: 10, fill: "#71717a" }} />
               <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9, fill: "#a1a1aa" }} tickCount={3} />
-              <Radar filter="url(#neon-glow)" name="Score" dataKey="valor" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.25} strokeWidth={2} />
+              <Radar filter="url(#neon-glow)" name="Score" dataKey="valor" stroke={c.accent} fill={c.accent} fillOpacity={0.25} strokeWidth={2} />
               <ReTooltip content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
                 const d = payload[0];
@@ -793,10 +795,10 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
                 tickFormatter={v => `${v?.toFixed(0) ?? 0}`} />
               <Tooltip content={<TooltipSimple />} />
               <Legend wrapperStyle={{ fontSize: 10 }} />
-              <Line filter="url(#neon-glow)" type="monotone" dataKey="liquidez_corriente" name="Liquidez"   stroke={COLORS.primary}   strokeWidth={2} dot={{ r: 3 }} />
+              <Line filter="url(#neon-glow)" type="monotone" dataKey="liquidez_corriente" name="Liquidez"   stroke={c.accent}   strokeWidth={2} dot={{ r: 3 }} />
               <Line filter="url(#neon-glow)" type="monotone" dataKey="endeudamiento"       name="Endeud. %" stroke="#f87171"           strokeWidth={2} dot={{ r: 3 }} />
-              <Line filter="url(#neon-glow)" type="monotone" dataKey="roe"                 name="ROE %"     stroke={COLORS.success}   strokeWidth={2} dot={{ r: 3 }} />
-              <Line filter="url(#neon-glow)" type="monotone" dataKey="disponibilidad"      name="Disp. %"   stroke={COLORS.mutedLight} strokeWidth={2} dot={{ r: 3 }} />
+              <Line filter="url(#neon-glow)" type="monotone" dataKey="roe"                 name="ROE %"     stroke={c.success}   strokeWidth={2} dot={{ r: 3 }} />
+              <Line filter="url(#neon-glow)" type="monotone" dataKey="disponibilidad"      name="Disp. %"   stroke={c.palette[3]} strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -839,6 +841,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
 // ── Panel análisis interno ───────────────────────────────────────
 
 function PanelInterno() {
+  const c = useChartColors();
   const [datos,    setDatos]    = useState<AnalisisFinanciero | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error,    setError]    = useState<string | null>(null);
@@ -952,7 +955,7 @@ function PanelInterno() {
               <PolarGrid stroke="#f4f4f5" />
               <PolarAngleAxis dataKey="indicador" tick={{ fontSize: 10, fill: "#71717a" }} />
               <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9, fill: "#a1a1aa" }} tickCount={3} />
-              <Radar filter="url(#neon-glow)" name="Score" dataKey="valor" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.25} strokeWidth={2} />
+              <Radar filter="url(#neon-glow)" name="Score" dataKey="valor" stroke={c.accent} fill={c.accent} fillOpacity={0.25} strokeWidth={2} />
             </RadarChart>
           </ResponsiveContainer>
         </div>

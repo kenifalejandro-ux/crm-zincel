@@ -1,6 +1,6 @@
 /** client/src/components/inteligencia/ForecastIngresos.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import { TrendingUp } from "lucide-react";
 import { getForecastIngresos, type ForecastIngresos } from "../../services/inteligencia.api";

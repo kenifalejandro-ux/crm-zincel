@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { Globe, ExternalLink, Phone, Check, X } from "lucide-react";
 import { fechaHoy } from "../../utils/date";
 import { NeonDonut } from "../ui/NeonDonut";
-import { CARD_CLASS, HEADER_CLASS, COLORS, INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { getEstadoWebDistribucion } from "../../services/prospectos.api";
 import { crearLlamada } from "../../services/llamadas.api";
 import type { EstadoWebItem, EstadoWebProspecto } from "../../services/prospectos.api";
@@ -16,7 +17,7 @@ const WEB_CFG: Record<string, { label: string; color: string; bg: string; text: 
   por_actualizar:   { label: "Por actualizar",   color: "#fbbf24", bg: "bg-yellow-100", text: "text-yellow-700" },
   vencida:          { label: "Vencida",          color: "#f87171", bg: "bg-red-100",    text: "text-red-700"    },
   en_mantenimiento: { label: "En mantenimiento", color: "#60a5fa", bg: "bg-blue-100",   text: "text-blue-700"   },
-  sin_informacion:  { label: "Sin información",  color: COLORS.surface, bg: "bg-zinc-100", text: "text-zinc-500" },
+  sin_informacion:  { label: "Sin información",  color: "#1e293b", bg: "bg-zinc-100", text: "text-zinc-500" },
 };
 
 const LEAD_CFG: Record<string, { label: string; bg: string; text: string }> = {
@@ -247,6 +248,7 @@ function RegistrarLlamadaModal({ prospecto, onCerrar, onGuardado }: RegistrarLla
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function EstadoWebChart() {
+  const c = useChartColors();
   const [distribucion, setDistribucion] = useState<EstadoWebItem[]>([]);
   const [prospectos,   setProspectos]   = useState<EstadoWebProspecto[]>([]);
   const [cargando,     setCargando]     = useState(true);
@@ -268,9 +270,9 @@ export function EstadoWebChart() {
     ? distribucion.map(d => ({
         name:  WEB_CFG[d.estado_web]?.label ?? d.estado_web,
         value: d.total,
-        color: WEB_CFG[d.estado_web]?.color ?? COLORS.muted,
+        color: WEB_CFG[d.estado_web]?.color ?? c.muted,
       }))
-    : [{ name: "Sin datos", value: 1, color: COLORS.surface }];
+    : [{ name: "Sin datos", value: 1, color: c.grid }];
 
   if (cargando) {
     return (

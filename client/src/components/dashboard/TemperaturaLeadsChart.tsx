@@ -1,6 +1,7 @@
 /** client/src/components/dashboard/TemperaturaLeadsChart.tsx */
 import { useState } from "react";
-import { CARD_CLASS, HEADER_CLASS, COLORS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { Thermometer } from "lucide-react";
 import { DrilldownModal } from "../inteligencia/DrilldownModal";
 import type { LeadDrilldown } from "../inteligencia/DrilldownModal";
@@ -15,13 +16,15 @@ interface Props {
 }
 
 const GRUPOS = [
-  { key: "caliente", label: "Calientes", score: "Score 75+",   color: COLORS.danger,   hover: "hover:bg-red-50"    },
-  { key: "activo",   label: "Activos",   score: "Score 50–74", color: COLORS.primary,  hover: "hover:bg-yellow-50" },
-  { key: "tibio",    label: "Tibios",    score: "Score 25–49", color: COLORS.muted,    hover: "hover:bg-zinc-50"   },
-  { key: "frio",     label: "Fríos",     score: "Score 0–24",  color: COLORS.dark,     hover: "hover:bg-zinc-50"   },
-];
+  { key: "caliente", label: "Calientes", score: "Score 75+",   tono: "danger", hover: "hover:bg-red-50"    },
+  { key: "activo",   label: "Activos",   score: "Score 50–74", tono: "accent", hover: "hover:bg-yellow-50" },
+  { key: "tibio",    label: "Tibios",    score: "Score 25–49", tono: "muted",  hover: "hover:bg-zinc-50"   },
+  { key: "frio",     label: "Fríos",     score: "Score 0–24",  tono: "p3",     hover: "hover:bg-zinc-50"   },
+] as const;
 
 export function TemperaturaLeadsChart({ caliente, activo, tibio, frio, onClick }: Props) {
+  const c = useChartColors();
+  const tono: Record<string, string> = { danger: c.danger, accent: c.accent, muted: c.muted, p3: c.palette[3] };
   const totalReal = caliente + activo + tibio + frio;
   const total    = totalReal || 1;
   const maxValor = Math.max(caliente, activo, tibio, frio, 1);
@@ -98,7 +101,7 @@ export function TemperaturaLeadsChart({ caliente, activo, tibio, frio, onClick }
               <div className="flex-1 h-5 bg-zinc-800 rounded-lg overflow-hidden">
                 <div
                   className="h-full rounded-lg transition-all duration-500"
-                  style={{ width: `${barPct}%`, backgroundColor: g.color }}
+                  style={{ width: `${barPct}%`, backgroundColor: tono[g.tono] }}
                 />
               </div>
 

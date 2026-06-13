@@ -1,6 +1,7 @@
 /** src/components/metricas/MetricasLineChart.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
@@ -11,13 +12,16 @@ import { useEffect, useState } from "react";
 
 interface Props { metricas: Metrica[] }
 
-const COLORES: Record<string, string> = {
-  meta:   COLORS.dark,
-  google: COLORS.primary,
-  tiktok: COLORS.mutedDark,
+const PLATAFORMA_TONO: Record<string, string> = {
+  meta:   "p1",
+  google: "accent",
+  tiktok: "axis",
 };
 
 export const MetricasLineChart = ({ metricas }: Props) => {
+  const c = useChartColors();
+  const tono: Record<string, string> = { p1: c.palette[1], accent: c.accent, axis: c.axis };
+  const platColor = (p: string) => tono[PLATAFORMA_TONO[p]] ?? c.axis;
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   // Agrupar por periodo_inicio y plataforma → gasto
@@ -47,7 +51,7 @@ export const MetricasLineChart = ({ metricas }: Props) => {
       <h3 className={HEADER_CLASS}><TrendingUp size={14} className="mr-2.5 text-emerald-500" strokeWidth={2} />Evolución de gasto por plataforma</h3>
       {mounted && <ResponsiveContainer width="100%" height={240}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} />
+          <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
           <XAxis
            dataKey="fecha"
            tick={{ fontSize: 10 }}
@@ -61,7 +65,7 @@ export const MetricasLineChart = ({ metricas }: Props) => {
               key={p}
               type="monotone"
               dataKey={p}
-              stroke={COLORES[p] ?? COLORS.mutedDark}
+              stroke={platColor(p)}
               strokeWidth={2}
               dot={{ r: 3 }}
               name={p === "meta" ? "Meta Ads" : p === "google" ? "Google Ads" : "TikTok Ads"}

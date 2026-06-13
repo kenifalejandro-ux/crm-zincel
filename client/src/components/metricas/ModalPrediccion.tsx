@@ -6,11 +6,10 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
 } from "recharts";
-import { COLORS, MODAL_BASE, BADGE_BASE, INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
+import { MODAL_BASE, BADGE_BASE, INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 
 const CPL_BENCHMARK = 80;
-const C_REAL = COLORS.muted;
-const C_PROY = COLORS.primary;
 
 interface DatosReales {
   gasto:         number;
@@ -42,6 +41,9 @@ const TABS_MODAL: { key: TabModal; label: string; icon: React.ReactNode }[] = [
 ];
 
 export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
+  const c = useChartColors();
+  const C_REAL = c.muted;
+  const C_PROY = c.accent;
   const [tab,          setTab]          = useState<TabModal>("embudo");
   const [cplObjetivo,  setCplObjetivo]  = useState(CPL_BENCHMARK);
   const [tasaSim,      setTasaSim]      = useState(30);
@@ -107,10 +109,10 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
   ];
 
   const funnelStages = [
-    { label: "Impresiones", tag: "TOFU",    tagColor: "bg-blue-100 text-blue-700",     real: datos.impresiones, proy: p.impresiones,  color: COLORS.primaryLight, extra: null },
-    { label: "Alcance",     tag: "TOFU",    tagColor: "bg-blue-100 text-blue-700",     real: datos.alcance,     proy: p.alcance,      color: COLORS.muted,        extra: null },
-    { label: "Clics",       tag: "MOFU",    tagColor: "bg-purple-100 text-purple-700", real: datos.clics,       proy: p.clics,        color: COLORS.primary,      extra: datos.ctr > 0 ? `CTR ${datos.ctr.toFixed(2)}%` : null },
-    { label: "Mensajes",    tag: "MOFU",    tagColor: "bg-purple-100 text-purple-700", real: datos.mensajes,    proy: p.mensajes,     color: COLORS.primaryHover, extra: datos.mensajes > 0 && datos.clics > 0 ? `${((datos.mensajes / datos.clics) * 100).toFixed(1)}% de clics` : null },
+    { label: "Impresiones", tag: "TOFU",    tagColor: "bg-blue-100 text-blue-700",     real: datos.impresiones, proy: p.impresiones,  color: c.palette[3], extra: null },
+    { label: "Alcance",     tag: "TOFU",    tagColor: "bg-blue-100 text-blue-700",     real: datos.alcance,     proy: p.alcance,      color: c.muted,      extra: null },
+    { label: "Clics",       tag: "MOFU",    tagColor: "bg-purple-100 text-purple-700", real: datos.clics,       proy: p.clics,        color: c.accent,     extra: datos.ctr > 0 ? `CTR ${datos.ctr.toFixed(2)}%` : null },
+    { label: "Mensajes",    tag: "MOFU",    tagColor: "bg-purple-100 text-purple-700", real: datos.mensajes,    proy: p.mensajes,     color: c.palette[2], extra: datos.mensajes > 0 && datos.clics > 0 ? `${((datos.mensajes / datos.clics) * 100).toFixed(1)}% de clics` : null },
     { label: "Leads",       tag: "DOFU",    tagColor: "bg-amber-100 text-amber-700",   real: datos.leads,       proy: p.leads,        color: "#f59e0b",           extra: cplReal > 0 ? `CPL S/ ${cplReal.toFixed(0)}` : "Sin Instant Form" },
     { label: "Conversiones",tag: "BOFU",    tagColor: "bg-orange-100 text-orange-700", real: datos.conversiones,proy: p.conversiones, color: "#ea580c",           extra: null },
     { label: "Ventas",      tag: "REVENUE", tagColor: "bg-green-100 text-green-700",   real: datos.ventas,      proy: p.ventas,       color: "#16a34a",           extra: null },

@@ -1,7 +1,9 @@
 /** client/src/components/inteligencia/LeadScatterChart.tsx */
 
 import { useEffect, useState } from "react";
-import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
+import { readCssVar, accentRgb } from "../../lib/chartTheme";
 import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer, ZAxis, ReferenceLine,
@@ -10,11 +12,12 @@ import { Target } from "lucide-react";
 import { getScoresLeads } from "../../services/prospectos.api";
 import type { ScoreLead } from "../../services/prospectos.api";
 
+/** Colores vivos: leen las variables CSS en cada acceso (responden al Tweaks). */
 const NIVEL_COLOR: Record<string, string> = {
-  caliente: COLORS.primary,
-  activo:   COLORS.dark,
-  tibio:    COLORS.mutedDark,
-  frio:     COLORS.danger,
+  get caliente() { return accentRgb(); },
+  get activo()   { return readCssVar("--chart-2", "#a855f7"); },
+  get tibio()    { return "#64748b"; },
+  get frio()     { return readCssVar("--chart-danger", "#f87171"); },
 };
 
 const NIVEL_LABEL: Record<string, string> = {
@@ -59,6 +62,7 @@ const TooltipScatter = ({ active, payload }: any) => {
 const NIVELES = ["caliente", "activo", "tibio", "frio"] as const;
 
 export function LeadScatterChart() {
+  const c = useChartColors();
   const [leads, setLeads]       = useState<ScoreLead[]>([]);
   const [cargando, setCargando] = useState(true);
 
@@ -98,26 +102,26 @@ export function LeadScatterChart() {
 
       <ResponsiveContainer width="100%" height={280}>
         <ScatterChart margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} />
+          <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
           <XAxis
             type="number"
             dataKey="score"
             name="Score"
             domain={[0, 100]}
-            tick={{ fontSize: 11, fill: COLORS.muted }}
+            tick={{ fontSize: 11, fill: c.axis }}
             tickLine={false}
             axisLine={false}
-            label={{ value: "Score", position: "insideBottom", offset: -2, fontSize: 10, fill: COLORS.muted }}
+            label={{ value: "Score", position: "insideBottom", offset: -2, fontSize: 10, fill: c.axis }}
           />
           <YAxis
             type="number"
             dataKey="dias_en_pipeline"
             name="Días"
             domain={[0, maxDias + 5]}
-            tick={{ fontSize: 11, fill: COLORS.muted }}
+            tick={{ fontSize: 11, fill: c.axis }}
             tickLine={false}
             axisLine={false}
-            label={{ value: "Días", angle: -90, position: "insideLeft", offset: 10, fontSize: 10, fill: COLORS.muted }}
+            label={{ value: "Días", angle: -90, position: "insideLeft", offset: 10, fontSize: 10, fill: c.axis }}
           />
           <ZAxis range={[40, 40]} />
           {/* Cuadrantes: score 50, días = mediana */}

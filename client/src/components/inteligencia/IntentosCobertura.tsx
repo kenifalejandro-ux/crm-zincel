@@ -1,7 +1,8 @@
 /** client/src/components/inteligencia/IntentosCobertura.tsx */
 
 import { useEffect, useState } from "react";
-import { CARD_CLASS, HEADER_CLASS, COLORS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { Phone, Users, RefreshCw, Lightbulb } from "lucide-react";
 import api from "../../services/api";
 
@@ -63,6 +64,7 @@ function generarLectura(d: Datos): { titulo: string; parrafos: string[]; alerta:
 }
 
 export function IntentosCobertura() {
+  const c = useChartColors();
   const [datos,    setDatos]    = useState<Datos | null>(null);
   const [cargando, setCargando] = useState(true);
 
@@ -103,7 +105,7 @@ export function IntentosCobertura() {
         </div>
         <div className={`${CARD_CLASS} text-center`}>
           <RefreshCw size={16} className="mx-auto mb-2 text-zinc-400" />
-          <p className="text-2xl font-bold" style={{ color: prom < 1.5 ? COLORS.success : prom < 2.5 ? COLORS.primary : COLORS.danger }}>
+          <p className="text-2xl font-bold" style={{ color: prom < 1.5 ? c.success : prom < 2.5 ? c.accent : c.danger }}>
             {prom.toFixed(1)}x
           </p>
           <p className="text-[10px] text-zinc-100 uppercase tracking-widest mt-1">Intentos / empresa</p>
@@ -119,9 +121,9 @@ export function IntentosCobertura() {
 
         <div className="space-y-3 mt-3">
           {[
-            { label: "1 llamada",    count: datos.empresas_1,    pct: pct1, color: COLORS.success },
-            { label: "2 llamadas",   count: datos.empresas_2,    pct: pct2, color: COLORS.primary },
-            { label: "3 o más",      count: datos.empresas_3mas, pct: pct3, color: COLORS.danger  },
+            { label: "1 llamada",    count: datos.empresas_1,    pct: pct1, color: c.success },
+            { label: "2 llamadas",   count: datos.empresas_2,    pct: pct2, color: c.accent },
+            { label: "3 o más",      count: datos.empresas_3mas, pct: pct3, color: c.danger  },
           ].map(row => (
             <div key={row.label} className="space-y-1">
               <div className="flex justify-between text-xs">

@@ -1,6 +1,7 @@
 /** client/src/components/llamadas/MotivosChart.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 
 const LABELS: Record<string, string> = {
   precio_alto:        "Precio alto",
@@ -12,16 +13,13 @@ const LABELS: Record<string, string> = {
   otro:               "Otro",
 };
 
-const COLORES = [
-  COLORS.danger, COLORS.primary, COLORS.muted,
-  COLORS.dark, COLORS.mutedLight, COLORS.primaryLight, COLORS.mutedDark,
-];
-
 interface Props {
   data: Array<{ motivo_perdida: string; total: number }>;
 }
 
 export function MotivosChart({ data }: Props) {
+  const c = useChartColors();
+  const COLORES = [c.danger, c.accent, c.muted, c.palette[1], c.palette[3], c.palette[4], c.axis];
   const total = data.reduce((s, d) => s + d.total, 0);
 
   return (

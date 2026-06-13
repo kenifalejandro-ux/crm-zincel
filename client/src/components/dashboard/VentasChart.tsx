@@ -1,10 +1,9 @@
 /** client/src/components/dashboard/VentasChart.tsx */
-import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { DollarSign } from "lucide-react";
 import { FunnelChart, Funnel, LabelList, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import type { Metricas } from "../../pages/DashboardPage";
-
-const MATTE_COLORS = [COLORS.dark, COLORS.primary, COLORS.mutedDark, COLORS.dark, COLORS.primary];
 
 interface Props {
   metricas: Metricas;
@@ -21,16 +20,17 @@ const TooltipFunnel = ({ active, payload }: any) => {
 };
 
 export function VentasChart({ metricas }: Props) {
+  const c = useChartColors();
   const { cerradas = 0, en_proceso = 0, no: sinVenta = 0 } = metricas.ventas ?? {};
   const porServicio = metricas.ventas_por_servicio ?? [];
   const total       = cerradas + en_proceso + sinVenta;
   const tasaCierre  = total > 0 ? Math.round((cerradas / total) * 100) : 0;
 
   const funnelData = [
-    { name: "Total",      value: total,                  fill: COLORS.dark      },
-    { name: "En proceso", value: en_proceso,             fill: COLORS.primary   },
-    { name: "Cerradas",   value: Math.max(cerradas, 0),  fill: COLORS.mutedDark },
-    { name: "Sin venta",  value: sinVenta,               fill: COLORS.danger    },
+    { name: "Total",      value: total,                  fill: c.palette[1] },
+    { name: "En proceso", value: en_proceso,             fill: c.accent     },
+    { name: "Cerradas",   value: Math.max(cerradas, 0),  fill: c.success    },
+    { name: "Sin venta",  value: sinVenta,               fill: c.danger     },
   ].filter(d => d.value > 0);
 
   return (
@@ -55,7 +55,7 @@ export function VentasChart({ metricas }: Props) {
                   ))}
                   <LabelList
                     position="right"
-                    fill={COLORS.mutedDark}
+                    fill={c.axis}
                     stroke="none"
                     dataKey="value"
                     style={{ fontSize: 11, fontWeight: 700 }}
@@ -68,10 +68,10 @@ export function VentasChart({ metricas }: Props) {
           {/* Stats row */}
           <div className="grid grid-cols-4 gap-2 pt-1">
             {[
-              { label: "Total",      valor: total,      color: COLORS.dark      },
-              { label: "En proceso", valor: en_proceso, color: COLORS.primary   },
-              { label: "Cerradas",   valor: cerradas,   color: COLORS.mutedDark },
-              { label: "Sin venta",  valor: sinVenta,   color: COLORS.danger    },
+              { label: "Total",      valor: total,      color: c.palette[1] },
+              { label: "En proceso", valor: en_proceso, color: c.accent     },
+              { label: "Cerradas",   valor: cerradas,   color: c.success    },
+              { label: "Sin venta",  valor: sinVenta,   color: c.danger     },
             ].map((item, i) => (
               <div key={i} className="text-center">
                 <p className="text-lg font-bold" style={{ color: item.color }}>{item.valor}</p>
@@ -113,7 +113,7 @@ export function VentasChart({ metricas }: Props) {
                   <div className="h-1 rounded-full bg-zinc-800">
                     <div
                       className="h-1 rounded-full transition-all duration-500"
-                      style={{ width: `${pct}%`, backgroundColor: MATTE_COLORS[i % MATTE_COLORS.length] }}
+                      style={{ width: `${pct}%`, backgroundColor: c.palette[i % c.palette.length] }}
                     />
                   </div>
                 </div>

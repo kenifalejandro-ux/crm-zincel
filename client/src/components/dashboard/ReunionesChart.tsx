@@ -1,5 +1,6 @@
 /** client/src/components/dashboard/ReunionesChart.tsx */
-import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import {
   RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer, Tooltip,
 } from "recharts";
@@ -7,11 +8,11 @@ import { Video } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
 
 const REUNIONES_ITEMS = [
-  { label: "Reprogramadas", key: "reuniones_reprogramadas", fill: COLORS.mutedDark },
-  { label: "Canceladas",    key: "reuniones_canceladas",    fill: COLORS.danger    },
-  { label: "Realizadas",    key: "reuniones_realizadas",    fill: COLORS.primary      },
-  { label: "Programadas",   key: "reuniones_programadas",   fill: COLORS.primary   },
-];
+  { label: "Reprogramadas", key: "reuniones_reprogramadas", tono: "axis"   },
+  { label: "Canceladas",    key: "reuniones_canceladas",    tono: "danger" },
+  { label: "Realizadas",    key: "reuniones_realizadas",    tono: "accent" },
+  { label: "Programadas",   key: "reuniones_programadas",   tono: "p3"     },
+] as const;
 
 const TooltipReuniones = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
@@ -29,12 +30,14 @@ interface Props {
 }
 
 export function ReunionesChart({ metricas }: Props) {
+  const c = useChartColors();
+  const tono: Record<string, string> = { axis: c.axis, danger: c.danger, accent: c.accent, p3: c.palette[3] };
   const total = metricas.reuniones.total_reuniones;
 
   const data = REUNIONES_ITEMS.map(item => ({
     name:  item.label,
     value: (metricas.reuniones as any)[item.key] as number,
-    fill:  item.fill,
+    fill:  tono[item.tono],
   }));
 
   const maxVal = Math.max(...data.map(d => d.value), 1);
@@ -79,7 +82,7 @@ export function ReunionesChart({ metricas }: Props) {
             return (
               <div key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.fill }} />
+                  <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: tono[item.tono] }} />
                   <span className="text-[12px] font-medium text-zinc-300">{item.label}</span>
                 </div>
                 <span className="text-[13px] font-semibold text-zinc-100">{valor}</span>

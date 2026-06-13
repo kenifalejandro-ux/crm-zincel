@@ -1,6 +1,7 @@
 /** client/src/components/llamadas/EstadisticasPeriodo.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, Tooltip,
   CartesianGrid, ResponsiveContainer, Legend,
@@ -43,6 +44,7 @@ const TooltipPersonalizado = ({ active, payload, label }: any) => {
 };
 
 export function EstadisticasPeriodo({ estadisticas, resumen, filtroPeriodo }: Props) {
+  const c = useChartColors();
   const labelPeriodo =
     filtroPeriodo === "hoy" || filtroPeriodo === "dia" ? "hora"
     : filtroPeriodo === "anio" ? "mes"
@@ -70,15 +72,15 @@ export function EstadisticasPeriodo({ estadisticas, resumen, filtroPeriodo }: Pr
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <ComposedChart data={estadisticas} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={COLORS.surface} />
-              <XAxis dataKey="fecha" tick={{ fontSize: 9, fill: COLORS.muted }} tickLine={false} axisLine={false} interval={tickInterval} />
-              <YAxis tick={{ fontSize: 9, fill: COLORS.muted }} tickLine={false} axisLine={false} allowDecimals={false} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={c.grid} />
+              <XAxis dataKey="fecha" tick={{ fontSize: 9, fill: c.axis }} tickLine={false} axisLine={false} interval={tickInterval} />
+              <YAxis tick={{ fontSize: 9, fill: c.axis }} tickLine={false} axisLine={false} allowDecimals={false} />
               <Tooltip content={<TooltipPersonalizado />} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: "10px", paddingTop: "8px" }}
                 formatter={(v) => v === "total" ? "Total" : "Contestadas"} />
-              <Bar filter="url(#neon-glow)" dataKey="total" fill={COLORS.mutedLight} name="total" radius={[3, 3, 0, 0]} maxBarSize={28} />
-              <Line filter="url(#neon-glow)" type="monotone" dataKey="contestadas" stroke={COLORS.dark} strokeWidth={2}
-                dot={totalItems <= 10 ? { r: 3, fill: COLORS.dark } : false} activeDot={{ r: 4 }} name="contestadas" />
+              <Bar filter="url(#neon-glow)" dataKey="total" fill={c.palette[3]} name="total" radius={[3, 3, 0, 0]} maxBarSize={28} />
+              <Line filter="url(#neon-glow)" type="monotone" dataKey="contestadas" stroke={c.accent} strokeWidth={2}
+                dot={totalItems <= 10 ? { r: 3, fill: c.accent } : false} activeDot={{ r: 4 }} name="contestadas" />
             </ComposedChart>
           </ResponsiveContainer>
         )}

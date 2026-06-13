@@ -1,6 +1,7 @@
 /** client/src/components/finanzas/FlujoCajaChart.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export function FlujoCajaChart({ flujo }: Props) {
+  const c = useChartColors();           // ← colores vivos
   if (!flujo?.length) return null;
 
   return (
@@ -40,24 +42,24 @@ export function FlujoCajaChart({ flujo }: Props) {
         <AreaChart data={flujo} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id="gradIngresos" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor={COLORS.dark}   stopOpacity={0.35} />
-              <stop offset="95%" stopColor={COLORS.dark}   stopOpacity={0.08} />
+              <stop offset="5%"  stopColor={c.accent} stopOpacity={0.35} />
+              <stop offset="95%" stopColor={c.accent} stopOpacity={0.05} />
             </linearGradient>
             <linearGradient id="gradEgresos" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor={COLORS.danger} stopOpacity={0.35} />
-              <stop offset="95%" stopColor={COLORS.danger} stopOpacity={0.08} />
+              <stop offset="5%"  stopColor={c.danger} stopOpacity={0.35} />
+              <stop offset="95%" stopColor={c.danger} stopOpacity={0.05} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke={COLORS.surface} vertical={false} />
-          <XAxis dataKey="etiqueta" tick={{ fontSize: 11, fill: COLORS.muted }} tickLine={false} axisLine={false} />
-          <YAxis tick={{ fontSize: 11, fill: COLORS.muted }} tickLine={false} axisLine={false}
+          <CartesianGrid strokeDasharray="3 3" stroke={c.grid} vertical={false} />
+          <XAxis dataKey="etiqueta" tick={{ fontSize: 11, fill: c.axis }} tickLine={false} axisLine={false} />
+          <YAxis tick={{ fontSize: 11, fill: c.axis }} tickLine={false} axisLine={false}
             tickFormatter={(v) => `S/${(v / 1000).toFixed(0)}k`} />
           <Tooltip content={<TooltipCustom />} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           <Area filter="url(#neon-glow)" type="monotone" dataKey="ingresos" name="Ingresos" stackId="flujo"
-            stroke={COLORS.dark}   strokeWidth={2} fill="url(#gradIngresos)" />
+            stroke={c.accent} strokeWidth={2} fill="url(#gradIngresos)" />
           <Area filter="url(#neon-glow)" type="monotone" dataKey="egresos"  name="Egresos"  stackId="flujo"
-            stroke={COLORS.danger} strokeWidth={2} fill="url(#gradEgresos)"  />
+            stroke={c.danger} strokeWidth={2} fill="url(#gradEgresos)" />
         </AreaChart>
       </ResponsiveContainer>
     </div>

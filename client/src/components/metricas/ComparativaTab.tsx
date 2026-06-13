@@ -13,7 +13,8 @@ import type { Resultado } from "../../types/resultado.types";
 import { getBenchmarkPorEmpresa } from "../../services/benchmarks.api";
 import { listarResultados } from "../../services/resultados.api";
 import { sectorLabel } from "../../utils/sectores";
-import { COLORS, GLASS_BASE, BADGE_BASE, PANEL_BASE } from "../../lib/tokens";
+import { GLASS_BASE, BADGE_BASE, PANEL_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 
 interface Props { metricas: Metrica[]; empresa?: string }
 
@@ -237,6 +238,7 @@ function desviacionPct(valor: number, b: BenchmarkDef): { pct: number; texto: st
 }
 
 export function ComparativaTab({ metricas, empresa }: Props) {
+  const c = useChartColors();
   const [benchmarkDin,       setBenchmarkDin]       = useState<BenchmarkSector | null>(null);
   const [sectorActivo,        setSectorActivo]        = useState<string | null>(null);
   const [chartsMounted,       setChartsMounted]       = useState(false);
@@ -572,7 +574,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
                 />
                 <ReferenceLine y={cplVerde}    stroke="#16a34a" strokeDasharray="4 2" strokeWidth={1} label={`Obj S/${cplVerde}`} />
                 <ReferenceLine y={cplAmarillo} stroke="#f59e0b" strokeDasharray="4 2" strokeWidth={1} label={`Lím S/${cplAmarillo}`} />
-                <Line filter="url(#neon-glow)" dataKey="cpl"       stroke={COLORS.primary} strokeWidth={2} dot={{ r: 4, fill: COLORS.primary }} />
+                <Line filter="url(#neon-glow)" dataKey="cpl"       stroke={c.accent} strokeWidth={2} dot={{ r: 4, fill: c.accent }} />
                 <Line filter="url(#neon-glow)" dataKey="tendencia" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
               </LineChart>
             </ResponsiveContainer>}

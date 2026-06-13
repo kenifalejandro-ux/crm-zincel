@@ -1,6 +1,6 @@
 /** client/src/components/dashboard/ProspectosPorEstado.tsx */
-import { COLORS } from "../../lib/tokens";
 import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { Users } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
 
@@ -10,15 +10,17 @@ interface Props {
 }
 
 const ESTADOS = [
-  { key: "prospectos_interesados",     label: "Interesado",       color: COLORS.primary },
-  { key: "prospectos_volver_llamar",   label: "Volver a llamar",  color: COLORS.dark },
-  { key: "prospectos_no_contesta",     label: "No contesta",      color: COLORS.mutedDark },
-  { key: "prospectos_tiene_proveedor", label: "Ya tiene proveedor", color: COLORS.danger },
-  { key: "prospectos_buzon",           label: "Buzón de voz",     color: COLORS.mutedDark },
-  { key: "prospectos_no_interesados",  label: "No interesado",    color: COLORS.danger },
-];
+  { key: "prospectos_interesados",     label: "Interesado",         tono: "accent" },
+  { key: "prospectos_volver_llamar",   label: "Volver a llamar",    tono: "p1"     },
+  { key: "prospectos_no_contesta",     label: "No contesta",        tono: "axis"   },
+  { key: "prospectos_tiene_proveedor", label: "Ya tiene proveedor", tono: "danger" },
+  { key: "prospectos_buzon",           label: "Buzón de voz",       tono: "axis"   },
+  { key: "prospectos_no_interesados",  label: "No interesado",      tono: "danger" },
+] as const;
 
 export function ProspectosPorEstado({ metricas }: Props) {
+  const c = useChartColors();
+  const tono: Record<string, string> = { accent: c.accent, p1: c.palette[1], axis: c.axis, danger: c.danger };
   const total = metricas.prospectos.total_prospectos;
 
   return (
@@ -45,7 +47,7 @@ export function ProspectosPorEstado({ metricas }: Props) {
               <div className="w-full bg-zinc-800 rounded-full h-1.5">
                 <div
                   className="h-1.5 rounded-full transition-all duration-500"
-                  style={{ width: `${pct}%`, backgroundColor: item.color }}
+                  style={{ width: `${pct}%`, backgroundColor: tono[item.tono] }}
                 />
               </div>
             </div>

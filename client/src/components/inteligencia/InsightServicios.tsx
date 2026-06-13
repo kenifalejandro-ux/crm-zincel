@@ -8,7 +8,8 @@ import {
 import {
   Trophy, AlertTriangle, Lightbulb, CheckCircle2, Zap,
 } from "lucide-react";
-import { CARD_CLASS, COLORS, BADGE_BASE } from "../../lib/tokens";
+import { CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { getAnalisisPipeline } from "../../services/propuestas.api";
 import type { ServicioAnalisis } from "../../services/propuestas.api";
 import { LABEL_SERVICIO } from "../../types/propuesta.types";
@@ -136,6 +137,7 @@ const INSIGHT_BG: Record<Insight["tipo"], string> = {
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export function InsightServicios() {
+  const c = useChartColors();
   const [datos,    setDatos]    = useState<ServicioAnalisis[] | null>(null);
   const [cargando, setCargando] = useState(true);
 
@@ -191,8 +193,8 @@ export function InsightServicios() {
               cursor={{ fill: "rgba(0,0,0,0.03)" }}
             />
             <Bar filter="url(#neon-glow)" dataKey="Ganadas"  fill="#16a34a"      radius={[3, 3, 0, 0]} barSize={12} />
-            <Bar filter="url(#neon-glow)" dataKey="Activas"  fill={COLORS.primary} radius={[3, 3, 0, 0]} barSize={12} />
-            <Bar filter="url(#neon-glow)" dataKey="Perdidas" fill={COLORS.danger} radius={[3, 3, 0, 0]} barSize={12} />
+            <Bar filter="url(#neon-glow)" dataKey="Activas"  fill={c.accent} radius={[3, 3, 0, 0]} barSize={12} />
+            <Bar filter="url(#neon-glow)" dataKey="Perdidas" fill={c.danger} radius={[3, 3, 0, 0]} barSize={12} />
           </BarChart>
         </ResponsiveContainer>
       </div>

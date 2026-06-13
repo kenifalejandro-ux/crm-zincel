@@ -1,7 +1,8 @@
 /** client/src/components/inteligencia/ConversacionChart.tsx */
 
 import { useEffect, useState } from "react";
-import { COLORS, CARD_CLASS, HEADER_CLASS, PANEL_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, PANEL_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { MessageSquare, ArrowRight, Clock } from "lucide-react";
 import { getInteligenciaConversacion, getLeadsPorEstado, type InteligenciaConversacion } from "../../services/inteligencia.api";
 import { DrilldownModal } from "./DrilldownModal";
@@ -31,19 +32,19 @@ const RESULTADO_LABEL: Record<string, string> = {
   perdida:             "Venta perdida",
 };
 
-const ACCION_COLORS: Record<string, string> = {
-  agendar_reunion: COLORS.primary,
-  cotizar:         COLORS.dark,
-  enviar_brochure: COLORS.muted,
-  volver_llamar:   COLORS.mutedDark,
-  ninguna:         "#e4e4e7",
+const ACCION_TONO: Record<string, string> = {
+  agendar_reunion: "accent",
+  cotizar:         "p1",
+  enviar_brochure: "muted",
+  volver_llamar:   "axis",
+  ninguna:         "muted",
 };
 
-function barColor(resultado: string): string {
-  if (resultado === "interesado")           return COLORS.primary;
-  if (resultado === "solicita_informacion") return COLORS.dark;
-  if (resultado === "no_interesado")        return COLORS.danger;
-  return COLORS.mutedDark;
+function resultadoTono(resultado: string): string {
+  if (resultado === "interesado")           return "accent";
+  if (resultado === "solicita_informacion") return "p1";
+  if (resultado === "no_interesado")        return "danger";
+  return "axis";
 }
 
 interface Props {
@@ -52,6 +53,8 @@ interface Props {
 }
 
 export function ConversacionChart({ filtros, periodoLabel }: Props) {
+  const clr = useChartColors();
+  const tono: Record<string, string> = { accent: clr.accent, p1: clr.palette[1], muted: clr.muted, axis: clr.axis, danger: clr.danger };
   const [data, setData] = useState<InteligenciaConversacion | null>(null);
 
   const [drilldownEstado,  setDrilldownEstado]  = useState<string | null>(null);
@@ -125,7 +128,7 @@ export function ConversacionChart({ filtros, periodoLabel }: Props) {
           <div className="space-y-2.5">
             {data.acciones_acordadas.map(item => {
               const pct = Math.round((item.total / totalAcciones) * 100);
-              const color = ACCION_COLORS[item.accion_acordada] ?? COLORS.mutedDark;
+              const color = tono[ACCION_TONO[item.accion_acordada]] ?? clr.axis;
               return (
                 <div key={item.accion_acordada} className="flex items-center gap-3">
                   <span className="text-[11px] text-zinc-400 w-32 shrink-0 truncate">
@@ -157,7 +160,7 @@ export function ConversacionChart({ filtros, periodoLabel }: Props) {
           <div className="space-y-2">
             {data.resultados_contestadas.map(item => {
               const pct = Math.round((item.total / maxResult) * 100);
-              const color = barColor(item.resultado);
+              const color = tono[resultadoTono(item.resultado)];
               const label = RESULTADO_LABEL[item.resultado] ?? item.resultado;
               return (
                 <button

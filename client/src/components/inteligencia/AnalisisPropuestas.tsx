@@ -10,7 +10,8 @@ import {
   ChevronDown, AlertTriangle, Lightbulb, CheckCircle2,
   Building2, Layers, Phone,
 } from "lucide-react";
-import { CARD_CLASS, COLORS, GLASS_BASE, MODAL_BASE, BADGE_BASE, STICKY_BASE } from "../../lib/tokens";
+import { CARD_CLASS, GLASS_BASE, MODAL_BASE, BADGE_BASE, STICKY_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import {
   getAnalisisPipeline, getMetasPipeline, actualizarMetasPipeline,
 } from "../../services/propuestas.api";
@@ -252,6 +253,7 @@ function TablaEmpresas({
   rows:    EmpresaAnalisis[];
   detalle: Record<string, DetallePropuesta[]>;
 }) {
+  const c = useChartColors();
   const [drill, setDrill] = useState<{ titulo: string; rows: DetallePropuesta[] } | null>(null);
 
   if (rows.length === 0) return (
@@ -280,9 +282,9 @@ function TablaEmpresas({
               contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
               cursor={{ fill: "rgba(0,0,0,0.03)" }}
             />
-            <Bar filter="url(#neon-glow)" dataKey="Enviadas" fill={COLORS.primary} radius={[3, 3, 0, 0]} barSize={12} />
+            <Bar filter="url(#neon-glow)" dataKey="Enviadas" fill={c.accent} radius={[3, 3, 0, 0]} barSize={12} />
             <Bar filter="url(#neon-glow)" dataKey="Ganadas"  fill="#16a34a"        radius={[3, 3, 0, 0]} barSize={12} />
-            <Bar filter="url(#neon-glow)" dataKey="Perdidas" fill={COLORS.danger}  radius={[3, 3, 0, 0]} barSize={12} />
+            <Bar filter="url(#neon-glow)" dataKey="Perdidas" fill={c.danger}  radius={[3, 3, 0, 0]} barSize={12} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -348,6 +350,7 @@ function TablaServicios({
   rows:    ServicioAnalisis[];
   detalle: Record<string, DetallePropuesta[]>;
 }) {
+  const c = useChartColors();
   const [drill, setDrill] = useState<{ titulo: string; rows: DetallePropuesta[] } | null>(null);
 
   if (rows.length === 0) return (
@@ -375,9 +378,9 @@ function TablaServicios({
               contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
               cursor={{ fill: "rgba(0,0,0,0.03)" }}
             />
-            <Bar filter="url(#neon-glow)" dataKey="Activas"  fill={COLORS.primary} radius={[0, 3, 3, 0]} barSize={10} />
+            <Bar filter="url(#neon-glow)" dataKey="Activas"  fill={c.accent} radius={[0, 3, 3, 0]} barSize={10} />
             <Bar filter="url(#neon-glow)" dataKey="Ganadas"  fill="#16a34a"        radius={[0, 3, 3, 0]} barSize={10} />
-            <Bar filter="url(#neon-glow)" dataKey="Perdidas" fill={COLORS.danger}  radius={[0, 3, 3, 0]} barSize={10} />
+            <Bar filter="url(#neon-glow)" dataKey="Perdidas" fill={c.danger}  radius={[0, 3, 3, 0]} barSize={10} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -441,6 +444,7 @@ function TablaServicios({
 type Tab = "empresa" | "servicio";
 
 export function AnalisisPropuestas() {
+  const c = useChartColors();
   const [datos,      setDatos]      = useState<AnalisisPipelineData | null>(null);
   const [metas,      setMetas]      = useState<MetasPipeline>({ propuestas_mes: 10, cierres_mes: 3, ingresos_mes: 15000 });
   const [cargando,   setCargando]   = useState(true);
@@ -546,7 +550,7 @@ export function AnalisisPropuestas() {
               real={mes_actual.propuestas_activas}
               meta={metas.propuestas_mes}
               pct={pct(mes_actual.propuestas_activas, metas.propuestas_mes)}
-              color={COLORS.primary}
+              color={c.accent}
               subt={`${mes_actual.propuestas_anio} enviadas este año`}
             />
             <ObjCard
@@ -562,7 +566,7 @@ export function AnalisisPropuestas() {
               real={fmt(mes_actual.ingresos_total)}
               meta={fmt(metas.ingresos_mes)}
               pct={pct(mes_actual.ingresos_total, metas.ingresos_mes)}
-              color={COLORS.primary}
+              color={c.accent}
               subt={`${fmt(mes_actual.valor_activo)} en pipeline activo`}
             />
             <div className={`flex-1 min-w-0 ${GLASS_BASE} p-4 flex flex-col gap-2`}>

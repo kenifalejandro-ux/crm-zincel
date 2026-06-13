@@ -6,7 +6,9 @@ import {
   ResponsiveContainer, Cell, ReferenceLine,
 } from "recharts";
 import { TrendingUp } from "lucide-react";
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
+import { accentRgb } from "../../lib/chartTheme";
 import { getForecastHistorico, getForecast } from "../../services/inteligencia.api";
 import type { ForecastHistoricoMes } from "../../services/inteligencia.api";
 
@@ -35,7 +37,7 @@ function CustomTooltip({ active, payload, label }: any) {
       {row.isActual ? (
         <>
           {row.cerrado > 0 && <p className="text-zinc-500">Cerrado: <span className="font-bold text-zinc-100">{fmt(row.cerrado)}</span></p>}
-          <p className="text-zinc-500">Proyectado: <span className="font-bold" style={{ color: COLORS.primary }}>{fmt(row.proyectado)}</span></p>
+          <p className="text-zinc-500">Proyectado: <span className="font-bold" style={{ color: accentRgb() }}>{fmt(row.proyectado)}</span></p>
         </>
       ) : (
         <p className="text-zinc-500">Cerrado: <span className="font-bold text-zinc-100">{fmt(row.cerrado)}</span></p>
@@ -45,6 +47,7 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 export function ForecastHistoricoChart() {
+  const c = useChartColors();
   const [rows,      setRows]      = useState<ForecastHistoricoMes[]>([]);
   const [proyeccion, setProyeccion] = useState(0);
   const [cargando,   setCargando]   = useState(true);
@@ -123,7 +126,7 @@ export function ForecastHistoricoChart() {
           {promedio > 0 && (
             <ReferenceLine
               y={promedio}
-              stroke={COLORS.primary}
+              stroke={c.accent}
               strokeDasharray="5 4"
               strokeWidth={1.5}
             />
@@ -131,27 +134,27 @@ export function ForecastHistoricoChart() {
           {/* Barras de meses anteriores (cerrado real) */}
           <Bar filter="url(#neon-glow)" dataKey="cerrado" radius={[6, 6, 0, 0]} maxBarSize={44}>
             {chartData.map((entry, i) => (
-              <Cell key={i} fill={COLORS.dark} fillOpacity={entry.isActual ? 0 : 1} />
+              <Cell key={i} fill={c.palette[1]} fillOpacity={entry.isActual ? 0 : 1} />
             ))}
           </Bar>
           {/* Barra del mes actual (proyectado) */}
-          <Bar filter="url(#neon-glow)" dataKey="proyectado" radius={[6, 6, 0, 0]} maxBarSize={44} fill={COLORS.primary} fillOpacity={0.75} />
+          <Bar filter="url(#neon-glow)" dataKey="proyectado" radius={[6, 6, 0, 0]} maxBarSize={44} fill={c.accent} fillOpacity={0.75} />
         </BarChart>
       </ResponsiveContainer>
 
       {/* Leyenda */}
       <div className="flex items-center gap-5 mt-3 justify-center">
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-2.5 rounded-sm" style={{ backgroundColor: COLORS.dark }} />
+          <div className="w-3 h-2.5 rounded-sm" style={{ backgroundColor: c.palette[1] }} />
           <span className="text-[10px] text-zinc-500">Cerrado real</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-2.5 rounded-sm opacity-75" style={{ backgroundColor: COLORS.primary }} />
+          <div className="w-3 h-2.5 rounded-sm opacity-75" style={{ backgroundColor: c.accent }} />
           <span className="text-[10px] text-zinc-500">Proyectado (este mes)</span>
         </div>
         {promedio > 0 && (
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-0" style={{ borderTop: `2px dashed ${COLORS.primary}` }} />
+            <div className="w-4 h-0" style={{ borderTop: `2px dashed ${c.accent}` }} />
             <span className="text-[10px] text-zinc-500">Promedio</span>
           </div>
         )}

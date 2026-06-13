@@ -1,6 +1,7 @@
 /** src/components/metricas/MetricasBarChart.tsx */
 
-import { CARD_CLASS, HEADER_CLASS, COLORS, TOOLTIP_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import {
   RadarChart, PolarGrid, PolarAngleAxis,
   Radar, ResponsiveContainer, Tooltip, Legend,
@@ -11,10 +12,10 @@ import { useEffect, useState } from "react";
 
 interface Props { metricas: Metrica[] }
 
-const PLATAFORMA_COLOR: Record<string, string> = {
-  meta:   COLORS.dark,
-  google: COLORS.primary,
-  tiktok: COLORS.mutedDark,
+const PLATAFORMA_TONO: Record<string, string> = {
+  meta:   "p1",
+  google: "accent",
+  tiktok: "axis",
 };
 
 const LABELS: Record<string, string> = {
@@ -38,6 +39,9 @@ const TooltipRadar = ({ active, payload }: any) => {
 };
 
 export const MetricasBarChart = ({ metricas }: Props) => {
+  const c = useChartColors();
+  const tono: Record<string, string> = { p1: c.palette[1], accent: c.accent, axis: c.axis };
+  const platColor = (p: string) => tono[PLATAFORMA_TONO[p]] ?? c.axis;
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   const mapa: Record<string, { leads: number; conversiones: number; gasto: number }> = {};
@@ -85,8 +89,8 @@ export const MetricasBarChart = ({ metricas }: Props) => {
               key={p}
               name={LABELS[p] ?? p}
               dataKey={p}
-              stroke={PLATAFORMA_COLOR[p] ?? COLORS.mutedDark}
-              fill={PLATAFORMA_COLOR[p] ?? COLORS.mutedDark}
+              stroke={platColor(p)}
+              fill={platColor(p)}
               fillOpacity={0.15}
               strokeWidth={2}
             />

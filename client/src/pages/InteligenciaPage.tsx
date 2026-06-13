@@ -1,6 +1,8 @@
 /** client/src/pages/InteligenciaPage.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS, GLASS_BASE, MODAL_BASE, BADGE_BASE, INPUT_BASE, STICKY_BASE, PANEL_BASE } from "../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, GLASS_BASE, MODAL_BASE, BADGE_BASE, INPUT_BASE, STICKY_BASE, PANEL_BASE } from "../lib/tokens";
+import { useChartColors } from "../hooks/useChartColors";
+import { accentRgb, readCssVar } from "../lib/chartTheme";
 import { useEffect, useState, Component, type ReactNode, type ErrorInfo } from "react";
 import { TrendingUp, Phone, CalendarDays, FileText, Package, AlertTriangle, CheckCircle, Info, Lightbulb, ChevronDown, Pencil, X, Check, Clock, Target, Zap } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -79,10 +81,10 @@ const ETAPA_LABEL: Record<string, string> = {
 };
 
 const INSIGHT_STYLES: Record<string, { icon: React.ReactNode; chartColor: string; countColor: string }> = {
-  positivo:    { icon: <CheckCircle   size={13} className="text-zinc-500 shrink-0" />, chartColor: COLORS.primary, countColor: "text-brand"    },
-  alerta:      { icon: <AlertTriangle size={13} className="text-red-500 shrink-0"  />, chartColor: COLORS.danger,  countColor: "text-red-500"  },
-  info:        { icon: <Info          size={13} className="text-zinc-500 shrink-0" />, chartColor: COLORS.dark,    countColor: "text-zinc-800" },
-  oportunidad: { icon: <Lightbulb     size={13} className="text-brand shrink-0"    />, chartColor: COLORS.primary, countColor: "text-brand"    },
+  positivo:    { icon: <CheckCircle   size={13} className="text-zinc-500 shrink-0" />, get chartColor() { return accentRgb(); }, countColor: "text-brand"    },
+  alerta:      { icon: <AlertTriangle size={13} className="text-red-500 shrink-0"  />, get chartColor() { return readCssVar("--chart-danger", "#f87171"); },  countColor: "text-red-500"  },
+  info:        { icon: <Info          size={13} className="text-zinc-500 shrink-0" />, get chartColor() { return readCssVar("--chart-2", "#a855f7"); },    countColor: "text-zinc-800" },
+  oportunidad: { icon: <Lightbulb     size={13} className="text-brand shrink-0"    />, get chartColor() { return accentRgb(); }, countColor: "text-brand"    },
 };
 
 // ─── Mini gauge para insights con porcentaje ──────────────────────────────────
@@ -101,7 +103,7 @@ function MiniGauge({ valor, color }: { valor: number; color: string }) {
             dataKey="value" stroke="none" paddingAngle={0}
           >
             <Cell fill={color} />
-            <Cell fill={COLORS.surface} />
+            <Cell fill="rgba(255,255,255,0.06)" />
           </Pie>
         </PieChart>
       </ResponsiveContainer>
@@ -302,6 +304,7 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
   onVerLeads?:   (tipo: "calientes" | "activos" | "cierres", label: string) => void;
   onEditarMeta?: (meta: number) => void;
 }) {
+  const c       = useChartColors();
   const t       = TENDENCIA_STYLE[f.tendencia];
   const progPct = f.cierres_proyectados > 0
     ? Math.min(100, Math.round((f.cierres_mes_actual / f.cierres_proyectados) * 100))
@@ -385,7 +388,7 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
         <div className="relative h-7 bg-zinc-800 rounded-xl overflow-hidden">
           <div
             className="h-full rounded-xl transition-all duration-700 flex items-center justify-end pr-3"
-            style={{ width: `${Math.max(progPct, f.cierres_mes_actual > 0 ? 6 : 0)}%`, backgroundColor: COLORS.primary }}
+            style={{ width: `${Math.max(progPct, f.cierres_mes_actual > 0 ? 6 : 0)}%`, backgroundColor: c.accent }}
           >
             {progPct > 18 && (
               <span className="text-[11px] font-bold text-white">{f.cierres_mes_actual}</span>
@@ -526,6 +529,7 @@ function QuotaSection({
   f:            Forecast;
   onEditarMeta?: (meta: number) => void;
 }) {
+  const c = useChartColors();
   const [editando,  setEditando]  = useState(false);
   const [metaInput, setMetaInput] = useState(String(f.meta_ingresos));
 
@@ -616,12 +620,12 @@ function QuotaSection({
           {/* Barra predicho (fondo, más ancha) */}
           <div
             className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
-            style={{ width: `${pctPredicted}%`, backgroundColor: COLORS.primary, opacity: 0.25 }}
+            style={{ width: `${pctPredicted}%`, backgroundColor: c.accent, opacity: 0.25 }}
           />
           {/* Barra logrado (encima, sólida) */}
           <div
             className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 flex items-center justify-end pr-2"
-            style={{ width: `${Math.max(pctLogrado, logrado > 0 ? 4 : 0)}%`, backgroundColor: COLORS.primary }}
+            style={{ width: `${Math.max(pctLogrado, logrado > 0 ? 4 : 0)}%`, backgroundColor: c.accent }}
           >
             {pctLogrado > 15 && (
               <span className="text-[9px] font-bold text-white">{pctLogrado}%</span>
@@ -630,11 +634,11 @@ function QuotaSection({
         </div>
         <div className="flex items-center gap-3 mt-1.5">
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.primary }} />
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: c.accent }} />
             <span className="text-[9px] text-zinc-500">Logrado</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-full opacity-30" style={{ backgroundColor: COLORS.primary }} />
+            <div className="w-2 h-2 rounded-full opacity-30" style={{ backgroundColor: c.accent }} />
             <span className="text-[9px] text-zinc-500">Predicho (con pipeline)</span>
           </div>
         </div>
@@ -923,6 +927,7 @@ class ModuloErrorBoundary extends Component<{ children: ReactNode }, { error: bo
 }
 
 export default function InteligenciaPage() {
+  const c        = useChartColors();
   const hoy      = new Date();
   const location = useLocation();
   const [periodo,      setPeriodo]      = useState<FiltroPeriodo>("anio");
@@ -1624,7 +1629,7 @@ export default function InteligenciaPage() {
                       href={`tel:${lead.telefono}`}
                       onClick={e => e.stopPropagation()}
                       className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-white text-xs font-semibold transition hover:opacity-90"
-                      style={{ backgroundColor: COLORS.dark }}
+                      style={{ backgroundColor: c.palette[1] }}
                     >
                       <Phone size={12} />
                       {lead.telefono}

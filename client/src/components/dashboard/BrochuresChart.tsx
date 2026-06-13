@@ -1,25 +1,25 @@
 /** client/src/components/dashboard/BrochuresChart.tsx */
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { NeonDonut } from "../ui/NeonDonut";
 import { Send } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
-
-const MATTE_COLORS = [COLORS.dark, COLORS.primary, COLORS.mutedDark, COLORS.dark, COLORS.primary];
 
 interface Props {
   metricas: Metricas;
 }
 
 export function BrochuresChart({ metricas }: Props) {
+  const c = useChartColors();
   const datos = (metricas.brochures_por_canal ?? []).map((item, i) => ({
     name:  item.canal,
     value: item.cantidad,
-    color: MATTE_COLORS[i % MATTE_COLORS.length],
+    color: c.palette[i % c.palette.length],
   }));
 
   const datosGrafico = datos.length > 0
     ? datos
-    : [{ name: "Sin datos", value: 1, color: COLORS.surface }];
+    : [{ name: "Sin datos", value: 1, color: c.grid }];
 
   const total = metricas.brochures.total_brochures;
 

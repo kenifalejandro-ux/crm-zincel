@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
-import { CARD_CLASS, COLORS, BADGE_BASE } from "../../lib/tokens";
+import { CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import api from "../../services/api";
 
 interface AnalisisLlamadas {
@@ -30,6 +31,7 @@ function labelMes(m: string) {
 }
 
 export function CoberturaLlamadas() {
+  const clr = useChartColors();
   const [datos,    setDatos]    = useState<AnalisisLlamadas | null>(null);
   const [cargando, setCargando] = useState(true);
 
@@ -57,11 +59,11 @@ export function CoberturaLlamadas() {
   const maxTendencia = Math.max(...tendencia.map(t => t.total), 1);
 
   const resultados = [
-    { label: "Sin resultado registrado", valor: a.sin_resultado,       color: COLORS.danger,  alerta: true  },
+    { label: "Sin resultado registrado", valor: a.sin_resultado,       color: clr.danger,  alerta: true  },
     { label: "No interesado",            valor: a.no_interesado,       color: "#ef4444",      alerta: false },
     { label: "Interesado",               valor: a.interesado,          color: "#16a34a",      alerta: false },
     { label: "No contesta",              valor: a.no_contesta,         color: "#a1a1aa",      alerta: false },
-    { label: "Volver a llamar",          valor: a.volver_a_llamar,     color: COLORS.primary, alerta: false },
+    { label: "Volver a llamar",          valor: a.volver_a_llamar,     color: clr.accent, alerta: false },
     { label: "Número equivocado",        valor: a.numero_equivocado,   color: "#f59e0b",      alerta: false },
     { label: "Fuera de servicio",        valor: a.fuera_de_servicio,   color: "#94a3b8",      alerta: false },
     { label: "Solicita información",     valor: a.solicita_informacion,color: "#3b82f6",      alerta: false },

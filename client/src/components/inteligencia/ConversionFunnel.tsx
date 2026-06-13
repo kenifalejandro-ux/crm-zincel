@@ -1,6 +1,7 @@
 /** client/src/components/inteligencia/ConversionFunnel.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { useEffect, useState } from "react";
 import { BarChart2, AlertTriangle, TrendingUp, DollarSign, Target } from "lucide-react";
 import { getConversionFunnel, type ConversionFunnel } from "../../services/inteligencia.api";
@@ -21,11 +22,11 @@ function fmtSol(n: number): string {
   return "S/ 0.00";
 }
 
-// Color de barra según posición y cantidad
-function barColor(index: number, total: number): string {
+// Tono de barra según posición (resuelto a color vivo en el render)
+function barTono(index: number, total: number): string {
   if (total === 0) return "transparent";
-  const palette = [COLORS.dark, COLORS.dark, COLORS.mutedDark, COLORS.mutedDark, COLORS.primary, COLORS.dark];
-  return palette[index] ?? COLORS.mutedDark;
+  const tonos = ["p1", "p1", "axis", "axis", "accent", "p1"];
+  return tonos[index] ?? "axis";
 }
 
 // Estilo del badge de conversión
@@ -38,6 +39,9 @@ function convBadgeStyle(pct: number | null): string {
 }
 
 export function ConversionFunnelChart() {
+  const c = useChartColors();
+  const tono: Record<string, string> = { p1: c.palette[1], axis: c.axis, accent: c.accent, transparent: "transparent" };
+  const barColor = (i: number, total: number) => tono[barTono(i, total)] ?? c.axis;
   const [data, setData] = useState<ConversionFunnel | null>(null);
 
   useEffect(() => {
@@ -138,7 +142,7 @@ export function ConversionFunnelChart() {
                     // Barra vacía: outlined rojo
                     <div
                       className="h-full w-full rounded-lg border-2"
-                      style={{ borderColor: COLORS.danger, opacity: 0.6 }}
+                      style={{ borderColor: c.danger, opacity: 0.6 }}
                     />
                   ) : (
                     // Barra llena
@@ -147,7 +151,7 @@ export function ConversionFunnelChart() {
                         className="h-full rounded-lg flex items-center px-3 transition-all duration-700"
                         style={{
                           width: `${barW}%`,
-                          backgroundColor: isBottle ? COLORS.danger : barColor(i, etapa.total),
+                          backgroundColor: isBottle ? c.danger : barColor(i, etapa.total),
                         }}
                       >
                         {barW > 20 && (
@@ -182,7 +186,7 @@ export function ConversionFunnelChart() {
           <span className="font-medium">Fuera del funnel:</span>
           {data.perdidos > 0 && (
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.danger }} />
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.danger }} />
               Perdidos: <strong className="text-zinc-300">{data.perdidos}</strong>
             </span>
           )}
@@ -197,8 +201,8 @@ export function ConversionFunnelChart() {
 
       {/* ── Banner cuello de botella ── */}
       {bottleneck && (
-        <div className="mt-5 rounded-xl overflow-hidden" style={{ border: `1.5px solid ${COLORS.danger}` }}>
-          <div className="px-4 py-2 flex items-center gap-2" style={{ backgroundColor: COLORS.danger }}>
+        <div className="mt-5 rounded-xl overflow-hidden" style={{ border: `1.5px solid ${c.danger}` }}>
+          <div className="px-4 py-2 flex items-center gap-2" style={{ backgroundColor: c.danger }}>
             <AlertTriangle size={13} className="text-white shrink-0" />
             <p className="text-[11px] font-bold text-white uppercase tracking-wider">
               Cuello de botella crítico

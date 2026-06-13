@@ -1,7 +1,8 @@
 /** client/src/components/inteligencia/CanalEfectividad.tsx */
 
 import { useEffect, useState } from "react";
-import { COLORS, CARD_CLASS, HEADER_CLASS, BADGE_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, BADGE_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { Phone } from "lucide-react";
 import { getCanalEfectividad, type CanalEfectividad } from "../../services/inteligencia.api";
 
@@ -14,13 +15,15 @@ const CANAL_LABEL: Record<string, string> = {
   referido: "Referido",
 };
 
-function barFill(i: number, total: number): string {
-  if (i === 0)              return COLORS.primary;   // mejor canal: dorado
-  if (i === total - 1)      return COLORS.mutedDark; // peor canal: gris suave
-  return COLORS.dark;                                 // resto: zinc oscuro
+function barTono(i: number, total: number): string {
+  if (i === 0)         return "accent"; // mejor canal
+  if (i === total - 1) return "axis";   // peor canal
+  return "p1";                          // resto
 }
 
 export function CanalEfectividadChart() {
+  const c = useChartColors();
+  const tono: Record<string, string> = { accent: c.accent, axis: c.axis, p1: c.palette[1] };
   const [data, setData] = useState<CanalEfectividad[]>([]);
 
   useEffect(() => {
@@ -75,7 +78,7 @@ export function CanalEfectividadChart() {
               <div className="flex-1 h-7 bg-zinc-800 rounded-lg overflow-hidden">
                 <div
                   className="h-full rounded-lg flex items-center px-2.5 transition-all duration-700"
-                  style={{ width: `${barW}%`, backgroundColor: barFill(i, data.length) }}
+                  style={{ width: `${barW}%`, backgroundColor: tono[barTono(i, data.length)] }}
                 >
                   {barW > 30 && (
                     <span className="text-[10px] font-semibold text-white truncate">{label}</span>

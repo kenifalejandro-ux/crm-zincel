@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { CARD_CLASS, HEADER_CLASS, COLORS, BADGE_BASE, INPUT_BASE } from "../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, BADGE_BASE, INPUT_BASE } from "../lib/tokens";
+import { useChartColors } from "../hooks/useChartColors";
 import { Phone, Users, RefreshCw, ArrowLeft, Lightbulb, PhoneCall, PhoneMissed, Building2 } from "lucide-react";
 import api from "../services/api";
 
@@ -107,6 +108,7 @@ function generarLectura(d: Resumen) {
 type FiltroIntentos = "todos" | "1" | "2" | "3mas";
 
 export default function AnalisisIntentosPage() {
+  const c = useChartColors();
   const navigate = useNavigate();
   const [resumen,   setResumen]   = useState<Resumen | null>(null);
   const [empresas,  setEmpresas]  = useState<EmpresaIntento[]>([]);
@@ -201,9 +203,9 @@ export default function AnalisisIntentosPage() {
           </h2>
           <div className="space-y-4 mt-3">
             {[
-              { label: "1 llamada",  count: resumen.empresas_1,    pct: pct1, color: COLORS.success, desc: "contactaron al primer intento" },
-              { label: "2 llamadas", count: resumen.empresas_2,    pct: pct2, color: COLORS.primary, desc: "necesitaron un segundo intento" },
-              { label: "3 o más",   count: resumen.empresas_3mas,  pct: pct3, color: COLORS.danger,  desc: `${resumen.llamadas_en_3mas} llamadas concentradas` },
+              { label: "1 llamada",  count: resumen.empresas_1,    pct: pct1, color: c.success, desc: "contactaron al primer intento" },
+              { label: "2 llamadas", count: resumen.empresas_2,    pct: pct2, color: c.accent, desc: "necesitaron un segundo intento" },
+              { label: "3 o más",   count: resumen.empresas_3mas,  pct: pct3, color: c.danger,  desc: `${resumen.llamadas_en_3mas} llamadas concentradas` },
             ].map(row => (
               <div key={row.label} className="space-y-1.5">
                 <div className="flex justify-between items-baseline text-xs">

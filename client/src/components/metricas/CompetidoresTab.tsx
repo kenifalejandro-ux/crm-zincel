@@ -1,6 +1,7 @@
 /** src/components/metricas/CompetidoresTab.tsx */
 
 import { GLASS_BASE, MODAL_BASE, BADGE_BASE, INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { useEffect, useState, useMemo } from "react";
 import {
   Plus, Trash2, Loader2, TrendingUp, TrendingDown,
@@ -16,7 +17,6 @@ import {
   actualizarSeguidores, eliminarCompetidor, getHistoriaCompetidor,
 } from "../../services/competidores.api";
 
-const COLORS = ["#6366f1", "#f59e0b", "#10b981", "#ef4444", "#3b82f6", "#ec4899", "#8b5cf6", "#14b8a6"];
 
 function fmtNum(n: number | string | null) {
   const v = Number(n) || 0;
@@ -173,6 +173,8 @@ function EditSeguidores({ id, actual, onGuardado }: {
 interface Props { empresa?: string; }
 
 export function CompetidoresTab({ empresa }: Props) {
+  const c = useChartColors();
+  const COLORS = c.palette;
   const [competidores, setCompetidores] = useState<Competidor[]>([]);
   const [historias,    setHistorias]    = useState<Record<string, SnapshotCompetidor[]>>({});
   const [cargando,     setCargando]     = useState(false);

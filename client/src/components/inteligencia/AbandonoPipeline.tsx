@@ -1,6 +1,7 @@
 /** client/src/components/inteligencia/AbandonoPipeline.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { XCircle } from "lucide-react";
@@ -16,14 +17,14 @@ const ETAPA_LABEL: Record<string, string> = {
   descartado:        "Descartado",
 };
 
-const ETAPA_COLOR: Record<string, string> = {
-  nuevo:             COLORS.mutedLight,
-  contactado:        COLORS.muted,
-  interesado:        COLORS.primary,
-  propuesta_enviada: COLORS.primary,
-  negociacion:       COLORS.mutedDark,
-  perdido:           COLORS.danger,
-  descartado:        COLORS.muted,
+const ETAPA_TONO: Record<string, string> = {
+  nuevo:             "p3",
+  contactado:        "muted",
+  interesado:        "accent",
+  propuesta_enviada: "accent",
+  negociacion:       "axis",
+  perdido:           "danger",
+  descartado:        "muted",
 };
 
 const TooltipBar = ({ active, payload }: any) => {
@@ -40,6 +41,9 @@ const TooltipBar = ({ active, payload }: any) => {
 type Capa = "primer_contacto" | "propuesta";
 
 export function AbandonoPipelineChart() {
+  const clr = useChartColors();
+  const tono: Record<string, string> = { p3: clr.palette[3], muted: clr.muted, accent: clr.accent, axis: clr.axis, danger: clr.danger };
+  const colorEtapa = (etapa: string) => tono[ETAPA_TONO[etapa]] ?? clr.muted;
   const [data, setData] = useState<AbandonoPipeline | null>(null);
   const [capa, setCapa] = useState<Capa>("primer_contacto");
 
@@ -114,7 +118,7 @@ export function AbandonoPipelineChart() {
             ) : (
               data.por_etapa.map((e) => {
                 const pct   = totalPerdidos > 0 ? Math.round((e.total / totalPerdidos) * 100) : 0;
-                const color = ETAPA_COLOR[e.etapa] ?? COLORS.muted;
+                const color = colorEtapa(e.etapa);
                 return (
                   <div key={e.etapa} className="flex items-center gap-2">
                     <span className="text-[10px] text-zinc-300 w-20 shrink-0">
@@ -176,7 +180,7 @@ export function AbandonoPipelineChart() {
                 margin={{ top: 0, right: 35, left: 0, bottom: 0 }}
                 barSize={13}
               >
-                <XAxis type="number" tick={{ fontSize: 9, fill: COLORS.muted }} tickLine={false} axisLine={false} />
+                <XAxis type="number" tick={{ fontSize: 9, fill: clr.axis }} tickLine={false} axisLine={false} />
                 <YAxis
                   type="category"
                   dataKey="motivo"
@@ -185,7 +189,7 @@ export function AbandonoPipelineChart() {
                   axisLine={false}
                   width={95}
                 />
-                <Tooltip content={<TooltipBar />} cursor={{ fill: COLORS.surface }} />
+                <Tooltip content={<TooltipBar />} cursor={{ fill: clr.grid }} />
                 <Bar filter="url(#neon-glow)" dataKey="total" radius={[0, 4, 4, 0]}>
                   {motivoActivo.map((_, i) => (
                     <Cell
@@ -229,7 +233,7 @@ export function AbandonoPipelineChart() {
                     <td className="py-1.5">
                       <span
                         className="px-2 py-0.5 rounded-full text-[10px] font-medium text-white"
-                        style={{ background: ETAPA_COLOR[c.etapa] ?? COLORS.muted, boxShadow: `0 0 6px ${ETAPA_COLOR[c.etapa] ?? COLORS.muted}` }}
+                        style={{ background: colorEtapa(c.etapa), boxShadow: `0 0 6px ${colorEtapa(c.etapa)}` }}
                       >
                         {ETAPA_LABEL[c.etapa] ?? c.etapa}
                       </span>

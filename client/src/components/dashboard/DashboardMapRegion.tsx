@@ -3,16 +3,18 @@
 import { useState } from "react";
 import { MapPin, X } from "lucide-react";
 import { PeruMap, normalizeRegion } from "../ui/PeruMap";
-import { CARD_CLASS, HEADER_CLASS, COLORS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { useChartColors } from "../../hooks/useChartColors";
 import type { RegionEtapa } from "../../services/prospectos.api";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 function ActividadRegion({ selected }: { selected: RegionEtapa }) {
+  const c = useChartColors();
   const barData = [
-    { nombre: "Llamadas",   valor: selected.llamadas   ?? 0, color: COLORS.dark      },
-    { nombre: "Brochures",  valor: selected.brochures  ?? 0, color: COLORS.mutedDark },
-    { nombre: "Reuniones",  valor: selected.reuniones  ?? 0, color: COLORS.muted     },
-    { nombre: "Propuestas", valor: selected.propuestas ?? 0, color: COLORS.primary   },
+    { nombre: "Llamadas",   valor: selected.llamadas   ?? 0, color: c.palette[1] },
+    { nombre: "Brochures",  valor: selected.brochures  ?? 0, color: c.palette[2] },
+    { nombre: "Reuniones",  valor: selected.reuniones  ?? 0, color: c.palette[3] },
+    { nombre: "Propuestas", valor: selected.propuestas ?? 0, color: c.accent     },
   ];
   return (
     <div className="mt-5 pt-4 border-t border-white/8">
@@ -56,6 +58,7 @@ interface Props {
 }
 
 export function DashboardMapRegion({ datos }: Props) {
+  const c = useChartColors();
   const [selected, setSelected] = useState<RegionEtapa | null>(null);
 
   const datosValidos = datos.filter(d => d.zona && d.zona !== "Sin región");
@@ -94,7 +97,7 @@ export function DashboardMapRegion({ datos }: Props) {
               value: d.total,
             }))}
             selected={selected ? normalizeRegion(selected.zona) : undefined}
-            selectColor={COLORS.primary}
+            selectColor={c.accent}
             onSelect={handleSelect}
             height="100%"
             bgColor="#0c1322"
