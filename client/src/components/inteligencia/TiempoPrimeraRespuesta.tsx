@@ -1,7 +1,7 @@
 /** client/src/components/inteligencia/TiempoPrimeraRespuesta.tsx */
 
 import { useEffect, useState } from "react";
-import { CARD_CLASS, HEADER_CLASS, COLORS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, COLORS, TOOLTIP_BASE } from "../../lib/tokens";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
@@ -12,9 +12,9 @@ import { getTiempoPrimeraRespuesta, type TiempoPrimeraRespuesta } from "../../se
 const TooltipArea = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-1.5 text-xs">
-      <p className="font-semibold text-zinc-800">{label}</p>
-      <p className="text-zinc-600">{payload[0].value} prospectos · {payload[0].payload.pct}%</p>
+    <div className={`${TOOLTIP_BASE} px-3 py-1.5 text-xs`}>
+      <p className="font-semibold text-zinc-200">{label}</p>
+      <p className="text-zinc-400">{payload[0].value} prospectos · {payload[0].payload.pct}%</p>
     </div>
   );
 };
@@ -46,7 +46,7 @@ export function TiempoPrimeraRespuestaChart() {
         </div>
         <div>
           <h3 className={HEADER_CLASS}>Tiempo de primera respuesta</h3>
-          <p className="text-[11px] text-zinc-600">Días promedio entre creación del lead y primer contacto</p>
+          <p className="text-[11px] text-zinc-400">Días promedio entre creación del lead y primer contacto</p>
         </div>
       </div>
 
@@ -57,7 +57,7 @@ export function TiempoPrimeraRespuestaChart() {
           { label: "Promedio", value: data.promedio_dias, color: "text-zinc-800"    },
           { label: "Máximo",   value: data.maximo_dias,   color: "text-red-500"     },
         ].map(s => (
-          <div key={s.label} className="bg-zinc-50 rounded-xl p-2.5 text-center">
+          <div key={s.label} className="bg-zinc-800/40 rounded-xl p-2.5 text-center">
             <p className={`text-lg font-bold leading-none ${s.color}`}>
               {s.value !== null ? `${s.value}d` : "—"}
             </p>
@@ -84,7 +84,7 @@ export function TiempoPrimeraRespuestaChart() {
             />
             <YAxis tick={{ fontSize: 9, fill: "#71717a" }} tickLine={false} axisLine={false} />
             <Tooltip content={<TooltipArea />} />
-            <Area
+            <Area filter="url(#neon-glow)"
               type="monotone"
               dataKey="valor"
               stroke={COLORS.primary}
@@ -101,8 +101,8 @@ export function TiempoPrimeraRespuestaChart() {
       )}
 
       {/* Footer */}
-      <div className="mt-3 pt-3 border-t border-zinc-100 flex justify-between items-center text-[10px]">
-        <span className="text-zinc-600">{data.total_con_contacto} con primer contacto</span>
+      <div className="mt-3 pt-3 border-t border-white/8 flex justify-between items-center text-[10px]">
+        <span className="text-zinc-400">{data.total_con_contacto} con primer contacto</span>
         <span className={`font-bold ${vel.cls}`}>{vel.label}</span>
         <span className="text-red-400">{data.sin_contacto} sin contactar</span>
       </div>

@@ -1,5 +1,6 @@
 /**client/src/components/plantillas/PlantillaSelector.tsx */
 
+import { PANEL_BASE } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import { Copy, Check, ExternalLink, MessageSquare } from "lucide-react";
 import { getPlantillas, personalizarPlantilla } from "../../services/plantillas.api";
@@ -66,8 +67,8 @@ export function PlantillaSelector({ empresa, nombre, telefono }: Props) {
 
   if (plantillas.length === 0) return (
     <div className="text-center py-10 space-y-3">
-      <MessageSquare size={28} className="mx-auto text-zinc-700" />
-      <p className="text-xs text-zinc-600">Aún no tienes plantillas creadas</p>
+      <MessageSquare size={28} className="mx-auto text-zinc-300" />
+      <p className="text-xs text-zinc-400">Aún no tienes plantillas creadas</p>
       <button
         onClick={() => navigate("/plantillas")}
         className="text-xs text-amber-500 hover:text-amber-700 underline"
@@ -80,10 +81,10 @@ export function PlantillaSelector({ empresa, nombre, telefono }: Props) {
   return (
     <div className="space-y-4">
       {/* Datos del prospecto */}
-      <div className="bg-gray-50 rounded-xl p-3 flex gap-4 text-xs text-zinc-600 flex-wrap">
-        <span><span className="text-zinc-600">Empresa:</span> <strong>{empresa ?? "—"}</strong></span>
-        <span><span className="text-zinc-600">Contacto:</span> <strong>{nombre ?? "—"}</strong></span>
-        <span><span className="text-zinc-600">Teléfono:</span> <strong>{telefono ?? "—"}</strong></span>
+      <div className={`${PANEL_BASE} p-3 flex gap-4 text-xs text-zinc-400 flex-wrap`}>
+        <span><span className="text-zinc-400">Empresa:</span> <strong>{empresa ?? "—"}</strong></span>
+        <span><span className="text-zinc-400">Contacto:</span> <strong>{nombre ?? "—"}</strong></span>
+        <span><span className="text-zinc-400">Teléfono:</span> <strong>{telefono ?? "—"}</strong></span>
       </div>
 
       {/* Grid de plantillas */}
@@ -95,7 +96,7 @@ export function PlantillaSelector({ empresa, nombre, telefono }: Props) {
             className={`text-left px-3 py-2.5 rounded-xl border text-xs transition ${
               seleccionada?.id === p.id
                 ? "border-amber-400 bg-amber-50 text-amber-700 font-medium shadow-sm"
-                : "border-gray-100 bg-white hover:border-amber-200 hover:bg-amber-50 text-zinc-600"
+                : "border-white/8 bg-slate-800/60 hover:border-amber-200 hover:bg-amber-50 text-zinc-400"
             }`}
           >
             <span className={`inline-block text-[9px] px-1.5 py-0.5 rounded font-medium mb-1 ${CANAL_BADGE[p.canal]}`}>
@@ -108,14 +109,14 @@ export function PlantillaSelector({ empresa, nombre, telefono }: Props) {
 
       {/* Preview personalizado */}
       {seleccionada && textoPrev && (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3 shadow-sm">
+        <div className={`${PANEL_BASE} p-4 space-y-3`}>
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-zinc-700">{seleccionada.titulo}</p>
+            <p className="text-xs font-semibold text-zinc-300">{seleccionada.titulo}</p>
             <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${CANAL_BADGE[seleccionada.canal]}`}>
               {CANAL_LABEL[seleccionada.canal]}
             </span>
           </div>
-          <p className="text-xs text-zinc-700 whitespace-pre-wrap leading-relaxed bg-gray-50 rounded-lg p-3">
+          <p className="text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed bg-zinc-800/40 rounded-lg p-3">
             {textoPrev}
           </p>
           <div className="flex gap-2">
@@ -124,7 +125,7 @@ export function PlantillaSelector({ empresa, nombre, telefono }: Props) {
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border transition ${
                 copiado
                   ? "border-green-400 bg-green-50 text-green-700"
-                  : "border-gray-200 hover:bg-gray-50 text-zinc-600"
+                  : "border-white/10 hover:bg-zinc-800/40 text-zinc-400"
               }`}
             >
               {copiado ? <><Check size={12} /> Copiado</> : <><Copy size={12} /> Copiar texto</>}

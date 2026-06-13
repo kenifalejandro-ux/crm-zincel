@@ -69,23 +69,23 @@ export function ConversionFunnelChart() {
 
       {/* ── KPI cards ── */}
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="border border-zinc-200 rounded-xl p-4 text-center">
-          <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-1">Valor activo</p>
-          <p className="text-2xl font-bold text-zinc-900">{fmtSol(data.valor_pipeline)}</p>
+        <div className="border border-white/10 rounded-xl p-4 text-center">
+          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wider mb-1">Valor activo</p>
+          <p className="text-2xl font-bold text-zinc-100">{fmtSol(data.valor_pipeline)}</p>
           <p className="text-[10px] text-zinc-400 mt-1">
             {data.etapas.filter(e => !["cerrado_ganado"].includes(e.etapa)).reduce((s, e) => s + e.total, 0)} leads activos
           </p>
         </div>
-        <div className="border border-zinc-200 rounded-xl p-4 text-center">
-          <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-1">Cerrado ganado</p>
-          <p className="text-2xl font-bold text-zinc-900">{fmtSol(data.valor_cerrado)}</p>
+        <div className="border border-white/10 rounded-xl p-4 text-center">
+          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wider mb-1">Cerrado ganado</p>
+          <p className="text-2xl font-bold text-zinc-100">{fmtSol(data.valor_cerrado)}</p>
           <p className="text-[10px] text-zinc-400 mt-1">
             {data.etapas.find(e => e.etapa === "cerrado_ganado")?.total ?? 0} ganado · {data.perdidos} perdido
           </p>
         </div>
-        <div className="border border-zinc-200 rounded-xl p-4 text-center">
-          <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-1">Tasa de cierre</p>
-          <p className={`text-2xl font-bold ${data.tasa_cierre >= 40 ? "text-zinc-900" : data.tasa_cierre >= 20 ? "text-amber-600" : "text-red-500"}`}>
+        <div className="border border-white/10 rounded-xl p-4 text-center">
+          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wider mb-1">Tasa de cierre</p>
+          <p className={`text-2xl font-bold ${data.tasa_cierre >= 40 ? "text-zinc-100" : data.tasa_cierre >= 20 ? "text-amber-600" : "text-red-500"}`}>
             {data.tasa_cierre}%
           </p>
           <p className="text-[10px] text-zinc-400 mt-1">
@@ -113,11 +113,11 @@ export function ConversionFunnelChart() {
                   {/* Spacer igual al ancho del label */}
                   <div className="w-32 shrink-0" />
                   <div className="flex-1 flex items-center gap-2">
-                    <div className="flex-1 border-t border-dashed border-zinc-200" />
+                    <div className="flex-1 border-t border-dashed border-white/10" />
                     <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shrink-0 ${convBadgeStyle(conv)}`}>
                       {conv === null ? "—" : conv === 0 ? "⚠ 0% ¡ALERTA!" : `▼ ${conv}%`}
                     </span>
-                    <div className="flex-1 border-t border-dashed border-zinc-200" />
+                    <div className="flex-1 border-t border-dashed border-white/10" />
                   </div>
                   {/* Spacer derecho */}
                   <div className="w-32 shrink-0" />
@@ -128,7 +128,7 @@ export function ConversionFunnelChart() {
               <div className="flex items-center gap-3">
 
                 {/* Label izquierdo */}
-                <span className="text-[12px] font-medium text-zinc-600 w-32 shrink-0">
+                <span className="text-[12px] font-medium text-zinc-400 w-32 shrink-0">
                   {label}
                 </span>
 
@@ -142,7 +142,7 @@ export function ConversionFunnelChart() {
                     />
                   ) : (
                     // Barra llena
-                    <div className="h-full bg-zinc-100 rounded-lg overflow-hidden">
+                    <div className="h-full bg-zinc-800 rounded-lg overflow-hidden">
                       <div
                         className="h-full rounded-lg flex items-center px-3 transition-all duration-700"
                         style={{
@@ -162,7 +162,7 @@ export function ConversionFunnelChart() {
 
                 {/* Stats derecha */}
                 <div className="w-32 shrink-0 flex items-center justify-end gap-3">
-                  <span className="text-[13px] font-bold text-zinc-800">
+                  <span className="text-[13px] font-bold text-zinc-200">
                     {etapa.total} {etapa.total === 1 ? "lead" : "leads"}
                   </span>
                   <span className="text-[11px] text-zinc-400 w-16 text-right">
@@ -178,18 +178,18 @@ export function ConversionFunnelChart() {
 
       {/* ── Perdidos / descartados ── */}
       {(data.perdidos > 0 || data.descartados > 0) && (
-        <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center gap-5 text-xs text-zinc-500">
+        <div className="mt-4 pt-3 border-t border-white/8 flex items-center gap-5 text-xs text-zinc-500">
           <span className="font-medium">Fuera del funnel:</span>
           {data.perdidos > 0 && (
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.danger }} />
-              Perdidos: <strong className="text-zinc-700">{data.perdidos}</strong>
+              Perdidos: <strong className="text-zinc-300">{data.perdidos}</strong>
             </span>
           )}
           {data.descartados > 0 && (
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-zinc-300" />
-              Descartados: <strong className="text-zinc-700">{data.descartados}</strong>
+              Descartados: <strong className="text-zinc-300">{data.descartados}</strong>
             </span>
           )}
         </div>

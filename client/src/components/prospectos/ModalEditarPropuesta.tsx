@@ -1,5 +1,6 @@
 /** client/src/components/propuestas/ModalEditarPropuesta.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import { Modal }  from "../ui/Modal";
 import { Button } from "../ui/Button";
 import type { Propuesta, FormPropuesta, EstadoPropuesta, ServicioPropuesta } from "../../types/propuesta.types";
@@ -139,7 +140,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, error, onFormC
 
         {/* Fechas */}
         <div className="space-y-3 border border-dashed border-zinc-600 rounded-xl p-3 bg-zinc-900/30">
-          <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Fechas del proceso</p>
+          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wide">Fechas del proceso</p>
 
           <div>
             <label className={lbl}>📤 Enviada — fecha de propuesta</label>
@@ -191,7 +192,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, error, onFormC
             <textarea rows={2} value={form.notas}
               onChange={e => set({ notas: e.target.value })}
               placeholder="Contexto al enviar la propuesta..."
-              className="w-full text-xs bg-zinc-900/50 border border-zinc-600 rounded-lg px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none" />
+              className={`${INPUT_BASE} w-full text-xs bg-zinc-900/50 border-zinc-600 px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none`} />
           </div>
 
           {(esNegociacion || (esFinalizada && form.fecha_negociacion) || form.notas_negociacion) && (
@@ -200,7 +201,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, error, onFormC
               <textarea rows={2} value={form.notas_negociacion}
                 onChange={e => set({ notas_negociacion: e.target.value })}
                 placeholder="Objeciones, ajustes de precio, acuerdos..."
-                className="w-full text-xs bg-zinc-900/50 border border-zinc-600 rounded-lg px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none" />
+                className={`${INPUT_BASE} w-full text-xs bg-zinc-900/50 border-zinc-600 px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none`} />
             </div>
           )}
 
@@ -212,7 +213,7 @@ export function ModalEditarPropuesta({ propuesta, form, cargando, error, onFormC
               <textarea rows={2} value={form.notas_cierre}
                 onChange={e => set({ notas_cierre: e.target.value })}
                 placeholder="Razón del cierre, condiciones pactadas..."
-                className="w-full text-xs bg-zinc-900/50 border border-zinc-600 rounded-lg px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none" />
+                className={`${INPUT_BASE} w-full text-xs bg-zinc-900/50 border-zinc-600 px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none`} />
             </div>
           )}
         </div>

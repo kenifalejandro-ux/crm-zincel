@@ -379,7 +379,7 @@ export default function FinanzasPage() {
           <div className="flex items-center gap-3">
             <div className="crm-section-accent h-8" />
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Finanzas</h1>
+              <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Finanzas</h1>
               <p className="text-xs text-slate-500 mt-0.5">Sistema contable digital personal</p>
             </div>
           </div>
@@ -484,7 +484,7 @@ export default function FinanzasPage() {
         />
       )}
       {tab === "resumen" && !resumen && (
-        <div className="text-center py-12 text-xs text-zinc-600">Cargando resumen…</div>
+        <div className="text-center py-12 text-xs text-zinc-400">Cargando resumen…</div>
       )}
 
       {tab === "empresas" && <TablaEmpresasAnalisis />}

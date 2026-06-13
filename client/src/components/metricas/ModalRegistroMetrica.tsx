@@ -1,5 +1,6 @@
 /** src/components/metricas/ModalRegistroMetrica.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import { useEffect }                    from "react";
 import { FormMetrica, Plataforma }      from "../../types/metricas.types";
 import { calcularDesdeForm }            from "../../utils/metricas.calc";
@@ -67,7 +68,7 @@ const CAMPOS_VIDEO = [
 // ─── Sub componentes ───────────────────────────────────────────────────────────
 const Seccion = ({ titulo, children }: { titulo: string; children: React.ReactNode }) => (
   <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 space-y-3">
-    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{titulo}</p>
+    <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-widest">{titulo}</p>
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">{children}</div>
   </div>
 );
@@ -81,7 +82,7 @@ const Campo = ({
   calculado?: boolean;
 }) => (
   <div className="space-y-1.5">
-    <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">
+    <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest block">
       {label}
       {calculado && <span className="ml-1 text-brand font-bold">· auto</span>}
     </label>
@@ -91,11 +92,7 @@ const Campo = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       readOnly={calculado}
-      className={`w-full rounded-xl px-3 py-2 text-xs focus:outline-none transition [color-scheme:dark] ${
-        calculado
-          ? "bg-zinc-900/60 border border-zinc-700 text-zinc-500 cursor-not-allowed"
-          : "bg-zinc-900/60 border border-zinc-600 text-zinc-100 focus:ring-2 focus:ring-brand/25 focus:border-brand/50"
-      }`}
+      className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none transition [color-scheme:dark] ${ calculado ? "bg-zinc-900/60 border-zinc-700 text-zinc-500 cursor-not-allowed" : "bg-zinc-900/60 border-zinc-600 text-zinc-100 focus:ring-2 focus:ring-brand/25 focus:border-brand/50" }`}
       placeholder="0"
     />
   </div>
@@ -152,19 +149,19 @@ export const ModalRegistroMetrica = ({
           {/* Empresa + Campaña + Objetivo */}
           <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Empresa *</label>
+              <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest block">Empresa *</label>
               <input value={form.empresa} onChange={(e) => set("empresa", e.target.value)}
-                className="w-full bg-zinc-900/60 border border-zinc-600 rounded-xl px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/50"
+                className={`${INPUT_BASE} w-full bg-zinc-900/60 border-zinc-600 px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/50`}
                 placeholder="Nombre de empresa" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Nombre campaña *</label>
+              <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest block">Nombre campaña *</label>
               <input value={form.campana_nombre} onChange={(e) => set("campana_nombre", e.target.value)}
-                className="w-full bg-zinc-900/60 border border-zinc-600 rounded-xl px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/50"
+                className={`${INPUT_BASE} w-full bg-zinc-900/60 border-zinc-600 px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/50`}
                 placeholder="Ej: Black Friday 2026" />
             </div>
             <div className="col-span-2 space-y-1.5">
-              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Objetivo de la campaña</label>
+              <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest block">Objetivo de la campaña</label>
               <div className="flex gap-2">
                 {(["venta", "branding", "comunidad"] as const).map((obj) => (
                   <button
@@ -191,10 +188,10 @@ export const ModalRegistroMetrica = ({
           {/* Plataforma + Sub plataforma + Período */}
           <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Plataforma *</label>
+              <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest block">Plataforma *</label>
               <select value={form.plataforma}
                 onChange={(e) => onFormChange({ ...form, plataforma: e.target.value as Plataforma, sub_plataforma: "" })}
-                className="w-full bg-zinc-800 border border-yellow-300/30 rounded-xl px-3 py-2.5 text-xs text-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/25">
+                className={`${INPUT_BASE} w-full border-yellow-300/30 px-3 py-2.5 text-xs text-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/25`}>
                 <option value="meta">Meta Ads</option>
                 <option value="google">Google Ads</option>
                 <option value="tiktok">TikTok Ads</option>
@@ -203,9 +200,9 @@ export const ModalRegistroMetrica = ({
 
             {form.plataforma === "meta" && (
               <div className="space-y-1.5">
-                <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Red social</label>
+                <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest block">Red social</label>
                 <select value={form.sub_plataforma} onChange={(e) => set("sub_plataforma", e.target.value)}
-                  className="w-full bg-zinc-800 border border-yellow-300/30 rounded-xl px-3 py-2.5 text-xs text-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/25">
+                  className={`${INPUT_BASE} w-full border-yellow-300/30 px-3 py-2.5 text-xs text-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/25`}>
                   <option value="">Ambas</option>
                   <option value="facebook">Facebook</option>
                   <option value="instagram">Instagram</option>
@@ -215,14 +212,14 @@ export const ModalRegistroMetrica = ({
             )}
 
             <div className="space-y-1.5">
-              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Período inicio *</label>
+              <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest block">Período inicio *</label>
               <input type="date" value={form.periodo_inicio} onChange={(e) => set("periodo_inicio", e.target.value)}
-                className="w-full bg-zinc-900/60 border border-zinc-600 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/25 [color-scheme:dark]" />
+                className={`${INPUT_BASE} w-full bg-zinc-900/60 border-zinc-600 px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/25 [color-scheme:dark]`} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block">Período fin *</label>
+              <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest block">Período fin *</label>
               <input type="date" value={form.periodo_fin} onChange={(e) => set("periodo_fin", e.target.value)}
-                className="w-full bg-zinc-900/60 border border-zinc-600 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/25 [color-scheme:dark]" />
+                className={`${INPUT_BASE} w-full bg-zinc-900/60 border-zinc-600 px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:ring-2 focus:ring-brand/25 [color-scheme:dark]`} />
             </div>
           </div>
 
@@ -277,12 +274,12 @@ export const ModalRegistroMetrica = ({
 
           {/* Notas */}
           <div>
-            <label className="text-xs text-zinc-700 mb-1 block">Notas</label>
+            <label className="text-xs text-zinc-300 mb-1 block">Notas</label>
             <textarea
               value={form.notas}
               onChange={(e) => set("notas", e.target.value)}
               rows={2}
-              className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
+              className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none`}
               placeholder="Observaciones opcionales..."
             />
           </div>
@@ -290,10 +287,10 @@ export const ModalRegistroMetrica = ({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 px-6 py-4 border-t border-zinc-100">
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-white/8">
           <button
             onClick={onCerrar}
-            className="px-4 py-2 text-xs text-zinc-600 hover:bg-zinc-100 rounded-lg transition"
+            className="px-4 py-2 text-xs text-zinc-400 hover:bg-zinc-800 rounded-lg transition"
           >
             Cancelar
           </button>

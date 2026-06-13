@@ -1,5 +1,6 @@
 /** client/src/components/finanzas/ModalEditarPrestamo.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import { useState } from "react";
 import { ModalEditar } from "../ui/ModalEditar";
 import type { CategoriaPrestamo, EstadoPrestamo, Moneda } from "../../types/finanzas.types";
@@ -118,7 +119,7 @@ export function ModalEditarPrestamo({ prestamo, guardando, error, onGuardar, onC
             <span className="text-amber-500">S/</span>
             <input type="number" min={1} step={0.01} value={form.tipo_cambio}
               onChange={(e) => set({ tipo_cambio: e.target.value })}
-              className="w-20 px-2 py-1 border border-zinc-600 rounded text-xs text-center bg-zinc-800 text-zinc-200 focus:outline-none focus:ring-1 focus:ring-amber-400 [color-scheme:dark]" />
+              className={`${INPUT_BASE} w-20 px-2 py-1 border-zinc-600 rounded text-xs text-center text-zinc-200 focus:outline-none focus:ring-1 focus:ring-amber-400 [color-scheme:dark]`} />
             <span className="text-amber-500">/ USD</span>
             <span className="text-zinc-500 ml-auto">Se guarda con el registro</span>
           </div>

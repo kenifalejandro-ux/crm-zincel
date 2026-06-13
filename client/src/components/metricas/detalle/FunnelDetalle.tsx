@@ -1,5 +1,6 @@
 /** src/components/metricas/detalle/FunnelDetalle.tsx */
 
+import { BADGE_BASE, PANEL_BASE } from "../../../lib/tokens";
 import { FunnelData } from "../../../utils/metricas.calc";
 
 interface Props { funnel: FunnelData }
@@ -68,10 +69,10 @@ export const FunnelDetalle = ({ funnel }: Props) => (
     )}
 
     {/* Tasa global */}
-    <div className="text-center bg-zinc-50 rounded-xl p-3">
-      <p className="text-xs text-zinc-600">Tasa de conversión global</p>
-      <p className="text-2xl font-black text-zinc-800">{funnel.tasa_global}%</p>
-      <p className="text-[10px] text-zinc-600">Impresiones → Conversiones</p>
+    <div className={`${PANEL_BASE} text-center p-3`}>
+      <p className="text-xs text-zinc-400">Tasa de conversión global</p>
+      <p className="text-2xl font-black text-zinc-200">{funnel.tasa_global}%</p>
+      <p className="text-[10px] text-zinc-400">Impresiones → Conversiones</p>
     </div>
 
     {/* Etapas del funnel */}
@@ -82,12 +83,12 @@ export const FunnelDetalle = ({ funnel }: Props) => (
           {/* Header etapa */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-zinc-700">{etapa.nombre}</span>
+              <span className="text-xs font-medium text-zinc-300">{etapa.nombre}</span>
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${COLOR_ETIQUETA[etapa.etiqueta]}`}>
                 {etapa.etiqueta}
               </span>
               {funnel.cuello_botella === etapa.nombre && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-red-100 text-red-700">
+                <span className={`${BADGE_BASE} text-[10px] px-1.5 py-0.5 font-medium text-red-700`}>
                   ⚠️ Cuello
                 </span>
               )}
@@ -98,7 +99,7 @@ export const FunnelDetalle = ({ funnel }: Props) => (
                   {etapa.porcentaje}%
                 </span>
               )}
-              <span className="text-xs font-bold text-zinc-800">
+              <span className="text-xs font-bold text-zinc-200">
                 {etapa.nombre === "Ventas"
                   ? `S/ ${Number(etapa.valor).toLocaleString("es-PE")}`
                   : Number(etapa.valor).toLocaleString()
@@ -108,7 +109,7 @@ export const FunnelDetalle = ({ funnel }: Props) => (
           </div>
 
           {/* Barra */}
-          <div className="h-2 bg-zinc-100 rounded-full overflow-hidden">
+          <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all ${COLOR_BARRA[etapa.estado]}`}
               style={{ width: `${Math.min(etapa.porcentaje, 100)}%` }}
@@ -116,7 +117,7 @@ export const FunnelDetalle = ({ funnel }: Props) => (
           </div>
 
           {/* Descripción */}
-          <p className="text-[10px] text-zinc-600">
+          <p className="text-[10px] text-zinc-400">
             {DESCRIPCION_ETAPA[etapa.nombre]}
           </p>
 

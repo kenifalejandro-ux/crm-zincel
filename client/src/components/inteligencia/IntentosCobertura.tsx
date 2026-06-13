@@ -93,20 +93,20 @@ export function IntentosCobertura() {
       <div className="grid grid-cols-3 gap-3">
         <div className={`${CARD_CLASS} text-center`}>
           <Phone size={16} className="mx-auto mb-2 text-zinc-400" />
-          <p className="text-2xl font-bold text-zinc-900">{datos.total_llamadas}</p>
-          <p className="text-[10px] text-zinc-400 uppercase tracking-widest mt-1">Llamadas totales</p>
+          <p className="text-2xl font-bold text-zinc-100">{datos.total_llamadas}</p>
+          <p className="text-[10px] text-zinc-100 uppercase tracking-widest mt-1">Llamadas totales</p>
         </div>
         <div className={`${CARD_CLASS} text-center`}>
           <Users size={16} className="mx-auto mb-2 text-zinc-400" />
-          <p className="text-2xl font-bold text-zinc-900">{datos.empresas_unicas}</p>
-          <p className="text-[10px] text-zinc-400 uppercase tracking-widest mt-1">Empresas únicas</p>
+          <p className="text-2xl font-bold text-zinc-100">{datos.empresas_unicas}</p>
+          <p className="text-[10px] text-zinc-100 uppercase tracking-widest mt-1">Empresas únicas</p>
         </div>
         <div className={`${CARD_CLASS} text-center`}>
           <RefreshCw size={16} className="mx-auto mb-2 text-zinc-400" />
           <p className="text-2xl font-bold" style={{ color: prom < 1.5 ? COLORS.success : prom < 2.5 ? COLORS.primary : COLORS.danger }}>
             {prom.toFixed(1)}x
           </p>
-          <p className="text-[10px] text-zinc-400 uppercase tracking-widest mt-1">Intentos / empresa</p>
+          <p className="text-[10px] text-zinc-100 uppercase tracking-widest mt-1">Intentos / empresa</p>
         </div>
       </div>
 
@@ -125,10 +125,10 @@ export function IntentosCobertura() {
           ].map(row => (
             <div key={row.label} className="space-y-1">
               <div className="flex justify-between text-xs">
-                <span className="text-zinc-700 font-medium">{row.label}</span>
-                <span className="font-bold text-zinc-800">{row.count} empresas <span className="text-zinc-400 font-normal">· {row.pct}%</span></span>
+                <span className="text-zinc-300 font-medium">{row.label}</span>
+                <span className="font-bold text-zinc-200">{row.count} empresas <span className="text-zinc-400 font-normal">· {row.pct}%</span></span>
               </div>
-              <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+              <div className="h-2.5 bg-zinc-800 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700"
                   style={{ width: `${row.pct}%`, backgroundColor: row.color }}
@@ -151,9 +151,9 @@ export function IntentosCobertura() {
         </h2>
 
         <div className="mt-3 space-y-3">
-          <p className="text-sm font-semibold text-zinc-800">{titulo}</p>
+          <p className="text-sm font-semibold text-zinc-200">{titulo}</p>
           {parrafos.map((p, i) => (
-            <p key={i} className="text-xs text-zinc-600 leading-relaxed">{p}</p>
+            <p key={i} className="text-xs text-zinc-400 leading-relaxed">{p}</p>
           ))}
         </div>
 

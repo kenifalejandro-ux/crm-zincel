@@ -1,6 +1,6 @@
 /** client/src/components/finanzas/IngresosPorServicioChart.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Cell, LabelList,
@@ -23,9 +23,9 @@ const TIPO_LABEL: Record<TipoServicio, string> = {
 const TooltipCustom = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-1.5 text-xs">
-      <p className="font-medium text-zinc-700">{label}</p>
-      <p className="text-zinc-600">S/ {Number(payload[0].value).toLocaleString("es-PE", { minimumFractionDigits: 2 })}</p>
+    <div className={`${TOOLTIP_BASE} px-3 py-1.5 text-xs`}>
+      <p className="font-medium text-zinc-300">{label}</p>
+      <p className="text-zinc-400">S/ {Number(payload[0].value).toLocaleString("es-PE", { minimumFractionDigits: 2 })}</p>
     </div>
   );
 };
@@ -59,7 +59,7 @@ export function IngresosPorServicioChart({ por_servicio }: Props) {
           <YAxis tick={{ fontSize: 11, fill: COLORS.muted }} tickLine={false} axisLine={false}
             tickFormatter={(v) => `S/${(v / 1000).toFixed(0)}k`} />
           <Tooltip content={<TooltipCustom />} />
-          <Bar dataKey="total" name="Total" radius={[4, 4, 0, 0]}>
+          <Bar filter="url(#neon-glow)" dataKey="total" name="Total" radius={[4, 4, 0, 0]}>
             {data.map((_, i) => <Cell key={i} fill={COLORES[i % COLORES.length]} />)}
             <LabelList dataKey="total" position="top" style={{ fontSize: 9, fill: "#52525b", fontWeight: 600 }} formatter={(v: any) => `S/${(Number(v)/1000).toFixed(0)}k`} />
           </Bar>

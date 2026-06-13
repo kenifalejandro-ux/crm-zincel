@@ -17,15 +17,15 @@ const TABS: { value: TabFinanzas; label: string }[] = [
 
 export function TabsFinanzas({ tab, onChange }: Props) {
   return (
-    <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit">
+    <div className="flex gap-1 bg-slate-800 p-1 rounded-xl w-fit">
       {TABS.map((t) => (
         <button
           key={t.value}
           onClick={() => onChange(t.value)}
           className={`px-4 py-2 text-xs rounded-lg transition font-medium ${
             tab === t.value
-              ? "bg-white shadow-sm text-amber-700 font-semibold"
-              : "text-slate-600 hover:text-slate-800"
+              ? "bg-slate-800/60 shadow-sm text-amber-700 font-semibold"
+              : "text-slate-400 hover:text-slate-200"
           }`}
         >
           {t.label}

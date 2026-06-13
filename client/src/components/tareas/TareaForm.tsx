@@ -75,7 +75,7 @@ export function TareaForm({ prospectoId, onGuardado, onCancelar }: Props) {
       {error && <p className="text-xs text-red-500">{error}</p>}
 
       <div className="flex gap-2">
-        <button onClick={onCancelar} className="flex-1 px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+        <button onClick={onCancelar} className="flex-1 px-3 py-1.5 text-xs border border-white/10 rounded-lg hover:bg-zinc-800/40 transition">
           Cancelar
         </button>
         <button onClick={handleGuardar} disabled={loading}

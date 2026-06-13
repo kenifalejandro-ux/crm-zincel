@@ -1,5 +1,6 @@
 /** client/src/components/dashboard/ObjetivoDiarioGauge.tsx */
 
+import { GLASS_BASE, INPUT_BASE } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import ReactSpeedometer, { Transition } from "react-d3-speedometer";
 import { Phone, CalendarDays, FileText, Target, ClipboardList, Pencil, Check, X } from "lucide-react";
@@ -41,7 +42,7 @@ function Gauge({ real, meta, label, icon }: {
         paddingHorizontal={6}
         paddingVertical={6}
       />
-      <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 -mt-2">
+      <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 -mt-2">
         <span className={cumplido ? "text-emerald-500" : "text-zinc-400"}>{icon}</span>
         {label}
       </div>
@@ -115,10 +116,10 @@ export function ObjetivoDiarioGauge({
   const label = LABEL_PERIODO[filtroPeriodo ?? "mes"] ?? "Objetivos del mes";
 
   return (
-    <div className="bg-white rounded-2xl border border-zinc-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_4px_16px_rgba(0,0,0,0.04)]">
+    <div className={`${GLASS_BASE} p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_4px_16px_rgba(0,0,0,0.04)]`}>
       <div className="flex items-center gap-2 mb-1">
         <Target size={14} className="text-brand" />
-        <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">{label}</p>
+        <p className="text-xs font-bold text-zinc-100 uppercase tracking-wider">{label}</p>
       </div>
       <div className="grid grid-cols-4 gap-2 justify-items-center">
         <Gauge real={obj.llamadas_hoy}  meta={obj.llamadas_meta}  label="Llamadas"  icon={<Phone size={12}/>} />
@@ -139,7 +140,7 @@ export function ObjetivoDiarioGauge({
                 type="number" min={1} value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") guardarMeta(); if (e.key === "Escape") setEditando(false); }}
-                className="w-12 text-[11px] px-1.5 py-0.5 border border-zinc-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand/40 text-center"
+                className={`${INPUT_BASE} w-12 text-[11px] px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-brand/40 text-center`}
                 autoFocus
               />
               <button onClick={() => setEditando(false)}><X size={11} className="text-zinc-400" /></button>

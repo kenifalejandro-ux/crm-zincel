@@ -1,5 +1,6 @@
 /**client/src/pages/PerfilPage.tsx */
 
+import { GLASS_BASE, BADGE_BASE, INPUT_BASE } from "../lib/tokens";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { cambiarPasswordApi } from "../services/auth.api";
@@ -46,20 +47,20 @@ export default function PerfilPage() {
     <div className="space-y-6 max-w-2xl">
 
       <div>
-        <h1 className="text-xl font-semibold text-zinc-800">Mi perfil</h1>
-        <p className="text-xs text-zinc-800 mt-0.5">Gestiona tu información y contraseña</p>
+        <h1 className="text-xl font-semibold text-zinc-200">Mi perfil</h1>
+        <p className="text-xs text-zinc-200 mt-0.5">Gestiona tu información y contraseña</p>
       </div>
 
       {/* Info usuario */}
-      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-6">
+      <div className={`${GLASS_BASE} p-6`}>
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-zinc-100 rounded-full flex items-center justify-center">
-            <User size={24} className="text-zinc-600" />
+          <div className="w-14 h-14 bg-zinc-800 rounded-full flex items-center justify-center">
+            <User size={24} className="text-zinc-400" />
           </div>
           <div>
-            <p className="font-semibold text-zinc-800 text-lg">{usuario?.nombre}</p>
-            <p className="text-xs text-zinc-800">{usuario?.email}</p>
-            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-700 capitalize mt-1">
+            <p className="font-semibold text-zinc-200 text-lg">{usuario?.nombre}</p>
+            <p className="text-xs text-zinc-200">{usuario?.email}</p>
+            <span className={`${BADGE_BASE} inline-flex px-2 py-0.5 text-xs font-medium text-zinc-300 capitalize mt-1`}>
               {usuario?.rol}
             </span>
           </div>
@@ -67,10 +68,10 @@ export default function PerfilPage() {
       </div>
 
       {/* Cambiar contraseña */}
-      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-6">
+      <div className={`${GLASS_BASE} p-6`}>
         <div className="flex items-center gap-2 mb-5">
-          <Lock size={18} className="text-zinc-800" />
-          <h2 className="text-base font-semibold text-zinc-800">Cambiar contraseña</h2>
+          <Lock size={18} className="text-zinc-200" />
+          <h2 className="text-base font-semibold text-zinc-200">Cambiar contraseña</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -84,8 +85,7 @@ export default function PerfilPage() {
               onChange={e => setForm(f => ({ ...f, password_actual: e.target.value }))}
               required
               placeholder="••••••••"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-xs
-                         focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-transparent"
+              className={`${INPUT_BASE} w-full px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-transparent`}
             />
           </div>
 
@@ -99,8 +99,7 @@ export default function PerfilPage() {
               onChange={e => setForm(f => ({ ...f, password_nuevo: e.target.value }))}
               required
               placeholder="Mínimo 6 caracteres"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-xs
-                         focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-transparent"
+              className={`${INPUT_BASE} w-full px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-transparent`}
             />
           </div>
 
@@ -114,8 +113,7 @@ export default function PerfilPage() {
               onChange={e => setForm(f => ({ ...f, password_confirmar: e.target.value }))}
               required
               placeholder="Repite la nueva contraseña"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-xs
-                         focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-transparent"
+              className={`${INPUT_BASE} w-full px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-transparent`}
             />
           </div>
 
@@ -136,7 +134,7 @@ export default function PerfilPage() {
             type="submit"
             disabled={cargando}
             className="w-full bg-brand hover:bg-brand-hover disabled:opacity-60
-                       text-zinc-800 font-medium py-2.5 rounded-lg text-xs transition"
+                       text-zinc-200 font-medium py-2.5 rounded-lg text-xs transition"
           >
             {cargando ? "Actualizando..." : "Actualizar contraseña"}
           </button>

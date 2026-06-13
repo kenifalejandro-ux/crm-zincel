@@ -1,5 +1,6 @@
 /** client/src/components/finanzas/FiltrosFinanzas.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import type { TabFinanzas } from "./TabsFinanzas";
 import type { CategoriaEgreso, CategoriaPrestamo } from "../../types/finanzas.types";
 
@@ -64,7 +65,7 @@ export function FiltrosFinanzas({
       <select
         value={filtroCategoria}
         onChange={e => onCategoriaChange(e.target.value)}
-        className="text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white text-zinc-600"
+        className={`${INPUT_BASE} text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50 text-zinc-400`}
       >
         <option value="">Todas las categorías</option>
         {categorias.map(c => (
@@ -75,7 +76,7 @@ export function FiltrosFinanzas({
       {filtroCategoria && (
         <button
           onClick={() => onCategoriaChange("")}
-          className="text-xs text-zinc-600 hover:text-zinc-600 underline transition"
+          className="text-xs text-zinc-400 hover:text-zinc-400 underline transition"
         >
           Limpiar
         </button>

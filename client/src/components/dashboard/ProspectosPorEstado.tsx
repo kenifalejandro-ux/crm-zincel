@@ -36,13 +36,13 @@ export function ProspectosPorEstado({ metricas }: Props) {
           return (
             <div key={i}>
               <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[12px] font-medium text-zinc-700">{item.label}</span>
+                <span className="text-[12px] font-medium text-zinc-300">{item.label}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-[12px] font-semibold text-zinc-900">{valor}</span>
-                  <span className="text-[10px] text-zinc-600 font-medium w-8 text-right">{pct}%</span>
+                  <span className="text-[12px] font-semibold text-zinc-100">{valor}</span>
+                  <span className="text-[10px] text-zinc-400 font-medium w-8 text-right">{pct}%</span>
                 </div>
               </div>
-              <div className="w-full bg-zinc-100 rounded-full h-1.5">
+              <div className="w-full bg-zinc-800 rounded-full h-1.5">
                 <div
                   className="h-1.5 rounded-full transition-all duration-500"
                   style={{ width: `${pct}%`, backgroundColor: item.color }}
@@ -53,9 +53,9 @@ export function ProspectosPorEstado({ metricas }: Props) {
         })}
       </div>
 
-      <div className="mt-6 pt-4 border-t border-zinc-100/60 flex justify-between items-center">
-        <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Total prospectos</span>
-        <span className="text-[14px] font-bold text-zinc-900">{total}</span>
+      <div className="mt-6 pt-4 border-t border-white/8/60 flex justify-between items-center">
+        <span className="text-[10px] font-bold text-zinc-100 uppercase tracking-widest">Total prospectos</span>
+        <span className="text-[14px] font-bold text-zinc-100">{total}</span>
       </div>
     </div>
   );

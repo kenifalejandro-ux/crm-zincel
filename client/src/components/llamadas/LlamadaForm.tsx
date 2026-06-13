@@ -1,5 +1,6 @@
 /**client/src/components/llamadas/LlamadaForm.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { Calendar, Clock, Activity, Phone, StickyNote, AlertCircle, Users, CheckCircle2, Hash } from "lucide-react";
@@ -60,7 +61,7 @@ const sel = "w-full px-3 py-2.5 text-xs bg-zinc-800 border border-yellow-300/30 
 function Field({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest">{label}</label>
+      <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest">{label}</label>
       <div className="flex items-center gap-2.5 border-b border-zinc-600 pb-1.5 focus-within:border-brand transition-colors group">
         <span className="text-yellow-500 shrink-0">{icon}</span>
         {children}
@@ -140,7 +141,7 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
         {/* Selector de prospecto — solo cuando viene de LlamadasPage */}
         {prospectos && (
           <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4">
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
               <Users size={11} className="text-yellow-500"/>Prospecto *
             </label>
             <select value={prospectoSel} onChange={e => setProspectoSel(e.target.value)} className={sel}>
@@ -158,7 +159,7 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
             <input type="date" value={form.fecha} onChange={e => set("fecha", e.target.value)} className={fi} />
           </Field>
           <div>
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block mb-1.5">Canal</label>
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest block mb-1.5">Canal</label>
             <select value={form.canal} onChange={e => set("canal", e.target.value)} className={sel}>
               {CANALES.map(c => <option key={c} value={c} className="capitalize">{c}</option>)}
             </select>
@@ -185,7 +186,7 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
         {/* Estado del lead */}
         <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 space-y-3">
           <div>
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
               <Activity size={11} className="text-yellow-500"/>Estado del lead
             </label>
             <select value={form.resultado} onChange={e => {
@@ -231,7 +232,7 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
           </label>
 
           <div>
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
               <Hash size={11} className="text-yellow-500"/>Intentos de llamada
             </label>
             <div className="flex items-center gap-2">
@@ -242,7 +243,7 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
                   onClick={() => set("intentos", n)}
                   className={`w-9 h-9 rounded-xl text-xs font-bold border transition-all ${
                     form.intentos === n
-                      ? "bg-brand border-brand text-zinc-900"
+                      ? "bg-brand border-brand text-zinc-100"
                       : "bg-zinc-900 border-zinc-600 text-zinc-400 hover:border-brand/50 hover:text-zinc-200"
                   }`}
                 >
@@ -259,7 +260,7 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
                   const v = parseInt(e.target.value, 10);
                   if (!isNaN(v) && v >= 1 && v <= 20) set("intentos", v);
                 }}
-                className="w-14 h-9 rounded-xl text-xs text-center bg-zinc-900 border border-zinc-600 text-zinc-300 focus:outline-none focus:border-brand/50 placeholder:text-zinc-500"
+                className={`${INPUT_BASE} w-14 h-9 text-xs text-center border-zinc-600 text-zinc-300 focus:outline-none focus:border-brand/50 placeholder:text-zinc-500`}
               />
             </div>
           </div>
@@ -267,12 +268,12 @@ export function LlamadaForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
 
         {/* Notas */}
         <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4">
-          <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-2">
+          <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-2">
             <StickyNote size={11} className="text-yellow-500"/>Notas
           </label>
           <textarea value={form.notas} onChange={e => set("notas", e.target.value)} rows={3}
             placeholder="Observaciones de la llamada..."
-            className="w-full text-xs bg-zinc-900/50 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none" />
+            className={`${INPUT_BASE} w-full text-xs bg-zinc-900/50 border-zinc-700 px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none`} />
         </div>
 
         {error && (

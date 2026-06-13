@@ -4,15 +4,15 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { lSidebar as Sidebar } from "./lSidebar";
 import { lHeader as Header } from "./lHeader";
-import { AnimatedBackground } from "../ui/AnimatedBackground";
+import { NeonFilters } from "../ui/NeonFilters";
 
 export function lLayout() {
   const [sidebarAbierto, setSidebarAbierto] = useState(false);
 
   return (
-    <div className="relative flex h-screen overflow-hidden bg-amber-400 text-slate-900">
+    <div className="relative flex h-screen overflow-hidden bg-[#080d1a] text-zinc-100">
 
-      <AnimatedBackground />
+      <NeonFilters />
 
       <Sidebar
         abierto={sidebarAbierto}

@@ -1,5 +1,6 @@
 /** client/src/components/llamadas/HistorialLlamadas.tsx */
 
+import { GLASS_BASE } from "../../lib/tokens";
 import { PhoneCall, PhoneMissed, Pencil, Trash2 } from "lucide-react";
 
 interface Props {
@@ -19,19 +20,19 @@ export function HistorialLlamadas({
   const mostrarCheck = !!onToggle;
 
   return (
-    <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-x-auto max-h-[700px] overflow-y-auto scrollbar-thin">
-      <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-3">
+    <div className={`${GLASS_BASE} overflow-x-auto max-h-[700px] overflow-y-auto scrollbar-thin`}>
+      <div className="px-5 py-3 border-b border-white/8 flex items-center gap-3">
         {mostrarCheck && (
           <input type="checkbox" checked={todosSeleccionados}
             onChange={onToggleTodos}
-            className="rounded border-gray-300 accent-brand" />
+            className="rounded border-white/15 accent-brand" />
         )}
-        <h2 className="text-xs font-semibold text-zinc-800">Historial de llamadas</h2>
+        <h2 className="text-xs font-semibold text-zinc-200">Historial de llamadas</h2>
       </div>
 
       <div className="divide-y divide-gray-50">
         {llamadas.length === 0 ? (
-          <div className="text-center py-10 text-xs text-zinc-600">
+          <div className="text-center py-10 text-xs text-zinc-400">
             Sin llamadas registradas
           </div>
         ) : (
@@ -41,33 +42,33 @@ export function HistorialLlamadas({
                 <input type="checkbox"
                   checked={seleccionados.includes(l.id)}
                   onChange={() => onToggle!(l.id)}
-                  className="rounded border-gray-300 accent-brand shrink-0" />
+                  className="rounded border-white/15 accent-brand shrink-0" />
               )}
 
               {/* Icono + info */}
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className={`p-1.5 rounded-lg shrink-0 ${l.contestada ? "bg-green-50 text-green-600" : "bg-gray-100 text-zinc-600"}`}>
+                <div className={`p-1.5 rounded-lg shrink-0 ${l.contestada ? "bg-green-50 text-green-600" : "bg-zinc-800 text-zinc-400"}`}>
                   {l.contestada ? <PhoneCall size={14} /> : <PhoneMissed size={14} />}
                 </div>
                 <div className="min-w-0">
                   <p
-                    className={`text-xs font-medium text-zinc-800 truncate ${onVerProspecto && l.prospecto_id ? "cursor-pointer hover:text-brand hover:underline transition-colors" : ""}`}
+                    className={`text-xs font-medium text-zinc-200 truncate ${onVerProspecto && l.prospecto_id ? "cursor-pointer hover:text-brand hover:underline transition-colors" : ""}`}
                     onClick={() => onVerProspecto && l.prospecto_id && onVerProspecto(l.prospecto_id)}
                   >
                     {l.empresa}
                   </p>
-                  <p className="text-xs text-zinc-600">{l.nombre_contacto || "Sin contacto"}</p>
-                  <p className="text-xs text-zinc-600 capitalize">{l.canal}</p>
+                  <p className="text-xs text-zinc-400">{l.nombre_contacto || "Sin contacto"}</p>
+                  <p className="text-xs text-zinc-400 capitalize">{l.canal}</p>
                 </div>
               </div>
 
               {/* Fecha + acciones */}
               <div className="flex items-center gap-2 shrink-0">
                 <div className="text-right">
-                  <p className="text-xs font-medium text-gray-700">
+                  <p className="text-xs font-medium text-gray-300">
                     {new Date(l.fecha).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
                   </p>
-                  <p className="text-xs text-zinc-600">
+                  <p className="text-xs text-zinc-400">
                     {new Date(l.fecha).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
                   </p>
                 </div>
@@ -89,7 +90,7 @@ export function HistorialLlamadas({
         )}
 
         {llamadas.length > 50 && (
-          <div className="px-5 py-3 text-center text-xs text-zinc-600">
+          <div className="px-5 py-3 text-center text-xs text-zinc-400">
             Mostrando 50 de {llamadas.length} llamadas
           </div>
         )}

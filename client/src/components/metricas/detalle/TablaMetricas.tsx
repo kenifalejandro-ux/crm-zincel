@@ -1,5 +1,6 @@
 /** src/components/metricas/detalle/TablaMetricas.tsx */
 
+import { GLASS_BASE } from "../../../lib/tokens";
 import { useState, useRef, useEffect } from "react";
 import { Pencil, Trash2, TrendingUp, Plus, RefreshCw, Loader2 } from "lucide-react";
 import { Metrica } from "@/types/metricas.types";
@@ -127,7 +128,7 @@ function ProyectosCell({ metrica, listaProyectos, onGuardado }: {
         onClick={() => setAbierto(v => !v)}
       >
         {seleccion.length === 0 ? (
-          <span className="inline-flex items-center gap-0.5 text-[11px] text-zinc-300 hover:text-zinc-500 border border-dashed border-zinc-200 hover:border-zinc-400 rounded px-1.5 py-0.5 transition">
+          <span className="inline-flex items-center gap-0.5 text-[11px] text-zinc-300 hover:text-zinc-500 border border-dashed border-white/10 hover:border-zinc-400 rounded px-1.5 py-0.5 transition">
             <Plus size={9} /> Asignar
           </span>
         ) : (
@@ -145,8 +146,8 @@ function ProyectosCell({ metrica, listaProyectos, onGuardado }: {
 
       {/* Dropdown con checkboxes */}
       {abierto && (
-        <div className="absolute z-50 top-full left-0 mt-1 bg-white border border-zinc-200 rounded-xl shadow-lg p-3 min-w-[180px]">
-          <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-wide mb-2">Proyectos</p>
+        <div className="absolute z-50 top-full left-0 mt-1 bg-slate-800/60 border border-white/10 rounded-xl shadow-lg p-3 min-w-[180px]">
+          <p className="text-[10px] text-zinc-100 font-medium uppercase tracking-wide mb-2">Proyectos</p>
           <div className="flex flex-col gap-2">
             {todosProyectos.map(p => {
               const s = PROY_STYLE[p] ?? defaultStyle;
@@ -206,10 +207,10 @@ export const TablaMetricas = ({
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
+      <div className={`${GLASS_BASE} overflow-hidden`}>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
-            <thead className="bg-zinc-50 text-zinc-700 uppercase tracking-wide">
+            <thead className="bg-zinc-800/40 text-zinc-100 uppercase tracking-wide">
               <tr>
                 <th className="px-4 py-3">
                   <TableHeaderCheckbox
@@ -233,10 +234,10 @@ export const TablaMetricas = ({
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-50">
+            <tbody className="divide-y divide-white/5">
               {metricas.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="text-center py-10 text-zinc-600">
+                  <td colSpan={12} className="text-center py-10 text-zinc-400">
                     No hay métricas registradas
                   </td>
                 </tr>
@@ -249,7 +250,7 @@ export const TablaMetricas = ({
                       ? m.mejor_confianza === "confirmada"
                         ? "bg-green-50/60 hover:bg-green-50"
                         : "bg-yellow-50/60 hover:bg-yellow-50"
-                      : "hover:bg-zinc-50"
+                      : "hover:bg-zinc-800/40"
                   }`}
                 >
                   {/* Checkbox — detiene propagación para no abrir el modal */}
@@ -263,7 +264,7 @@ export const TablaMetricas = ({
                     />
                   </td>
 
-                  <td className="px-4 py-3 font-medium text-zinc-800">
+                  <td className="px-4 py-3 font-medium text-zinc-200">
                     {m.empresa}
                   </td>
 
@@ -275,7 +276,7 @@ export const TablaMetricas = ({
                     />
                   </td>
 
-                  <td className="px-4 py-3 text-zinc-600">
+                  <td className="px-4 py-3 text-zinc-400">
                     <div className="flex flex-col">
                       <span>{m.campana_nombre}</span>
                       <VentaBadge metrica={m} />
@@ -289,7 +290,7 @@ export const TablaMetricas = ({
                         {LABEL[m.plataforma]}
                       </span>
                       {m.sub_plataforma && (
-                        <span className="text-[10px] text-zinc-600 pl-1">
+                        <span className="text-[10px] text-zinc-400 pl-1">
                           {LABEL_SUB[m.sub_plataforma] ?? m.sub_plataforma}
                         </span>
                       )}
@@ -322,7 +323,7 @@ export const TablaMetricas = ({
                       : "—"}
                   </td>
 
-                  <td className="px-4 py-3 text-zinc-700">
+                  <td className="px-4 py-3 text-zinc-300">
                     {new Date(m.periodo_inicio).toLocaleDateString("es-PE")} →{" "}
                     {new Date(m.periodo_fin).toLocaleDateString("es-PE")}
                   </td>
@@ -360,14 +361,14 @@ export const TablaMetricas = ({
                       )}
                       <button
                         onClick={() => onEditar(m)}
-                        className="text-zinc-600 hover:text-brand transition"
+                        className="text-zinc-400 hover:text-brand transition"
                         title="Editar"
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={() => onBorrar(m.id)}
-                        className="text-zinc-600 hover:text-red-500 transition"
+                        className="text-zinc-400 hover:text-red-500 transition"
                         title="Eliminar"
                       >
                         <Trash2 size={14} />

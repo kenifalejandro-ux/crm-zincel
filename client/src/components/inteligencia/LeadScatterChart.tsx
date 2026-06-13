@@ -1,7 +1,7 @@
 /** client/src/components/inteligencia/LeadScatterChart.tsx */
 
 import { useEffect, useState } from "react";
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
 import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer, ZAxis, ReferenceLine,
@@ -39,11 +39,11 @@ const TooltipScatter = ({ active, payload }: any) => {
   const d: ScoreLead = payload[0]?.payload;
   if (!d) return null;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-2 text-xs max-w-[180px]">
-      <p className="font-semibold text-zinc-800 truncate mb-1">{d.empresa}</p>
-      <div className="space-y-0.5 text-zinc-600">
-        <p>Score: <span className="font-bold text-zinc-900">{d.score}</span></p>
-        <p>Días en pipeline: <span className="font-bold text-zinc-900">{d.dias_en_pipeline}</span></p>
+    <div className={`${TOOLTIP_BASE} px-3 py-2 text-xs max-w-[180px]`}>
+      <p className="font-semibold text-zinc-200 truncate mb-1">{d.empresa}</p>
+      <div className="space-y-0.5 text-zinc-400">
+        <p>Score: <span className="font-bold text-zinc-100">{d.score}</span></p>
+        <p>Días en pipeline: <span className="font-bold text-zinc-100">{d.dias_en_pipeline}</span></p>
         <p>Etapa: <span className="font-medium">{ETAPA_LABEL[d.etapa_pipeline] ?? d.etapa_pipeline}</span></p>
         <p>
           Nivel:{" "}
@@ -130,7 +130,7 @@ export function LeadScatterChart() {
           />
           {NIVELES.map(nivel => (
             byNivel[nivel].length > 0 && (
-              <Scatter
+              <Scatter filter="url(#neon-glow)"
                 key={nivel}
                 name={nivel}
                 data={byNivel[nivel]}
@@ -143,7 +143,7 @@ export function LeadScatterChart() {
       </ResponsiveContainer>
 
       {/* Mini resumen por nivel */}
-      <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-zinc-100">
+      <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/8">
         {NIVELES.map(n => (
           <div key={n} className="text-center">
             <p className="text-lg font-bold" style={{ color: NIVEL_COLOR[n] }}>

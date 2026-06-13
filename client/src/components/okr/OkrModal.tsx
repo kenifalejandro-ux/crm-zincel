@@ -1,5 +1,6 @@
 /** client/src/components/okr/OkrModal.tsx */
 
+import { MODAL_BASE, INPUT_BASE } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import { X, Target } from "lucide-react";
 import type { Okr } from "../../types/okr.types";
@@ -52,44 +53,44 @@ export function OkrModal({ okr, anioDefault, trimestreDefault, onClose, onSave }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+      <div className={`${MODAL_BASE} w-full max-w-md mx-4 p-6`}>
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <Target size={16} className="text-brand" />
-            <h2 className="text-base font-bold text-zinc-900">
+            <h2 className="text-base font-bold text-zinc-100">
               {okr ? "Editar objetivo" : "Nuevo objetivo"}
             </h2>
           </div>
-          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-700 transition">
+          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-300 transition">
             <X size={18} />
           </button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Título del objetivo</label>
+            <label className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Título del objetivo</label>
             <input
               autoFocus
               value={titulo}
               onChange={e => setTitulo(e.target.value)}
               placeholder="Ej: Consolidar el pipeline comercial"
-              className="mt-1 w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand/30"
+              className={`${INPUT_BASE} mt-1 w-full px-3 py-2 text-sm text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand/30`}
             />
           </div>
 
           <div>
-            <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Descripción (opcional)</label>
+            <label className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Descripción (opcional)</label>
             <textarea
               value={descripcion}
               onChange={e => setDescripcion(e.target.value)}
               rows={2}
               placeholder="Contexto o motivación detrás del objetivo..."
-              className="mt-1 w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand/30 resize-none"
+              className={`${INPUT_BASE} mt-1 w-full px-3 py-2 text-sm text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand/30 resize-none`}
             />
           </div>
 
           <div>
-            <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Período</label>
+            <label className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Período</label>
             <div className="mt-1 grid grid-cols-4 gap-2">
               {TRIMESTRES.map(t => (
                 <button
@@ -98,7 +99,7 @@ export function OkrModal({ okr, anioDefault, trimestreDefault, onClose, onSave }
                   className={`rounded-xl border py-2 text-center transition ${
                     trimestre === t.q
                       ? "border-brand bg-amber-50 text-brand font-bold"
-                      : "border-zinc-200 text-zinc-500 hover:border-zinc-300"
+                      : "border-white/10 text-zinc-500 hover:border-white/15"
                   }`}
                 >
                   <p className="text-sm font-bold">{t.label}</p>
@@ -109,7 +110,7 @@ export function OkrModal({ okr, anioDefault, trimestreDefault, onClose, onSave }
           </div>
 
           <div>
-            <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Año</label>
+            <label className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Año</label>
             <div className="mt-1 flex gap-2">
               {ANIOS.map(a => (
                 <button
@@ -118,7 +119,7 @@ export function OkrModal({ okr, anioDefault, trimestreDefault, onClose, onSave }
                   className={`flex-1 rounded-xl border py-2 text-sm font-semibold transition ${
                     anio === a
                       ? "border-brand bg-amber-50 text-brand"
-                      : "border-zinc-200 text-zinc-500 hover:border-zinc-300"
+                      : "border-white/10 text-zinc-500 hover:border-white/15"
                   }`}
                 >
                   {a}
@@ -133,7 +134,7 @@ export function OkrModal({ okr, anioDefault, trimestreDefault, onClose, onSave }
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-sm text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition"
+            className="px-4 py-2 rounded-xl text-sm text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition"
           >
             Cancelar
           </button>

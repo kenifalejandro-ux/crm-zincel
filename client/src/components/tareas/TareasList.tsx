@@ -42,7 +42,7 @@ export function TareasList({ tareas, onActualizar }: Props) {
 
   if (tareas.length === 0) {
     return (
-      <div className="text-center py-8 text-xs text-zinc-600">
+      <div className="text-center py-8 text-xs text-zinc-400">
         <Clock size={28} className="mx-auto mb-2 opacity-40" />
         Sin tareas pendientes
       </div>
@@ -82,32 +82,32 @@ export function TareasList({ tareas, onActualizar }: Props) {
             <div className="mt-0.5 shrink-0">
               {urg === "vencida" && !t.completada
                 ? <AlertCircle size={14} className="text-red-500" />
-                : <Clock size={14} className="text-zinc-600" />
+                : <Clock size={14} className="text-zinc-400" />
               }
             </div>
 
             {/* Contenido */}
             <div className="flex-1 min-w-0">
-              <p className={`text-xs font-medium text-zinc-800 ${t.completada ? "line-through" : ""}`}>
+              <p className={`text-xs font-medium text-zinc-200 ${t.completada ? "line-through" : ""}`}>
                 {t.titulo}
               </p>
               {t.descripcion && (
-                <p className="text-xs text-zinc-600 mt-0.5 truncate">{t.descripcion}</p>
+                <p className="text-xs text-zinc-400 mt-0.5 truncate">{t.descripcion}</p>
               )}
               <div className="flex items-center gap-2 mt-1 flex-wrap">
-                <span className="text-[10px] text-zinc-600">{fecha(t.fecha_vencimiento)}</span>
+                <span className="text-[10px] text-zinc-400">{fecha(t.fecha_vencimiento)}</span>
                 {!t.completada && est.texto && (
                   <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${est.badge}`}>
                     {est.texto}
                   </span>
                 )}
                 {t.completada && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-gray-100 text-zinc-600">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-zinc-800 text-zinc-400">
                     Completada
                   </span>
                 )}
                 {t.empresa && (
-                  <span className="text-[10px] text-zinc-600 truncate">{t.empresa}</span>
+                  <span className="text-[10px] text-zinc-400 truncate">{t.empresa}</span>
                 )}
               </div>
             </div>
@@ -127,7 +127,7 @@ export function TareasList({ tareas, onActualizar }: Props) {
               onClick={() => handleEliminar(t.id)}
               disabled={loading}
               title="Eliminar"
-              className="shrink-0 p-1.5 rounded-lg text-zinc-600 hover:bg-red-100 hover:text-red-500 transition disabled:opacity-50"
+              className="shrink-0 p-1.5 rounded-lg text-zinc-400 hover:bg-red-100 hover:text-red-500 transition disabled:opacity-50"
             >
               <Trash2 size={13} />
             </button>

@@ -90,12 +90,12 @@ export function TemperaturaLeadsChart({ caliente, activo, tibio, frio, onClick }
               className={`w-full flex items-center gap-3 rounded-xl px-3 py-2 transition ${g.hover} group`}
             >
               {/* Label */}
-              <span className="text-[12px] font-semibold text-zinc-700 w-20 shrink-0 text-left">
+              <span className="text-[12px] font-semibold text-zinc-300 w-20 shrink-0 text-left">
                 {g.label}
               </span>
 
               {/* Barra */}
-              <div className="flex-1 h-5 bg-zinc-100 rounded-lg overflow-hidden">
+              <div className="flex-1 h-5 bg-zinc-800 rounded-lg overflow-hidden">
                 <div
                   className="h-full rounded-lg transition-all duration-500"
                   style={{ width: `${barPct}%`, backgroundColor: g.color }}
@@ -104,7 +104,7 @@ export function TemperaturaLeadsChart({ caliente, activo, tibio, frio, onClick }
 
               {/* Valor + % */}
               <div className="w-20 shrink-0 text-right">
-                <span className="text-[12px] font-bold text-zinc-800">{valor}</span>
+                <span className="text-[12px] font-bold text-zinc-200">{valor}</span>
                 <span className="text-[10px] text-zinc-400 ml-1">· {pct}%</span>
               </div>
 

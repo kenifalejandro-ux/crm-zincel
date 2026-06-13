@@ -204,17 +204,17 @@ export function SpeechPanel({ prospecto, onCerrar }: Props) {
       className="fixed z-[70]"
       style={{ left: pos.x, top: pos.y }}
     >
-      <div className={`bg-white rounded-2xl shadow-2xl w-[520px] max-h-[88vh] flex flex-col overflow-hidden border border-zinc-200 ${dragging ? "shadow-3xl ring-2 ring-amber-200" : ""}`}>
+      <div className={`bg-slate-800/60 rounded-2xl shadow-2xl w-[520px] max-h-[88vh] flex flex-col overflow-hidden border border-white/10 ${dragging ? "shadow-3xl ring-2 ring-amber-200" : ""}`}>
 
         {/* Header — arrastrable */}
         <div
-          className={`flex items-center justify-between px-5 py-3.5 border-b border-zinc-100 shrink-0 select-none ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
+          className={`flex items-center justify-between px-5 py-3.5 border-b border-white/8 shrink-0 select-none ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
           onMouseDown={onHeaderMouseDown}
         >
           <div className="flex items-center gap-2">
             <GripHorizontal size={13} className="text-zinc-300" />
             <BookOpen size={15} className="text-amber-500" />
-            <span className="font-bold text-sm text-zinc-800">Speech de llamada</span>
+            <span className="font-bold text-sm text-zinc-200">Speech de llamada</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
@@ -224,7 +224,7 @@ export function SpeechPanel({ prospecto, onCerrar }: Props) {
             <button
               onMouseDown={e => e.stopPropagation()}
               onClick={onCerrar}
-              className="text-zinc-400 hover:text-zinc-600 transition rounded-md p-0.5 hover:bg-zinc-100 cursor-pointer"
+              className="text-zinc-400 hover:text-zinc-400 transition rounded-md p-0.5 hover:bg-zinc-800 cursor-pointer"
             >
               <X size={15} />
             </button>
@@ -237,8 +237,8 @@ export function SpeechPanel({ prospecto, onCerrar }: Props) {
           {/* 1 · Apertura */}
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
             <p className="text-[10px] font-bold uppercase tracking-wider text-amber-500 mb-3">1 · Apertura</p>
-            <p className="text-sm font-bold text-zinc-900 leading-relaxed">{saludo}:</p>
-            <p className="text-sm text-zinc-800 leading-relaxed mt-1">
+            <p className="text-sm font-bold text-zinc-100 leading-relaxed">{saludo}:</p>
+            <p className="text-sm text-zinc-200 leading-relaxed mt-1">
               Me comunico con el Señor/a{" "}
               <span className="font-bold text-amber-700">{nombre}</span>{" "}
               de la empresa{" "}
@@ -248,17 +248,17 @@ export function SpeechPanel({ prospecto, onCerrar }: Props) {
 
           {/* Divider */}
           <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-zinc-100" />
+            <div className="h-px flex-1 bg-zinc-800" />
             <span className="text-[11px] text-zinc-400 whitespace-nowrap font-medium px-1">⏸ Espera respuesta (sí / no)</span>
-            <div className="h-px flex-1 bg-zinc-100" />
+            <div className="h-px flex-1 bg-zinc-800" />
           </div>
 
           {/* 2 · Si responde sí */}
           <div className="rounded-xl border border-green-200 bg-green-50 p-4">
             <p className="text-[10px] font-bold uppercase tracking-wider text-green-600 mb-3">2 · Si responde sí</p>
-            <p className="text-sm text-zinc-800 leading-relaxed">
+            <p className="text-sm text-zinc-200 leading-relaxed">
               Mi nombre es{" "}
-              <span className="font-semibold text-zinc-900">Kenif Alejandro de Zincel Ideas Globales</span>{" "}
+              <span className="font-semibold text-zinc-100">Kenif Alejandro de Zincel Ideas Globales</span>{" "}
               y le llamo porque quería consultarle si en algún punto han considerado contar con una{" "}
               <span className="font-bold text-green-700">{speech.tipoPagina}</span>.
               Dependiendo de lo que más les interese a ustedes, podría ayudarles a:
@@ -274,7 +274,7 @@ export function SpeechPanel({ prospecto, onCerrar }: Props) {
                       <span>{cfg.icon}</span>
                       <span>{cfg.label}</span>
                     </span>
-                    <p className={`text-sm text-zinc-700 leading-snug pl-1 border-l-2 ${punto.tipo === "ventas" ? "border-emerald-300" : punto.tipo === "imagen" ? "border-blue-300" : "border-amber-300"}`}>
+                    <p className={`text-sm text-zinc-300 leading-snug pl-1 border-l-2 ${punto.tipo === "ventas" ? "border-emerald-300" : punto.tipo === "imagen" ? "border-blue-300" : "border-amber-300"}`}>
                       {punto.texto}
                     </p>
                   </li>

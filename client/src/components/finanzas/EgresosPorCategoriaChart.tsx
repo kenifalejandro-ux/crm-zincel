@@ -1,6 +1,6 @@
 /** client/src/components/finanzas/EgresosPorCategoriaChart.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
 import { Treemap, ResponsiveContainer, Tooltip } from "recharts";
 import { TrendingDown } from "lucide-react";
 import type { ResumenFinanciero, CategoriaEgreso } from "../../types/finanzas.types";
@@ -25,9 +25,9 @@ const TooltipCustom = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-1.5 text-xs">
-      <p className="font-semibold text-zinc-800">{d.name}</p>
-      <p className="text-zinc-600">S/ {Number(d.value).toLocaleString("es-PE", { minimumFractionDigits: 2 })}</p>
+    <div className={`${TOOLTIP_BASE} px-3 py-1.5 text-xs`}>
+      <p className="font-semibold text-zinc-200">{d.name}</p>
+      <p className="text-zinc-400">S/ {Number(d.value).toLocaleString("es-PE", { minimumFractionDigits: 2 })}</p>
     </div>
   );
 };

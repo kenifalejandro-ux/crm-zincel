@@ -8,7 +8,7 @@ import {
   ChevronDown, ChevronUp, Search, LayoutGrid, BarChart3,
   Wifi, Clock, ShieldAlert, Info, CheckCircle2,
 } from "lucide-react";
-import { CARD_CLASS } from "../lib/tokens";
+import { CARD_CLASS, BADGE_BASE, PANEL_BASE } from "../lib/tokens";
 import api from "../services/api";
 import { ProspectoDetalle } from "../components/prospectos/ProspectoDetalle";
 
@@ -147,7 +147,7 @@ function SinWebCard({ n, detalle, excTot, activo = false }: {
     >
       <span className="text-blue-600"><WifiOff size={16}/></span>
       <div>
-        <p className="text-xl font-bold text-zinc-800">{n}</p>
+        <p className="text-xl font-bold text-zinc-200">{n}</p>
         <p className={`text-[10px] leading-tight ${activo ? "text-blue-500 font-semibold" : "text-zinc-400"}`}>Sin web</p>
       </div>
       {visible && (
@@ -188,18 +188,18 @@ function SinWebCard({ n, detalle, excTot, activo = false }: {
 function FilaLead({ l, mostrarServicios, onClick }: { l: LeadConServicios; mostrarServicios?: boolean; onClick?: (l: LeadConServicios) => void }) {
   const estadoLead = ESTADO_LEAD_CFG[l.estado_lead] ?? { label: l.estado_lead, color: "bg-zinc-100 text-zinc-500" };
   return (
-    <tr onClick={() => onClick?.(l)} className={`border-b border-zinc-50 transition-colors ${onClick ? "cursor-pointer hover:bg-zinc-100" : "hover:bg-zinc-50"}`}>
+    <tr onClick={() => onClick?.(l)} className={`border-b border-white/5 transition-colors ${onClick ? "cursor-pointer hover:bg-zinc-800" : "hover:bg-zinc-800/40"}`}>
       <td className="px-3 py-2.5">
-        <p className="font-semibold text-zinc-800 text-xs leading-tight">{l.empresa}</p>
+        <p className="font-semibold text-zinc-200 text-xs leading-tight">{l.empresa}</p>
         {l.nombre_contacto && <p className="text-[10px] text-zinc-400 mt-0.5">{l.nombre_contacto}</p>}
       </td>
       <td className="px-3 py-2.5">
-        <p className="text-xs text-zinc-700">{SECTOR_LABEL[l.sector ?? ""] ?? l.sector ?? "—"}</p>
+        <p className="text-xs text-zinc-300">{SECTOR_LABEL[l.sector ?? ""] ?? l.sector ?? "—"}</p>
         {l.perfil_empresa && <p className="text-[10px] text-zinc-400 capitalize">{l.perfil_empresa.replace(/_/g, " ")}</p>}
       </td>
       <td className="px-3 py-2.5 text-center text-xs">
         {l.cantidad_trabajadores != null
-          ? <span className="font-medium text-zinc-700">{l.cantidad_trabajadores}</span>
+          ? <span className="font-medium text-zinc-300">{l.cantidad_trabajadores}</span>
           : l.tamano_empresa
           ? <span className="text-zinc-400">{TAMANO_LABEL[l.tamano_empresa] ?? l.tamano_empresa}</span>
           : <span className="text-zinc-300">—</span>}
@@ -241,9 +241,9 @@ function TablaLeads({ leads, busqueda, mostrarServicios, onSelect }: { leads: Le
     <div className="overflow-x-auto">
       <table className="w-full text-xs">
         <thead>
-          <tr className="border-b border-zinc-100">
+          <tr className="border-b border-white/8">
             {headers.map(h => (
-              <th key={h} className="text-left px-3 py-2 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
+              <th key={h} className="text-left px-3 py-2 text-[10px] font-semibold text-zinc-100 uppercase tracking-wider whitespace-nowrap">{h}</th>
             ))}
           </tr>
         </thead>
@@ -274,19 +274,19 @@ function Seccion({ titulo, descripcion, leads, icon, color, bgColor, badgeColor,
     <div className={`${CARD_CLASS} p-0 overflow-hidden`}>
       <button
         onClick={() => setAbierto(a => !a)}
-        className="w-full flex items-center gap-3 p-5 hover:bg-zinc-50 transition-colors text-left"
+        className="w-full flex items-center gap-3 p-5 hover:bg-zinc-800/40 transition-colors text-left"
       >
         <div className={`w-9 h-9 rounded-xl ${bgColor} flex items-center justify-center shrink-0`}>
           <span className={color}>{icon}</span>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-bold text-zinc-800 text-sm">{titulo}</p>
+            <p className="font-bold text-zinc-200 text-sm">{titulo}</p>
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badgeColor ?? `${bgColor} ${color}`}`}>
               {leads.length} empresas
             </span>
-            {alta > 0 && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600">{alta} alta</span>}
-            {media > 0 && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">{media} media</span>}
+            {alta > 0 && <span className={`${BADGE_BASE} text-[10px] font-bold px-2 py-0.5 text-red-600`}>{alta} alta</span>}
+            {media > 0 && <span className={`${BADGE_BASE} text-[10px] font-bold px-2 py-0.5 text-yellow-700`}>{media} media</span>}
           </div>
           <p className="text-xs text-zinc-400 mt-0.5">{descripcion}</p>
         </div>
@@ -294,12 +294,12 @@ function Seccion({ titulo, descripcion, leads, icon, color, bgColor, badgeColor,
       </button>
 
       {abierto && (
-        <div className="border-t border-zinc-100">
-          <div className="px-5 py-3 flex items-center gap-2 border-b border-zinc-50">
+        <div className="border-t border-white/8">
+          <div className="px-5 py-3 flex items-center gap-2 border-b border-white/5">
             <Search size={13} className="text-zinc-400"/>
             <input value={busqueda} onChange={e => setBusqueda(e.target.value)}
               placeholder="Buscar empresa, ciudad, sector..."
-              className="flex-1 text-xs outline-none bg-transparent text-zinc-600 placeholder:text-zinc-300"/>
+              className="flex-1 text-xs outline-none bg-transparent text-zinc-400 placeholder:text-zinc-300"/>
           </div>
           <TablaLeads leads={leads} busqueda={busqueda} mostrarServicios={mostrarServicios} onSelect={onSelect} />
         </div>
@@ -377,11 +377,11 @@ export default function AnalisisComercialPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate("/prospectos")}
-            className="p-2 rounded-xl hover:bg-zinc-100 transition-colors text-zinc-500 shrink-0">
+            className="p-2 rounded-xl hover:bg-zinc-800 transition-colors text-zinc-500 shrink-0">
             <ArrowLeft size={18}/>
           </button>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-zinc-900">Análisis Comercial</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-zinc-100">Análisis Comercial</h1>
             <p className="text-xs sm:text-sm text-zinc-400">
               {vista === "servicio" ? "Segmentación por servicio — qué venderle a quién"
               : vista === "prioridad" ? "Segmentación por prioridad — a quién llamar primero"
@@ -391,11 +391,11 @@ export default function AnalisisComercialPage() {
         </div>
 
         {/* Toggle vista */}
-        <div className="flex items-center gap-1 bg-zinc-100 rounded-xl p-1 self-start sm:self-auto shrink-0">
+        <div className="flex items-center gap-1 bg-zinc-800 rounded-xl p-1 self-start sm:self-auto shrink-0">
           <button
             onClick={() => setVista("servicio")}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              vista === "servicio" ? "bg-white shadow text-zinc-800" : "text-zinc-400 hover:text-zinc-600"
+              vista === "servicio" ? "bg-slate-800/60 shadow text-zinc-200" : "text-zinc-400 hover:text-zinc-400"
             }`}
           >
             <LayoutGrid size={13}/>
@@ -404,7 +404,7 @@ export default function AnalisisComercialPage() {
           <button
             onClick={() => setVista("prioridad")}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              vista === "prioridad" ? "bg-white shadow text-zinc-800" : "text-zinc-400 hover:text-zinc-600"
+              vista === "prioridad" ? "bg-slate-800/60 shadow text-zinc-200" : "text-zinc-400 hover:text-zinc-400"
             }`}
           >
             <BarChart3 size={13}/>
@@ -413,7 +413,7 @@ export default function AnalisisComercialPage() {
           <button
             onClick={() => setVista("web")}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              vista === "web" ? "bg-white shadow text-zinc-800" : "text-zinc-400 hover:text-zinc-600"
+              vista === "web" ? "bg-slate-800/60 shadow text-zinc-200" : "text-zinc-400 hover:text-zinc-400"
             }`}
           >
             <Globe size={13}/> Web
@@ -433,7 +433,7 @@ export default function AnalisisComercialPage() {
           <div key={k.label} className={`${CARD_CLASS} ${k.bg} flex items-center gap-3 p-4 transition-all ${k.activo ? "ring-2 ring-brand shadow-md" : ""}`}>
             <span className={k.color}>{k.icon}</span>
             <div>
-              <p className="text-xl font-bold text-zinc-800">{k.value}</p>
+              <p className="text-xl font-bold text-zinc-200">{k.value}</p>
               <p className={`text-[10px] leading-tight ${k.activo ? "text-brand font-semibold" : "text-zinc-400"}`}>{k.label}</p>
             </div>
           </div>
@@ -466,19 +466,19 @@ export default function AnalisisComercialPage() {
         </span>
         <span className="text-zinc-300 text-[11px]">·</span>
         <span className="text-[11px] text-zinc-400">
-          Total excluidos: <strong className="text-zinc-600">{stats.excluidos.no_interesados + stats.excluidos.perdidas + stats.excluidos.inactivos}</strong>
-          {" "}· Prospectables: <strong className="text-zinc-700">{stats.total}</strong>
-          {" "}· Total BD: <strong className="text-zinc-700">{stats.total + stats.excluidos.no_interesados + stats.excluidos.perdidas + stats.excluidos.inactivos}</strong>
+          Total excluidos: <strong className="text-zinc-400">{stats.excluidos.no_interesados + stats.excluidos.perdidas + stats.excluidos.inactivos}</strong>
+          {" "}· Prospectables: <strong className="text-zinc-300">{stats.total}</strong>
+          {" "}· Total BD: <strong className="text-zinc-300">{stats.total + stats.excluidos.no_interesados + stats.excluidos.perdidas + stats.excluidos.inactivos}</strong>
         </span>
       </div>
 
       {/* Barra distribución */}
       <div className={`${CARD_CLASS} p-5`}>
-        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Distribución de prioridad</p>
+        <p className="text-xs font-semibold text-zinc-100 uppercase tracking-wider mb-3">Distribución de prioridad</p>
         <div className="flex rounded-xl overflow-hidden h-4">
           <div className="bg-red-400"    style={{ width: `${(stats.alta  / stats.total * 100).toFixed(1)}%` }}/>
           <div className="bg-yellow-400" style={{ width: `${(stats.media / stats.total * 100).toFixed(1)}%` }}/>
-          <div className="bg-zinc-200"   style={{ width: `${(stats.baja  / stats.total * 100).toFixed(1)}%` }}/>
+          <div className="bg-zinc-700"   style={{ width: `${(stats.baja  / stats.total * 100).toFixed(1)}%` }}/>
         </div>
         <div className="flex gap-4 mt-2">
           {[
@@ -489,7 +489,7 @@ export default function AnalisisComercialPage() {
             <div key={d.label} className="flex items-center gap-1.5">
               <span className={`w-2.5 h-2.5 rounded-full ${d.color}`}/>
               <span className="text-xs text-zinc-500">
-                {d.label} <strong className="text-zinc-700">{d.n}</strong> · {(d.n / stats.total * 100).toFixed(0)}%
+                {d.label} <strong className="text-zinc-300">{d.n}</strong> · {(d.n / stats.total * 100).toFixed(0)}%
               </span>
             </div>
           ))}
@@ -511,16 +511,16 @@ export default function AnalisisComercialPage() {
             leads={toSeccion(data.erp_crm)} icon={<Database size={18}/>} color="text-emerald-600" bgColor="bg-emerald-50" onSelect={setProspectoSeleccionado}/>
 
           {/* Ignorables */}
-          <div className="rounded-2xl border border-zinc-200 bg-zinc-50 overflow-hidden">
+          <div className={`${PANEL_BASE} overflow-hidden`}>
             <button onClick={() => setMostrarIgnorables(v => !v)}
-              className="w-full flex items-center gap-3 p-5 hover:bg-zinc-100 transition-colors text-left">
-              <div className="w-9 h-9 rounded-xl bg-zinc-200 flex items-center justify-center shrink-0">
+              className="w-full flex items-center gap-3 p-5 hover:bg-zinc-800 transition-colors text-left">
+              <div className="w-9 h-9 rounded-xl bg-zinc-700 flex items-center justify-center shrink-0">
                 <AlertTriangle size={16} className="text-zinc-500"/>
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <p className="font-bold text-zinc-500 text-sm">Dejar para después</p>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-200 text-zinc-500">
+                  <span className={`${BADGE_BASE} text-[10px] font-bold px-2 py-0.5 text-zinc-500`}>
                     {data.ignorables.length} empresas
                   </span>
                 </div>
@@ -529,7 +529,7 @@ export default function AnalisisComercialPage() {
               <span className="text-zinc-400">{mostrarIgnorables ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}</span>
             </button>
             {mostrarIgnorables && (
-              <div className="border-t border-zinc-200">
+              <div className="border-t border-white/10">
                 <TablaLeads leads={toSeccion(data.ignorables)} busqueda=""/>
               </div>
             )}
@@ -555,7 +555,7 @@ export default function AnalisisComercialPage() {
                 <div key={k.label} className={`${k.bg} rounded-xl p-3 flex items-center gap-2`}>
                   <span className={k.color}>{k.icon}</span>
                   <div>
-                    <p className="text-lg font-bold text-zinc-800">{k.n}</p>
+                    <p className="text-lg font-bold text-zinc-200">{k.n}</p>
                     <p className="text-[10px] text-zinc-400 leading-tight">{k.label}</p>
                   </div>
                 </div>
@@ -581,7 +581,7 @@ export default function AnalisisComercialPage() {
             badgeColor="bg-blue-100 text-blue-700" onSelect={setProspectoSeleccionado}/>
 
           {/* Sin oportunidad */}
-          <div className="rounded-2xl border border-zinc-200 bg-zinc-50 overflow-hidden">
+          <div className={`${PANEL_BASE} overflow-hidden`}>
             <div className="flex items-center gap-3 p-5">
               <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
                 <CheckCircle2 size={16} className="text-emerald-500"/>
@@ -589,7 +589,7 @@ export default function AnalisisComercialPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <p className="font-bold text-zinc-400 text-sm">Web actualizada — sin oportunidad inmediata</p>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600">
+                  <span className={`${BADGE_BASE} text-[10px] font-bold px-2 py-0.5 text-emerald-600`}>
                     {data.por_web.actualizada.length} empresas
                   </span>
                 </div>

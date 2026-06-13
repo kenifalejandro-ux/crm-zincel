@@ -1,5 +1,6 @@
 /** client/src/components/prospectos/PreviewImportacion.tsx */
 
+import { BADGE_BASE, PANEL_BASE } from "../../lib/tokens";
 import { CheckCircle } from "lucide-react";
 import { COLOR_ESTADO } from "../../utils/prospectos.mappers";
 
@@ -14,21 +15,21 @@ export function PreviewImportacion({ preview, importando, onCancelar, onConfirma
   if (preview.length === 0) return null;
 
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-5">
+    <div className={`${PANEL_BASE} p-5`}>
       {/* Cabecera */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-xs font-semibold text-zinc-800">
+          <h2 className="text-xs font-semibold text-zinc-200">
             Vista previa — {preview.length} registros detectados
           </h2>
-          <p className="text-xs text-zinc-600 mt-0.5">
+          <p className="text-xs text-zinc-400 mt-0.5">
             Revisa los datos antes de confirmar la importación
           </p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={onCancelar}
-            className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition"
+            className="px-3 py-1.5 text-xs border border-white/10 rounded-lg hover:bg-zinc-800/40 text-gray-400 transition"
           >
             Cancelar
           </button>
@@ -47,39 +48,39 @@ export function PreviewImportacion({ preview, importando, onCancelar, onConfirma
       <div className="overflow-auto max-h-64">
         <table className="min-w-[1400px] text-xs">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50">
-              <th className="text-left px-3 py-2 text-zinc-700 font-medium">#</th>
-              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Empresa</th>
-              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Contacto</th>
-              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Teléfono</th>
-              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Email</th>
-              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Estado</th>
-              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Ciudad</th>
-              <th className="text-left px-3 py-2 text-zinc-700 font-medium">País</th>
-              <th className="text-left px-3 py-2 text-zinc-700 font-medium">Llamadas</th>
+            <tr className="border-b border-white/8 bg-zinc-800/40">
+              <th className="text-left px-3 py-2 text-zinc-100 font-medium">#</th>
+              <th className="text-left px-3 py-2 text-zinc-100 font-medium">Empresa</th>
+              <th className="text-left px-3 py-2 text-zinc-100 font-medium">Contacto</th>
+              <th className="text-left px-3 py-2 text-zinc-100 font-medium">Teléfono</th>
+              <th className="text-left px-3 py-2 text-zinc-100 font-medium">Email</th>
+              <th className="text-left px-3 py-2 text-zinc-100 font-medium">Estado</th>
+              <th className="text-left px-3 py-2 text-zinc-100 font-medium">Ciudad</th>
+              <th className="text-left px-3 py-2 text-zinc-100 font-medium">País</th>
+              <th className="text-left px-3 py-2 text-zinc-100 font-medium">Llamadas</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {preview.slice(0, 400).map((p, i) => (
-              <tr key={i} className="hover:bg-gray-50">
-                <td className="px-3 py-2 text-zinc-600">{i + 1}</td>
-                <td className="px-3 py-2 font-medium text-zinc-800">{p.empresa}</td>
-                <td className="px-3 py-2 text-gray-600">{p.nombre_contacto || "-"}</td>
-                <td className="px-3 py-2 text-gray-600">{p.telefono || "-"}</td>
-                <td className="px-3 py-2 text-gray-600 max-w-[180px] truncate">{p.email_contacto || "-"}</td>
+              <tr key={i} className="hover:bg-zinc-800/40">
+                <td className="px-3 py-2 text-zinc-400">{i + 1}</td>
+                <td className="px-3 py-2 font-medium text-zinc-200">{p.empresa}</td>
+                <td className="px-3 py-2 text-gray-400">{p.nombre_contacto || "-"}</td>
+                <td className="px-3 py-2 text-gray-400">{p.telefono || "-"}</td>
+                <td className="px-3 py-2 text-gray-400 max-w-[180px] truncate">{p.email_contacto || "-"}</td>
                 <td className="px-3 py-2">
-                  <span className={`inline-flex px-1.5 py-0.5 rounded-full text-xs font-medium ${COLOR_ESTADO[p.estado_lead] || "bg-gray-100 text-gray-700"}`}>
+                  <span className={`${BADGE_BASE} inline-flex px-1.5 py-0.5 text-xs font-medium ${COLOR_ESTADO[p.estado_lead] || "bg-zinc-800 text-gray-300"}`}>
                     {p.estado_lead}
                   </span>
                 </td>
-                <td className="px-3 py-2 text-zinc-700">{p.ciudad || "-"}</td>
-                <td className="px-3 py-2 text-zinc-700">{p.pais || "-"}</td>
-                <td className="px-3 py-2 text-zinc-700">
+                <td className="px-3 py-2 text-zinc-300">{p.ciudad || "-"}</td>
+                <td className="px-3 py-2 text-zinc-300">{p.pais || "-"}</td>
+                <td className="px-3 py-2 text-zinc-300">
                   {p.llamadas && p.llamadas.length > 0 ? (
                     <div className="text-xs">
                       {p.llamadas.length} llamada{p.llamadas.length > 1 ? "s" : ""}
                       {p.llamadas.length <= 2 && (
-                        <div className="text-zinc-600 mt-0.5">
+                        <div className="text-zinc-400 mt-0.5">
                           {p.llamadas.map((ll: any, idx: number) => (
                             <div key={idx}>
                               {new Date(ll.fecha).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
@@ -94,7 +95,7 @@ export function PreviewImportacion({ preview, importando, onCancelar, onConfirma
             ))}
             {preview.length > 400 && (
               <tr>
-                <td colSpan={9} className="px-3 py-2 text-xs text-zinc-600 text-center">
+                <td colSpan={9} className="px-3 py-2 text-xs text-zinc-400 text-center">
                   Mostrando 400 de {preview.length} registros — todos se importarán
                 </td>
               </tr>

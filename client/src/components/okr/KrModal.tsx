@@ -1,5 +1,6 @@
 /** client/src/components/okr/KrModal.tsx */
 
+import { MODAL_BASE, INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import {
   X, Trophy, DollarSign, ClipboardList,
@@ -128,12 +129,12 @@ export function KrModal({ kr, onClose, onSave }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto">
+      <div className={`${MODAL_BASE} w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto`}>
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-bold text-zinc-900">
+          <h2 className="text-base font-bold text-zinc-100">
             {kr ? "Editar Key Result" : "Nuevo Key Result"}
           </h2>
-          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-700 transition">
+          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-300 transition">
             <X size={18} />
           </button>
         </div>
@@ -141,7 +142,7 @@ export function KrModal({ kr, onClose, onSave }: Props) {
         <div className="space-y-5">
           {/* Selector de métrica */}
           <div>
-            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">
+            <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-wider mb-2">
               Resultados de negocio
             </p>
             <div className="grid grid-cols-3 gap-2 mb-3">
@@ -152,18 +153,18 @@ export function KrModal({ kr, onClose, onSave }: Props) {
                   className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition ${
                     tipoMetrica === m.tipo
                       ? "border-brand bg-amber-50"
-                      : "border-zinc-200 hover:border-zinc-300"
+                      : "border-white/10 hover:border-white/15"
                   }`}
                 >
                   <span className={m.color}>{m.icon}</span>
-                  <p className={`text-[11px] font-semibold leading-tight ${tipoMetrica === m.tipo ? "text-brand" : "text-zinc-700"}`}>
+                  <p className={`text-[11px] font-semibold leading-tight ${tipoMetrica === m.tipo ? "text-brand" : "text-zinc-300"}`}>
                     {m.label}
                   </p>
                 </button>
               ))}
             </div>
 
-            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">
+            <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-wider mb-2">
               Actividades (indicadores de avance)
             </p>
             <div className="grid grid-cols-4 gap-2">
@@ -174,11 +175,11 @@ export function KrModal({ kr, onClose, onSave }: Props) {
                   className={`flex flex-col items-center gap-1.5 rounded-xl border p-2.5 text-center transition ${
                     tipoMetrica === m.tipo
                       ? "border-brand bg-amber-50"
-                      : "border-zinc-200 hover:border-zinc-300"
+                      : "border-white/10 hover:border-white/15"
                   }`}
                 >
                   <span className={m.color}>{m.icon}</span>
-                  <p className={`text-[10px] font-semibold leading-tight ${tipoMetrica === m.tipo ? "text-brand" : "text-zinc-700"}`}>
+                  <p className={`text-[10px] font-semibold leading-tight ${tipoMetrica === m.tipo ? "text-brand" : "text-zinc-300"}`}>
                     {m.label}
                   </p>
                 </button>
@@ -187,7 +188,7 @@ export function KrModal({ kr, onClose, onSave }: Props) {
           </div>
 
           {/* Descripción de la métrica seleccionada */}
-          <p className="text-[11px] text-zinc-400 bg-zinc-50 rounded-xl px-3 py-2 leading-snug">
+          <p className={`${PANEL_BASE} text-[11px] text-zinc-400 px-3 py-2 leading-snug`}>
             {tipoMetrica !== "manual"
               ? `Progreso automático desde CRM · ${metricaActual.descripcion}`
               : metricaActual.descripcion}
@@ -195,20 +196,20 @@ export function KrModal({ kr, onClose, onSave }: Props) {
 
           {/* Título */}
           <div>
-            <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Descripción del KR</label>
+            <label className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Descripción del KR</label>
             <input
               autoFocus
               value={titulo}
               onChange={e => setTitulo(e.target.value)}
               placeholder={`Ej: ${metricaActual.label} — ${metricaActual.placeholder} ${metricaActual.unidad}`}
-              className="mt-1 w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand/30"
+              className={`${INPUT_BASE} mt-1 w-full px-3 py-2 text-sm text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand/30`}
             />
           </div>
 
           {/* Objetivo + Actual (solo manual) */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+              <label className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">
                 Objetivo{metricaActual.unidad ? ` (${metricaActual.unidad})` : ""}
               </label>
               <input
@@ -216,19 +217,19 @@ export function KrModal({ kr, onClose, onSave }: Props) {
                 value={objetivo}
                 onChange={e => setObjetivo(e.target.value)}
                 placeholder={metricaActual.placeholder}
-                className="mt-1 w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand/30"
+                className={`${INPUT_BASE} mt-1 w-full px-3 py-2 text-sm text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand/30`}
               />
             </div>
 
             {tipoMetrica === "manual" && (
               <div>
-                <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Valor actual</label>
+                <label className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Valor actual</label>
                 <input
                   type="number" min={0}
                   value={actual}
                   onChange={e => setActual(e.target.value)}
                   placeholder="0"
-                  className="mt-1 w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand/30"
+                  className={`${INPUT_BASE} mt-1 w-full px-3 py-2 text-sm text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-brand/30`}
                 />
               </div>
             )}
@@ -240,7 +241,7 @@ export function KrModal({ kr, onClose, onSave }: Props) {
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-sm text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition"
+            className="px-4 py-2 rounded-xl text-sm text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition"
           >
             Cancelar
           </button>

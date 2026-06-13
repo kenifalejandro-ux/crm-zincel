@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { Globe, ExternalLink, Phone, Check, X } from "lucide-react";
 import { fechaHoy } from "../../utils/date";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { CARD_CLASS, HEADER_CLASS, COLORS } from "../../lib/tokens";
+import { NeonDonut } from "../ui/NeonDonut";
+import { CARD_CLASS, HEADER_CLASS, COLORS, INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
 import { getEstadoWebDistribucion } from "../../services/prospectos.api";
 import { crearLlamada } from "../../services/llamadas.api";
 import type { EstadoWebItem, EstadoWebProspecto } from "../../services/prospectos.api";
@@ -151,18 +151,18 @@ function RegistrarLlamadaModal({ prospecto, onCerrar, onGuardado }: RegistrarLla
     <Modal abierto onCerrar={onCerrar} titulo={`Registrar llamada — ${prospecto.empresa}`} size="sm">
       {guardado ? (
         <div className="flex flex-col items-center gap-3 py-6">
-          <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center">
-            <Check size={20} className="text-zinc-700" />
+          <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+            <Check size={20} className="text-zinc-300" />
           </div>
-          <p className="text-sm font-semibold text-zinc-800">Llamada registrada</p>
+          <p className="text-sm font-semibold text-zinc-200">Llamada registrada</p>
         </div>
       ) : (
         <div className="space-y-4">
 
           {/* Contacto */}
           {prospecto.nombre_contacto && (
-            <div className="bg-zinc-50 rounded-xl px-4 py-3 text-xs text-zinc-600 space-y-0.5">
-              <p className="font-semibold text-zinc-800">{prospecto.nombre_contacto}</p>
+            <div className={`${PANEL_BASE} px-4 py-3 text-xs text-zinc-400 space-y-0.5`}>
+              <p className="font-semibold text-zinc-200">{prospecto.nombre_contacto}</p>
               {prospecto.telefono && (
                 <a href={`tel:${prospecto.telefono}`}
                   className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200 transition-colors text-xs font-medium"
@@ -176,11 +176,11 @@ function RegistrarLlamadaModal({ prospecto, onCerrar, onGuardado }: RegistrarLla
           {/* Fecha + Canal */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-700">Fecha</label>
+              <label className="text-xs font-medium text-gray-300">Fecha</label>
               <input type="date" value={fecha} onChange={e => setFecha(e.target.value)} className={cls} />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-700">Canal</label>
+              <label className="text-xs font-medium text-gray-300">Canal</label>
               <select value={canal} onChange={e => setCanal(e.target.value)} className={cls}>
                 {CANALES_WEB.map(c => <option key={c} value={c} className="capitalize">{c}</option>)}
               </select>
@@ -191,11 +191,11 @@ function RegistrarLlamadaModal({ prospecto, onCerrar, onGuardado }: RegistrarLla
           {canal === "llamada" && (
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-700">Hora inicio</label>
+                <label className="text-xs font-medium text-gray-300">Hora inicio</label>
                 <input type="time" value={horaInicio} onChange={e => setHoraInicio(e.target.value)} className={cls} />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-700">Hora fin <span className="text-gray-400">(opcional)</span></label>
+                <label className="text-xs font-medium text-gray-300">Hora fin <span className="text-gray-400">(opcional)</span></label>
                 <input type="time" value={horaFin} onChange={e => setHoraFin(e.target.value)} className={cls} />
               </div>
             </div>
@@ -203,7 +203,7 @@ function RegistrarLlamadaModal({ prospecto, onCerrar, onGuardado }: RegistrarLla
 
           {/* Resultado */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-700">Resultado</label>
+            <label className="text-xs font-medium text-gray-300">Resultado</label>
             <select value={resultado} onChange={e => setResultado(e.target.value)} className={cls}>
               <option value="">Sin resultado</option>
               {RESULTADOS_WEB.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -213,13 +213,13 @@ function RegistrarLlamadaModal({ prospecto, onCerrar, onGuardado }: RegistrarLla
           {/* Contestada */}
           <label className="flex items-center gap-2 cursor-pointer select-none">
             <input type="checkbox" checked={contestada} onChange={e => setContestada(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-brand/50" />
-            <span className="text-xs text-gray-700">¿Fue contestada?</span>
+              className={`${INPUT_BASE} w-4 h-4 rounded text-blue-600 focus:ring-brand/50`} />
+            <span className="text-xs text-gray-300">¿Fue contestada?</span>
           </label>
 
           {/* Notas */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-700">Notas</label>
+            <label className="text-xs font-medium text-gray-300">Notas</label>
             <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={2}
               placeholder="Observaciones de la llamada..."
               className={`${cls} resize-none`} />
@@ -229,7 +229,7 @@ function RegistrarLlamadaModal({ prospecto, onCerrar, onGuardado }: RegistrarLla
 
           <div className="flex gap-2 pt-1">
             <button onClick={onCerrar}
-              className="flex-1 px-4 py-2 text-xs font-medium text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition">
+              className="flex-1 px-4 py-2 text-xs font-medium text-zinc-300 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition">
               Cancelar
             </button>
             <button onClick={handleGuardar} disabled={loading}
@@ -275,7 +275,7 @@ export function EstadoWebChart() {
   if (cargando) {
     return (
       <div className={CARD_CLASS}>
-        <div className="animate-pulse h-40 bg-zinc-100 rounded-xl" />
+        <div className="animate-pulse h-40 bg-zinc-800 rounded-xl" />
       </div>
     );
   }
@@ -296,27 +296,12 @@ export function EstadoWebChart() {
           <>
             {/* Donut + leyenda */}
             <div className="flex items-center gap-6">
-              <div className="relative flex-shrink-0">
-                <ResponsiveContainer width={120} height={120}>
-                  <PieChart>
-                    <Pie data={datosGrafico} cx="50%" cy="50%"
-                      innerRadius={38} outerRadius={54} paddingAngle={3}
-                      dataKey="value" stroke="none">
-                      {datosGrafico.map((entry, i) => (
-                        <Cell key={i} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value: any, name: any) => [`${value}`, name]}
-                      contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-2xl font-bold text-zinc-900 leading-none">{total}</span>
-                  <span className="text-[9px] text-zinc-400 uppercase tracking-widest mt-0.5">con web</span>
-                </div>
-              </div>
+              <NeonDonut
+                data={datosGrafico.map((d) => ({ label: d.name, value: d.value, color: d.color }))}
+                size={128}
+                centerValue={total}
+                centerLabel="con web"
+              />
 
               <div className="flex-1 space-y-2.5">
                 {distribucion.map(d => {
@@ -329,11 +314,11 @@ export function EstadoWebChart() {
                           {cfg.label}
                         </span>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[13px] font-bold text-zinc-900">{d.total}</span>
+                          <span className="text-[13px] font-bold text-zinc-100">{d.total}</span>
                           <span className="text-[10px] text-zinc-400">({pct}%)</span>
                         </div>
                       </div>
-                      <div className="w-full bg-zinc-100 rounded-full h-1">
+                      <div className="w-full bg-zinc-800 rounded-full h-1">
                         <div className="h-1 rounded-full transition-all duration-500"
                           style={{ width: `${pct}%`, backgroundColor: cfg.color }} />
                       </div>
@@ -346,34 +331,34 @@ export function EstadoWebChart() {
             {/* Tabla de oportunidades */}
             {prospectos.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-3">
+                <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider mb-3">
                   Oportunidades de contacto ({prospectos.length})
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs min-w-[640px]">
                     <thead>
-                      <tr className="border-b border-zinc-100">
-                        <th className="text-left text-[10px] text-zinc-400 font-semibold uppercase tracking-wider pb-2 pr-3">Empresa</th>
-                        <th className="text-left text-[10px] text-zinc-400 font-semibold uppercase tracking-wider pb-2 pr-3">Estado web</th>
-                        <th className="text-left text-[10px] text-zinc-400 font-semibold uppercase tracking-wider pb-2 pr-3">Lead</th>
-                        <th className="text-left text-[10px] text-zinc-400 font-semibold uppercase tracking-wider pb-2 pr-3">Prioridad</th>
-                        <th className="text-center text-[10px] text-zinc-400 font-semibold uppercase tracking-wider pb-2 pr-3">Contestó</th>
-                        <th className="text-left text-[10px] text-zinc-400 font-semibold uppercase tracking-wider pb-2 pr-3">Acción sugerida</th>
+                      <tr className="border-b border-white/8">
+                        <th className="text-left text-[10px] text-zinc-100 font-semibold uppercase tracking-wider pb-2 pr-3">Empresa</th>
+                        <th className="text-left text-[10px] text-zinc-100 font-semibold uppercase tracking-wider pb-2 pr-3">Estado web</th>
+                        <th className="text-left text-[10px] text-zinc-100 font-semibold uppercase tracking-wider pb-2 pr-3">Lead</th>
+                        <th className="text-left text-[10px] text-zinc-100 font-semibold uppercase tracking-wider pb-2 pr-3">Prioridad</th>
+                        <th className="text-center text-[10px] text-zinc-100 font-semibold uppercase tracking-wider pb-2 pr-3">Contestó</th>
+                        <th className="text-left text-[10px] text-zinc-100 font-semibold uppercase tracking-wider pb-2 pr-3">Acción sugerida</th>
                         <th className="pb-2" />
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-zinc-50">
+                    <tbody className="divide-y divide-white/5">
                       {prospectos.map(p => {
                         const webCfg   = WEB_CFG[p.estado_web]   ?? WEB_CFG.sin_informacion;
                         const leadCfg  = LEAD_CFG[p.estado_lead ?? "por_gestionar"] ?? LEAD_CFG.por_gestionar;
                         const prioCfg  = PRIO_CFG[p.prioridad   ?? "media"]         ?? PRIO_CFG.media;
                         const accion   = accionSugerida(p);
                         return (
-                          <tr key={p.id} className="hover:bg-zinc-50/60 transition-colors">
+                          <tr key={p.id} className="hover:bg-white/8/5/60 transition-colors">
 
                             {/* Empresa */}
                             <td className="py-2 pr-3">
-                              <p className="font-medium text-zinc-800 truncate max-w-[150px]">{p.empresa}</p>
+                              <p className="font-medium text-zinc-200 truncate max-w-[150px]">{p.empresa}</p>
                               {p.nombre_contacto && (
                                 <p className="text-[10px] text-zinc-400 truncate max-w-[150px]">{p.nombre_contacto}</p>
                               )}
@@ -405,7 +390,7 @@ export function EstadoWebChart() {
                               {p.contesto === null ? (
                                 <span className="text-[10px] text-zinc-300">—</span>
                               ) : p.contesto ? (
-                                <Check size={13} className="text-zinc-600 mx-auto" />
+                                <Check size={13} className="text-zinc-400 mx-auto" />
                               ) : (
                                 <X size={13} className="text-zinc-400 mx-auto" />
                               )}

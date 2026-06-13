@@ -1,6 +1,7 @@
 /**client/src/pages/PipelinePage.tsx */
 
 import { useEffect, useRef, useState } from "react";
+import { GLASS_BASE } from "../lib/tokens";
 import { Kanban, RefreshCw, Undo2, LayoutGrid } from "lucide-react";
 import { getPipeline, actualizarEtapaPipeline, actualizarEstadoLead, getScoresLeads, getProspecto, type PipelineEtapa, type ScoreLead } from "../services/prospectos.api";
 
@@ -234,28 +235,28 @@ export default function PipelinePage() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-100 bg-white/80 backdrop-blur-xl flex items-center justify-between gap-4 flex-wrap shrink-0">
+      <div className={`px-6 py-4 border-b border-white/8 ${GLASS_BASE} rounded-none flex items-center justify-between gap-4 flex-wrap shrink-0`}>
         <div className="flex items-center gap-3">
           <div className="crm-section-accent h-8" />
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Pipeline de ventas</h1>
+            <h1 className="text-xl font-bold text-slate-100 tracking-tight">Pipeline de ventas</h1>
             <p className="text-xs text-slate-500">{totalProspectos} prospectos en el pipeline</p>
           </div>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           {/* Pipeline activo — desde propuestas directamente */}
-          <div className="text-right border-r border-gray-100 pr-3">
-            <p className="text-[10px] text-zinc-600 uppercase tracking-wide">Pipeline activo</p>
+          <div className="text-right border-r border-white/8 pr-3">
+            <p className="text-[10px] text-zinc-100 uppercase tracking-wide">Pipeline activo</p>
             <span className="text-sm font-bold text-amber-600">
               S/ {valorActivo.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
             </span>
-            <p className="text-[10px] text-zinc-600">
+            <p className="text-[10px] text-zinc-400">
               Total S/ {valorActivo.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
             </p>
           </div>
           {/* Cerrado — desglose por moneda */}
-          <div className="text-right border-r border-gray-100 pr-3">
-            <p className="text-[10px] text-zinc-600 uppercase tracking-wide">Cerrado</p>
+          <div className="text-right border-r border-white/8 pr-3">
+            <p className="text-[10px] text-zinc-100 uppercase tracking-wide">Cerrado</p>
             <div className="flex items-center gap-2">
               {valorCerradoPen > 0 && (
                 <span className="text-sm font-bold text-green-600">
@@ -268,40 +269,40 @@ export default function PipelinePage() {
                 </span>
               )}
             </div>
-            <p className="text-[10px] text-zinc-600">
+            <p className="text-[10px] text-zinc-400">
               Total S/ {valorCerrado.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
             </p>
           </div>
           {/* Perdido */}
           {valorPerdido > 0 && (
             <div className="text-right">
-              <p className="text-[10px] text-zinc-600 uppercase tracking-wide">Perdido</p>
+              <p className="text-[10px] text-zinc-100 uppercase tracking-wide">Perdido</p>
               <span className="text-sm font-bold text-red-500">
                 S/ {valorPerdido.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
               </span>
-              <p className="text-[10px] text-zinc-600">
+              <p className="text-[10px] text-zinc-400">
                 Total S/ {valorPerdido.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
               </p>
             </div>
           )}
           {/* Toggle vista */}
-          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs font-semibold">
+          <div className="flex rounded-lg border border-white/10 overflow-hidden text-xs font-semibold">
             <button
               onClick={() => setVista("prospectos")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 transition ${vista === "prospectos" ? "bg-zinc-900 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50"}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 transition ${vista === "prospectos" ? "bg-zinc-900 text-white" : "bg-slate-800/60 text-zinc-400 hover:bg-zinc-800/40"}`}
             >
               <Kanban size={12} /> Prospectos
             </button>
             <button
               onClick={() => setVista("oportunidades")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 transition ${vista === "oportunidades" ? "bg-zinc-900 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50"}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 transition ${vista === "oportunidades" ? "bg-zinc-900 text-white" : "bg-slate-800/60 text-zinc-400 hover:bg-zinc-800/40"}`}
             >
               <LayoutGrid size={12} /> Oportunidades
             </button>
           </div>
 
           <button onClick={cargar}
-            className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition text-zinc-700"
+            className="p-2 rounded-lg border border-white/10 hover:bg-zinc-800/40 transition text-zinc-300"
             title="Actualizar">
             <RefreshCw size={14} className={cargando ? "animate-spin" : ""} />
           </button>
@@ -351,7 +352,7 @@ export default function PipelinePage() {
           </span>
           <button
             onClick={handleUndo}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/25 transition font-medium shrink-0"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/8/25 transition font-medium shrink-0"
           >
             <Undo2 size={12} /> Deshacer
           </button>

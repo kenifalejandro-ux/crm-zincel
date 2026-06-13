@@ -35,7 +35,7 @@ export function ForecastIngresosChart() {
           </div>
           <div>
             <h3 className={HEADER_CLASS}>Forecast de ingresos ponderado</h3>
-            <p className="text-[11px] text-zinc-600">Pipeline × probabilidad de cierre</p>
+            <p className="text-[11px] text-zinc-400">Pipeline × probabilidad de cierre</p>
           </div>
         </div>
       </div>
@@ -43,7 +43,7 @@ export function ForecastIngresosChart() {
       {/* Total KPI */}
       <div className="grid grid-cols-2 gap-3 mb-5">
         <div className="text-center bg-zinc-900 rounded-2xl py-4">
-          <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-semibold">Pipeline total</p>
+          <p className="text-[10px] text-zinc-100 uppercase tracking-widest font-semibold">Pipeline total</p>
           <p className="text-3xl font-bold text-white mt-1">{fmt(data.total_sin_ponderar)}</p>
           <p className="text-[10px] text-zinc-500 mt-0.5">Monto real en juego</p>
         </div>
@@ -69,7 +69,7 @@ export function ForecastIngresosChart() {
                 {d.prob}%
               </span>
               <p className={`text-xl font-bold leading-none ${cfg.num}`}>{fmt(d.monto_total)}</p>
-              <p className={`text-[11px] font-medium ${isWhite ? "text-zinc-300" : "text-zinc-600"}`}>{d.label}</p>
+              <p className={`text-[11px] font-medium ${isWhite ? "text-zinc-300" : "text-zinc-400"}`}>{d.label}</p>
               <p className={`text-[10px] ${isWhite ? "text-zinc-500" : "text-zinc-400"}`}>
                 {d.cantidad} prop.
               </p>

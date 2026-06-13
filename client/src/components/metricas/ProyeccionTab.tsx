@@ -1,5 +1,6 @@
 /** client/src/components/metricas/ProyeccionTab.tsx */
 
+import { GLASS_BASE, BADGE_BASE, INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import { TrendingUp, AlertTriangle, Save, ChevronDown, FlaskConical, Sparkles, ArrowDown, Target, CheckCircle2, Lightbulb } from "lucide-react";
 import { Metrica } from "../../types/metricas.types";
@@ -158,12 +159,12 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
           Fase: {faseActual.label}
         </span>
         {modoSimulacion && (
-          <span className="inline-flex items-center gap-1 text-xs text-violet-600 font-medium bg-violet-50 border border-violet-200 px-2.5 py-0.5 rounded-full">
+          <span className={`${BADGE_BASE} inline-flex items-center gap-1 text-xs text-violet-600 font-medium border-violet-200 px-2.5 py-0.5`}>
             <FlaskConical size={12}/> Modo simulación — sin leads reales aún
           </span>
         )}
         {hayOtras && (
-          <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-medium bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
+          <span className={`${BADGE_BASE} inline-flex items-center gap-1 text-xs text-amber-600 font-medium border-amber-200 px-2.5 py-0.5`}>
             <AlertTriangle size={12}/> Solo Meta Ads — {metricas.filter(m => m.plataforma !== "meta").length} campañas excluidas
           </span>
         )}
@@ -218,7 +219,7 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
               type="number"
               value={cplSimulado}
               onChange={(e) => setCplSimulado(e.target.value)}
-              className="w-24 border border-violet-300 rounded-lg px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-400"
+              className={`${INPUT_BASE} w-24 border-violet-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400`}
               placeholder="ej. 45"
             />
           </label>
@@ -227,17 +228,17 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
 
       {/* ── Predictor de campaña ── */}
       {totalGasto > 0 && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 flex flex-wrap items-center gap-3">
+        <div className={`${GLASS_BASE} p-4 flex flex-wrap items-center gap-3`}>
           <Sparkles size={16} className="text-violet-500 shrink-0" />
-          <span className="text-sm font-medium text-zinc-800">Predice tu próxima campaña</span>
+          <span className="text-sm font-medium text-zinc-200">Predice tu próxima campaña</span>
           <span className="text-xs text-zinc-400">¿Cuánto invertirás adicional?</span>
           <div className="flex items-center gap-1.5 ml-auto">
-            <span className="text-sm text-zinc-600">S/</span>
+            <span className="text-sm text-zinc-400">S/</span>
             <input
               type="number"
               value={presupuestoExtra}
               onChange={(e) => setPresupuestoExtra(e.target.value)}
-              className="w-24 text-sm border border-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400"
+              className={`${INPUT_BASE} w-24 text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400`}
               placeholder="100"
             />
             <button
@@ -253,44 +254,44 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
 
       {/* ── Comparativa: Instant Form vs Mensajes ── */}
       {(campanasIF.length > 0 || campanasMensaje.length > 0) && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
+        <div className={`${GLASS_BASE} p-5 space-y-4`}>
           <div>
-            <p className="text-sm font-semibold text-zinc-800">¿Qué tipo de campaña fue más rentable?</p>
+            <p className="text-sm font-semibold text-zinc-200">¿Qué tipo de campaña fue más rentable?</p>
             <p className="text-xs text-zinc-400 mt-0.5">Ingresa las ventas que atribuyes a cada tipo para calcular el costo real por venta</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             {/* Instant Form */}
-            <div className={`rounded-xl border p-4 space-y-3 ${masRentable === "if" ? "border-green-300 bg-green-50" : "border-zinc-200 bg-zinc-50"}`}>
+            <div className={`rounded-xl border p-4 space-y-3 ${masRentable === "if" ? "border-green-300 bg-green-50" : "border-white/10 bg-zinc-800/40"}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-bold text-zinc-800">Instant Form</p>
+                  <p className="text-xs font-bold text-zinc-200">Instant Form</p>
                   <p className="text-[10px] text-zinc-400">{campanasIF.length} campaña{campanasIF.length !== 1 ? "s" : ""}</p>
                 </div>
                 {masRentable === "if" && (
-                  <span className="text-[9px] bg-green-600 text-white px-1.5 py-0.5 rounded-full font-bold uppercase">Más rentable</span>
+                  <span className={`${BADGE_BASE} text-[9px] text-white px-1.5 py-0.5 font-bold uppercase`}>Más rentable</span>
                 )}
               </div>
               <div className="space-y-1 text-xs">
-                <div className="flex justify-between"><span className="text-zinc-500">Gasto total</span><span className="font-medium text-zinc-800">S/ {gastoIF.toLocaleString("es-PE", { maximumFractionDigits: 0 })}</span></div>
-                <div className="flex justify-between"><span className="text-zinc-500">Leads generados</span><span className="font-medium text-zinc-800">{leadsIF}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-500">Gasto total</span><span className="font-medium text-zinc-200">S/ {gastoIF.toLocaleString("es-PE", { maximumFractionDigits: 0 })}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-500">Leads generados</span><span className="font-medium text-zinc-200">{leadsIF}</span></div>
                 <div className="flex justify-between"><span className="text-zinc-500">CPL</span><span className={`font-bold ${cplIF > CPL_BENCHMARK ? "text-red-500" : "text-green-600"}`}>{cplIF > 0 ? `S/ ${cplIF.toFixed(0)}` : "—"}</span></div>
               </div>
-              <div className="border-t border-zinc-200 pt-3">
+              <div className="border-t border-white/10 pt-3">
                 <label className="flex items-center justify-between gap-2 text-xs">
-                  <span className="text-zinc-600 font-medium">Ventas atribuidas</span>
+                  <span className="text-zinc-400 font-medium">Ventas atribuidas</span>
                   <input
                     type="number" min={0}
                     value={ventasIF}
                     onChange={(e) => setVentasIF(Number(e.target.value))}
-                    className="w-16 border border-zinc-200 rounded-lg px-2 py-1 text-center bg-white focus:outline-none focus:ring-2 focus:ring-brand/30"
+                    className={`${INPUT_BASE} w-16 px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-brand/30`}
                   />
                 </label>
                 {cpvIF && (
                   <p className="text-xs mt-2">
                     <span className="text-zinc-500">Costo por venta: </span>
-                    <span className={`font-bold ${masRentable === "if" ? "text-green-600" : "text-zinc-700"}`}>S/ {cpvIF.toFixed(0)}</span>
+                    <span className={`font-bold ${masRentable === "if" ? "text-green-600" : "text-zinc-300"}`}>S/ {cpvIF.toFixed(0)}</span>
                   </p>
                 )}
                 {leadsIF > 0 && ventasIF === 0 && (
@@ -300,35 +301,35 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
             </div>
 
             {/* Mensajes / Traffic */}
-            <div className={`rounded-xl border p-4 space-y-3 ${masRentable === "mensajes" ? "border-green-300 bg-green-50" : "border-zinc-200 bg-zinc-50"}`}>
+            <div className={`rounded-xl border p-4 space-y-3 ${masRentable === "mensajes" ? "border-green-300 bg-green-50" : "border-white/10 bg-zinc-800/40"}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-bold text-zinc-800">Tráfico / Mensajes</p>
+                  <p className="text-xs font-bold text-zinc-200">Tráfico / Mensajes</p>
                   <p className="text-[10px] text-zinc-400">{campanasMensaje.length} campaña{campanasMensaje.length !== 1 ? "s" : ""} sin Instant Form</p>
                 </div>
                 {masRentable === "mensajes" && (
-                  <span className="text-[9px] bg-green-600 text-white px-1.5 py-0.5 rounded-full font-bold uppercase">Más rentable</span>
+                  <span className={`${BADGE_BASE} text-[9px] text-white px-1.5 py-0.5 font-bold uppercase`}>Más rentable</span>
                 )}
               </div>
               <div className="space-y-1 text-xs">
-                <div className="flex justify-between"><span className="text-zinc-500">Gasto total</span><span className="font-medium text-zinc-800">S/ {gastoMsg.toLocaleString("es-PE", { maximumFractionDigits: 0 })}</span></div>
-                <div className="flex justify-between"><span className="text-zinc-500">Mensajes recibidos</span><span className="font-medium text-zinc-800">{mensajesTotal.toLocaleString()}</span></div>
-                <div className="flex justify-between"><span className="text-zinc-500">Costo / mensaje</span><span className="font-medium text-zinc-800">{costoMensaje > 0 ? `S/ ${costoMensaje.toFixed(2)}` : "—"}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-500">Gasto total</span><span className="font-medium text-zinc-200">S/ {gastoMsg.toLocaleString("es-PE", { maximumFractionDigits: 0 })}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-500">Mensajes recibidos</span><span className="font-medium text-zinc-200">{mensajesTotal.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-500">Costo / mensaje</span><span className="font-medium text-zinc-200">{costoMensaje > 0 ? `S/ ${costoMensaje.toFixed(2)}` : "—"}</span></div>
               </div>
-              <div className="border-t border-zinc-200 pt-3">
+              <div className="border-t border-white/10 pt-3">
                 <label className="flex items-center justify-between gap-2 text-xs">
-                  <span className="text-zinc-600 font-medium">Ventas atribuidas</span>
+                  <span className="text-zinc-400 font-medium">Ventas atribuidas</span>
                   <input
                     type="number" min={0}
                     value={ventasMensajes}
                     onChange={(e) => setVentasMensajes(Number(e.target.value))}
-                    className="w-16 border border-zinc-200 rounded-lg px-2 py-1 text-center bg-white focus:outline-none focus:ring-2 focus:ring-brand/30"
+                    className={`${INPUT_BASE} w-16 px-2 py-1 text-center focus:outline-none focus:ring-2 focus:ring-brand/30`}
                   />
                 </label>
                 {cpvMensajes && (
                   <p className="text-xs mt-2">
                     <span className="text-zinc-500">Costo por venta: </span>
-                    <span className={`font-bold ${masRentable === "mensajes" ? "text-green-600" : "text-zinc-700"}`}>S/ {cpvMensajes.toFixed(0)}</span>
+                    <span className={`font-bold ${masRentable === "mensajes" ? "text-green-600" : "text-zinc-300"}`}>S/ {cpvMensajes.toFixed(0)}</span>
                   </p>
                 )}
                 {mensajesTotal > 0 && ventasMensajes > 0 && (
@@ -340,7 +341,7 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
 
           {/* Conclusión */}
           {(cpvIF || cpvMensajes) && (
-            <div className={`rounded-xl px-4 py-3 text-xs border ${masRentable ? "bg-green-50 border-green-200 text-green-800" : "bg-zinc-50 border-zinc-200 text-zinc-600"}`}>
+            <div className={`rounded-xl px-4 py-3 text-xs border ${masRentable ? "bg-green-50 border-green-200 text-green-800" : "bg-zinc-800/40 border-white/10 text-zinc-400"}`}>
               {masRentable === "if" && cpvIF && cpvMensajes && (
                 <p><strong>Instant Form fue más rentable:</strong> S/ {cpvIF.toFixed(0)} por venta vs S/ {cpvMensajes.toFixed(0)} de mensajes. {cpvIF < cpvMensajes ? `Ahorraste S/ ${(cpvMensajes - cpvIF).toFixed(0)} por venta.` : ""}</p>
               )}
@@ -365,28 +366,28 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
           {/* Encabezado + parámetros */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-zinc-800">Escenarios si mejoras el CPL</p>
+              <p className="text-sm font-semibold text-zinc-200">Escenarios si mejoras el CPL</p>
               <p className="text-xs text-zinc-400 mt-0.5">Mismo presupuesto de referencia, menor CPL = más leads</p>
             </div>
             <div className="flex flex-wrap items-center gap-4">
-              <label className="flex items-center gap-2 text-xs text-zinc-600">
+              <label className="flex items-center gap-2 text-xs text-zinc-400">
                 <span>Presupuesto ref. S/</span>
                 <input
                   type="number"
                   value={budgetRef}
                   onChange={(e) => setBudgetRef(Number(e.target.value))}
-                  className="w-20 border border-zinc-200 rounded-lg px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 text-center"
+                  className={`${INPUT_BASE} w-20 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 text-center`}
                 />
                 <span className="text-zinc-400">/mes</span>
               </label>
-              <label className="flex items-center gap-2 text-xs text-zinc-600">
+              <label className="flex items-center gap-2 text-xs text-zinc-400">
                 <span>Tasa de cierre</span>
                 <input
                   type="number"
                   min={0} max={100}
                   value={tasaCierre}
                   onChange={(e) => setTasaCierre(Number(e.target.value))}
-                  className="w-14 border border-zinc-200 rounded-lg px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 text-center"
+                  className={`${INPUT_BASE} w-14 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 text-center`}
                 />
                 <span className="text-zinc-400">%</span>
               </label>
@@ -394,10 +395,10 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
           </div>
 
           {/* Situación actual (referencia) */}
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+          <div className={`${PANEL_BASE} p-4`}>
             <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Situación actual — referencia</span>
-              <span className="text-[10px] bg-red-100 text-red-600 border border-red-200 px-2 py-0.5 rounded-full font-medium">
+              <span className="text-xs font-semibold text-zinc-100 uppercase tracking-wide">Situación actual — referencia</span>
+              <span className={`${BADGE_BASE} text-[10px] text-red-600 border-red-200 px-2 py-0.5 font-medium`}>
                 CPL S/ {cplEfectivo.toFixed(0)} — {brechaPct > 0 ? `+${brechaPct}% sobre benchmark` : "en benchmark"}
               </span>
             </div>
@@ -408,11 +409,11 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
               </div>
               <div>
                 <p className="text-[10px] text-zinc-400 mb-1">Leads/mes</p>
-                <p className="text-lg font-bold text-zinc-700">~{leadsActual}</p>
+                <p className="text-lg font-bold text-zinc-300">~{leadsActual}</p>
               </div>
               <div>
                 <p className="text-[10px] text-zinc-400 mb-1">Ventas est. ({tasaCierre}%)</p>
-                <p className="text-lg font-bold text-zinc-700">~{ventasActual}</p>
+                <p className="text-lg font-bold text-zinc-300">~{ventasActual}</p>
               </div>
             </div>
           </div>
@@ -425,9 +426,9 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
               <div className="flex items-center justify-between flex-wrap gap-1">
                 <div className="flex items-center gap-1.5">
                   <TrendingUp size={15} className="text-blue-500" />
-                  <span className="text-xs font-bold text-zinc-800">Camino A</span>
+                  <span className="text-xs font-bold text-zinc-200">Camino A</span>
                 </div>
-                <span className="text-[10px] bg-blue-100 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full font-medium">−30% CPL</span>
+                <span className={`${BADGE_BASE} text-[10px] text-blue-700 border-blue-200 px-2 py-0.5 font-medium`}>−30% CPL</span>
               </div>
               <p className="text-[11px] text-blue-700 font-medium">Optimización básica de anuncios</p>
               <div className="grid grid-cols-3 gap-1 text-center">
@@ -437,17 +438,17 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
                 </div>
                 <div>
                   <p className="text-[10px] text-zinc-400">Leads</p>
-                  <p className="text-sm font-bold text-zinc-800">~{leadsA}</p>
+                  <p className="text-sm font-bold text-zinc-200">~{leadsA}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-zinc-400">Ventas</p>
-                  <p className="text-sm font-bold text-zinc-800">~{ventasA}</p>
+                  <p className="text-sm font-bold text-zinc-200">~{ventasA}</p>
                 </div>
               </div>
               <div className="space-y-1.5 pt-1 border-t border-blue-200">
                 <p className="text-[10px] font-semibold text-zinc-500 flex items-center gap-1"><Lightbulb size={10}/> Estrategias:</p>
                 {["A/B test de creatividades (copy + imagen)", "Audiencias lookalike 1–3%", "Excluir audiencias ya convertidas", "Optimizar horarios de mayor CTR"].map((e) => (
-                  <p key={e} className="text-[10px] text-zinc-600 flex items-start gap-1"><span className="text-blue-400 mt-0.5">•</span>{e}</p>
+                  <p key={e} className="text-[10px] text-zinc-400 flex items-start gap-1"><span className="text-blue-400 mt-0.5">•</span>{e}</p>
                 ))}
               </div>
               <p className="text-[10px] text-blue-600 font-medium">+{leadsA - leadsActual} leads más que ahora</p>
@@ -458,9 +459,9 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
               <div className="flex items-center justify-between flex-wrap gap-1">
                 <div className="flex items-center gap-1.5">
                   <TrendingUp size={15} className="text-violet-500" />
-                  <span className="text-xs font-bold text-zinc-800">Camino B</span>
+                  <span className="text-xs font-bold text-zinc-200">Camino B</span>
                 </div>
-                <span className="text-[10px] bg-violet-100 text-violet-700 border border-violet-200 px-2 py-0.5 rounded-full font-medium">−60% CPL</span>
+                <span className={`${BADGE_BASE} text-[10px] text-violet-700 border-violet-200 px-2 py-0.5 font-medium`}>−60% CPL</span>
               </div>
               <p className="text-[11px] text-violet-700 font-medium">Lead Generation activado</p>
               <div className="grid grid-cols-3 gap-1 text-center">
@@ -470,17 +471,17 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
                 </div>
                 <div>
                   <p className="text-[10px] text-zinc-400">Leads</p>
-                  <p className="text-sm font-bold text-zinc-800">~{leadsB}</p>
+                  <p className="text-sm font-bold text-zinc-200">~{leadsB}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-zinc-400">Ventas</p>
-                  <p className="text-sm font-bold text-zinc-800">~{ventasB}</p>
+                  <p className="text-sm font-bold text-zinc-200">~{ventasB}</p>
                 </div>
               </div>
               <div className="space-y-1.5 pt-1 border-t border-violet-200">
                 <p className="text-[10px] font-semibold text-zinc-500 flex items-center gap-1"><Lightbulb size={10}/> Estrategias:</p>
                 {["Cambiar objetivo: Tráfico → Lead Generation", "Activar Instant Form nativo de Meta", "Pre-llenar campos con datos de Facebook", "Formulario corto: nombre, teléfono, proyecto"].map((e) => (
-                  <p key={e} className="text-[10px] text-zinc-600 flex items-start gap-1"><span className="text-violet-400 mt-0.5">•</span>{e}</p>
+                  <p key={e} className="text-[10px] text-zinc-400 flex items-start gap-1"><span className="text-violet-400 mt-0.5">•</span>{e}</p>
                 ))}
               </div>
               <p className="text-[10px] text-violet-600 font-medium">+{leadsB - leadsActual} leads más que ahora</p>
@@ -489,11 +490,11 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
             {/* Camino C — benchmark */}
             <div className="rounded-xl border border-green-300 bg-green-50 p-4 space-y-3 relative overflow-hidden">
               <div className="absolute top-2 right-2">
-                <span className="text-[9px] bg-green-600 text-white px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Objetivo</span>
+                <span className={`${BADGE_BASE} text-[9px] text-white px-1.5 py-0.5 font-bold uppercase tracking-wide`}>Objetivo</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Target size={15} className="text-green-600" />
-                <span className="text-xs font-bold text-zinc-800">Camino C</span>
+                <span className="text-xs font-bold text-zinc-200">Camino C</span>
               </div>
               <p className="text-[11px] text-green-700 font-medium">Benchmark sector — S/ {CPL_BENCHMARK}</p>
               <div className="grid grid-cols-3 gap-1 text-center">
@@ -503,17 +504,17 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
                 </div>
                 <div>
                   <p className="text-[10px] text-zinc-400">Leads</p>
-                  <p className="text-sm font-bold text-zinc-800">~{leadsC}</p>
+                  <p className="text-sm font-bold text-zinc-200">~{leadsC}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-zinc-400">Ventas</p>
-                  <p className="text-sm font-bold text-zinc-800">~{ventasC}</p>
+                  <p className="text-sm font-bold text-zinc-200">~{ventasC}</p>
                 </div>
               </div>
               <div className="space-y-1.5 pt-1 border-t border-green-200">
                 <p className="text-[10px] font-semibold text-zinc-500 flex items-center gap-1"><Lightbulb size={10}/> Estrategias:</p>
                 {["Instant Form + segmentación precisa por intereses", "Retargeting visitantes web (pixel Meta)", "Conversions API (CAPI) para mejor atribución", "Creatividades con casos de éxito reales"].map((e) => (
-                  <p key={e} className="text-[10px] text-zinc-600 flex items-start gap-1"><span className="text-green-500 mt-0.5">•</span>{e}</p>
+                  <p key={e} className="text-[10px] text-zinc-400 flex items-start gap-1"><span className="text-green-500 mt-0.5">•</span>{e}</p>
                 ))}
               </div>
               <p className="text-[10px] text-green-700 font-bold">+{leadsC - leadsActual} leads más que ahora</p>
@@ -523,15 +524,15 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
       )}
 
       {!cplEfectivo && (
-        <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-6 text-center text-sm text-zinc-400">
+        <div className={`${PANEL_BASE} p-6 text-center text-sm text-zinc-400`}>
           Sin datos de leads suficientes para proyectar. Sincroniza las métricas de Meta Ads primero.
         </div>
       )}
 
       {/* ── Configuración de campaña ── */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
+      <div className={`${GLASS_BASE} p-5 space-y-4`}>
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-zinc-800">Configuración de campaña</span>
+          <span className="text-sm font-semibold text-zinc-200">Configuración de campaña</span>
           {!editando && (
             <button onClick={() => setEditando(true)} className="text-xs text-brand hover:underline">Editar</button>
           )}
@@ -545,7 +546,7 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
                   <select
                     value={form.fase_campana}
                     onChange={(e) => setForm((f) => ({ ...f, fase_campana: e.target.value as any }))}
-                    className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-brand/30 bg-white"
+                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-brand/30`}
                   >
                     {FASES.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
                   </select>
@@ -554,22 +555,22 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
               </label>
               <label className="space-y-1">
                 <span className="text-xs text-zinc-500">Email del vendedor (notificaciones)</span>
-                <input type="email" value={form.vendedor_email} onChange={(e) => setForm((f) => ({ ...f, vendedor_email: e.target.value }))} placeholder="ventas@empresa.com" className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30" />
+                <input type="email" value={form.vendedor_email} onChange={(e) => setForm((f) => ({ ...f, vendedor_email: e.target.value }))} placeholder="ventas@empresa.com" className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`} />
               </label>
               <label className="space-y-1">
                 <span className="text-xs text-zinc-500">WhatsApp del vendedor</span>
-                <input type="text" value={form.vendedor_whatsapp} onChange={(e) => setForm((f) => ({ ...f, vendedor_whatsapp: e.target.value }))} placeholder="+51987654321" className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30" />
+                <input type="text" value={form.vendedor_whatsapp} onChange={(e) => setForm((f) => ({ ...f, vendedor_whatsapp: e.target.value }))} placeholder="+51987654321" className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`} />
               </label>
             </div>
             <div className="flex gap-2 justify-end pt-1">
-              <button onClick={() => setEditando(false)} className="text-xs px-3 py-1.5 rounded-lg border border-zinc-200 text-zinc-600 hover:bg-zinc-50">Cancelar</button>
+              <button onClick={() => setEditando(false)} className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-zinc-400 hover:bg-zinc-800/40">Cancelar</button>
               <button onClick={handleGuardar} disabled={guardando} className="text-xs px-3 py-1.5 rounded-lg bg-brand text-white hover:bg-brand-hover flex items-center gap-1.5 disabled:opacity-50">
                 <Save size={12} /> {guardando ? "Guardando..." : "Guardar"}
               </button>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-3 text-xs text-zinc-600">
+          <div className="grid grid-cols-3 gap-3 text-xs text-zinc-400">
             <div><span className="block text-zinc-400 mb-0.5">Fase</span>{faseActual.label}</div>
             <div><span className="block text-zinc-400 mb-0.5">Email vendedor</span>{config?.vendedor_email ?? "—"}</div>
             <div><span className="block text-zinc-400 mb-0.5">WhatsApp</span>{config?.vendedor_whatsapp ?? "—"}</div>
@@ -579,13 +580,13 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
 
       {/* ── Leads por campaña ── */}
       {leadsCampana.length > 0 && (
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-          <div className="px-5 py-3 border-b border-zinc-100">
-            <span className="text-sm font-semibold text-zinc-800">Calidad de leads por campaña</span>
+        <div className={`${GLASS_BASE} overflow-hidden`}>
+          <div className="px-5 py-3 border-b border-white/8">
+            <span className="text-sm font-semibold text-zinc-200">Calidad de leads por campaña</span>
             <span className="ml-2 text-xs text-zinc-400">Feedback del equipo de ventas</span>
           </div>
           <table className="w-full text-xs">
-            <thead className="bg-zinc-50 text-zinc-500 uppercase text-[10px]">
+            <thead className="bg-zinc-800/40 text-zinc-100 uppercase text-[10px]">
               <tr>
                 <th className="px-5 py-2.5 text-left font-medium">Campaña</th>
                 <th className="px-4 py-2.5 text-center font-medium">Total</th>
@@ -594,10 +595,10 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
                 <th className="px-4 py-2.5 text-center font-medium">% Calidad</th>
                 <th className="px-4 py-2.5 text-center font-medium text-blue-600">≤5 min</th>
                 <th className="px-4 py-2.5 text-center font-medium">T. respuesta</th>
-                <th className="px-4 py-2.5 text-center font-medium text-zinc-400">Sin contactar</th>
+                <th className="px-4 py-2.5 text-center font-medium text-zinc-100">Sin contactar</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-white/8">
               {leadsCampana.map((row) => {
                 const total   = Number(row.total);
                 const cal     = Number(row.calificados);
@@ -606,9 +607,9 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
                 const sinCont = Number(row.sin_contactar);
                 const minProm = row.min_promedio_respuesta != null ? Number(row.min_promedio_respuesta) : null;
                 return (
-                  <tr key={row.campana_origen} className="hover:bg-zinc-50 transition">
-                    <td className="px-5 py-3 text-zinc-700 max-w-xs truncate">{row.campana_origen}</td>
-                    <td className="px-4 py-3 text-center font-medium text-zinc-800">{total}</td>
+                  <tr key={row.campana_origen} className="hover:bg-zinc-800/40 transition">
+                    <td className="px-5 py-3 text-zinc-300 max-w-xs truncate">{row.campana_origen}</td>
+                    <td className="px-4 py-3 text-center font-medium text-zinc-200">{total}</td>
                     <td className="px-4 py-3 text-center text-green-600 font-medium">{cal}</td>
                     <td className="px-4 py-3 text-center text-red-500">{row.no_calificados}</td>
                     <td className="px-4 py-3 text-center">
@@ -662,7 +663,7 @@ export function ProyeccionTab({ metricas, empresa }: Props) {
 // ── Sub-componentes ────────────────────────────────────────────────────────────
 function Kpi({ label, valor, sub, color }: { label: string; valor: string; sub: string; color: string }) {
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3 space-y-0.5">
+    <div className={`${GLASS_BASE} px-4 py-3 space-y-0.5`}>
       <p className="text-[11px] text-zinc-400">{label}</p>
       <p className={`text-xl font-bold ${color}`}>{valor}</p>
       <p className="text-[11px] text-zinc-400">{sub}</p>

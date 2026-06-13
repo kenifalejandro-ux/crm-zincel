@@ -1,5 +1,6 @@
 /** src/components/metricas/ImportarCSVMetrica.tsx */
 
+import { MODAL_BASE, INPUT_BASE } from "../../lib/tokens";
 import { useRef, useState }                  from "react";
 import { Upload, X, Check, AlertCircle }     from "lucide-react";
 import { createMetrica }                     from "../../services/metricas.api";
@@ -289,17 +290,17 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+      <div className={`${MODAL_BASE} w-full max-w-lg`}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
           <div>
-            <h2 className="text-sm font-semibold text-zinc-800">Importar CSV</h2>
-            <p className="text-xs text-zinc-600 mt-0.5">
+            <h2 className="text-sm font-semibold text-zinc-200">Importar CSV</h2>
+            <p className="text-xs text-zinc-400 mt-0.5">
               Compatible con Meta Ads, Google Ads y TikTok Ads
             </p>
           </div>
-          <button onClick={onCerrar} className="text-zinc-600 hover:text-zinc-600">
+          <button onClick={onCerrar} className="text-zinc-400 hover:text-zinc-400">
             <X size={16} />
           </button>
         </div>
@@ -309,23 +310,23 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           {/* Empresa + Plataforma */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-zinc-700 mb-1 block">Empresa *</label>
+              <label className="text-xs text-zinc-300 mb-1 block">Empresa *</label>
               <input
                 value={empresa}
                 onChange={(e) => setEmpresa(e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
+                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
                 placeholder="Nombre de empresa"
               />
             </div>
             <div>
-              <label className="text-xs text-zinc-700 mb-1 block">Plataforma *</label>
+              <label className="text-xs text-zinc-300 mb-1 block">Plataforma *</label>
               <select
                 value={plataforma}
                 onChange={(e) => {
                   setPlataforma(e.target.value as Plataforma);
                   setSubPlat("");
                 }}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
+                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
               >
                 <option value="meta">Meta Ads</option>
                 <option value="google">Google Ads</option>
@@ -337,11 +338,11 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           {/* Sub plataforma solo si Meta */}
           {plataforma === "meta" && (
             <div>
-              <label className="text-xs text-zinc-700 mb-1 block">Red social</label>
+              <label className="text-xs text-zinc-300 mb-1 block">Red social</label>
               <select
                 value={subPlat}
                 onChange={(e) => setSubPlat(e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
+                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
               >
                 <option value="">Ambas (Facebook + Instagram)</option>
                 <option value="facebook">Facebook</option>
@@ -354,19 +355,19 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           {/* Período */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-zinc-700 mb-1 block">Período inicio *</label>
+              <label className="text-xs text-zinc-300 mb-1 block">Período inicio *</label>
               <input
                 type="date" value={periodoI}
                 onChange={(e) => setPeriodoI(e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
+                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
               />
             </div>
             <div>
-              <label className="text-xs text-zinc-700 mb-1 block">Período fin *</label>
+              <label className="text-xs text-zinc-300 mb-1 block">Período fin *</label>
               <input
                 type="date" value={periodoF}
                 onChange={(e) => setPeriodoF(e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
+                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
               />
             </div>
           </div>
@@ -374,13 +375,13 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           {/* Drop zone */}
           <div
             onClick={() => inputRef.current?.click()}
-            className="border-2 border-dashed border-zinc-200 rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition"
+            className="border-2 border-dashed border-white/10 rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition"
           >
-            <Upload size={20} className="mx-auto text-zinc-600 mb-2" />
-            <p className="text-xs text-zinc-700 font-medium">
+            <Upload size={20} className="mx-auto text-zinc-400 mb-2" />
+            <p className="text-xs text-zinc-300 font-medium">
               Haz clic para seleccionar tu archivo CSV
             </p>
-            <p className="text-[10px] text-zinc-600 mt-1">
+            <p className="text-[10px] text-zinc-400 mt-1">
               Exporta el reporte directamente desde Meta Ads, Google Ads o TikTok Ads
             </p>
             <input
@@ -398,7 +399,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               estado === "ok"      ? "bg-green-50 text-green-700" :
               estado === "error"   ? "bg-red-50   text-red-700"   :
               estado === "preview" ? "bg-blue-50  text-blue-700"  :
-                                     "bg-zinc-50  text-zinc-700"
+                                     "bg-zinc-800/40  text-zinc-300"
             }`}>
               {estado === "ok"    && <Check       size={13} />}
               {estado === "error" && <AlertCircle size={13} />}
@@ -408,14 +409,14 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
 
           {/* Preview campos detectados */}
           {estado === "preview" && filas.length > 0 && (
-            <div className="bg-zinc-50 rounded-lg p-3 space-y-1 max-h-32 overflow-y-auto">
-              <p className="text-[10px] font-semibold text-zinc-600 uppercase mb-2">
+            <div className="bg-zinc-800/40 rounded-lg p-3 space-y-1 max-h-32 overflow-y-auto">
+              <p className="text-[10px] font-semibold text-zinc-100 uppercase mb-2">
                 Campos detectados en el CSV
               </p>
               {Object.keys(filas[0]).map((campo) => (
                 <div key={campo} className="flex items-center gap-2">
                   <Check size={10} className="text-green-500 shrink-0" />
-                  <span className="text-[11px] text-zinc-600">{campo}</span>
+                  <span className="text-[11px] text-zinc-400">{campo}</span>
                 </div>
               ))}
             </div>
@@ -424,10 +425,10 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 px-6 py-4 border-t border-zinc-100">
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-white/8">
           <button
             onClick={onCerrar}
-            className="px-4 py-2 text-xs text-zinc-600 hover:bg-zinc-100 rounded-lg transition"
+            className="px-4 py-2 text-xs text-zinc-400 hover:bg-zinc-800 rounded-lg transition"
           >
             Cancelar
           </button>

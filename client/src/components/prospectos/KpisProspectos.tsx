@@ -1,7 +1,7 @@
 /** client/src/components/prospectos/KpisProspectos.tsx */
 
 import { Users } from "lucide-react";
-import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, PANEL_BASE } from "../../lib/tokens";
 import type { ResumenProspectos } from "../../services/prospectos.api";
 
 interface CardDef {
@@ -124,7 +124,7 @@ function GrupoCard({ grupo, resumen, onFiltro, filtroActivo }: {
 }) {
   const total = grupo.items.reduce((s, i) => s + ((resumen as any)[i.key] ?? 0), 0);
   return (
-    <div className={`rounded-2xl border p-4 ${grupo.bgHead}`}>
+    <div className={`${PANEL_BASE} p-4`}>
       {/* Cabecera */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -144,14 +144,14 @@ function GrupoCard({ grupo, resumen, onFiltro, filtroActivo }: {
               key={item.key}
               onClick={() => onFiltro(item.key)}
               className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-left transition-all ${
-                activo ? "bg-white/80 ring-1 ring-zinc-400" : "hover:bg-white/60"
+                activo ? "bg-white/8 ring-1 ring-zinc-400" : "hover:bg-white/8/5"
               }`}
             >
               <div className="flex items-center gap-1.5 min-w-0">
                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.dot}`} />
-                <span className="text-[11px] text-zinc-600 truncate">{item.label}</span>
+                <span className="text-[11px] text-zinc-400 truncate">{item.label}</span>
               </div>
-              <span className="text-[11px] font-bold text-zinc-800 shrink-0 ml-2">{val}</span>
+              <span className="text-[11px] font-bold text-zinc-200 shrink-0 ml-2">{val}</span>
             </button>
           );
         })}
@@ -168,8 +168,8 @@ export function KpisProspectos({ resumen, filtroActivo, onFiltro }: Props) {
         {/* Total leads */}
         <button
           onClick={() => onFiltro("")}
-          className={`text-sm font-bold text-zinc-800 px-3 py-1 rounded-xl border transition-all ${
-            filtroActivo === "" ? "border-zinc-400 bg-zinc-100" : "border-zinc-200 hover:bg-zinc-50"
+          className={`text-sm font-bold text-zinc-200 px-3 py-1 rounded-xl border transition-all ${
+            filtroActivo === "" ? "border-zinc-400 bg-zinc-800" : "border-white/10 hover:bg-zinc-800/40"
           }`}
         >
           {resumen.total.toLocaleString("es-PE")} leads en total

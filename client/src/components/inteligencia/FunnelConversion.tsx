@@ -6,7 +6,7 @@ import {
   ChevronRight, X, Phone, AlertTriangle,
   Users, CheckCircle2, XCircle,
 } from "lucide-react";
-import { COLORS, CARD_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
 import { getEtapaLeads } from "../../services/prospectos.api";
 import type { FunnelEtapa, EtapaLead } from "../../services/prospectos.api";
 
@@ -61,22 +61,22 @@ function LeadsPanel({
         onClick={onCerrar}
       />
       {/* Panel */}
-      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-white shadow-2xl flex flex-col">
+      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-slate-800/60 shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
           <div className="flex items-center gap-2.5">
             <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${meta?.bg ?? "bg-zinc-700"}`}>
               {meta?.icon}
             </div>
             <div>
-              <p className="text-sm font-semibold text-zinc-900">{meta?.label ?? etapa}</p>
+              <p className="text-sm font-semibold text-zinc-100">{meta?.label ?? etapa}</p>
               <p className="text-[10px] text-zinc-400 mt-0.5">
                 {cargando ? "Cargando…" : `${leads.length} empresa${leads.length !== 1 ? "s" : ""}`}
               </p>
             </div>
           </div>
-          <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-zinc-100 transition">
-            <X size={16} className="text-zinc-600" />
+          <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-zinc-800 transition">
+            <X size={16} className="text-zinc-400" />
           </button>
         </div>
 
@@ -89,12 +89,12 @@ function LeadsPanel({
           ) : leads.length === 0 ? (
             <p className="text-xs text-zinc-500 text-center py-12">Sin empresas en esta etapa</p>
           ) : (
-            <div className="divide-y divide-zinc-50">
+            <div className="divide-y divide-white/5">
               {leads.map(lead => (
-                <div key={lead.id} className="px-5 py-3.5 hover:bg-zinc-50 transition">
+                <div key={lead.id} className="px-5 py-3.5 hover:bg-zinc-800/40 transition">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-zinc-800 truncate">{lead.empresa}</p>
+                      <p className="text-sm font-semibold text-zinc-200 truncate">{lead.empresa}</p>
                       <p className="text-xs text-zinc-500 mt-0.5">{lead.nombre_contacto ?? "—"}</p>
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                         {lead.ciudad && (
@@ -106,7 +106,7 @@ function LeadsPanel({
                           </span>
                         )}
                         {lead.total_propuestas > 0 && (
-                          <span className="text-[10px] bg-brand/10 text-zinc-700 px-1.5 py-0.5 rounded-full">
+                          <span className="text-[10px] bg-brand/10 text-zinc-300 px-1.5 py-0.5 rounded-full">
                             {lead.total_propuestas} propuesta{lead.total_propuestas > 1 ? "s" : ""}
                           </span>
                         )}
@@ -192,24 +192,24 @@ export function FunnelConversion({ data }: Props) {
 
       {/* ── KPIs ── */}
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="rounded-xl border border-zinc-100 p-4 text-center">
-          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Valor activo</p>
-          <p className="text-2xl font-bold text-zinc-900">{fmtSol(valorActivo)}</p>
+        <div className="rounded-xl border border-white/8 p-4 text-center">
+          <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-widest mb-1">Valor activo</p>
+          <p className="text-2xl font-bold text-zinc-100">{fmtSol(valorActivo)}</p>
           <p className="text-[10px] text-zinc-400 mt-1">
             {funnel.filter(d => !["cerrado_ganado","perdido"].includes(d.etapa)).reduce((s, d) => s + d.total, 0)} leads en pipeline
           </p>
         </div>
-        <div className="rounded-xl border border-zinc-100 p-4 text-center">
-          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Cerrado ganado</p>
-          <p className={`text-2xl font-bold ${valorCerrado > 0 ? "text-green-700" : "text-zinc-900"}`}>
+        <div className="rounded-xl border border-white/8 p-4 text-center">
+          <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-widest mb-1">Cerrado ganado</p>
+          <p className={`text-2xl font-bold ${valorCerrado > 0 ? "text-green-700" : "text-zinc-100"}`}>
             {valorCerrado > 0 ? fmtSol(valorCerrado) : "S/ —"}
           </p>
           <p className="text-[10px] text-zinc-400 mt-1">
             {ganadas} ganada{ganadas !== 1 ? "s" : ""} · {perdidas} perdida{perdidas !== 1 ? "s" : ""}
           </p>
         </div>
-        <div className="rounded-xl border border-zinc-100 p-4 text-center">
-          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Tasa de cierre</p>
+        <div className="rounded-xl border border-white/8 p-4 text-center">
+          <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-widest mb-1">Tasa de cierre</p>
           <p className={`text-2xl font-bold ${tasaCierre >= 40 ? "text-green-700" : tasaCierre >= 20 ? "text-amber-600" : tasaCierre > 0 ? "text-red-500" : "text-zinc-400"}`}>
             {tasaCierre > 0 ? `${tasaCierre}%` : "—"}
           </p>
@@ -234,14 +234,8 @@ export function FunnelConversion({ data }: Props) {
               {i > 0 && (
                 <div className="flex items-center gap-2 py-1 px-1">
                   <div className="w-2 shrink-0" />
-                  <div className="h-4 w-px bg-zinc-200 ml-3" />
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                    conv === null   ? "bg-zinc-100 text-zinc-400"
-                    : conv === 0    ? "bg-red-500 text-white"
-                    : conv < 20     ? "bg-red-100 text-red-600"
-                    : conv < 40     ? "bg-amber-50 text-amber-700"
-                    : "bg-zinc-100 text-zinc-600"
-                  }`}>
+                  <div className="h-4 w-px bg-zinc-700 ml-3" />
+                  <span className={`${BADGE_BASE} text-[10px] font-bold px-2 py-0.5 shrink-0 ${ conv === null ? "bg-zinc-800 text-zinc-400" : conv === 0 ? "bg-red-500 text-white" : conv < 20 ? "bg-red-100 text-red-600" : conv < 40 ? "bg-amber-50 text-amber-700" : "bg-zinc-800 text-zinc-400" }`}>
                     {conv === null ? "—" : conv === 0 ? "⚠ 0% ALERTA" : `▼ ${conv}%`}
                   </span>
                   {isBottle && prevEtapa && (
@@ -255,7 +249,7 @@ export function FunnelConversion({ data }: Props) {
               {/* Fila de etapa */}
               <button
                 onClick={() => abrirPanel(etapa.etapa)}
-                className="w-full group flex items-center gap-3 rounded-xl hover:bg-zinc-50 transition px-1 py-1.5"
+                className="w-full group flex items-center gap-3 rounded-xl hover:bg-zinc-800/40 transition px-1 py-1.5"
               >
                 {/* Icono */}
                 <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${meta?.bg ?? "bg-zinc-700"}`}>
@@ -265,11 +259,11 @@ export function FunnelConversion({ data }: Props) {
                 {/* Barra */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-semibold text-zinc-700 group-hover:text-zinc-900">
+                    <span className="text-[11px] font-semibold text-zinc-300 group-hover:text-zinc-100">
                       {meta?.label ?? etapa.etapa}
                     </span>
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className="text-[11px] font-bold text-zinc-800">
+                      <span className="text-[11px] font-bold text-zinc-200">
                         {etapa.total} {etapa.total === 1 ? "lead" : "leads"}
                       </span>
                       {etapa.valor > 0 && (
@@ -281,7 +275,7 @@ export function FunnelConversion({ data }: Props) {
                     </div>
                   </div>
                   {/* Barra proporcional */}
-                  <div className="h-2 bg-zinc-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-700"
                       style={{
@@ -298,10 +292,10 @@ export function FunnelConversion({ data }: Props) {
 
         {/* Perdidos (fuera del funnel principal) */}
         {perdidos > 0 && (
-          <div className="mt-2 pt-2 border-t border-zinc-100">
+          <div className="mt-2 pt-2 border-t border-white/8">
             <button
               onClick={() => abrirPanel("perdido")}
-              className="w-full group flex items-center gap-3 rounded-xl hover:bg-zinc-50 transition px-1 py-1.5"
+              className="w-full group flex items-center gap-3 rounded-xl hover:bg-zinc-800/40 transition px-1 py-1.5"
             >
               <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-500 shrink-0">
                 <XCircle size={13} className="text-white" />
@@ -310,7 +304,7 @@ export function FunnelConversion({ data }: Props) {
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-semibold text-red-500">Perdido</span>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-[11px] font-bold text-zinc-800">{perdidos} leads</span>
+                    <span className="text-[11px] font-bold text-zinc-200">{perdidos} leads</span>
                     <ChevronRight size={13} className="text-zinc-300 group-hover:text-brand transition" />
                   </div>
                 </div>

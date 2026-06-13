@@ -1,5 +1,5 @@
 /** client/src/components/dashboard/LlamadasCanalChart.tsx */
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, Cell, LabelList, CartesianGrid,
@@ -12,9 +12,9 @@ const MATTE_COLORS = [COLORS.primary, COLORS.primary, COLORS.mutedDark, COLORS.d
 const TooltipCanal = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-1.5 text-xs">
-      <p className="font-semibold text-zinc-800 capitalize">{label}</p>
-      <p className="text-zinc-600">{payload[0].value} llamadas</p>
+    <div className={`${TOOLTIP_BASE} px-3 py-1.5 text-xs`}>
+      <p className="font-semibold text-zinc-200 capitalize">{label}</p>
+      <p className="text-zinc-400">{payload[0].value} llamadas</p>
     </div>
   );
 };
@@ -58,7 +58,7 @@ export function LlamadasCanalChart({ metricas }: Props) {
           />
           <YAxis tick={{ fontSize: 10, fill: COLORS.muted }} tickLine={false} axisLine={false} />
           <Tooltip content={<TooltipCanal />} cursor={{ fill: "#f9f9f8" }} />
-          <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+          <Bar filter="url(#neon-glow)" dataKey="value" radius={[6, 6, 0, 0]}>
             {datosGrafico.map((entry, i) => (
               <Cell key={i} fill={entry.color} />
             ))}
@@ -72,11 +72,11 @@ export function LlamadasCanalChart({ metricas }: Props) {
       </ResponsiveContainer>
 
       {/* Leyenda con % */}
-      <div className="flex justify-around mt-3 pt-3 border-t border-zinc-100">
+      <div className="flex justify-around mt-3 pt-3 border-t border-white/8">
         {datos.map((item, i) => (
           <div key={i} className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-            <span className="text-[11px] font-medium text-zinc-600 capitalize">{item.name}</span>
+            <span className="text-[11px] font-medium text-zinc-400 capitalize">{item.name}</span>
             <span className="text-[11px] text-zinc-400">{item.pct}%</span>
           </div>
         ))}

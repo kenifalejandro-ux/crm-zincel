@@ -49,8 +49,8 @@ export function TableBulkActions({ count, proyectos = [], onDelete, onAsignarPro
           </button>
 
           {showPanel && (
-            <div className="absolute z-50 top-full left-0 mt-1 bg-white border border-zinc-200 rounded-xl shadow-lg p-3 min-w-[200px]">
-              <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-wide mb-2">
+            <div className="absolute z-50 top-full left-0 mt-1 bg-slate-800/60 border border-white/10 rounded-xl shadow-lg p-3 min-w-[200px]">
+              <p className="text-[10px] text-zinc-100 font-medium uppercase tracking-wide mb-2">
                 Asignar a {count} campaña{count > 1 ? "s" : ""}
               </p>
               <div className="flex flex-col gap-2 mb-3">
@@ -62,7 +62,7 @@ export function TableBulkActions({ count, proyectos = [], onDelete, onAsignarPro
                       onChange={() => toggle(p)}
                       className={`w-3.5 h-3.5 rounded ${PROY_STYLE[p] ?? "accent-zinc-500"}`}
                     />
-                    <span className="text-xs text-zinc-700">{p}</span>
+                    <span className="text-xs text-zinc-300">{p}</span>
                   </label>
                 ))}
               </div>
@@ -76,7 +76,7 @@ export function TableBulkActions({ count, proyectos = [], onDelete, onAsignarPro
                 </button>
                 <button
                   onClick={() => { setShowPanel(false); setSeleccion([]); }}
-                  className="text-xs text-zinc-400 hover:text-zinc-600 px-2"
+                  className="text-xs text-zinc-400 hover:text-zinc-400 px-2"
                 >
                   ✕
                 </button>

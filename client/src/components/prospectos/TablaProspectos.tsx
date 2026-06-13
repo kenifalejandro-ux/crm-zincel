@@ -1,5 +1,6 @@
 /** client/src/components/prospectos/TablaProspectos.tsx */
 
+import { GLASS_BASE, BADGE_BASE } from "../../lib/tokens";
 import { Phone } from "lucide-react";
 import { ESTADOS_LEAD, COLOR_ESTADO, COLOR_PRIORIDAD } from "../../utils/prospectos.mappers";
 import { TableCheckbox } from "../ui/TableCheckbox";
@@ -55,31 +56,31 @@ export function TablaProspectos({
   scores,
 }: Props) {
   return (
-    <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-x-auto max-h-[700px] overflow-y-auto scrollbar-thin">
+    <div className={`${GLASS_BASE} overflow-x-auto max-h-[700px] overflow-y-auto scrollbar-thin`}>
       {cargando ? (
         <div className="flex items-center justify-center h-48">
           <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-blue-600" />
         </div>
       ) : prospectos.length === 0 ? (
-        <div className="text-center py-16 text-zinc-600 text-xs">
+        <div className="text-center py-16 text-zinc-400 text-xs">
           No hay prospectos. ¡Agrega el primero o importa tu Excel!
         </div>
       ) : (
         <table className="min-w-[1600px] text-xs">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50">
+            <tr className="border-b border-white/8 bg-zinc-800/40">
               <th className="px-3 py-2 w-[40px]">
                 <TableCheckbox checked={todosSeleccionados} onChange={onToggleTodos} />
               </th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase tracking-wide">Empresa</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase tracking-wide">Contacto</th>
-              <th className="text-left px-3 py-2 text-xs font-medium text-zinc-700 uppercase tracking-wide">Email</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase tracking-wide">Teléfono</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase tracking-wide">Estado</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase tracking-wide">Prioridad</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase tracking-wide">Score</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase tracking-wide">Ciudad</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-700 uppercase tracking-wide">Llamada</th>
+              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-100 uppercase tracking-wide">Empresa</th>
+              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-100 uppercase tracking-wide">Contacto</th>
+              <th className="text-left px-3 py-2 text-xs font-medium text-zinc-100 uppercase tracking-wide">Email</th>
+              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-100 uppercase tracking-wide">Teléfono</th>
+              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-100 uppercase tracking-wide">Estado</th>
+              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-100 uppercase tracking-wide">Prioridad</th>
+              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-100 uppercase tracking-wide">Score</th>
+              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-100 uppercase tracking-wide">Ciudad</th>
+              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-100 uppercase tracking-wide">Llamada</th>
               <th className="px-5 py-3" />
             </tr>
           </thead>
@@ -93,14 +94,14 @@ export function TablaProspectos({
                   <TableCheckbox checked={seleccionados.includes(p.id)} onChange={() => onToggleSeleccion(p.id)} />
                 </td>
                 <td className="px-5 py-3.5">
-                  <p className="font-medium text-zinc-800">{p.empresa}</p>
-                  {(p.sector || p.actividad_economica) && <p className="text-xs text-zinc-600">{p.sector || p.actividad_economica}</p>}
+                  <p className="font-medium text-zinc-200">{p.empresa}</p>
+                  {(p.sector || p.actividad_economica) && <p className="text-xs text-zinc-400">{p.sector || p.actividad_economica}</p>}
                 </td>
                 <td className="px-5 py-3.5">
-                  <p className="text-gray-700">{p.nombre_contacto || "-"}</p>
-                  {p.cargo && <p className="text-xs text-zinc-600">{p.cargo}</p>}
+                  <p className="text-gray-300">{p.nombre_contacto || "-"}</p>
+                  {p.cargo && <p className="text-xs text-zinc-400">{p.cargo}</p>}
                 </td>
-                <td className="px-3 py-2 text-gray-700 max-w-[300px] truncate">{p.email_contacto || "-"}</td>
+                <td className="px-3 py-2 text-gray-300 max-w-[300px] truncate">{p.email_contacto || "-"}</td>
                 <td className="px-5 py-3.5">
                   {p.telefono
                     ? <a href={`tel:${p.telefono}`}
@@ -112,7 +113,7 @@ export function TablaProspectos({
                     : <span className="text-gray-400">-</span>}
                 </td>
                 <td className="px-5 py-3.5">
-                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${COLOR_ESTADO[estadoEfectivo(p)] || "bg-gray-100 text-gray-700"}`}>
+                  <span className={`${BADGE_BASE} inline-flex px-2 py-0.5 text-xs font-medium ${COLOR_ESTADO[estadoEfectivo(p)] || "bg-zinc-800 text-gray-300"}`}>
                     {ESTADOS_LEAD.find((e) => e.value === estadoEfectivo(p))?.label || estadoEfectivo(p)}
                   </span>
                 </td>
@@ -130,13 +131,13 @@ export function TablaProspectos({
                     <span className="text-[10px] text-gray-300">—</span>
                   )}
                 </td>
-                <td className="px-5 py-3.5 text-zinc-700">{p.ciudad || "-"}</td>
-                <td className="px-3 py-2 text-zinc-700">
+                <td className="px-5 py-3.5 text-zinc-300">{p.ciudad || "-"}</td>
+                <td className="px-3 py-2 text-zinc-300">
                   {p.llamadas && p.llamadas.length > 0 ? (
                     <div className="text-xs">
                       {p.llamadas.length} llamada{p.llamadas.length > 1 ? "s" : ""}
                       {p.llamadas.length <= 2 && (
-                        <div className="text-zinc-600 mt-0.5">
+                        <div className="text-zinc-400 mt-0.5">
                           {p.llamadas.map((ll: any, idx: number) => (
                             <div key={idx}>
                               {new Date(ll.fecha).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
@@ -162,14 +163,14 @@ export function TablaProspectos({
       )}
 
       {total > limite && (
-        <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-white">
-          <p className="text-xs text-zinc-700">
+        <div className="flex items-center justify-between px-5 py-3 border-t border-white/8 bg-slate-800/60">
+          <p className="text-xs text-zinc-300">
             Mostrando {(pagina - 1) * limite + 1}–{Math.min(pagina * limite, total)} de {total} registros
           </p>
           <div className="flex items-center gap-2">
-            <button onClick={onPaginaAnterior} disabled={pagina === 1} className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40">← Anterior</button>
-            <span className="text-xs text-gray-700">Página {pagina}</span>
-            <button onClick={onPaginaSiguiente} disabled={prospectos.length < limite} className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40">Siguiente →</button>
+            <button onClick={onPaginaAnterior} disabled={pagina === 1} className="px-3 py-1.5 text-xs border border-white/10 rounded-lg hover:bg-zinc-800/40 disabled:opacity-40">← Anterior</button>
+            <span className="text-xs text-gray-300">Página {pagina}</span>
+            <button onClick={onPaginaSiguiente} disabled={prospectos.length < limite} className="px-3 py-1.5 text-xs border border-white/10 rounded-lg hover:bg-zinc-800/40 disabled:opacity-40">Siguiente →</button>
           </div>
         </div>
       )}

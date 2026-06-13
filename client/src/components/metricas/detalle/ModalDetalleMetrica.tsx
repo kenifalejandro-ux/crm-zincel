@@ -1,5 +1,6 @@
 /** src/components/metricas/detalle/ModalDetalleMetrica.tsx */
 
+import { MODAL_BASE } from "../../../lib/tokens";
 import { useState, useMemo, useEffect } from "react";
 import { X, RefreshCw }                from "lucide-react";
 import { Metrica }           from "../../../types/metricas.types";
@@ -53,10 +54,10 @@ export const ModalDetalleMetrica = ({ metrica, onCerrar, onSincronizado }: Props
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+      <div className={`${MODAL_BASE} w-full max-w-2xl max-h-[90vh] flex flex-col`}>
 
         {/* ── Header ── */}
-        <div className="px-6 py-4 border-b border-zinc-100 shrink-0">
+        <div className="px-6 py-4 border-b border-white/8 shrink-0">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
@@ -64,13 +65,13 @@ export const ModalDetalleMetrica = ({ metrica, onCerrar, onSincronizado }: Props
                   {LABEL_PLATAFORMA[metrica.plataforma]}
                 </span>
                 {metrica.sub_plataforma && (
-                  <span className="text-[11px] text-zinc-600 capitalize">
+                  <span className="text-[11px] text-zinc-400 capitalize">
                     {LABEL_SUB[metrica.sub_plataforma] ?? metrica.sub_plataforma}
                   </span>
                 )}
               </div>
-              <h2 className="text-sm font-bold text-zinc-800">{metrica.campana_nombre}</h2>
-              <p className="text-xs text-zinc-600">
+              <h2 className="text-sm font-bold text-zinc-200">{metrica.campana_nombre}</h2>
+              <p className="text-xs text-zinc-400">
                 {metrica.empresa} · {new Date(metrica.periodo_inicio).toLocaleDateString("es-PE")} → {new Date(metrica.periodo_fin).toLocaleDateString("es-PE")}
               </p>
             </div>
@@ -87,7 +88,7 @@ export const ModalDetalleMetrica = ({ metrica, onCerrar, onSincronizado }: Props
               )}
               <button
                 onClick={onCerrar}
-                className="text-zinc-600 hover:text-zinc-600 transition"
+                className="text-zinc-400 hover:text-zinc-400 transition"
               >
                 <X size={18} />
               </button>

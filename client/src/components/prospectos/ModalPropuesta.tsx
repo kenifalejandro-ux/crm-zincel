@@ -1,5 +1,6 @@
 /** client/src/components/propuestas/ModalPropuesta.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import type { ReactNode } from "react";
 import { Briefcase, Package, FileText, Banknote, DollarSign, Tag, Calendar, StickyNote, ArrowLeftRight } from "lucide-react";
 import type { FormPropuesta, ServicioPropuesta, EstadoPropuesta } from "../../types/propuesta.types";
@@ -30,7 +31,7 @@ const sel = "w-full px-3 py-2.5 text-xs bg-zinc-800 border border-yellow-300/30 
 function Field({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
     <div className="space-y-1.5 bg-zinc-800 p-4 rounded-2xl">
-      <label className="text-[10px]  text-zinc-400 font-semibold uppercase tracking-widest">{label}</label>
+      <label className="text-[10px]  text-zinc-100 font-semibold uppercase tracking-widest">{label}</label>
       <div className="flex items-center gap-2.5 border-b border-zinc-600 pb-1.5 focus-within:border-brand transition-colors">
         <span className="text-yellow-500 shrink-0">{icon}</span>
         {children}
@@ -64,7 +65,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
         {/* Servicio + Paquete */}
         <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 space-y-4">
           <div>
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
               <Briefcase size={11} className="text-yellow-500"/>Tipo de servicio
             </label>
             <select
@@ -80,7 +81,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
 
           {form.servicio === "redes_sociales" && (
             <div>
-              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+              <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
                 <Package size={11} className="text-yellow-500"/>Plataforma
               </label>
               <select
@@ -101,7 +102,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
 
           {form.servicio === "desarrollo_web" && (
             <div>
-              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+              <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
                 <Package size={11} className="text-yellow-500"/>Paquete
               </label>
               <select
@@ -131,7 +132,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
         {/* Moneda + Monto */}
         <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 grid grid-cols-2 gap-x-6 gap-y-4">
           <div>
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
               <Banknote size={11} className="text-yellow-500"/>Moneda
             </label>
             <select value={form.moneda} onChange={(e) => set({ moneda: e.target.value as "PEN" | "USD" })} className={sel}>
@@ -159,7 +160,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
         {/* Estado + Fecha */}
         <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 grid grid-cols-2 gap-x-6 gap-y-4">
           <div>
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
               <Tag size={11} className="text-yellow-500"/>Estado
             </label>
             <select value={form.estado} onChange={(e) => set({ estado: e.target.value as EstadoPropuesta })} className={sel}>
@@ -175,7 +176,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
 
         {/* Notas por etapa */}
         <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 space-y-3">
-          <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5">
+          <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5">
             <StickyNote size={11} className="text-yellow-500"/>Notas
           </label>
 
@@ -183,7 +184,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
             <p className="text-[10px] text-zinc-500 mb-1">📤 Al enviar</p>
             <textarea rows={2} value={form.notas} onChange={(e) => set({ notas: e.target.value })}
               placeholder="Contexto al enviar la propuesta..."
-              className="w-full text-xs bg-zinc-900/50 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none" />
+              className={`${INPUT_BASE} w-full text-xs bg-zinc-900/50 border-zinc-700 px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none`} />
           </div>
 
           {(form.estado === "en_negociacion") && (
@@ -191,7 +192,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
               <p className="text-[10px] text-zinc-500 mb-1">⚖️ Negociación</p>
               <textarea rows={2} value={form.notas_negociacion} onChange={(e) => set({ notas_negociacion: e.target.value })}
                 placeholder="Objeciones, ajustes de precio, acuerdos..."
-                className="w-full text-xs bg-zinc-900/50 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none" />
+                className={`${INPUT_BASE} w-full text-xs bg-zinc-900/50 border-zinc-700 px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none`} />
             </div>
           )}
 
@@ -202,7 +203,7 @@ export function ModalPropuesta({ form, cargando, onFormChange, onGuardar, onCerr
               </p>
               <textarea rows={2} value={form.notas_cierre} onChange={(e) => set({ notas_cierre: e.target.value })}
                 placeholder="Razón del cierre, condiciones pactadas..."
-                className="w-full text-xs bg-zinc-900/50 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none" />
+                className={`${INPUT_BASE} w-full text-xs bg-zinc-900/50 border-zinc-700 px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none`} />
             </div>
           )}
         </div>

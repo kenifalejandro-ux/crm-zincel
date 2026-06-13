@@ -1,7 +1,7 @@
 /** client/src/components/inteligencia/PrioridadOperacional.tsx */
 
 import { useState } from "react";
-import { CARD_CLASS, HEADER_CLASS, COLORS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, COLORS, MODAL_BASE, BADGE_BASE, PANEL_BASE } from "../../lib/tokens";
 import { useNavigate } from "react-router-dom";
 import { X, Phone, Building2, MapPin, ChevronRight, Loader2, Flame, PhoneCall, PhoneOff, SkipForward, CheckCircle2 } from "lucide-react";
 import type { AccionPrioridad, LeadPrioridad } from "../../services/inteligencia.api";
@@ -151,17 +151,17 @@ export function PrioridadOperacional({ acciones }: Props) {
             <Flame size={16} className="text-orange-500" />
             <div>
               <h3 className={HEADER_CLASS}>Haz esto primero</h3>
-              <p className="text-xs text-zinc-600 mt-0.5">Acciones ordenadas por impacto en ventas</p>
+              <p className="text-xs text-zinc-400 mt-0.5">Acciones ordenadas por impacto en ventas</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {criticas.length > 0 && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+              <span className={`${BADGE_BASE} text-[10px] font-bold px-2 py-0.5 text-red-700`}>
                 {criticas.length} crítico{criticas.length > 1 ? "s" : ""}
               </span>
             )}
             {urgentes.length > 0 && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+              <span className={`${BADGE_BASE} text-[10px] font-bold px-2 py-0.5 text-amber-700`}>
                 {urgentes.length} urgente{urgentes.length > 1 ? "s" : ""}
               </span>
             )}
@@ -174,21 +174,21 @@ export function PrioridadOperacional({ acciones }: Props) {
             return (
               <button key={i} onClick={() => abrirModal(acc)}
                 className={`w-full text-left flex items-start gap-3 rounded-xl border p-3.5 transition-all hover:shadow-sm hover:brightness-95 cursor-pointer ${s.bg} ${s.borde}`}>
-                <div className="shrink-0 w-6 h-6 rounded-full bg-white/70 flex items-center justify-center text-[10px] font-bold text-zinc-700 mt-0.5">
+                <div className="shrink-0 w-6 h-6 rounded-full bg-white/6 flex items-center justify-center text-[10px] font-bold text-zinc-300 mt-0.5">
                   {i + 1}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className="text-sm">{acc.icono}</span>
-                    <span className="text-xs font-semibold text-zinc-800">{acc.titulo}</span>
+                    <span className="text-xs font-semibold text-zinc-200">{acc.titulo}</span>
                     <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${s.badge}`}>
                       {NIVEL_LABEL[acc.nivel]}
                     </span>
-                    <span className="ml-auto text-xs font-bold text-zinc-700 shrink-0 flex items-center gap-1">
-                      {acc.cantidad} <ChevronRight size={12} className="text-zinc-600" />
+                    <span className="ml-auto text-xs font-bold text-zinc-300 shrink-0 flex items-center gap-1">
+                      {acc.cantidad} <ChevronRight size={12} className="text-zinc-400" />
                     </span>
                   </div>
-                  <p className="text-[11px] text-zinc-600 leading-relaxed">{acc.descripcion}</p>
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">{acc.descripcion}</p>
                 </div>
               </button>
             );
@@ -200,17 +200,17 @@ export function PrioridadOperacional({ acciones }: Props) {
       {accionActiva && !prospectoDetalle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={cerrarModal} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
+          <div className={`${MODAL_BASE} relative w-full max-w-lg max-h-[85vh] flex flex-col`}>
 
             {/* Header */}
             <div className={`flex items-center justify-between p-5 rounded-t-2xl border-b ${NIVEL_STYLE[accionActiva.nivel].bg} ${NIVEL_STYLE[accionActiva.nivel].borde}`}>
               <div className="flex items-center gap-2">
                 <span className="text-xl">{accionActiva.icono}</span>
                 <div>
-                  <p className="text-sm font-semibold text-zinc-800">
+                  <p className="text-sm font-semibold text-zinc-200">
                     {colaActiva ? "Cola de llamadas" : accionActiva.titulo}
                   </p>
-                  <p className="text-xs text-zinc-700 mt-0.5">
+                  <p className="text-xs text-zinc-300 mt-0.5">
                     {colaActiva
                       ? `${Math.min(colaIndex + 1, leads.length)} / ${leads.length} leads`
                       : `${accionActiva.cantidad} leads · clic para gestionar`}
@@ -218,7 +218,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                 </div>
               </div>
               <button onClick={cerrarModal} className="p-1.5 rounded-lg hover:bg-black/10 transition">
-                <X size={16} className="text-zinc-700" />
+                <X size={16} className="text-zinc-300" />
               </button>
             </div>
 
@@ -231,17 +231,17 @@ export function PrioridadOperacional({ acciones }: Props) {
                       <div className="w-6 h-6 rounded-full border-2 border-brand border-t-transparent animate-spin" />
                     </div>
                   ) : leads.length === 0 ? (
-                    <p className="text-xs text-zinc-600 text-center py-8">Sin leads disponibles</p>
+                    <p className="text-xs text-zinc-400 text-center py-8">Sin leads disponibles</p>
                   ) : (
                     leads.map(lead => (
                       <button key={lead.id} onClick={() => abrirDetalle(lead)}
-                        className="w-full text-left flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-brand/30 hover:bg-brand/5 transition group">
+                        className="w-full text-left flex items-center gap-3 p-3 rounded-xl border border-white/8 hover:border-brand/30 hover:bg-brand/5 transition group">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 mb-0.5">
-                            <Building2 size={11} className="text-zinc-600 shrink-0" />
-                            <p className="text-xs font-semibold text-zinc-800 truncate">{lead.empresa}</p>
+                            <Building2 size={11} className="text-zinc-400 shrink-0" />
+                            <p className="text-xs font-semibold text-zinc-200 truncate">{lead.empresa}</p>
                           </div>
-                          <p className="text-[11px] text-zinc-700 truncate">{lead.nombre_contacto}</p>
+                          <p className="text-[11px] text-zinc-300 truncate">{lead.nombre_contacto}</p>
                           <div className="flex items-center gap-3 mt-1 flex-wrap">
                             {lead.telefono && (
                               <a href={`tel:${lead.telefono}`}
@@ -252,7 +252,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                               </a>
                             )}
                             {lead.ciudad && (
-                              <span className="flex items-center gap-1 text-[10px] text-zinc-600">
+                              <span className="flex items-center gap-1 text-[10px] text-zinc-400">
                                 <MapPin size={9} /> {lead.ciudad}
                               </span>
                             )}
@@ -263,14 +263,14 @@ export function PrioridadOperacional({ acciones }: Props) {
                         </div>
                         {cargandoDetalle === lead.id
                           ? <Loader2 size={14} className="shrink-0 text-blue-500 animate-spin" />
-                          : <ChevronRight size={14} className="shrink-0 text-zinc-700 group-hover:text-brand transition" />
+                          : <ChevronRight size={14} className="shrink-0 text-zinc-300 group-hover:text-brand transition" />
                         }
                       </button>
                     ))
                   )}
                 </div>
 
-                <div className="p-4 border-t border-gray-100 space-y-2">
+                <div className="p-4 border-t border-white/8 space-y-2">
                   {!cargandoLeads && leads.length > 0 && (
                     <button
                       onClick={iniciarCola}
@@ -283,7 +283,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                   )}
                   <button
                     onClick={() => { navigate("/prospectos"); cerrarModal(); }}
-                    className="w-full py-2 text-xs font-medium text-zinc-600 border border-gray-200 hover:bg-gray-50 rounded-xl transition"
+                    className="w-full py-2 text-xs font-medium text-zinc-400 border border-white/10 hover:bg-zinc-800/40 rounded-xl transition"
                   >
                     Ver todos en Prospectos →
                   </button>
@@ -296,7 +296,7 @@ export function PrioridadOperacional({ acciones }: Props) {
               <>
                 {/* Barra de progreso */}
                 <div className="px-5 pt-4">
-                  <div className="h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-300"
                       style={{ width: `${pctCola}%`, backgroundColor: COLORS.primary }}
@@ -309,14 +309,14 @@ export function PrioridadOperacional({ acciones }: Props) {
 
                 {/* Lead card */}
                 <div className="flex-1 flex flex-col items-center justify-center px-6 py-6 text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-zinc-100 flex items-center justify-center mb-4">
-                    <Building2 size={22} className="text-zinc-600" />
+                  <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center mb-4">
+                    <Building2 size={22} className="text-zinc-400" />
                   </div>
 
-                  <p className="text-lg font-bold text-zinc-900 leading-tight mb-1">
+                  <p className="text-lg font-bold text-zinc-100 leading-tight mb-1">
                     {leadActual.empresa}
                   </p>
-                  <p className="text-sm text-zinc-600 mb-4">{leadActual.nombre_contacto}</p>
+                  <p className="text-sm text-zinc-400 mb-4">{leadActual.nombre_contacto}</p>
 
                   {leadActual.telefono ? (
                     <a
@@ -338,14 +338,14 @@ export function PrioridadOperacional({ acciones }: Props) {
                         <MapPin size={10} /> {leadActual.ciudad}
                       </span>
                     )}
-                    <span className="px-2 py-0.5 bg-zinc-100 rounded-full">
+                    <span className={`${BADGE_BASE} px-2 py-0.5`}>
                       {ETAPA_LABEL[leadActual.etapa_pipeline] ?? leadActual.etapa_pipeline}
                     </span>
                   </div>
                 </div>
 
                 {/* Botones de acción */}
-                <div className="p-5 border-t border-zinc-100 space-y-2">
+                <div className="p-5 border-t border-white/8 space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={abrirRegistro}
@@ -359,7 +359,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                     <button
                       onClick={noContesto}
                       disabled={registrando}
-                      className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm border border-zinc-200 hover:bg-zinc-50 transition disabled:opacity-50 text-zinc-700"
+                      className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm border border-white/10 hover:bg-zinc-800/40 transition disabled:opacity-50 text-zinc-300"
                     >
                       {registrando ? <Loader2 size={14} className="animate-spin" /> : <PhoneOff size={14} />}
                       No contestó
@@ -368,7 +368,7 @@ export function PrioridadOperacional({ acciones }: Props) {
                   <button
                     onClick={saltarLead}
                     disabled={registrando}
-                    className="w-full py-2 text-xs text-zinc-500 hover:text-zinc-700 flex items-center justify-center gap-1 transition"
+                    className="w-full py-2 text-xs text-zinc-500 hover:text-zinc-300 flex items-center justify-center gap-1 transition"
                   >
                     <SkipForward size={12} /> Saltar este lead
                   </button>
@@ -380,30 +380,30 @@ export function PrioridadOperacional({ acciones }: Props) {
             {colaActiva && colaTerminada && (
               <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 text-center">
                 <CheckCircle2 size={48} className="text-emerald-500 mb-4" />
-                <p className="text-lg font-bold text-zinc-900 mb-1">Sesión completada</p>
+                <p className="text-lg font-bold text-zinc-100 mb-1">Sesión completada</p>
                 <p className="text-sm text-zinc-500 mb-6">
                   Trabajaste {leads.length} leads de la lista
                 </p>
 
                 <div className="grid grid-cols-3 gap-3 w-full mb-6">
-                  <div className="bg-zinc-50 rounded-xl p-3">
-                    <p className="text-xl font-bold text-zinc-900">{colaStats.registradas}</p>
-                    <p className="text-[10px] text-zinc-500 mt-0.5 uppercase tracking-wide">Registradas</p>
+                  <div className={`${PANEL_BASE} p-3`}>
+                    <p className="text-xl font-bold text-zinc-100">{colaStats.registradas}</p>
+                    <p className="text-[10px] text-zinc-100 mt-0.5 uppercase tracking-wide">Registradas</p>
                   </div>
-                  <div className="bg-zinc-50 rounded-xl p-3">
+                  <div className={`${PANEL_BASE} p-3`}>
                     <p className="text-xl font-bold" style={{ color: COLORS.dark }}>{colaStats.contestadas}</p>
-                    <p className="text-[10px] text-zinc-500 mt-0.5 uppercase tracking-wide">Contestadas</p>
+                    <p className="text-[10px] text-zinc-100 mt-0.5 uppercase tracking-wide">Contestadas</p>
                   </div>
-                  <div className="bg-zinc-50 rounded-xl p-3">
+                  <div className={`${PANEL_BASE} p-3`}>
                     <p className="text-xl font-bold text-zinc-400">{colaStats.saltadas}</p>
-                    <p className="text-[10px] text-zinc-500 mt-0.5 uppercase tracking-wide">Saltadas</p>
+                    <p className="text-[10px] text-zinc-100 mt-0.5 uppercase tracking-wide">Saltadas</p>
                   </div>
                 </div>
 
                 <div className="flex gap-2 w-full">
                   <button
                     onClick={cerrarModal}
-                    className="flex-1 py-2.5 text-sm font-medium border border-zinc-200 rounded-xl hover:bg-zinc-50 transition text-zinc-600"
+                    className="flex-1 py-2.5 text-sm font-medium border border-white/10 rounded-xl hover:bg-zinc-800/40 transition text-zinc-400"
                   >
                     Cerrar
                   </button>

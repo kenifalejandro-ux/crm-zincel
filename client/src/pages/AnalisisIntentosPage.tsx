@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { CARD_CLASS, HEADER_CLASS, COLORS } from "../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, COLORS, BADGE_BASE, INPUT_BASE } from "../lib/tokens";
 import { Phone, Users, RefreshCw, ArrowLeft, Lightbulb, PhoneCall, PhoneMissed, Building2 } from "lucide-react";
 import api from "../services/api";
 
@@ -162,11 +162,11 @@ export default function AnalisisIntentosPage() {
 
       {/* Header */}
       <div className="flex items-center gap-3">
-        <button onClick={() => navigate("/llamadas")} className="p-1.5 rounded-lg hover:bg-zinc-100 transition-colors">
+        <button onClick={() => navigate("/llamadas")} className="p-1.5 rounded-lg hover:bg-zinc-800 transition-colors">
           <ArrowLeft size={16} className="text-zinc-500" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Intentos vs Cobertura</h1>
+          <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">Intentos vs Cobertura</h1>
           <p className="text-xs text-zinc-500 mt-0.5">Análisis de eficiencia comercial en llamadas</p>
         </div>
       </div>
@@ -182,7 +182,7 @@ export default function AnalisisIntentosPage() {
           <div key={i} className={`${CARD_CLASS} flex items-start gap-3`}>
             <span className="mt-0.5 text-zinc-400">{k.icon}</span>
             <div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-widest">{k.label}</p>
+              <p className="text-[10px] text-zinc-100 uppercase tracking-widest">{k.label}</p>
               <p className={`text-2xl font-bold mt-0.5 ${k.color}`}>{k.value}</p>
               <p className="text-[10px] text-zinc-400 mt-0.5">{k.sub}</p>
             </div>
@@ -207,17 +207,17 @@ export default function AnalisisIntentosPage() {
             ].map(row => (
               <div key={row.label} className="space-y-1.5">
                 <div className="flex justify-between items-baseline text-xs">
-                  <span className="font-semibold text-zinc-700">{row.label}</span>
-                  <span className="text-zinc-500">{row.count} empresas · <span className="font-bold text-zinc-800">{row.pct}%</span></span>
+                  <span className="font-semibold text-zinc-300">{row.label}</span>
+                  <span className="text-zinc-500">{row.count} empresas · <span className="font-bold text-zinc-200">{row.pct}%</span></span>
                 </div>
-                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+                <div className="h-2.5 bg-zinc-800 rounded-full overflow-hidden">
                   <div className="h-full rounded-full transition-all duration-700" style={{ width: `${row.pct}%`, backgroundColor: row.color }} />
                 </div>
                 <p className="text-[10px] text-zinc-400">{row.desc}</p>
               </div>
             ))}
           </div>
-          <p className="text-[10px] text-zinc-400 border-t border-zinc-100 pt-3 mt-4">
+          <p className="text-[10px] text-zinc-400 border-t border-white/8 pt-3 mt-4">
             {resumen.total_llamadas} llamadas → {resumen.empresas_unicas} empresas · promedio {prom.toFixed(2)} intentos/empresa
           </p>
         </div>
@@ -229,9 +229,9 @@ export default function AnalisisIntentosPage() {
             Lectura del análisis
           </h2>
           <div className="mt-3 space-y-3">
-            <p className="text-sm font-semibold text-zinc-800">{titulo}</p>
+            <p className="text-sm font-semibold text-zinc-200">{titulo}</p>
             {parrafos.map((p, i) => (
-              <p key={i} className="text-xs text-zinc-600 leading-relaxed">{p}</p>
+              <p key={i} className="text-xs text-zinc-400 leading-relaxed">{p}</p>
             ))}
           </div>
           {alerta && (
@@ -263,7 +263,7 @@ export default function AnalisisIntentosPage() {
             placeholder="Buscar empresa..."
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
-            className="text-xs border border-zinc-200 rounded-lg px-3 py-1.5 w-full sm:w-48 focus:outline-none focus:ring-1 focus:ring-brand"
+            className={`${INPUT_BASE} text-xs px-3 py-1.5 w-full sm:w-48 focus:outline-none focus:ring-1 focus:ring-brand`}
           />
         </div>
 
@@ -276,7 +276,7 @@ export default function AnalisisIntentosPage() {
               className={`text-xs px-3 py-1 rounded-full border transition-all ${
                 filtro === f.id
                   ? "bg-zinc-900 text-white border-zinc-900"
-                  : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
+                  : "bg-slate-800/60 text-zinc-400 border-white/10 hover:border-zinc-400"
               }`}
             >
               {f.label} <span className="opacity-60 ml-1">{f.count}</span>
@@ -288,21 +288,21 @@ export default function AnalisisIntentosPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-zinc-100">
+              <tr className="border-b border-white/8">
                 {["Empresa", "Contacto", "Llamadas", "Contestadas", "Última llamada", "Canal", "Estado"].map(h => (
-                  <th key={h} className="text-left text-[10px] font-semibold text-zinc-400 uppercase tracking-wider pb-2 pr-4">{h}</th>
+                  <th key={h} className="text-left text-[10px] font-semibold text-zinc-100 uppercase tracking-wider pb-2 pr-4">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-50">
+            <tbody className="divide-y divide-white/5">
               {empresasFiltradas.map(e => {
                 const noContesta = e.contestadas === 0;
                 return (
-                  <tr key={e.id} className="hover:bg-zinc-50 transition-colors">
-                    <td className="py-2.5 pr-4 font-medium text-zinc-800 max-w-[180px] truncate">{e.empresa}</td>
+                  <tr key={e.id} className="hover:bg-zinc-800/40 transition-colors">
+                    <td className="py-2.5 pr-4 font-medium text-zinc-200 max-w-[180px] truncate">{e.empresa}</td>
                     <td className="py-2.5 pr-4 text-zinc-500 max-w-[140px] truncate">{e.nombre_contacto || "—"}</td>
                     <td className="py-2.5 pr-4">
-                      <span className={`font-bold ${e.total_llamadas >= 3 ? "text-red-500" : e.total_llamadas === 2 ? "text-yellow-600" : "text-zinc-700"}`}>
+                      <span className={`font-bold ${e.total_llamadas >= 3 ? "text-red-500" : e.total_llamadas === 2 ? "text-yellow-600" : "text-zinc-300"}`}>
                         {e.total_llamadas}
                       </span>
                     </td>
@@ -318,7 +318,7 @@ export default function AnalisisIntentosPage() {
                     <td className="py-2.5 pr-4 text-zinc-500">{fmtFecha(e.ultima_llamada)}</td>
                     <td className="py-2.5 pr-4 text-zinc-500 capitalize">{e.canal_principal}</td>
                     <td className="py-2.5">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${ESTADO_COLOR[e.estado_lead] ?? "bg-zinc-100 text-zinc-500"}`}>
+                      <span className={`${BADGE_BASE} text-[10px] px-2 py-0.5 font-medium ${ESTADO_COLOR[e.estado_lead] ?? "bg-zinc-800 text-zinc-500"}`}>
                         {ESTADO_LABEL[e.estado_lead] ?? e.estado_lead}
                       </span>
                     </td>

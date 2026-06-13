@@ -138,7 +138,7 @@ function GrupoNav({ grupo, tabActiva, empresaActiva, enMetricas, onCerrar, defau
                 onClick={onCerrar}
                 className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-all ${
                   isActive
-                    ? "bg-brand/10 text-amber-400 font-semibold"
+                    ? "bg-cyan-500/10 text-cyan-400 font-semibold"
                     : "text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
                 }`}
               >
@@ -184,7 +184,7 @@ function CampañasNav({ onCerrar }: { onCerrar: () => void }) {
         onClick={() => setAbierto(v => !v)}
         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all duration-150 ${
           enMetricas
-            ? "bg-brand/10 text-amber-400 font-semibold"
+            ? "bg-cyan-500/10 text-cyan-400 font-semibold"
             : "text-zinc-400 font-medium hover:bg-white/5 hover:text-zinc-200"
         }`}
       >
@@ -284,7 +284,7 @@ function SeccionNav({ seccion, leadsCalientes, tareasUrgentes, onCerrar }: {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                     isActive
-                      ? "bg-brand/10 text-amber-400 font-semibold border border-brand/15"
+                      ? "bg-cyan-500/10 text-cyan-400 font-semibold border border-cyan-500/20"
                       : "text-zinc-400 font-medium hover:bg-white/5 hover:text-zinc-200"
                   }`
                 }

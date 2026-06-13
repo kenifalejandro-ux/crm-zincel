@@ -33,7 +33,7 @@ export function LlamadasChart({ metricas }: Props) {
       <div className="relative" style={{ height: 104 }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie
+            <Pie filter="url(#neon-glow)"
               data={gaugeData}
               cx="50%" cy="90%"
               startAngle={180} endAngle={0}
@@ -48,8 +48,8 @@ export function LlamadasChart({ metricas }: Props) {
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center">
-          <span className="text-3xl font-bold text-zinc-900 leading-none">{tasaContacto}%</span>
-          <span className="text-[9px] text-zinc-500 uppercase tracking-widest mt-0.5">tasa de contacto</span>
+          <span className="text-3xl font-bold text-zinc-100 leading-none">{tasaContacto}%</span>
+          <span className="text-[9px] text-zinc-100 uppercase tracking-widest mt-0.5">tasa de contacto</span>
         </div>
       </div>
 
@@ -60,7 +60,7 @@ export function LlamadasChart({ metricas }: Props) {
           { label: "Contestadas",    valor: llamadas_contestadas,    color: "text-zinc-900" },
           { label: "No contest.",    valor: llamadas_no_contestadas, color: "text-brand"    },
         ].map((item, i) => (
-          <div key={i} className="text-center bg-zinc-50 rounded-xl py-2.5 px-1">
+          <div key={i} className="text-center bg-zinc-800/40 rounded-xl py-2.5 px-1">
             <p className={`text-xl font-bold leading-none ${item.color}`}>{item.valor}</p>
             <p className="text-[9px] text-zinc-500 mt-1 leading-tight">{item.label}</p>
           </div>

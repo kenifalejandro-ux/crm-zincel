@@ -1,5 +1,6 @@
 /** client/src/pages/ReunionesPage.tsx */
 
+import { INPUT_BASE } from "../lib/tokens";
 import { useEffect, useState, useMemo } from "react";
 import { Plus, FileDown } from "lucide-react";
 import * as XLSX from "xlsx";
@@ -203,7 +204,7 @@ export default function ReunionesPage() {
         <div className="flex items-center gap-3">
           <div className="crm-section-accent h-8" />
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Reuniones</h1>
+            <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Reuniones</h1>
             <p className="text-xs text-slate-500 mt-0.5">{reuniones.length} reuniones</p>
           </div>
         </div>
@@ -212,7 +213,7 @@ export default function ReunionesPage() {
           <select
             value={filtroEstado}
             onChange={(e) => handleEstadoChange(e.target.value)}
-            className="px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 text-gray-600"
+            className={`${INPUT_BASE} px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 text-gray-400`}
           >
             <option value="">Todos los estados</option>
             {ESTADOS.map((e) => (

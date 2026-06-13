@@ -37,7 +37,7 @@ export const MetricasLineChart = ({ metricas }: Props) => {
   const plataformas = [...new Set(metricas.map((m) => m.plataforma))];
 
   if (!data.length) return (
-    <div className="flex items-center justify-center h-40 text-xs text-zinc-600">
+    <div className="flex items-center justify-center h-40 text-xs text-zinc-400">
       Sin datos para graficar
     </div>
   );
@@ -57,7 +57,7 @@ export const MetricasLineChart = ({ metricas }: Props) => {
           <Tooltip formatter={(v) => `S/ ${Number(v).toLocaleString("es-PE")}`} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           {plataformas.map((p) => (
-            <Line
+            <Line filter="url(#neon-glow)"
               key={p}
               type="monotone"
               dataKey={p}

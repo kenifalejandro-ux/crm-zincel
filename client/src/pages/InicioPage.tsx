@@ -1,6 +1,8 @@
 /** client/src/pages/InicioPage.tsx */
 
-import { useEffect, useState } from "react";
+import { GLASS_BASE, BADGE_BASE, PANEL_BASE, CARD_PINK, TOOLTIP_BASE } from "../lib/tokens";
+import { useEffect, useState, useMemo } from "react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useNavigate } from "react-router-dom";
 import {
   Phone, CalendarDays, AlertTriangle, Users,
@@ -33,6 +35,26 @@ const ETAPA_LABEL: Record<string, string> = {
   interesado:        "Interesado",
   propuesta_enviada: "Propuesta enviada",
   negociacion:       "Negociación",
+};
+
+// Colores neon por etapa del pipeline (para el donut de Inicio)
+const ETAPA_COLOR: Record<string, string> = {
+  nuevo:             "#06b6d4",  // cyan
+  contactado:        "#3b82f6",  // azul
+  interesado:        "#22d3ee",  // cyan claro
+  propuesta_enviada: "#a855f7",  // violeta
+  negociacion:       "#ec4899",  // rosa
+};
+
+const TooltipEtapa = ({ active, payload }: any) => {
+  if (!active || !payload?.length) return null;
+  const d = payload[0].payload;
+  return (
+    <div className={`${TOOLTIP_BASE} px-3 py-1.5 text-xs`}>
+      <p className="font-semibold text-zinc-100">{d.label}</p>
+      <p className="text-zinc-400">{d.count} lead{d.count !== 1 ? "s" : ""}{d.valor > 0 && ` · S/ ${d.valor.toLocaleString("es-PE")}`}</p>
+    </div>
+  );
 };
 
 // ─── Tipos de ítem del checklist ─────────────────────────────────────────────
@@ -94,6 +116,25 @@ export default function InicioPage() {
     ? data.alertas.criticos + data.alertas.urgentes + data.alertas.estancados
     : 0;
 
+  // ── Distribución real de leads calientes por etapa del pipeline ──
+  const distribucionEtapas = useMemo(() => {
+    const map = new Map<string, { count: number; valor: number }>();
+    (data?.leads_calientes ?? []).forEach(l => {
+      const cur = map.get(l.etapa_pipeline) ?? { count: 0, valor: 0 };
+      cur.count += 1;
+      cur.valor += l.valor_pipeline || 0;
+      map.set(l.etapa_pipeline, cur);
+    });
+    return Array.from(map.entries()).map(([etapa, v]) => ({
+      etapa,
+      label: ETAPA_LABEL[etapa] ?? etapa,
+      count: v.count,
+      valor: v.valor,
+    }));
+  }, [data]);
+
+  const totalValorPipeline = distribucionEtapas.reduce((s, d) => s + d.valor, 0);
+
   // ── Ítems del checklist ──
   const items: CheckItem[] = [
     {
@@ -116,10 +157,10 @@ export default function InicioPage() {
               <div
                 key={lead.id}
                 onClick={() => abrirDetalle(lead.id)}
-                className="flex items-center justify-between p-3 rounded-xl bg-white/60 hover:bg-white border border-white/80 cursor-pointer transition group"
+                className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-slate-800/60 border border-white/80 cursor-pointer transition group"
               >
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-zinc-800 truncate group-hover:text-brand">{lead.empresa}</p>
+                  <p className="text-sm font-semibold text-zinc-200 truncate group-hover:text-brand">{lead.empresa}</p>
                   <p className="text-[11px] text-zinc-500 mt-0.5">
                     {ETAPA_LABEL[lead.etapa_pipeline] ?? lead.etapa_pipeline}
                     {lead.valor_pipeline > 0 && ` · S/ ${lead.valor_pipeline.toLocaleString("es-PE", { maximumFractionDigits: 0 })}`}
@@ -187,32 +228,32 @@ export default function InicioPage() {
                   className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition group
                     ${enCurso  ? "bg-blue-50 border-blue-200 hover:bg-blue-100" :
                       esPronto ? "bg-amber-50 border-amber-200 hover:bg-amber-100" :
-                                 "bg-white/70 border-white/80 hover:bg-white"}`}
+                                 "bg-white/6 border-white/80 hover:bg-slate-800/60"}`}
                 >
                   <div className={`shrink-0 w-14 rounded-xl flex flex-col items-center justify-center py-2 border
                     ${enCurso  ? "bg-blue-600 border-blue-700 text-white" :
                       esPronto ? "bg-amber-500 border-amber-600 text-white" :
-                                 "bg-zinc-100 border-zinc-200 text-zinc-700"}`}>
+                                 "bg-zinc-800 border-white/10 text-zinc-300"}`}>
                     <span className="text-[11px] font-bold leading-none">{hora}</span>
                     {horaFin && <span className="text-[9px] mt-0.5 opacity-75">– {horaFin}</span>}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-bold text-zinc-800 truncate group-hover:text-brand transition">
+                      <p className="text-sm font-bold text-zinc-200 truncate group-hover:text-brand transition">
                         {r.empresa}
                       </p>
                       {enCurso && (
-                        <span className="text-[10px] font-bold bg-blue-600 text-white px-1.5 py-0.5 rounded-full">EN CURSO</span>
+                        <span className={`${BADGE_BASE} text-[10px] font-bold text-white px-1.5 py-0.5`}>EN CURSO</span>
                       )}
                       {esPronto && !enCurso && (
-                        <span className="text-[10px] font-bold bg-amber-500 text-white px-1.5 py-0.5 rounded-full">EN {diffMin}min</span>
+                        <span className={`${BADGE_BASE} text-[10px] font-bold text-white px-1.5 py-0.5`}>EN {diffMin}min</span>
                       )}
                     </div>
-                    <p className="text-xs text-zinc-600 mt-0.5 truncate">{r.titulo}</p>
+                    <p className="text-xs text-zinc-400 mt-0.5 truncate">{r.titulo}</p>
                     {r.nombre_contacto && (
                       <p className="text-[11px] text-zinc-400 truncate">{r.nombre_contacto}</p>
                     )}
-                    <span className="inline-block mt-1 text-[10px] text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded">
+                    <span className="inline-block mt-1 text-[10px] text-zinc-400 bg-zinc-800 px-1.5 py-0.5 rounded">
                       {MODAL_ICON[r.modalidad] ?? r.modalidad}
                     </span>
                   </div>
@@ -262,12 +303,12 @@ export default function InicioPage() {
               </div>
             )}
             {(data?.alertas.estancados ?? 0) > 0 && (
-              <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 border border-zinc-100">
+              <div className={`${PANEL_BASE} flex items-center justify-between p-3`}>
                 <div className="flex items-center gap-2">
                   <Users size={14} className="text-zinc-500" />
-                  <span className="text-sm font-medium text-zinc-700">Sin actividad (+14 días)</span>
+                  <span className="text-sm font-medium text-zinc-300">Sin actividad (+14 días)</span>
                 </div>
-                <span className="text-sm font-bold text-zinc-600">{data?.alertas.estancados}</span>
+                <span className="text-sm font-bold text-zinc-400">{data?.alertas.estancados}</span>
               </div>
             )}
             {totalAlertas === 0 && (
@@ -302,13 +343,13 @@ export default function InicioPage() {
               <button
                 key={item.label}
                 onClick={item.action}
-                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/60 hover:bg-white border border-white/80 hover:border-brand/30 transition group text-left"
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-slate-800/60 border border-white/80 hover:border-brand/30 transition group text-left"
               >
-                <div className="w-8 h-8 rounded-lg bg-zinc-100 group-hover:bg-brand/10 flex items-center justify-center text-zinc-500 group-hover:text-brand transition shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-zinc-800 group-hover:bg-brand/10 flex items-center justify-center text-zinc-500 group-hover:text-brand transition shrink-0">
                   {item.icon}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-zinc-800 group-hover:text-brand transition">{item.label}</p>
+                  <p className="text-sm font-semibold text-zinc-200 group-hover:text-brand transition">{item.label}</p>
                   <p className="text-[11px] text-zinc-500">{item.sub}</p>
                 </div>
                 <ChevronRight size={14} className="text-zinc-300 group-hover:text-brand ml-auto shrink-0 transition" />
@@ -339,10 +380,10 @@ export default function InicioPage() {
               <button
                 key={item.label}
                 onClick={item.action}
-                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/60 hover:bg-white border border-white/80 hover:border-brand/30 transition group text-left"
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-slate-800/60 border border-white/80 hover:border-brand/30 transition group text-left"
               >
                 <span className="text-zinc-400 group-hover:text-brand transition">{item.icon}</span>
-                <span className="text-sm text-zinc-700 group-hover:text-brand transition">{item.label}</span>
+                <span className="text-sm text-zinc-300 group-hover:text-brand transition">{item.label}</span>
                 <ChevronRight size={13} className="ml-auto text-zinc-300 group-hover:text-brand transition" />
               </button>
             ))}
@@ -359,7 +400,7 @@ export default function InicioPage() {
 
       {/* ── Header ── */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-zinc-900">Inicio</h1>
+        <h1 className="text-2xl font-bold text-zinc-100">Inicio</h1>
         <p className="text-sm text-zinc-500 mt-0.5 capitalize">{fechaStr}</p>
       </div>
 
@@ -369,12 +410,11 @@ export default function InicioPage() {
         <div className="lg:col-span-2 space-y-4">
 
           {/* Welcome card */}
-          <div className="relative overflow-hidden rounded-2xl p-6"
-            style={{ background: "linear-gradient(135deg, #f0f4ff 0%, #fdf6ff 50%, #fff7ed 100%)" }}>
+          <div className={`${GLASS_BASE} relative overflow-hidden p-6`}>
             <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-brand/10 blur-2xl" />
             <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-blue-400/10 blur-2xl" />
             <div className="relative">
-              <p className="text-2xl font-bold text-zinc-900 leading-tight">
+              <p className="text-2xl font-bold text-zinc-100 leading-tight">
                 {saludoTexto},<br />
                 {nombre} {emoji}
               </p>
@@ -394,9 +434,9 @@ export default function InicioPage() {
                     { label: "Alertas",  value: totalAlertas, color: totalAlertas > 0 ? "text-red-500" : "text-emerald-500" },
                     { label: "Reuniones", value: data?.reuniones_hoy.length ?? 0, color: "text-blue-500" },
                   ].map(s => (
-                    <div key={s.label} className="bg-white/70 rounded-xl p-2.5 text-center border border-white">
+                    <div key={s.label} className={`${PANEL_BASE} p-2.5 text-center border-white/10`}>
                       <p className={`text-xl font-bold leading-none ${s.color}`}>{s.value}</p>
-                      <p className="text-[10px] text-zinc-400 mt-1 uppercase tracking-wide">{s.label}</p>
+                      <p className="text-[10px] text-zinc-100 mt-1 uppercase tracking-wide">{s.label}</p>
                     </div>
                   ))}
                 </div>
@@ -405,9 +445,9 @@ export default function InicioPage() {
           </div>
 
           {/* Checklist */}
-          <div className="bg-white rounded-2xl border border-zinc-100 overflow-hidden shadow-sm">
-            <div className="px-4 py-3 border-b border-zinc-50">
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Tu jornada</p>
+          <div className={`${CARD_PINK} overflow-hidden`}>
+            <div className="px-4 py-3 border-b border-pink-500/15">
+              <p className="text-xs font-bold text-pink-300 uppercase tracking-wider">Tu jornada</p>
             </div>
             {items.map(item => {
               const activo = seleccionado === item.id;
@@ -415,26 +455,25 @@ export default function InicioPage() {
                 <button
                   key={item.id}
                   onClick={item.action}
-                  className={`w-full flex items-center gap-3 px-4 py-3.5 border-b border-zinc-50 last:border-0 text-left transition-all
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 border-b border-pink-500/10 last:border-0 text-left transition-all
                     ${activo
-                      ? "bg-gradient-to-r from-brand/5 to-brand/10 border-l-2 border-l-brand"
-                      : "hover:bg-zinc-50"
+                      ? "bg-gradient-to-r from-pink-500/5 to-pink-500/15 border-l-2 border-l-pink-500"
+                      : "hover:bg-pink-500/5"
                     }`}
                 >
                   <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors
-                    ${activo ? "bg-brand text-white" : "bg-zinc-100 text-zinc-500"}`}>
+                    ${activo ? "bg-pink-500 text-white shadow-[0_0_12px_rgba(236,72,153,0.6)]" : "bg-zinc-800 text-zinc-500"}`}>
                     {item.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate ${activo ? "text-brand" : "text-zinc-800"}`}>
+                    <p className={`text-sm font-semibold truncate ${activo ? "text-pink-300" : "text-zinc-200"}`}>
                       {item.label}
                     </p>
                     <p className="text-[11px] text-zinc-500 truncate mt-0.5">{item.sub}</p>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
                     {item.badge !== undefined && item.badge > 0 && (
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full
-                        ${item.urgente ? "bg-red-100 text-red-600" : "bg-zinc-100 text-zinc-600"}`}>
+                      <span className={`${BADGE_BASE} text-[10px] font-bold px-1.5 py-0.5 ${item.urgente ? "bg-red-100 text-red-600" : "bg-zinc-800 text-zinc-400"}`}>
                         {item.badge}
                       </span>
                     )}
@@ -448,12 +487,11 @@ export default function InicioPage() {
 
         {/* ── Panel derecho — detalle del ítem seleccionado ── */}
         <div className="lg:col-span-3">
-          <div className="rounded-2xl overflow-hidden border border-zinc-100 shadow-sm"
-            style={{ background: "linear-gradient(160deg, #fafafa 0%, #f5f7ff 100%)" }}>
+          <div className={`${GLASS_BASE} overflow-hidden`}>
 
             {/* Header del detalle */}
-            <div className="px-6 py-5 border-b border-zinc-100/80">
-              <p className="text-lg font-bold text-zinc-900">{itemActivo.detail.titulo}</p>
+            <div className="px-6 py-5 border-b border-white/8/80">
+              <p className="text-lg font-bold text-zinc-100">{itemActivo.detail.titulo}</p>
               <p className="text-sm text-zinc-500 mt-1">{itemActivo.detail.descripcion}</p>
             </div>
 
@@ -469,7 +507,7 @@ export default function InicioPage() {
             </div>
 
             {/* CTA */}
-            <div className="px-6 py-4 border-t border-zinc-100/80">
+            <div className="px-6 py-4 border-t border-white/8/80">
               <button
                 onClick={itemActivo.detail.onCta}
                 className="flex items-center gap-2 text-sm font-semibold text-brand hover:text-brand/80 transition group"
@@ -479,6 +517,55 @@ export default function InicioPage() {
               </button>
             </div>
           </div>
+
+          {/* Donut — leads calientes por etapa (datos reales) */}
+          {!cargando && distribucionEtapas.length > 0 && (
+            <div className={`${GLASS_BASE} p-5 mt-5`}>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-bold text-cyan-300 uppercase tracking-wider">Leads calientes por etapa</p>
+                <span className="text-[11px] text-zinc-500">{data?.leads_calientes.length ?? 0} leads</span>
+              </div>
+              <div className="flex items-center gap-5">
+                <ResponsiveContainer width={130} height={130}>
+                  <PieChart>
+                    <Pie
+                      data={distribucionEtapas}
+                      dataKey="count"
+                      nameKey="label"
+                      cx="50%" cy="50%"
+                      innerRadius={40} outerRadius={60}
+                      paddingAngle={3}
+                      stroke="none"
+                      filter="url(#neon-glow)"
+                    >
+                      {distribucionEtapas.map(d => (
+                        <Cell key={d.etapa} fill={ETAPA_COLOR[d.etapa] ?? "#10424b"} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<TooltipEtapa />} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex-1 space-y-2 min-w-0">
+                  {distribucionEtapas.map(d => (
+                    <div key={d.etapa} className="flex items-center gap-2 text-xs">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ background: ETAPA_COLOR[d.etapa] ?? "#06b6d4", boxShadow: `0 0 6px ${ETAPA_COLOR[d.etapa] ?? "#06b6d4"}` }}
+                      />
+                      <span className="text-zinc-300 flex-1 truncate">{d.label}</span>
+                      <span className="font-bold text-zinc-100 shrink-0">{d.count}</span>
+                    </div>
+                  ))}
+                  {totalValorPipeline > 0 && (
+                    <div className="mt-1 pt-2 border-t border-white/8 flex items-center justify-between">
+                      <span className="text-[11px] text-zinc-500 uppercase tracking-wide">Valor pipeline</span>
+                      <span className="text-sm font-bold text-cyan-300">S/ {totalValorPipeline.toLocaleString("es-PE")}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
       </div>

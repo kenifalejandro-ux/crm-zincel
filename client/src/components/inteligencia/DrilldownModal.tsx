@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Phone, PhoneCall, ExternalLink } from "lucide-react";
-import { COLORS } from "../../lib/tokens";
+import { COLORS, MODAL_BASE, BADGE_BASE } from "../../lib/tokens";
 import { LlamadaForm }     from "../llamadas/LlamadaForm";
 import { ProspectoDetalle } from "../prospectos/ProspectoDetalle";
 import { ProspectoForm }    from "../prospectos/ProspectoForm";
@@ -58,18 +58,18 @@ export function DrilldownModal({ titulo, subtitulo, leads, cargando, onCerrar }:
       {/* Overlay principal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onCerrar} />
-        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
+        <div className={`${MODAL_BASE} relative w-full max-w-lg max-h-[80vh] flex flex-col`}>
 
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-zinc-100 shrink-0">
+          <div className="flex items-center justify-between p-5 border-b border-white/8 shrink-0">
             <div>
-              <p className="text-sm font-semibold text-zinc-900">{titulo}</p>
+              <p className="text-sm font-semibold text-zinc-100">{titulo}</p>
               <p className="text-xs text-zinc-500 mt-0.5">
                 {cargando ? "Cargando..." : subtitulo ?? `${leads.length} empresa${leads.length !== 1 ? "s" : ""} · toca el teléfono para llamar`}
               </p>
             </div>
-            <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-zinc-100 transition">
-              <X size={16} className="text-zinc-600" />
+            <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-zinc-800 transition">
+              <X size={16} className="text-zinc-400" />
             </button>
           </div>
 
@@ -84,21 +84,21 @@ export function DrilldownModal({ titulo, subtitulo, leads, cargando, onCerrar }:
             ) : leads.map(lead => (
               <div
                 key={lead.id}
-                className="p-3 rounded-xl border border-zinc-100 hover:border-brand/20 hover:bg-zinc-50 transition"
+                className="p-3 rounded-xl border border-white/8 hover:border-brand/20 hover:bg-zinc-800/40 transition"
               >
                 <div className="flex items-start justify-between gap-3">
                   {/* Info empresa */}
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-zinc-900 truncate">{lead.empresa}</p>
+                    <p className="text-sm font-semibold text-zinc-100 truncate">{lead.empresa}</p>
                     {lead.nombre_contacto && (
-                      <p className="text-xs text-zinc-600 mt-0.5">{lead.nombre_contacto}</p>
+                      <p className="text-xs text-zinc-400 mt-0.5">{lead.nombre_contacto}</p>
                     )}
                     <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                       {lead.ciudad && (
                         <span className="text-[10px] text-zinc-500">{lead.ciudad}</span>
                       )}
                       {lead.etapa_pipeline && (
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 bg-zinc-100 rounded-full text-zinc-700">
+                        <span className={`${BADGE_BASE} text-[10px] font-medium px-1.5 py-0.5 text-zinc-300`}>
                           {ETAPA_LABEL[lead.etapa_pipeline] ?? lead.etapa_pipeline.replace(/_/g," ")}
                         </span>
                       )}
@@ -114,22 +114,22 @@ export function DrilldownModal({ titulo, subtitulo, leads, cargando, onCerrar }:
                     <button
                       onClick={() => abrirFicha(lead)}
                       disabled={cargandoFicha === lead.id}
-                      className="p-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition"
+                      className="p-2 rounded-lg border border-white/10 hover:bg-zinc-800 transition"
                       title="Ver ficha completa"
                     >
                       {cargandoFicha === lead.id
                         ? <div className="w-3.5 h-3.5 rounded-full border-2 border-zinc-400 border-t-transparent animate-spin" />
-                        : <ExternalLink size={13} className="text-zinc-600" />
+                        : <ExternalLink size={13} className="text-zinc-400" />
                       }
                     </button>
 
                     {/* Registrar llamada */}
                     <button
                       onClick={() => setLlamadaLead(lead)}
-                      className="p-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition"
+                      className="p-2 rounded-lg border border-white/10 hover:bg-zinc-800 transition"
                       title="Registrar llamada"
                     >
-                      <PhoneCall size={13} className="text-zinc-600" />
+                      <PhoneCall size={13} className="text-zinc-400" />
                     </button>
 
                     {/* Llamar directo */}

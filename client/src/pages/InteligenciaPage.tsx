@@ -1,6 +1,6 @@
 /** client/src/pages/InteligenciaPage.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, GLASS_BASE, MODAL_BASE, BADGE_BASE, INPUT_BASE, STICKY_BASE, PANEL_BASE } from "../lib/tokens";
 import { useEffect, useState, Component, type ReactNode, type ErrorInfo } from "react";
 import { TrendingUp, Phone, CalendarDays, FileText, Package, AlertTriangle, CheckCircle, Info, Lightbulb, ChevronDown, Pencil, X, Check, Clock, Target, Zap } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -93,7 +93,7 @@ function MiniGauge({ valor, color }: { valor: number; color: string }) {
     <div className="relative shrink-0" style={{ width: 72, height: 72 }}>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
-          <Pie
+          <Pie filter="url(#neon-glow)"
             data={data}
             cx="50%" cy="50%"
             innerRadius={26} outerRadius={34}
@@ -106,7 +106,7 @@ function MiniGauge({ valor, color }: { valor: number; color: string }) {
         </PieChart>
       </ResponsiveContainer>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-[13px] font-bold text-zinc-900 leading-none">{pct}%</span>
+        <span className="text-[13px] font-bold text-zinc-100 leading-none">{pct}%</span>
       </div>
     </div>
   );
@@ -115,9 +115,9 @@ function MiniGauge({ valor, color }: { valor: number; color: string }) {
 // ─── Mini contador para insights con cantidad ─────────────────────────────────
 function MiniCount({ valor, color, label = "total" }: { valor: number; color: string; label?: string }) {
   return (
-    <div className="shrink-0 flex flex-col items-center justify-center bg-zinc-50 rounded-2xl px-4 py-3 min-w-[64px]">
+    <div className={`${PANEL_BASE} shrink-0 flex flex-col items-center justify-center px-4 py-3 min-w-[64px]`}>
       <span className={`text-2xl font-bold leading-none ${color}`}>{valor}</span>
-      <span className="text-[9px] text-zinc-400 uppercase tracking-widest mt-1">{label}</span>
+      <span className="text-[9px] text-zinc-100 uppercase tracking-widest mt-1">{label}</span>
     </div>
   );
 }
@@ -153,43 +153,43 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
 
   return (
     <>
-      <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+      <div className={`${GLASS_BASE} overflow-hidden`}>
         <button
           onClick={() => setAbierto(v => !v)}
-          className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition text-left"
+          className="w-full flex items-center justify-between px-5 py-4 hover:bg-zinc-800/40 transition text-left"
         >
           <div className="flex items-center gap-3">
-            <AlertTriangle size={14} className="text-zinc-600 shrink-0" />
+            <AlertTriangle size={14} className="text-zinc-400 shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-zinc-800">Leads sin actividad (+14 días)</p>
-              <p className="text-xs text-zinc-600 mt-0.5">
+              <p className="text-sm font-semibold text-zinc-200">Leads sin actividad (+14 días)</p>
+              <p className="text-xs text-zinc-400 mt-0.5">
                 {leads.length} leads sin actividad reciente{criticos > 0 ? ` · ${criticos} críticos` : ""} · clic para gestionar
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {criticos > 0 && (
-              <span className="text-xs bg-red-100 text-red-700 font-semibold px-2 py-0.5 rounded-full">
+              <span className={`${BADGE_BASE} text-xs text-red-700 font-semibold px-2 py-0.5`}>
                 {criticos} críticos
               </span>
             )}
-            <span className="text-xs bg-zinc-100 text-zinc-700 font-semibold px-2 py-0.5 rounded-full">
+            <span className={`${BADGE_BASE} text-xs text-zinc-300 font-semibold px-2 py-0.5`}>
               {leads.length}
             </span>
-            <ChevronDown size={15} className={`text-zinc-600 transition-transform duration-200 ${abierto ? "rotate-180" : ""}`} />
+            <ChevronDown size={15} className={`text-zinc-400 transition-transform duration-200 ${abierto ? "rotate-180" : ""}`} />
           </div>
         </button>
 
         {abierto && (
-          <div className="border-t border-gray-100 overflow-x-auto max-h-72 overflow-y-auto">
+          <div className="border-t border-white/8 overflow-x-auto max-h-72 overflow-y-auto">
             <table className="w-full text-xs">
-              <thead className="sticky top-0 bg-white z-10">
-                <tr className="border-b border-gray-100">
-                  <th className="text-left py-2 px-5 text-zinc-600 font-medium">Empresa</th>
-                  <th className="text-left py-2 pr-4 text-zinc-600 font-medium">Etapa</th>
-                  <th className="text-left py-2 pr-4 text-zinc-600 font-medium">Riesgo</th>
-                  <th className="text-left py-2 pr-5 text-zinc-600 font-medium">Sin actividad</th>
-                  <th className="py-2 pr-3 text-zinc-600 font-medium" />
+              <thead className={`${STICKY_BASE} sticky top-0 z-10`}>
+                <tr className="border-b border-white/8">
+                  <th className="text-left py-2 px-5 text-zinc-100 font-medium">Empresa</th>
+                  <th className="text-left py-2 pr-4 text-zinc-100 font-medium">Etapa</th>
+                  <th className="text-left py-2 pr-4 text-zinc-100 font-medium">Riesgo</th>
+                  <th className="text-left py-2 pr-5 text-zinc-100 font-medium">Sin actividad</th>
+                  <th className="py-2 pr-3 text-zinc-100 font-medium" />
                 </tr>
               </thead>
               <tbody>
@@ -203,14 +203,14 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
                     <tr
                       key={lead.id}
                       onClick={() => abrirDetalle(lead.id)}
-                      className="border-b border-gray-50 hover:bg-brand/5 hover:cursor-pointer transition group"
+                      className="border-b border-white/5 hover:bg-brand/5 hover:cursor-pointer transition group"
                     >
                       <td className="py-2 px-5">
-                        <p className="font-medium text-zinc-800 truncate max-w-[160px] group-hover:text-brand">{lead.empresa}</p>
-                        <p className="text-zinc-600 truncate max-w-[160px]">{lead.nombre_contacto}</p>
+                        <p className="font-medium text-zinc-200 truncate max-w-[160px] group-hover:text-brand">{lead.empresa}</p>
+                        <p className="text-zinc-400 truncate max-w-[160px]">{lead.nombre_contacto}</p>
                       </td>
                       <td className="py-2 pr-4">
-                        <span className="px-2 py-0.5 rounded-full bg-gray-100 text-zinc-800 text-[10px]">
+                        <span className={`${BADGE_BASE} px-2 py-0.5 text-zinc-200 text-[10px]`}>
                           {ETAPA_LABEL[lead.etapa_pipeline] ?? lead.etapa_pipeline}
                         </span>
                       </td>
@@ -220,8 +220,8 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
                       <td className="py-2 pr-5">
                         <div className="flex items-center gap-2">
                           {dias !== null
-                            ? <span className="text-[10px] text-zinc-700">{dias} días</span>
-                            : <span className="text-[10px] text-zinc-700">Sin actividad</span>
+                            ? <span className="text-[10px] text-zinc-300">{dias} días</span>
+                            : <span className="text-[10px] text-zinc-300">Sin actividad</span>
                           }
                           {cargando && (
                             <div className="w-3 h-3 rounded-full border-2 border-brand border-t-transparent animate-spin" />
@@ -328,7 +328,7 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
         <div className="flex items-center gap-2">
           <TrendingUp size={14} className="text-zinc-500 shrink-0" strokeWidth={2} />
           <div>
-            <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Pronóstico comercial</p>
+            <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Pronóstico comercial</p>
             <p className="text-[10px] text-zinc-400 mt-0.5">Proyección basada en ritmo actual</p>
           </div>
         </div>
@@ -343,7 +343,7 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
           <div>
             <div className="flex items-center gap-1.5 mb-1">
               <Zap size={11} className="text-zinc-400" />
-              <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-semibold">Velocidad comercial</p>
+              <p className="text-[9px] text-zinc-100 uppercase tracking-widest font-semibold">Velocidad comercial</p>
             </div>
             <p className="text-2xl font-bold text-white leading-none">
               {fmtSol(f.velocidad_comercial)}
@@ -352,14 +352,14 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
             <p className="text-[10px] text-zinc-500 mt-1">pipeline activo generando por día</p>
           </div>
           <div className="text-right">
-            <p className="text-[9px] text-zinc-500 uppercase tracking-widest mb-0.5">Tasa cierre</p>
-            <p className={`text-lg font-bold ${SALUD_STYLE[saludTasa(f.tasa_conversion_pct)].valor.replace("text-zinc-900","text-zinc-300")}`}>
+            <p className="text-[9px] text-zinc-100 uppercase tracking-widest mb-0.5">Tasa cierre</p>
+            <p className={`text-lg font-bold ${SALUD_STYLE[saludTasa(f.tasa_conversion_pct)].valor.replace("text-zinc-100","text-zinc-300")}`}>
               {f.tasa_conversion_pct}%
             </p>
             <p className={`text-[9px] font-semibold ${SALUD_STYLE[saludTasa(f.tasa_conversion_pct)].badge} px-1.5 py-0.5 rounded-full mt-1 inline-block`}>
               {SALUD_STYLE[saludTasa(f.tasa_conversion_pct)].label}
             </p>
-            <p className="text-[9px] text-zinc-600 mt-1">Meta: ≥ 40%</p>
+            <p className="text-[9px] text-zinc-400 mt-1">Meta: ≥ 40%</p>
           </div>
         </div>
       )}
@@ -368,7 +368,7 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
       <div className="grid grid-cols-3 gap-2 mb-4">
         {ESCENARIOS.map(s => (
           <div key={s.label} className={`rounded-xl p-3 text-center ${s.bg} ${s.border}`}>
-            <p className="text-[9px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">{s.label}</p>
+            <p className="text-[9px] font-semibold text-zinc-100 uppercase tracking-wider mb-1">{s.label}</p>
             <p className={`text-base font-bold leading-none ${s.num}`}>
               {s.value > 0 ? fmtSol(s.value) : "S/ —"}
             </p>
@@ -379,10 +379,10 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
       {/* Cierres progress bar */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-semibold text-zinc-700">Cierres este mes</span>
+          <span className="text-[11px] font-semibold text-zinc-300">Cierres este mes</span>
           <span className="text-[11px] text-zinc-500">{progPct}% del objetivo</span>
         </div>
-        <div className="relative h-7 bg-zinc-100 rounded-xl overflow-hidden">
+        <div className="relative h-7 bg-zinc-800 rounded-xl overflow-hidden">
           <div
             className="h-full rounded-xl transition-all duration-700 flex items-center justify-end pr-3"
             style={{ width: `${Math.max(progPct, f.cierres_mes_actual > 0 ? 6 : 0)}%`, backgroundColor: COLORS.primary }}
@@ -416,7 +416,7 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
           const s = saludLlamadas(f.llamadas_semana_prom);
           const st = SALUD_STYLE[s];
           return (
-            <div className="border border-zinc-100 rounded-xl p-3">
+            <div className="border border-white/8 rounded-xl p-3">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <Phone size={10} className="text-zinc-400" />
@@ -440,23 +440,23 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
                   <TrendingUp size={10} className="text-zinc-400" />
                   <span className="text-[9px] text-zinc-500 font-medium">Propuestas activas</span>
                 </div>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600">
+                <span className={`${BADGE_BASE} text-[9px] font-bold px-1.5 py-0.5 text-zinc-400`}>
                   {f.leads_calientes > 0 ? `${f.leads_calientes} abiertas` : "Sin pipeline"}
                 </span>
               </div>
-              <p className="text-xl font-bold leading-none text-zinc-900">{f.leads_calientes}</p>
+              <p className="text-xl font-bold leading-none text-zinc-100">{f.leads_calientes}</p>
               <p className="text-[9px] text-zinc-400 mt-1.5">Enviadas + en negociación</p>
             </>
           );
           return clickable ? (
             <button
               onClick={() => onVerLeads!("calientes", "Propuestas activas")}
-              className="border border-zinc-100 rounded-xl p-3 hover:border-brand/40 hover:bg-brand/5 transition group text-left"
+              className="border border-white/8 rounded-xl p-3 hover:border-brand/40 hover:bg-brand/5 transition group text-left"
             >
               {inner}
             </button>
           ) : (
-            <div className="border border-zinc-100 rounded-xl p-3">{inner}</div>
+            <div className="border border-white/8 rounded-xl p-3">{inner}</div>
           );
         })()}
 
@@ -467,13 +467,13 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
           const st  = SALUD_STYLE[s];
           const sinHistoria = val === 0;
           return (
-            <div className="border border-zinc-100 rounded-xl p-3">
+            <div className="border border-white/8 rounded-xl p-3">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <Target size={10} className="text-zinc-400" />
                   <span className="text-[9px] text-zinc-500 font-medium">Cobertura pipeline</span>
                 </div>
-                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${sinHistoria ? "bg-zinc-100 text-zinc-400" : st.badge}`}>
+                <span className={`${BADGE_BASE} text-[9px] font-bold px-1.5 py-0.5 ${sinHistoria ? "bg-zinc-800 text-zinc-400" : st.badge}`}>
                   {sinHistoria ? "Sin historia" : st.label}
                 </span>
               </div>
@@ -491,13 +491,13 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
           const s    = saludAging(dias);
           const st   = SALUD_STYLE[s];
           return (
-            <div className="border border-zinc-100 rounded-xl p-3">
+            <div className="border border-white/8 rounded-xl p-3">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <Clock size={10} className="text-zinc-400" />
                   <span className="text-[9px] text-zinc-500 font-medium">Aging propuestas</span>
                 </div>
-                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${dias === 0 ? "bg-zinc-100 text-zinc-400" : st.badge}`}>
+                <span className={`${BADGE_BASE} text-[9px] font-bold px-1.5 py-0.5 ${dias === 0 ? "bg-zinc-800 text-zinc-400" : st.badge}`}>
                   {dias === 0 ? "Sin datos" : st.label}
                 </span>
               </div>
@@ -554,12 +554,12 @@ function QuotaSection({
   };
 
   return (
-    <div className="mt-4 pt-4 border-t border-zinc-100 space-y-3">
+    <div className="mt-4 pt-4 border-t border-white/8 space-y-3">
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">
+          <p className="text-[11px] font-bold text-zinc-100 uppercase tracking-wider">
             Meta de ingresos — {MESES[hoy.getMonth()]}
           </p>
         </div>
@@ -576,11 +576,11 @@ function QuotaSection({
               type="number"
               value={metaInput}
               onChange={e => setMetaInput(e.target.value)}
-              className="w-24 text-xs px-2 py-1 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/40 text-right"
+              className={`${INPUT_BASE} w-24 text-xs px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand/40 text-right`}
               min={100}
               autoFocus
             />
-            <button onClick={() => setEditando(false)} className="p-1 text-zinc-400 hover:text-zinc-600 transition">
+            <button onClick={() => setEditando(false)} className="p-1 text-zinc-400 hover:text-zinc-400 transition">
               <X size={12} />
             </button>
             <button onClick={handleGuardar} className="flex items-center gap-1 text-[11px] text-white bg-brand px-2 py-1 rounded-lg hover:bg-brand-hover transition">
@@ -598,8 +598,8 @@ function QuotaSection({
           { label: "Gap",       value: gap > 0 ? fmt(gap) : "✓ Meta cumplida", sub: gap > 0 ? "aún te falta" : "objetivo alcanzado", cls: gap > 0 ? "text-red-500" : "text-green-600" },
           { label: "Predicho",  value: fmt(predicted),  sub: "logrado + pipeline",    cls: predicted >= meta ? "text-green-600" : "text-amber-600" },
         ].map(k => (
-          <div key={k.label} className="bg-zinc-50 rounded-xl p-2.5 text-center">
-            <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-1">{k.label}</p>
+          <div key={k.label} className="bg-zinc-800/40 rounded-xl p-2.5 text-center">
+            <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-1">{k.label}</p>
             <p className={`text-sm font-bold leading-none ${k.cls}`}>{k.value}</p>
             <p className="text-[9px] text-zinc-400 mt-1 leading-tight">{k.sub}</p>
           </div>
@@ -610,9 +610,9 @@ function QuotaSection({
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] text-zinc-500">Progreso vs meta</span>
-          <span className="text-[10px] font-semibold text-zinc-700">{pctLogrado}% logrado · {pctPredicted}% predicho</span>
+          <span className="text-[10px] font-semibold text-zinc-300">{pctLogrado}% logrado · {pctPredicted}% predicho</span>
         </div>
-        <div className="relative h-4 bg-zinc-100 rounded-full overflow-hidden">
+        <div className="relative h-4 bg-zinc-800 rounded-full overflow-hidden">
           {/* Barra predicho (fondo, más ancha) */}
           <div
             className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
@@ -642,8 +642,8 @@ function QuotaSection({
 
       {/* Mensaje accionable */}
       {gap > 0 && f.contactos_necesarios > 0 && (
-        <p className="text-[11px] text-zinc-600 text-center bg-zinc-50 rounded-xl py-2 px-3">
-          Necesitas <span className="font-bold text-zinc-900">{f.contactos_necesarios}</span> contactos más
+        <p className={`${PANEL_BASE} text-[11px] text-zinc-400 text-center py-2 px-3`}>
+          Necesitas <span className="font-bold text-zinc-100">{f.contactos_necesarios}</span> contactos más
           · te faltan <span className="font-bold text-red-500">{fmt(gap)}</span> para tu meta
         </p>
       )}
@@ -675,12 +675,12 @@ function ObjetivoBar({ label, real, meta, fillCls, trackCls, textCls, icon }: Ob
     <div className="flex-1 min-w-0">
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5">
-          <span className="text-zinc-600">{icon}</span>
-          <span className="text-xs font-medium text-zinc-700">{label}</span>
+          <span className="text-zinc-400">{icon}</span>
+          <span className="text-xs font-medium text-zinc-300">{label}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          {cumplido && <Check size={11} className="text-zinc-600" />}
-          <span className={`text-xs font-bold ${cumplido ? "text-zinc-600" : textCls}`}>
+          {cumplido && <Check size={11} className="text-zinc-400" />}
+          <span className={`text-xs font-bold ${cumplido ? "text-zinc-400" : textCls}`}>
             {real} / {meta}
           </span>
         </div>
@@ -691,7 +691,7 @@ function ObjetivoBar({ label, real, meta, fillCls, trackCls, textCls, icon }: Ob
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="text-[10px] text-zinc-600 mt-1">{pct}% de la meta diaria</p>
+      <p className="text-[10px] text-zinc-400 mt-1">{pct}% de la meta diaria</p>
     </div>
   );
 }
@@ -732,12 +732,12 @@ function ObjetivosPanel({
           <h3 className={`${HEADER_CLASS} gap-2`}>
             <span className="text-base">🎯</span> Objetivos del día
           </h3>
-          <p className="text-xs text-zinc-600 mt-0.5">Meta vs real de hoy</p>
+          <p className="text-xs text-zinc-400 mt-0.5">Meta vs real de hoy</p>
         </div>
         {!editando ? (
           <button
             onClick={() => setEditando(true)}
-            className="flex items-center gap-1.5 text-xs text-zinc-700 hover:text-brand transition"
+            className="flex items-center gap-1.5 text-xs text-zinc-300 hover:text-brand transition"
           >
             <Pencil size={12} /> Editar metas
           </button>
@@ -745,7 +745,7 @@ function ObjetivosPanel({
           <div className="flex items-center gap-2">
             <button
               onClick={handleCancelar}
-              className="flex items-center gap-1 text-xs text-zinc-600 hover:text-zinc-600 transition"
+              className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-400 transition"
             >
               <X size={12} /> Cancelar
             </button>
@@ -768,8 +768,8 @@ function ObjetivosPanel({
             { key: "brochures_meta", label: "Meta brochures diarios",  icon: <Package size={13} /> },
           ].map(({ key, label, icon }) => (
             <div key={key} className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs text-zinc-600">
-                <span className="text-zinc-600">{icon}</span>
+              <div className="flex items-center gap-2 text-xs text-zinc-400">
+                <span className="text-zinc-400">{icon}</span>
                 {label}
               </div>
               <input
@@ -821,8 +821,8 @@ function ObjetivosPanel({
 function Divider({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-3 pt-1">
-      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest shrink-0">{label}</span>
-      <div className="flex-1 border-t border-zinc-100" />
+      <span className="text-[9px] font-bold text-zinc-100 uppercase tracking-widest shrink-0">{label}</span>
+      <div className="flex-1 border-t border-white/8" />
     </div>
   );
 }
@@ -912,7 +912,7 @@ class ModuloErrorBoundary extends Component<{ children: ReactNode }, { error: bo
     if (this.state.error) return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <AlertTriangle size={28} className="text-amber-400 mb-2" />
-        <p className="text-sm text-zinc-700 font-medium">Ocurrió un error al cargar este módulo</p>
+        <p className="text-sm text-zinc-300 font-medium">Ocurrió un error al cargar este módulo</p>
         <button onClick={() => this.setState({ error: false })} className="mt-3 text-xs text-brand hover:underline">
           Reintentar
         </button>
@@ -1179,19 +1179,15 @@ export default function InteligenciaPage() {
       {kpiTilesData.map(tile => (
         <div key={tile.label} className={CARD_CLASS}>
           <div className="flex items-start justify-between mb-3">
-            <div className="p-1.5 rounded-lg bg-zinc-100 shrink-0">{tile.icon}</div>
+            <div className="p-1.5 rounded-lg bg-zinc-800 shrink-0">{tile.icon}</div>
             {tile.delta !== null && (
-              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
-                tile.delta > 0  ? "bg-zinc-800 text-white"
-                : tile.delta < 0 ? "bg-red-100 text-red-600"
-                : "bg-zinc-100 text-zinc-500"
-              }`}>
+              <span className={`${BADGE_BASE} text-[9px] font-bold px-1.5 py-0.5 shrink-0 ${ tile.delta > 0 ? "bg-zinc-800 text-white" : tile.delta < 0 ? "bg-red-100 text-red-600" : "bg-zinc-800 text-zinc-500" }`}>
                 {tile.delta > 0 ? `▲${tile.delta}%` : tile.delta < 0 ? `▼${Math.abs(tile.delta)}%` : "="}
               </span>
             )}
           </div>
-          <p className="text-3xl font-bold text-zinc-900 leading-none">{tile.value}</p>
-          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-2">{tile.label}</p>
+          <p className="text-3xl font-bold text-zinc-100 leading-none">{tile.value}</p>
+          <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-widest mt-2">{tile.label}</p>
           <p className="text-[10px] text-zinc-500 mt-1 leading-tight">{tile.sub}</p>
         </div>
       ))}
@@ -1209,15 +1205,15 @@ export default function InteligenciaPage() {
   // Selector de año para ciclo de venta
   const aniosCV = Array.from({ length: 3 }, (_, i) => hoy.getFullYear() - 1 + i); // año pasado, actual, próximo
   const selectorAnioCV = (
-    <div className="flex items-center gap-1.5 bg-zinc-100 rounded-xl p-1">
+    <div className="flex items-center gap-1.5 bg-zinc-800 rounded-xl p-1">
       {aniosCV.map(a => (
         <button
           key={a}
           onClick={() => setAnioCV(a === anioCV ? undefined : a)}
           className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all ${
             anioCV === a
-              ? "bg-white text-zinc-900 shadow-sm"
-              : "text-zinc-500 hover:text-zinc-700"
+              ? "bg-slate-800/60 text-zinc-100 shadow-sm"
+              : "text-zinc-500 hover:text-zinc-300"
           }`}
         >
           {a}
@@ -1227,8 +1223,8 @@ export default function InteligenciaPage() {
         onClick={() => setAnioCV(undefined)}
         className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all ${
           anioCV === undefined
-            ? "bg-white text-zinc-900 shadow-sm"
-            : "text-zinc-500 hover:text-zinc-700"
+            ? "bg-slate-800/60 text-zinc-100 shadow-sm"
+            : "text-zinc-500 hover:text-zinc-300"
         }`}
       >
         Todos
@@ -1256,14 +1252,14 @@ export default function InteligenciaPage() {
       <button
         key={id}
         onClick={() => setModuloActivo(id)}
-        className="text-left bg-white border border-zinc-100 rounded-2xl p-5 hover:border-brand/40 hover:shadow-sm transition-all duration-200 group flex flex-col"
+        className={`text-left ${GLASS_BASE} p-5 hover:border-brand/40 hover:shadow-sm transition-all duration-200 group flex flex-col`}
       >
         {/* Cabecera */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2.5">
             <span className="text-lg leading-none">{meta.emoji}</span>
             <div>
-              <p className="text-sm font-semibold text-zinc-900 group-hover:text-brand transition-colors leading-tight">{meta.titulo}</p>
+              <p className="text-sm font-semibold text-zinc-100 group-hover:text-brand transition-colors leading-tight">{meta.titulo}</p>
               <p className="text-[10px] text-zinc-400 mt-0.5">{meta.subtitulo}</p>
             </div>
           </div>
@@ -1279,9 +1275,9 @@ export default function InteligenciaPage() {
         {m.stats.length > 0 && (
           <div className="flex gap-2 mt-auto">
             {m.stats.map(s => (
-              <div key={s.label} className="flex-1 bg-zinc-50 rounded-xl px-2 py-2 text-center">
-                <p className="text-sm font-bold text-zinc-800 leading-none">{s.value}</p>
-                <p className="text-[9px] text-zinc-400 mt-0.5 uppercase tracking-wide leading-tight">{s.label}</p>
+              <div key={s.label} className="flex-1 bg-zinc-800/40 rounded-xl px-2 py-2 text-center">
+                <p className="text-sm font-bold text-zinc-200 leading-none">{s.value}</p>
+                <p className="text-[9px] text-zinc-100 mt-0.5 uppercase tracking-wide leading-tight">{s.label}</p>
               </div>
             ))}
           </div>
@@ -1304,7 +1300,7 @@ export default function InteligenciaPage() {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-zinc-100 tracking-tight flex items-center gap-2">
               <TrendingUp size={20} className="text-brand" />
               Inteligencia comercial
             </h1>
@@ -1318,7 +1314,7 @@ export default function InteligenciaPage() {
 
         {/* Módulos de ventas */}
         <div className="space-y-3">
-          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Ventas y pipeline</p>
+          <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Ventas y pipeline</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {ventas.map(renderCard)}
           </div>
@@ -1326,7 +1322,7 @@ export default function InteligenciaPage() {
 
         {/* Módulos estratégicos */}
         <div className="space-y-3">
-          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Análisis estratégico</p>
+          <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Análisis estratégico</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {estrategicos.map(renderCard)}
           </div>
@@ -1334,7 +1330,7 @@ export default function InteligenciaPage() {
 
         {/* Módulos operacionales */}
         <div className="space-y-3">
-          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Gestión operacional</p>
+          <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Gestión operacional</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {operacionales.map(renderCard)}
           </div>
@@ -1356,7 +1352,7 @@ export default function InteligenciaPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setModuloActivo(null)}
-            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-800 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-200 transition-colors"
           >
             <ChevronDown size={13} className="rotate-90" />
             Inteligencia
@@ -1365,11 +1361,11 @@ export default function InteligenciaPage() {
 
           {/* Selector de módulo — dropdown inline */}
           <div className="relative group">
-            <button className="flex items-center gap-1.5 text-sm font-semibold text-zinc-800 hover:text-brand transition-colors">
+            <button className="flex items-center gap-1.5 text-sm font-semibold text-zinc-200 hover:text-brand transition-colors">
               {meta.emoji} {meta.titulo}
               <ChevronDown size={13} className="text-zinc-400" />
             </button>
-            <div className="absolute left-0 top-[calc(100%+6px)] z-50 bg-white border border-zinc-100 rounded-xl shadow-xl w-52 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
+            <div className="absolute left-0 top-[calc(100%+6px)] z-50 bg-slate-800/60 border border-white/8 rounded-xl shadow-xl w-52 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
               {([
                 { id: "forecasting", emoji: "📈", label: "Forecast comercial" },
                 { id: "pipeline",    emoji: "💼", label: "Pipeline y propuestas" },
@@ -1387,7 +1383,7 @@ export default function InteligenciaPage() {
                   className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 transition
                     ${moduloActivo === m.id
                       ? "bg-brand/5 text-brand font-semibold"
-                      : "text-zinc-700 hover:bg-zinc-50 hover:text-brand"
+                      : "text-zinc-300 hover:bg-zinc-800/40 hover:text-brand"
                     }`}
                 >
                   <span>{m.emoji}</span> {m.label}
@@ -1444,7 +1440,7 @@ export default function InteligenciaPage() {
             <div className="flex items-center gap-2 mb-4">
               <CalendarDays size={14} className="text-zinc-500" strokeWidth={2} />
               <div>
-                <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Ciclo de venta</p>
+                <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Ciclo de venta</p>
                 <p className="text-[10px] text-zinc-400 mt-0.5">Tiempo promedio desde primer contacto hasta cierre</p>
               </div>
             </div>
@@ -1503,11 +1499,11 @@ export default function InteligenciaPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-2">
                         {style.icon}
-                        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider leading-none">
+                        <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider leading-none">
                           {ins.titulo}
                         </p>
                       </div>
-                      <p className="text-xs text-zinc-600 leading-relaxed">{ins.texto}</p>
+                      <p className="text-xs text-zinc-400 leading-relaxed">{ins.texto}</p>
                     </div>
                     {tieneVizual && (
                       ins.unidad === "pct"
@@ -1589,16 +1585,16 @@ export default function InteligenciaPage() {
     {forecastModal && (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setForecastModal(null)} />
-        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
-          <div className="flex items-center justify-between p-5 border-b border-zinc-100">
+        <div className={`${MODAL_BASE} relative w-full max-w-lg max-h-[80vh] flex flex-col`}>
+          <div className="flex items-center justify-between p-5 border-b border-white/8">
             <div>
-              <p className="text-sm font-semibold text-zinc-900">{forecastModal.label}</p>
+              <p className="text-sm font-semibold text-zinc-100">{forecastModal.label}</p>
               <p className="text-xs text-zinc-500 mt-0.5">
                 {cargandoForecastLeads ? "Cargando..." : `${forecastLeads.length} leads · clic para llamar`}
               </p>
             </div>
-            <button onClick={() => setForecastModal(null)} className="p-1.5 rounded-lg hover:bg-zinc-100 transition">
-              <X size={16} className="text-zinc-600" />
+            <button onClick={() => setForecastModal(null)} className="p-1.5 rounded-lg hover:bg-zinc-800 transition">
+              <X size={16} className="text-zinc-400" />
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -1609,16 +1605,16 @@ export default function InteligenciaPage() {
             ) : forecastLeads.length === 0 ? (
               <p className="text-xs text-zinc-500 text-center py-8">Sin leads en esta categoría</p>
             ) : forecastLeads.map(lead => (
-              <div key={lead.id} className="p-3 rounded-xl border border-zinc-100 hover:border-brand/20 hover:bg-zinc-50 transition">
+              <div key={lead.id} className="p-3 rounded-xl border border-white/8 hover:border-brand/20 hover:bg-zinc-800/40 transition">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-zinc-900 truncate">{lead.empresa}</p>
-                    <p className="text-xs text-zinc-600 mt-0.5">{lead.nombre_contacto}</p>
+                    <p className="text-sm font-semibold text-zinc-100 truncate">{lead.empresa}</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">{lead.nombre_contacto}</p>
                     <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                       {lead.ciudad && (
                         <span className="text-[11px] text-zinc-500">{lead.ciudad}</span>
                       )}
-                      <span className="text-[11px] font-medium px-2 py-0.5 bg-zinc-100 rounded-full text-zinc-700 capitalize">
+                      <span className={`${BADGE_BASE} text-[11px] font-medium px-2 py-0.5 text-zinc-300 capitalize`}>
                         {lead.etapa_pipeline.replace(/_/g, " ")}
                       </span>
                     </div>

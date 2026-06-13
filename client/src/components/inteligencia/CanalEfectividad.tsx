@@ -1,7 +1,7 @@
 /** client/src/components/inteligencia/CanalEfectividad.tsx */
 
 import { useEffect, useState } from "react";
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, BADGE_BASE } from "../../lib/tokens";
 import { Phone } from "lucide-react";
 import { getCanalEfectividad, type CanalEfectividad } from "../../services/inteligencia.api";
 
@@ -48,8 +48,8 @@ export function CanalEfectividadChart() {
         </div>
         {/* Badge mejor canal */}
         <div className="shrink-0 text-right">
-          <p className="text-[9px] text-zinc-400 uppercase tracking-wider">Mejor canal</p>
-          <p className="text-[12px] font-bold text-zinc-800 mt-0.5">
+          <p className="text-[9px] text-zinc-100 uppercase tracking-wider">Mejor canal</p>
+          <p className="text-[12px] font-bold text-zinc-200 mt-0.5">
             {CANAL_LABEL[best.canal] ?? best.canal}
           </p>
           <p className="text-[10px] text-zinc-500">{best.pct_conversion}% conversión</p>
@@ -67,12 +67,12 @@ export function CanalEfectividadChart() {
             <div key={item.canal} className="flex items-center gap-3">
 
               {/* Label */}
-              <span className="text-[12px] font-medium text-zinc-600 w-32 shrink-0 truncate">
+              <span className="text-[12px] font-medium text-zinc-400 w-32 shrink-0 truncate">
                 {label}
               </span>
 
               {/* Barra */}
-              <div className="flex-1 h-7 bg-zinc-100 rounded-lg overflow-hidden">
+              <div className="flex-1 h-7 bg-zinc-800 rounded-lg overflow-hidden">
                 <div
                   className="h-full rounded-lg flex items-center px-2.5 transition-all duration-700"
                   style={{ width: `${barW}%`, backgroundColor: barFill(i, data.length) }}
@@ -85,13 +85,7 @@ export function CanalEfectividadChart() {
 
               {/* Stats */}
               <div className="w-36 shrink-0 flex items-center justify-end gap-2">
-                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                  isBest
-                    ? "bg-zinc-900 text-white"
-                    : item.pct_conversion >= 10
-                      ? "bg-zinc-200 text-zinc-700"
-                      : "bg-zinc-100 text-zinc-500"
-                }`}>
+                <span className={`${BADGE_BASE} text-[11px] font-bold px-2 py-0.5 ${ isBest ? "bg-zinc-900 text-white" : item.pct_conversion >= 10 ? "bg-zinc-700 text-zinc-300" : "bg-zinc-800 text-zinc-500" }`}>
                   {item.pct_conversion}%
                 </span>
                 <span className="text-[11px] text-zinc-400 w-20 text-right">
@@ -105,7 +99,7 @@ export function CanalEfectividadChart() {
       </div>
 
       {/* ── Footer ── */}
-      <p className="text-[10px] text-zinc-400 mt-4 pt-3 border-t border-zinc-100">
+      <p className="text-[10px] text-zinc-400 mt-4 pt-3 border-t border-white/8">
         Canales con mínimo 3 llamadas en el período analizado
       </p>
     </div>

@@ -91,7 +91,7 @@ export function KpiCards({ items, cols = 3 }: Props) {
 
             {/* Valor + label */}
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5 truncate">
+              <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-widest leading-none mb-1.5 truncate">
                 {k.label}
               </p>
               <p className={`text-2xl lg:text-3xl font-black tabular-nums leading-tight ${k.color}`}>

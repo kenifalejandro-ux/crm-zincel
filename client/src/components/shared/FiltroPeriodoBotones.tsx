@@ -114,19 +114,19 @@ export function FiltroPeriodoBotones({ periodo, filtroFecha, onChange }: Props) 
         </button>
 
         {pickerAbierto && (
-          <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4 w-56">
+          <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-slate-800/60 border border-white/10 rounded-xl shadow-xl p-4 w-56">
             <div className="flex items-center justify-between mb-3">
               <button
                 onClick={() => setAnioNavegando(y => y - 1)}
-                className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50"
+                className="w-7 h-7 flex items-center justify-center rounded-lg border border-white/10 hover:bg-zinc-800/40"
               >
                 <ChevronLeft size={14} />
               </button>
-              <span className="text-xs font-semibold text-zinc-800">{anioNavegando}</span>
+              <span className="text-xs font-semibold text-zinc-200">{anioNavegando}</span>
               <button
                 onClick={() => setAnioNavegando(y => y + 1)}
                 disabled={anioNavegando >= hoy.getFullYear()}
-                className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-30"
+                className="w-7 h-7 flex items-center justify-center rounded-lg border border-white/10 hover:bg-zinc-800/40 disabled:opacity-30"
               >
                 <ChevronRight size={14} />
               </button>
@@ -145,8 +145,8 @@ export function FiltroPeriodoBotones({ periodo, filtroFecha, onChange }: Props) 
                     }}
                     className={`py-1.5 text-xs rounded-lg transition capitalize ${
                       esActual  ? "bg-zinc-900 text-white font-semibold" :
-                      esFuturo  ? "text-zinc-700 cursor-not-allowed"  :
-                                  "text-zinc-600 hover:bg-zinc-900/5 hover:text-zinc-900"
+                      esFuturo  ? "text-zinc-300 cursor-not-allowed"  :
+                                  "text-zinc-400 hover:bg-zinc-900/5 hover:text-zinc-100"
                     }`}
                   >
                     {m}
@@ -186,18 +186,18 @@ export function FiltroPeriodoBotones({ periodo, filtroFecha, onChange }: Props) 
         </button>
 
         {calAbierto && (
-          <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4 w-72">
+          <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-slate-800/60 border border-white/10 rounded-xl shadow-xl p-4 w-72">
             <div className="flex items-center justify-between mb-3">
               <button
                 onClick={() => setCalNav(n => {
                   const d = new Date(n.anio, n.mes - 1, 1);
                   return { mes: d.getMonth(), anio: d.getFullYear() };
                 })}
-                className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50"
+                className="w-7 h-7 flex items-center justify-center rounded-lg border border-white/10 hover:bg-zinc-800/40"
               >
                 <ChevronLeft size={14} />
               </button>
-              <span className="text-xs font-semibold text-zinc-800">
+              <span className="text-xs font-semibold text-zinc-200">
                 {MESES_FULL[calNav.mes]} {calNav.anio}
               </span>
               <button
@@ -205,7 +205,7 @@ export function FiltroPeriodoBotones({ periodo, filtroFecha, onChange }: Props) 
                   const d = new Date(n.anio, n.mes + 1, 1);
                   return { mes: d.getMonth(), anio: d.getFullYear() };
                 })}
-                className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50"
+                className="w-7 h-7 flex items-center justify-center rounded-lg border border-white/10 hover:bg-zinc-800/40"
               >
                 <ChevronRight size={14} />
               </button>
@@ -213,7 +213,7 @@ export function FiltroPeriodoBotones({ periodo, filtroFecha, onChange }: Props) 
 
             <div className="grid grid-cols-7 mb-1">
               {DIAS_SEMANA.map(d => (
-                <div key={d} className="text-center text-[10px] font-semibold text-zinc-600 py-1">{d}</div>
+                <div key={d} className="text-center text-[10px] font-semibold text-zinc-400 py-1">{d}</div>
               ))}
             </div>
 
@@ -229,8 +229,8 @@ export function FiltroPeriodoBotones({ periodo, filtroFecha, onChange }: Props) 
                     className={`
                       w-full aspect-square flex items-center justify-center rounded-lg text-xs font-medium transition-all
                       ${seleccionado ? "bg-zinc-900 text-white"         :
-                        esHoy        ? "border-2 border-zinc-900 text-zinc-900" :
-                                       "text-zinc-700 hover:bg-zinc-900/5"}
+                        esHoy        ? "border-2 border-zinc-900 text-zinc-100" :
+                                       "text-zinc-300 hover:bg-zinc-900/5"}
                     `}
                   >
                     {dia}
@@ -241,7 +241,7 @@ export function FiltroPeriodoBotones({ periodo, filtroFecha, onChange }: Props) 
 
             <button
               onClick={() => { onChange("dia", todayStr); setCalAbierto(false); }}
-              className="mt-3 w-full py-1.5 text-xs text-zinc-900 border border-zinc-900/20 rounded-lg hover:bg-zinc-900/5 transition"
+              className="mt-3 w-full py-1.5 text-xs text-zinc-100 border border-zinc-900/20 rounded-lg hover:bg-zinc-900/5 transition"
             >
               Ir a hoy
             </button>

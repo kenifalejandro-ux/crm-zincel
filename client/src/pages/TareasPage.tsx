@@ -1,5 +1,6 @@
 /**client/src/pages/TareasPage.tsx */
 
+import { GLASS_BASE, PANEL_BASE } from "../lib/tokens";
 import { useEffect, useState } from "react";
 import { CheckSquare, AlertCircle, Clock, Calendar, Plus } from "lucide-react";
 import { getTareas, getResumenTareas } from "../services/tareas.api";
@@ -68,13 +69,13 @@ export default function TareasPage() {
         <div className="flex items-center gap-3">
           <div className="crm-section-accent h-8" />
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Tareas de seguimiento</h1>
+            <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Tareas de seguimiento</h1>
             <p className="text-xs text-slate-500 mt-0.5">Recordatorios y pendientes de tus prospectos</p>
           </div>
         </div>
         <button
           onClick={() => setMostrarForm(v => !v)}
-          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-brand hover:bg-brand-hover text-zinc-900 rounded-xl transition shadow-sm"
+          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-brand hover:bg-brand-hover text-zinc-100 rounded-xl transition shadow-sm"
         >
           <Plus size={13} /> Nueva tarea
         </button>
@@ -83,25 +84,25 @@ export default function TareasPage() {
       {/* Resumen cards */}
       {resumen && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-white border border-red-100 rounded-2xl p-4 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <div className={`${PANEL_BASE} border-red-100 p-4 text-center`}>
             <AlertCircle size={16} className="mx-auto text-red-500 mb-2" />
             <p className="text-2xl font-black text-red-600 tabular-nums leading-tight">{resumen.vencidas}</p>
             <p className="text-[10px] text-red-400 font-semibold uppercase tracking-widest mt-1">Vencidas</p>
           </div>
-          <div className="bg-white border border-orange-100 rounded-2xl p-4 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <div className={`${PANEL_BASE} border-orange-100 p-4 text-center`}>
             <Clock size={16} className="mx-auto text-orange-500 mb-2" />
             <p className="text-2xl font-black text-orange-600 tabular-nums leading-tight">{resumen.hoy}</p>
             <p className="text-[10px] text-orange-400 font-semibold uppercase tracking-widest mt-1">Para hoy</p>
           </div>
-          <div className="bg-white border border-brand/20 rounded-2xl p-4 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <div className={`${PANEL_BASE} border-brand/20 p-4 text-center`}>
             <Calendar size={16} className="mx-auto text-brand mb-2" />
             <p className="text-2xl font-black text-brand tabular-nums leading-tight">{resumen.proximas}</p>
             <p className="text-[10px] text-brand/70 font-semibold uppercase tracking-widest mt-1">Próximas</p>
           </div>
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <div className={`${GLASS_BASE} p-4 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)]`}>
             <CheckSquare size={16} className="mx-auto text-slate-500 mb-2" />
-            <p className="text-2xl font-black text-slate-700 tabular-nums leading-tight">{resumen.total}</p>
-            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest mt-1">Total</p>
+            <p className="text-2xl font-black text-slate-300 tabular-nums leading-tight">{resumen.total}</p>
+            <p className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest mt-1">Total</p>
           </div>
         </div>
       )}

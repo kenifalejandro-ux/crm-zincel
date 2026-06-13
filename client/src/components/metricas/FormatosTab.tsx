@@ -5,6 +5,7 @@
  * Solo usa campana_metricas y resultados_campana.
  */
 
+import { GLASS_BASE, PANEL_BASE } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import { MessageCircle, FileText, TrendingUp, Award } from "lucide-react";
 import { getFormatos, FormatoData } from "../../services/metricas.api";
@@ -61,8 +62,8 @@ function MetricRow({
       : "text-zinc-600";
 
   return (
-    <tr className="border-b border-zinc-50 hover:bg-zinc-50">
-      <td className="py-2.5 px-4 text-xs text-zinc-600">
+    <tr className="border-b border-white/5 hover:bg-zinc-800/40">
+      <td className="py-2.5 px-4 text-xs text-zinc-400">
         {label}
         {sub && <span className="block text-[10px] text-zinc-400">{sub}</span>}
       </td>
@@ -88,7 +89,7 @@ function PropBar({ label, valueA, valueB, colorA, colorB, fmt }: {
         <span>{label}</span>
         <span className="text-zinc-400">{fmt(valueA)} vs {fmt(valueB)}</span>
       </div>
-      <div className="flex h-2 rounded-full overflow-hidden bg-zinc-100">
+      <div className="flex h-2 rounded-full overflow-hidden bg-zinc-800">
         <div className={`h-full ${colorA} transition-all`} style={{ width: `${pctA}%` }} />
         <div className={`h-full ${colorB} transition-all`} style={{ width: `${pctB}%` }} />
       </div>
@@ -134,7 +135,7 @@ function Veredicto({ formatos }: { formatos: FormatoData[] }) {
 
   if (!puntos.length) {
     return (
-      <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 text-xs text-zinc-500">
+      <div className={`${PANEL_BASE} p-4 text-xs text-zinc-500`}>
         Registra ventas en ResultadosPage para activar el veredicto automático.
       </div>
     );
@@ -144,13 +145,13 @@ function Veredicto({ formatos }: { formatos: FormatoData[] }) {
     <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 space-y-3">
       <div className="flex items-center gap-2">
         <Award size={15} className="text-amber-600" />
-        <p className="text-sm font-bold text-zinc-800">
+        <p className="text-sm font-bold text-zinc-200">
           Veredicto {ganador ? `— Gana: ${ganador}` : ""}
         </p>
       </div>
       <ul className="space-y-1.5">
         {puntos.map((p, i) => (
-          <li key={i} className="text-xs text-zinc-700 flex gap-2">
+          <li key={i} className="text-xs text-zinc-300 flex gap-2">
             <span className="text-amber-500 shrink-0">•</span>
             {p}
           </li>
@@ -185,7 +186,7 @@ export const FormatosTab = ({ empresa }: Props) => {
     <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">Error: {error}</div>
   );
   if (!data.length) return (
-    <div className="p-6 bg-zinc-50 border border-dashed border-zinc-200 rounded-xl text-center text-sm text-zinc-500">
+    <div className={`${PANEL_BASE} p-6 border-dashed text-center text-sm text-zinc-500`}>
       Selecciona una empresa para ver la comparativa de formatos.
     </div>
   );
@@ -220,12 +221,12 @@ export const FormatosTab = ({ empresa }: Props) => {
 
               {/* KPIs principales */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white/80 rounded-lg p-3">
+                <div className="bg-white/8 rounded-lg p-3">
                   <p className="text-[10px] text-zinc-500">Gasto total</p>
                   <p className={`text-lg font-bold ${cfg.color}`}>{S(f.gasto_total)}</p>
                   <p className="text-[10px] text-zinc-400">{pctGasto}% del total</p>
                 </div>
-                <div className="bg-white/80 rounded-lg p-3">
+                <div className="bg-white/8 rounded-lg p-3">
                   <p className="text-[10px] text-zinc-500">
                     {f.formato === "trafico_mensajes" ? "Mensajes recibidos" : "Leads captados"}
                   </p>
@@ -238,12 +239,12 @@ export const FormatosTab = ({ empresa }: Props) => {
                       : (n(f.costo_por_lead) > 0 ? `${S(f.costo_por_lead)}/lead` : "sin costo por lead")}
                   </p>
                 </div>
-                <div className="bg-white/80 rounded-lg p-3">
+                <div className="bg-white/8 rounded-lg p-3">
                   <p className="text-[10px] text-zinc-500">CTR promedio</p>
                   <p className={`text-lg font-bold ${cfg.color}`}>{Pct(f.ctr_promedio)}</p>
                   <p className="text-[10px] text-zinc-400">{Num(f.clics_total)} clics totales</p>
                 </div>
-                <div className="bg-white/80 rounded-lg p-3">
+                <div className="bg-white/8 rounded-lg p-3">
                   <p className="text-[10px] text-zinc-500">Ingresos atribuidos</p>
                   <p className={`text-lg font-bold ${n(f.revenue_total) > 0 ? "text-emerald-700" : "text-zinc-400"}`}>
                     {n(f.revenue_total) > 0 ? S(f.revenue_total) : "—"}
@@ -260,8 +261,8 @@ export const FormatosTab = ({ empresa }: Props) => {
 
       {/* ── Barras proporcionales ── */}
       {trafico && instForm && (
-        <div className="bg-white border border-zinc-200 rounded-xl p-5 space-y-3">
-          <p className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
+        <div className={`${GLASS_BASE} p-5 space-y-3`}>
+          <p className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
             <TrendingUp size={14} className="text-violet-500" />
             Distribución comparativa
           </p>
@@ -280,22 +281,22 @@ export const FormatosTab = ({ empresa }: Props) => {
       )}
 
       {/* ── Tabla comparativa detallada ── */}
-      <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-zinc-100">
-          <p className="text-sm font-semibold text-zinc-800">Métricas detalladas</p>
+      <div className={`${GLASS_BASE} overflow-hidden`}>
+        <div className="px-4 py-3 border-b border-white/8">
+          <p className="text-sm font-semibold text-zinc-200">Métricas detalladas</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-zinc-50">
+            <thead className="bg-zinc-800/40">
               <tr>
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-zinc-500">Métrica</th>
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-zinc-100">Métrica</th>
                 <th className="text-center px-4 py-2.5 text-xs font-medium text-green-700">Tráfico / WhatsApp</th>
                 <th className="text-center px-4 py-2.5 text-xs font-medium text-blue-700">Instáform</th>
               </tr>
             </thead>
             <tbody>
               {/* Alcance */}
-              <tr className="bg-zinc-50/50"><td colSpan={3} className="px-4 py-1.5 text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Alcance y actividad</td></tr>
+              <tr className="bg-zinc-50/50"><td colSpan={3} className="px-4 py-1.5 text-[10px] font-semibold text-zinc-100 uppercase tracking-wide">Alcance y actividad</td></tr>
               <MetricRow label="Campañas" valA={Num(trafico?.campanas)} valB={Num(instForm?.campanas)} better="none" />
               <MetricRow label="Impresiones" valA={Num(trafico?.impresiones_total)} valB={Num(instForm?.impresiones_total)} better={n(trafico?.impresiones_total) >= n(instForm?.impresiones_total) ? "a" : "b"} />
               <MetricRow label="Clics totales" valA={Num(trafico?.clics_total)} valB={Num(instForm?.clics_total)} better={n(trafico?.clics_total) >= n(instForm?.clics_total) ? "a" : "b"} />
@@ -304,7 +305,7 @@ export const FormatosTab = ({ empresa }: Props) => {
               <MetricRow label="Frecuencia promedio" sub="veces que un usuario vio el anuncio" valA={n(trafico?.frecuencia_promedio) > 0 ? n(trafico?.frecuencia_promedio).toFixed(1) : "—"} valB={n(instForm?.frecuencia_promedio) > 0 ? n(instForm?.frecuencia_promedio).toFixed(1) : "—"} better="none" />
 
               {/* Resultados */}
-              <tr className="bg-zinc-50/50"><td colSpan={3} className="px-4 py-1.5 text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Resultados de contacto</td></tr>
+              <tr className="bg-zinc-50/50"><td colSpan={3} className="px-4 py-1.5 text-[10px] font-semibold text-zinc-100 uppercase tracking-wide">Resultados de contacto</td></tr>
               <MetricRow label="Mensajes WhatsApp" valA={Num(trafico?.mensajes_total)} valB="—" better="none" />
               <MetricRow label="Leads formulario" valA="—" valB={Num(instForm?.leads_total)} better="none" />
               <MetricRow label="Costo por mensaje" valA={n(trafico?.costo_por_mensaje) > 0 ? S(trafico?.costo_por_mensaje) : "—"} valB="—" better="none" />
@@ -313,7 +314,7 @@ export const FormatosTab = ({ empresa }: Props) => {
               <MetricRow label="Leads / 1,000 imp." valA="—" valB={n(instForm?.leads_por_1000_imp) > 0 ? n(instForm?.leads_por_1000_imp).toFixed(2) : "—"} better="none" />
 
               {/* Revenue */}
-              <tr className="bg-zinc-50/50"><td colSpan={3} className="px-4 py-1.5 text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Rentabilidad</td></tr>
+              <tr className="bg-zinc-50/50"><td colSpan={3} className="px-4 py-1.5 text-[10px] font-semibold text-zinc-100 uppercase tracking-wide">Rentabilidad</td></tr>
               <MetricRow label="Gasto total" valA={S(trafico?.gasto_total)} valB={S(instForm?.gasto_total)} better="none" />
               <MetricRow label="Ventas atribuidas" valA={Num(trafico?.ventas)} valB={Num(instForm?.ventas)} better={n(trafico?.ventas) >= n(instForm?.ventas) ? "a" : "b"} />
               <MetricRow label="Ingresos" valA={n(trafico?.revenue_total) > 0 ? S(trafico?.revenue_total) : "—"} valB={n(instForm?.revenue_total) > 0 ? S(instForm?.revenue_total) : "—"} better={n(trafico?.revenue_total) >= n(instForm?.revenue_total) ? (n(trafico?.revenue_total) > 0 ? "a" : "none") : "b"} />

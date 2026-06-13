@@ -1,5 +1,6 @@
 /** src/components/metricas/ProyectosTab.tsx */
 
+import { GLASS_BASE } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import api from "@/services/api";
 import { TrendingUp, DollarSign, Users, Info } from "lucide-react";
@@ -73,11 +74,11 @@ export function ProyectosTab({ empresa }: Props) {
             valor: general ? fmt(Number(general.gasto)) : "S/ 0",
             sub: general ? `${general.campanas} campaña${general.campanas !== 1 ? "s" : ""} multi-proyecto` : undefined },
         ].map(c => (
-          <div key={c.label} className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-5 flex items-center gap-4">
-            <div className="p-2.5 bg-zinc-50 rounded-xl">{c.icon}</div>
+          <div key={c.label} className={`${GLASS_BASE} p-5 flex items-center gap-4`}>
+            <div className="p-2.5 bg-zinc-800/40 rounded-xl">{c.icon}</div>
             <div>
               <p className="text-xs text-zinc-500">{c.label}</p>
-              <p className="text-xl font-bold text-zinc-900 mt-0.5">{c.valor}</p>
+              <p className="text-xl font-bold text-zinc-100 mt-0.5">{c.valor}</p>
               {c.sub && <p className="text-[11px] text-zinc-400 mt-0.5">{c.sub}</p>}
             </div>
           </div>
@@ -85,8 +86,8 @@ export function ProyectosTab({ empresa }: Props) {
       </div>
 
       {/* Barras de inversión dedicada */}
-      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-6">
-        <h3 className="text-sm font-semibold text-zinc-700 mb-5">Inversión por proyecto (campañas dedicadas)</h3>
+      <div className={`${GLASS_BASE} p-6`}>
+        <h3 className="text-sm font-semibold text-zinc-300 mb-5">Inversión por proyecto (campañas dedicadas)</h3>
         <div className="space-y-4">
           {dedicadas.map(d => {
             const s   = PROY_STYLE[d.proyecto] ?? generalStyle;
@@ -97,10 +98,10 @@ export function ProyectosTab({ empresa }: Props) {
                   <span className={`text-xs font-medium px-2 py-0.5 rounded border ${s.badge}`}>{d.proyecto}</span>
                   <div className="flex items-center gap-4 text-xs text-zinc-500">
                     <span>{d.campanas} campaña{d.campanas !== 1 ? "s" : ""}</span>
-                    <span className="font-semibold text-zinc-700">{fmt(Number(d.gasto))}</span>
+                    <span className="font-semibold text-zinc-300">{fmt(Number(d.gasto))}</span>
                   </div>
                 </div>
-                <div className="h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+                <div className="h-2.5 bg-zinc-800 rounded-full overflow-hidden">
                   <div className={`h-full ${s.bar} rounded-full transition-all duration-500`} style={{ width: `${pct}%` }} />
                 </div>
               </div>
@@ -110,9 +111,9 @@ export function ProyectosTab({ empresa }: Props) {
       </div>
 
       {/* Tabla por proyecto */}
-      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
+      <div className={`${GLASS_BASE} overflow-hidden`}>
         <table className="w-full text-sm">
-          <thead className="bg-zinc-50 text-zinc-500 uppercase text-[11px] tracking-wide">
+          <thead className="bg-zinc-800/40 text-zinc-100 uppercase text-[11px] tracking-wide">
             <tr>
               <th className="px-5 py-3 text-left">Proyecto</th>
               <th className="px-5 py-3 text-right">Campañas</th>
@@ -124,29 +125,29 @@ export function ProyectosTab({ empresa }: Props) {
               <th className="px-5 py-3 text-right">ROAS</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-50">
+          <tbody className="divide-y divide-white/5">
             {dedicadas.map(d => {
               const s    = PROY_STYLE[d.proyecto] ?? generalStyle;
               const roas = Number(d.roas_real);
               const roasCls = roas >= 10 ? "text-green-600 font-semibold" : roas >= 2 ? "text-amber-600" : "text-zinc-400";
               return (
-                <tr key={d.proyecto} className="hover:bg-zinc-50">
+                <tr key={d.proyecto} className="hover:bg-zinc-800/40">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
                       <div className={`w-2.5 h-2.5 rounded-full ${s.bar}`} />
-                      <span className="font-medium text-zinc-800">{d.proyecto}</span>
+                      <span className="font-medium text-zinc-200">{d.proyecto}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-right text-zinc-600">{d.campanas}</td>
-                  <td className="px-5 py-4 text-right font-medium text-zinc-800">{fmt(Number(d.gasto))}</td>
-                  <td className="px-5 py-4 text-right text-zinc-600">{d.leads}</td>
-                  <td className="px-5 py-4 text-right text-zinc-600">{d.cpl ? fmt(Number(d.cpl)) : "—"}</td>
+                  <td className="px-5 py-4 text-right text-zinc-400">{d.campanas}</td>
+                  <td className="px-5 py-4 text-right font-medium text-zinc-200">{fmt(Number(d.gasto))}</td>
+                  <td className="px-5 py-4 text-right text-zinc-400">{d.leads}</td>
+                  <td className="px-5 py-4 text-right text-zinc-400">{d.cpl ? fmt(Number(d.cpl)) : "—"}</td>
                   <td className="px-5 py-4 text-right">
                     {Number(d.ventas) > 0
                       ? <span className="inline-flex items-center gap-1 text-green-700 font-semibold"><TrendingUp size={12}/>{d.ventas}</span>
                       : <span className="text-zinc-300">—</span>}
                   </td>
-                  <td className="px-5 py-4 text-right font-semibold text-zinc-800">
+                  <td className="px-5 py-4 text-right font-semibold text-zinc-200">
                     {Number(d.revenue) > 0 ? fmtK(Number(d.revenue)) : <span className="text-zinc-300 font-normal">—</span>}
                   </td>
                   <td className="px-5 py-4 text-right">
@@ -158,7 +159,7 @@ export function ProyectosTab({ empresa }: Props) {
 
             {/* Fila General */}
             {general && (
-              <tr className="bg-zinc-50/80 border-t border-zinc-200">
+              <tr className="bg-zinc-50/80 border-t border-white/10">
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full bg-zinc-300" />
@@ -179,16 +180,16 @@ export function ProyectosTab({ empresa }: Props) {
           </tbody>
 
           {/* Totales solo de dedicadas */}
-          <tfoot className="border-t-2 border-zinc-200 bg-zinc-50">
+          <tfoot className="border-t-2 border-white/10 bg-zinc-800/40">
             <tr>
-              <td className="px-5 py-3 text-xs font-semibold text-zinc-500 uppercase">Proyectos</td>
+              <td className="px-5 py-3 text-xs font-semibold text-zinc-100 uppercase">Proyectos</td>
               <td className="px-5 py-3 text-right text-xs text-zinc-500">{dedicadas.reduce((s,d)=>s+d.campanas,0)}</td>
-              <td className="px-5 py-3 text-right text-sm font-bold text-zinc-800">{fmt(totalDedicado)}</td>
+              <td className="px-5 py-3 text-right text-sm font-bold text-zinc-200">{fmt(totalDedicado)}</td>
               <td className="px-5 py-3 text-right text-xs text-zinc-500">{dedicadas.reduce((s,d)=>s+d.leads,0)}</td>
               <td className="px-5 py-3" />
               <td className="px-5 py-3 text-right text-sm font-bold text-green-700">{dedicadas.reduce((s,d)=>s+Number(d.ventas),0)}</td>
-              <td className="px-5 py-3 text-right text-sm font-bold text-zinc-800">{fmtK(totalRev)}</td>
-              <td className="px-5 py-3 text-right text-sm font-bold text-zinc-800">
+              <td className="px-5 py-3 text-right text-sm font-bold text-zinc-200">{fmtK(totalRev)}</td>
+              <td className="px-5 py-3 text-right text-sm font-bold text-zinc-200">
                 {totalDedicado > 0 ? `${(totalRev / totalDedicado).toFixed(1)}x` : "—"}
               </td>
             </tr>

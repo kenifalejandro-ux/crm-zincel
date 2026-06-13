@@ -1,6 +1,6 @@
 /** client/src/components/brochures/ResumenCanales.tsx */
 
-import { CARD_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
 
 const CANALES = ["correo", "whatsapp", "linkedin", "instagram", "facebook"];
 
@@ -15,11 +15,11 @@ export function ResumenCanales({ resumen }: Props) {
         const dato = resumen.find((r) => r.canal === canal);
         return (
           <div key={canal} className={`${CARD_CLASS} text-center`}>
-            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize mb-2 bg-zinc-100 text-zinc-600">
+            <span className={`${BADGE_BASE} inline-flex px-2 py-0.5 text-xs font-medium capitalize mb-2 text-zinc-400`}>
               {canal}
             </span>
-            <p className="text-2xl font-semibold text-zinc-800">{dato?.total || 0}</p>
-            <p className="text-xs text-zinc-600 mt-0.5">este mes: {dato?.este_mes || 0}</p>
+            <p className="text-2xl font-semibold text-zinc-200">{dato?.total || 0}</p>
+            <p className="text-xs text-zinc-400 mt-0.5">este mes: {dato?.este_mes || 0}</p>
           </div>
         );
       })}

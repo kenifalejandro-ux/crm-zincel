@@ -1,5 +1,6 @@
 /**client/src/pages/PlantillasPage.tsx */
 
+import { PANEL_BASE } from "../lib/tokens";
 import { useEffect, useState } from "react";
 import { MessageSquare, Plus, Pencil, Trash2, X, Check } from "lucide-react";
 import {
@@ -140,11 +141,11 @@ export default function PlantillasPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-zinc-900 flex items-center gap-2">
+          <h1 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
             <MessageSquare size={20} className="text-amber-500" />
             Plantillas de mensaje
           </h1>
-          <p className="text-xs text-zinc-600 mt-0.5">
+          <p className="text-xs text-zinc-400 mt-0.5">
             Textos reutilizables con variables automáticas: {VARIABLES.join(", ")}
           </p>
         </div>
@@ -163,14 +164,14 @@ export default function PlantillasPage() {
             <p className="text-xs font-semibold text-amber-700">
               {editando ? "Editar plantilla" : "Nueva plantilla"}
             </p>
-            <button onClick={() => setMostrarForm(false)} className="text-zinc-600 hover:text-zinc-600">
+            <button onClick={() => setMostrarForm(false)} className="text-zinc-400 hover:text-zinc-400">
               <X size={14} />
             </button>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-600">Título</label>
+              <label className="text-xs font-medium text-zinc-400">Título</label>
               <input
                 type="text" placeholder="Ej: Primer contacto"
                 value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))}
@@ -178,7 +179,7 @@ export default function PlantillasPage() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-600">Canal</label>
+              <label className="text-xs font-medium text-zinc-400">Canal</label>
               <select
                 value={form.canal}
                 onChange={e => setForm(f => ({ ...f, canal: e.target.value as CanalPlantilla }))}
@@ -193,7 +194,7 @@ export default function PlantillasPage() {
 
           {/* Variables rápidas */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] text-zinc-600">Insertar:</span>
+            <span className="text-[10px] text-zinc-400">Insertar:</span>
             {VARIABLES.map(v => (
               <button
                 key={v}
@@ -206,7 +207,7 @@ export default function PlantillasPage() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-zinc-600">Contenido</label>
+            <label className="text-xs font-medium text-zinc-400">Contenido</label>
             <textarea
               rows={6} placeholder="Escribe el mensaje aquí..."
               value={form.contenido}
@@ -220,7 +221,7 @@ export default function PlantillasPage() {
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setMostrarForm(false)}
-              className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+              className="px-3 py-1.5 text-xs border border-white/10 rounded-lg hover:bg-zinc-800/40 transition"
             >
               Cancelar
             </button>
@@ -242,18 +243,18 @@ export default function PlantillasPage() {
         </div>
       ) : plantillas.length === 0 ? (
         <div className="space-y-4">
-          <p className="text-center text-xs text-zinc-600 py-4">Aún no tienes plantillas. Crea una o usa estos ejemplos:</p>
+          <p className="text-center text-xs text-zinc-400 py-4">Aún no tienes plantillas. Crea una o usa estos ejemplos:</p>
           <div className="grid gap-3">
             {EJEMPLOS.map((ej, i) => (
-              <div key={i} className="border border-dashed border-gray-200 rounded-xl p-4 flex items-start justify-between gap-3">
+              <div key={i} className="border border-dashed border-white/10 rounded-xl p-4 flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="text-xs font-semibold text-zinc-700">{ej.titulo}</p>
+                    <p className="text-xs font-semibold text-zinc-300">{ej.titulo}</p>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${CANAL_BADGE[ej.canal]}`}>
                       {CANAL_LABEL[ej.canal]}
                     </span>
                   </div>
-                  <p className="text-[11px] text-zinc-600 line-clamp-2 leading-relaxed">{ej.contenido}</p>
+                  <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed">{ej.contenido}</p>
                 </div>
                 <button
                   onClick={() => usarEjemplo(ej)}
@@ -269,10 +270,10 @@ export default function PlantillasPage() {
       ) : (
         <div className="space-y-3">
           {plantillas.map(p => (
-            <div key={p.id} className="bg-white border border-gray-100 rounded-xl p-4">
+            <div key={p.id} className={`${PANEL_BASE} p-4`}>
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex items-center gap-2">
-                  <p className="text-xs font-semibold text-zinc-800">{p.titulo}</p>
+                  <p className="text-xs font-semibold text-zinc-200">{p.titulo}</p>
                   <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${CANAL_BADGE[p.canal]}`}>
                     {CANAL_LABEL[p.canal]}
                   </span>
@@ -281,25 +282,25 @@ export default function PlantillasPage() {
                   <button
                     onClick={() => copiar(p.contenido, p.id)}
                     title="Copiar"
-                    className="p-1.5 rounded-lg text-zinc-600 hover:bg-gray-100 hover:text-zinc-700 transition"
+                    className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300 transition"
                   >
                     {copiado === p.id ? <Check size={13} className="text-green-500" /> : <span className="text-[10px]">📋</span>}
                   </button>
                   <button
                     onClick={() => abrirEditar(p)}
-                    className="p-1.5 rounded-lg text-zinc-600 hover:bg-gray-100 hover:text-zinc-700 transition"
+                    className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300 transition"
                   >
                     <Pencil size={13} />
                   </button>
                   <button
                     onClick={() => handleEliminar(p.id)}
-                    className="p-1.5 rounded-lg text-zinc-600 hover:bg-red-100 hover:text-red-500 transition"
+                    className="p-1.5 rounded-lg text-zinc-400 hover:bg-red-100 hover:text-red-500 transition"
                   >
                     <Trash2 size={13} />
                   </button>
                 </div>
               </div>
-              <p className="text-[11px] text-zinc-700 whitespace-pre-wrap leading-relaxed">{p.contenido}</p>
+              <p className="text-[11px] text-zinc-300 whitespace-pre-wrap leading-relaxed">{p.contenido}</p>
             </div>
           ))}
         </div>

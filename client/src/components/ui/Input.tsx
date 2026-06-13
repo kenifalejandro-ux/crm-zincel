@@ -1,5 +1,6 @@
 /**client/src/components/ui/Input.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import { forwardRef, type InputHTMLAttributes } from "react";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -21,13 +22,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={inputId}
-          className={`w-full px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-transparent placeholder:text-zinc-800 transition
-            ${error ? "border-red-300 bg-red-50" : "border-gray-200 bg-white"}
-            ${className}`}
+          className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-transparent placeholder:text-zinc-200 transition ${error ? "border-red-300 bg-red-50" : "border-white/10 bg-slate-800/60"} ${className}`}
           {...props}
         />
         {error && <p className="text-xs text-red-500">{error}</p>}
-        {hint && !error && <p className="text-xs text-zinc-800">{hint}</p>}
+        {hint && !error && <p className="text-xs text-zinc-200">{hint}</p>}
       </div>
     );
   }

@@ -42,7 +42,7 @@ export function TasaConversion({ metricas }: Props) {
             barSize={12}
           >
             <PolarAngleAxis type="number" domain={[0, 100]} tick={false} axisLine={false} />
-            <RadialBar
+            <RadialBar filter="url(#neon-glow)"
               dataKey="value"
               cornerRadius={6}
               background={{ fill: COLORS.surface }}
@@ -52,26 +52,26 @@ export function TasaConversion({ metricas }: Props) {
         </ResponsiveContainer>
 
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-1 pointer-events-none">
-          <span className="text-3xl font-light tracking-tighter text-zinc-900 leading-none">
+          <span className="text-3xl font-light tracking-tighter text-zinc-100 leading-none">
             {tasa}%
           </span>
-          <span className="text-[11px] font-semibold text-zinc-600 mt-2 uppercase tracking-wide">
+          <span className="text-[11px] font-semibold text-zinc-100 mt-2 uppercase tracking-wide">
             {label}
           </span>
         </div>
       </div>
 
-      <div className="space-y-3 mt-6 pt-5 border-t border-zinc-100/60">
+      <div className="space-y-3 mt-6 pt-5 border-t border-white/8/60">
         <div className="flex justify-between items-center">
-          <span className="text-[12px] font-medium text-zinc-700">Interesados</span>
-          <span className="text-[13px] font-semibold text-zinc-900">{interesados}</span>
+          <span className="text-[12px] font-medium text-zinc-300">Interesados</span>
+          <span className="text-[13px] font-semibold text-zinc-100">{interesados}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-[12px] font-medium text-zinc-700">Total prospectos</span>
-          <span className="text-[13px] font-semibold text-zinc-900">{total}</span>
+          <span className="text-[12px] font-medium text-zinc-300">Total prospectos</span>
+          <span className="text-[13px] font-semibold text-zinc-100">{total}</span>
         </div>
 
-        <div className="flex justify-between text-[10px] font-medium text-zinc-600 pt-2 px-1">
+        <div className="flex justify-between text-[10px] font-medium text-zinc-400 pt-2 px-1">
           <span>0%</span>
           <span>15%</span>
           <span>30%</span>

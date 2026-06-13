@@ -1,6 +1,6 @@
 /** client/src/components/dashboard/ActividadAnual.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE, INPUT_BASE } from "../../lib/tokens";
 import { useState, useEffect } from "react";
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, Tooltip,
@@ -24,12 +24,12 @@ const TooltipPersonalizado = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   const d = payload[0]?.payload as ActividadMensual;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm p-3 text-xs min-w-[140px]">
-      <p className="font-semibold text-zinc-800 mb-2">{label}</p>
-      <p className="text-zinc-700">Llamadas: <span className="font-medium">{d.llamadas}</span> <span className="text-zinc-600">({d.contestadas} contest.)</span></p>
-      <p className="text-zinc-700">Reuniones: <span className="font-medium">{d.reuniones}</span> <span className="text-zinc-600">({d.realizadas} realiz.)</span></p>
-      <p className="text-zinc-700">Brochures: <span className="font-medium">{d.brochures}</span></p>
-      <p className="text-zinc-700">Ventas cerradas: <span className="font-medium">{d.ventas}</span></p>
+    <div className={`${TOOLTIP_BASE} p-3 text-xs min-w-[140px]`}>
+      <p className="font-semibold text-zinc-200 mb-2">{label}</p>
+      <p className="text-zinc-300">Llamadas: <span className="font-medium">{d.llamadas}</span> <span className="text-zinc-400">({d.contestadas} contest.)</span></p>
+      <p className="text-zinc-300">Reuniones: <span className="font-medium">{d.reuniones}</span> <span className="text-zinc-400">({d.realizadas} realiz.)</span></p>
+      <p className="text-zinc-300">Brochures: <span className="font-medium">{d.brochures}</span></p>
+      <p className="text-zinc-300">Ventas cerradas: <span className="font-medium">{d.ventas}</span></p>
     </div>
   );
 };
@@ -68,7 +68,7 @@ export function ActividadAnual() {
       </h2>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-        <p className="text-[11px] text-zinc-600 font-medium">Actividad mensual · barras + tendencia</p>
+        <p className="text-[11px] text-zinc-400 font-medium">Actividad mensual · barras + tendencia</p>
 
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex gap-1 flex-wrap">
@@ -79,7 +79,7 @@ export function ActividadAnual() {
                 className={`px-2.5 py-1 text-xs rounded-full border transition ${
                   series.includes(s.key)
                     ? "text-white border-transparent"
-                    : "bg-white text-zinc-600 border-zinc-200"
+                    : "bg-slate-800/60 text-zinc-400 border-white/10"
                 }`}
                 style={series.includes(s.key) ? { background: s.color, borderColor: s.color } : {}}
               >
@@ -91,7 +91,7 @@ export function ActividadAnual() {
           <select
             value={anioSel}
             onChange={(e) => setAnioSel(Number(e.target.value))}
-            className="px-3 py-1.5 text-xs border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-400"
+            className={`${INPUT_BASE} px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-zinc-400`}
           >
             {anios.map((y) => (
               <option key={y} value={y}>{y}</option>
@@ -102,11 +102,11 @@ export function ActividadAnual() {
 
       {cargando ? (
         <div className="h-[240px] flex items-center justify-center">
-          <p className="text-xs text-zinc-600">Cargando...</p>
+          <p className="text-xs text-zinc-400">Cargando...</p>
         </div>
       ) : !hayDatos ? (
         <div className="h-[240px] flex items-center justify-center">
-          <p className="text-xs text-zinc-600">Sin actividad registrada en {anioSel}</p>
+          <p className="text-xs text-zinc-400">Sin actividad registrada en {anioSel}</p>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={240}>
@@ -130,7 +130,7 @@ export function ActividadAnual() {
               wrapperStyle={{ fontSize: "10px", paddingTop: "8px" }}
             />
             {SERIES.filter((s) => series.includes(s.key)).map((s) => (
-              <Bar
+              <Bar filter="url(#neon-glow)"
                 key={`bar-${s.key}`}
                 dataKey={s.key}
                 name={s.label}
@@ -140,7 +140,7 @@ export function ActividadAnual() {
               />
             ))}
             {SERIES.filter((s) => series.includes(s.key)).map((s) => (
-              <Line
+              <Line filter="url(#neon-glow)"
                 key={`line-${s.key}`}
                 type="monotone"
                 dataKey={s.key}

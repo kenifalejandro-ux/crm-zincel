@@ -1,5 +1,5 @@
 /** client/src/components/dashboard/WebResumenChart.tsx */
-import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, BADGE_BASE } from "../../lib/tokens";
 import { Globe } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
 
@@ -34,28 +34,28 @@ export function WebResumenChart({ metricas }: Props) {
         <Globe size={14} className="mr-2.5 text-cyan-500" strokeWidth={2} />
         Webs de prospectos
         {alertas > 0 && (
-          <span className="ml-auto px-2 py-0.5 text-[10px] font-semibold rounded-full bg-red-100 text-red-600 normal-case tracking-normal">
+          <span className={`${BADGE_BASE} ml-auto px-2 py-0.5 text-[10px] font-semibold text-red-600 normal-case tracking-normal`}>
             {alertas} requieren atención
           </span>
         )}
       </h2>
 
       {/* Cobertura */}
-      <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Cobertura</p>
+      <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-2">Cobertura</p>
       <div className="space-y-2.5 mb-4">
         {cobertura.map(item => (
           <div key={item.label}>
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="text-xs font-medium text-zinc-700">{item.label}</span>
+                <span className="text-xs font-medium text-zinc-300">{item.label}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-zinc-800">{item.valor}</span>
+                <span className="text-xs font-bold text-zinc-200">{item.valor}</span>
                 <span className="text-[10px] text-zinc-400 w-7 text-right">{item.pct}%</span>
               </div>
             </div>
-            <div className="h-2 bg-zinc-100 rounded-full overflow-hidden">
+            <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{ width: `${item.pct}%`, backgroundColor: item.color }}
@@ -66,8 +66,8 @@ export function WebResumenChart({ metricas }: Props) {
       </div>
 
       {/* Estado de webs activas */}
-      <div className="border-t border-zinc-50 pt-3">
-        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-2">
+      <div className="border-t border-white/5 pt-3">
+        <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-2">
           Estado de webs activas ({conWeb})
         </p>
         <div className="space-y-2">
@@ -79,14 +79,14 @@ export function WebResumenChart({ metricas }: Props) {
                 <div className="flex items-center justify-between mb-0.5">
                   <div className="flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
-                    <span className="text-[11px] text-zinc-600">{label}</span>
+                    <span className="text-[11px] text-zinc-400">{label}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[12px] font-bold text-zinc-800">{valor}</span>
+                    <span className="text-[12px] font-bold text-zinc-200">{valor}</span>
                     <span className="text-[10px] text-zinc-400 w-7 text-right">{pct}%</span>
                   </div>
                 </div>
-                <div className="h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{ width: `${Math.max(pct, valor > 0 ? 2 : 0)}%`, backgroundColor: color }}

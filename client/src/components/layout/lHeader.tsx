@@ -12,7 +12,7 @@ export function lHeader({ onToggleSidebar }: Props) {
   const { usuario, logout } = useAuth();
 
   return (
-    <header className="bg-amber-400 backdrop-blur-2xl border-b border-white/30 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shrink-0">
+    <header className="bg-slate-900/80 backdrop-blur-2xl border-b border-cyan-500/15 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-3 shrink-0">
 
       {/* Izquierda: hamburger (móvil/tablet) + fecha */}
       <div className="flex items-center gap-3 min-w-0">
@@ -20,17 +20,17 @@ export function lHeader({ onToggleSidebar }: Props) {
         {/* Hamburger — solo visible en lg para abajo */}
         <button
           onClick={onToggleSidebar}
-          className="lg:hidden p-2 text-slate-500 hover:text-slate-800 hover:bg-gray-100 rounded-lg transition shrink-0"
+          className="lg:hidden p-2 text-zinc-400 hover:text-zinc-100 hover:bg-white/5 rounded-lg transition shrink-0"
           aria-label="Abrir menú"
         >
           <Menu size={20} />
         </button>
 
         <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hidden sm:block">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hidden sm:block">
             Resumen Diario
           </span>
-          <p className="text-sm font-semibold text-slate-700 capitalize truncate">
+          <p className="text-sm font-semibold text-zinc-200 capitalize truncate">
             {new Date().toLocaleDateString("es-PE", {
               weekday: "long", day: "numeric", month: "long",
             })}
@@ -42,18 +42,18 @@ export function lHeader({ onToggleSidebar }: Props) {
       <div className="flex items-center gap-3 shrink-0">
 
         {/* Info usuario */}
-        <div className="flex items-center gap-3 pr-3 sm:pr-5 border-r border-gray-200">
+        <div className="flex items-center gap-3 pr-3 sm:pr-5 border-r border-white/10">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-bold text-slate-900 leading-none">
+            <p className="text-sm font-bold text-zinc-100 leading-none">
               {usuario?.nombre}
             </p>
-            <p className="text-[9px] text-amber-500 font-semibold mt-1 uppercase tracking-widest">
+            <p className="text-[9px] text-cyan-400 font-semibold mt-1 uppercase tracking-widest">
               {usuario?.rol}
             </p>
           </div>
-          <div className="w-8 h-8 sm:w-9 sm:h-9 bg-zinc-900 rounded-full
+          <div className="w-8 h-8 sm:w-9 sm:h-9 bg-cyan-500/20 border border-cyan-500/30 rounded-full
                           flex items-center justify-center shrink-0">
-            <User size={15} className="text-white" />
+            <User size={15} className="text-cyan-400" />
           </div>
         </div>
 
@@ -61,7 +61,7 @@ export function lHeader({ onToggleSidebar }: Props) {
 
         <button
           onClick={logout}
-          className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-50 rounded-full transition-all duration-200"
+          className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-all duration-200"
           title="Cerrar Sesión"
         >
           <LogOut size={17} />

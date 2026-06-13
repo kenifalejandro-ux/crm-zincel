@@ -1,5 +1,6 @@
 /** client/src/components/finanzas/AlertasVencimiento.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import { useState, useMemo } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import type { Egreso, Prestamo } from "../../types/finanzas.types";
@@ -98,16 +99,16 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
           <div className="flex-1 min-w-0">
             {/* Título + selector de días */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mb-3">
-              <p className="text-sm font-semibold text-zinc-800">
+              <p className="text-sm font-semibold text-zinc-200">
                 {alertas.length} vencimiento{alertas.length !== 1 ? "s" : ""} próximo{alertas.length !== 1 ? "s" : ""}
               </p>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-zinc-700">Alertar con</span>
+                <span className="text-xs text-zinc-300">Alertar con</span>
                 <select
                   value={diasAnticipacion}
                   onChange={e => setDiasAnticipacion(Number(e.target.value))}
                   onClick={e => e.stopPropagation()}
-                  className="text-xs border border-gray-200 rounded-md px-2 py-0.5 bg-white focus:outline-none focus:ring-1 focus:ring-brand/50"
+                  className={`${INPUT_BASE} text-xs px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-brand/50`}
                 >
                   {[3, 7, 15, 30].map(d => (
                     <option key={d} value={d}>{d} días de anticipación</option>
@@ -140,11 +141,11 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
                     }`}>
                       {a.tipo === "egreso" ? "Egreso" : "Préstamo"}
                     </span>
-                    <span className="text-zinc-800 font-medium">{a.descripcion}</span>
-                    <span className="text-zinc-600">{fmtMonto(a.monto, a.moneda)}</span>
+                    <span className="text-zinc-200 font-medium">{a.descripcion}</span>
+                    <span className="text-zinc-400">{fmtMonto(a.monto, a.moneda)}</span>
                     <span className={`${diasColor} flex items-center gap-1`}>
                       {etiquetaDias}
-                      <span className="text-zinc-600 font-normal">
+                      <span className="text-zinc-400 font-normal">
                         ({fmtFechaCorta(a.fecha_vencimiento)})
                       </span>
                     </span>
@@ -157,7 +158,7 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
 
         <button
           onClick={() => setCerrado(true)}
-          className="shrink-0 text-zinc-600 hover:text-zinc-600 transition"
+          className="shrink-0 text-zinc-400 hover:text-zinc-400 transition"
           title="Cerrar"
         >
           <X size={16} />

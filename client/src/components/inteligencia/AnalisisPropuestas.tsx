@@ -10,7 +10,7 @@ import {
   ChevronDown, AlertTriangle, Lightbulb, CheckCircle2,
   Building2, Layers, Phone,
 } from "lucide-react";
-import { CARD_CLASS, COLORS } from "../../lib/tokens";
+import { CARD_CLASS, COLORS, GLASS_BASE, MODAL_BASE, BADGE_BASE, STICKY_BASE } from "../../lib/tokens";
 import {
   getAnalisisPipeline, getMetasPipeline, actualizarMetasPipeline,
 } from "../../services/propuestas.api";
@@ -134,13 +134,13 @@ interface ObjCardProps {
 function ObjCard({ label, real, meta, pct: p, color, subt }: ObjCardProps) {
   const cumplido = p >= 100;
   return (
-    <div className="flex-1 min-w-0 bg-white border border-zinc-100 rounded-2xl p-4 flex flex-col gap-2">
-      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{label}</p>
+    <div className={`flex-1 min-w-0 ${GLASS_BASE} p-4 flex flex-col gap-2`}>
+      <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-widest">{label}</p>
       <div className="flex items-end gap-1">
-        <span className="text-2xl font-bold text-zinc-900 leading-none">{real}</span>
+        <span className="text-2xl font-bold text-zinc-100 leading-none">{real}</span>
         <span className="text-[11px] text-zinc-400 pb-0.5">/ {meta}</span>
       </div>
-      <div className="h-1.5 rounded-full bg-zinc-100">
+      <div className="h-1.5 rounded-full bg-zinc-800">
         <div
           className="h-1.5 rounded-full transition-all duration-500"
           style={{ width: `${p}%`, backgroundColor: cumplido ? "#16a34a" : color }}
@@ -181,14 +181,14 @@ function DrillModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onCerrar} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
-        <div className="flex items-center justify-between p-5 border-b border-zinc-100">
+      <div className={`${MODAL_BASE} relative w-full max-w-2xl max-h-[80vh] flex flex-col`}>
+        <div className="flex items-center justify-between p-5 border-b border-white/8">
           <div>
-            <p className="text-sm font-semibold text-zinc-900">{titulo}</p>
+            <p className="text-sm font-semibold text-zinc-100">{titulo}</p>
             <p className="text-xs text-zinc-500 mt-0.5">{rows.length} propuesta{rows.length !== 1 ? "s" : ""}</p>
           </div>
-          <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-zinc-100 transition">
-            <X size={16} className="text-zinc-600" />
+          <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-zinc-800 transition">
+            <X size={16} className="text-zinc-400" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -196,13 +196,13 @@ function DrillModal({
             ? <p className="text-xs text-zinc-500 text-center py-10">Sin propuestas</p>
             : (
               <table className="w-full text-xs">
-                <thead className="sticky top-0 bg-white">
-                  <tr className="border-b border-zinc-100">
-                    <th className="text-left py-2 px-4 text-zinc-500 font-medium">Empresa</th>
-                    <th className="text-left py-2 pr-3 text-zinc-500 font-medium">Servicio</th>
-                    <th className="text-left py-2 pr-3 text-zinc-500 font-medium">Estado</th>
-                    <th className="text-right py-2 pr-4 text-zinc-500 font-medium">Monto</th>
-                    <th className="text-left py-2 pr-4 text-zinc-500 font-medium">Motivo pérdida</th>
+                <thead className={`${STICKY_BASE} sticky top-0`}>
+                  <tr className="border-b border-white/8">
+                    <th className="text-left py-2 px-4 text-zinc-100 font-medium">Empresa</th>
+                    <th className="text-left py-2 pr-3 text-zinc-100 font-medium">Servicio</th>
+                    <th className="text-left py-2 pr-3 text-zinc-100 font-medium">Estado</th>
+                    <th className="text-right py-2 pr-4 text-zinc-100 font-medium">Monto</th>
+                    <th className="text-left py-2 pr-4 text-zinc-100 font-medium">Motivo pérdida</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -211,22 +211,22 @@ function DrillModal({
                       ? (r.monto_cerrado ?? r.monto_propuesto) * r.tipo_cambio
                       : (r.monto_cerrado ?? r.monto_propuesto);
                     return (
-                      <tr key={r.id} className="border-b border-zinc-50 hover:bg-zinc-50 transition">
+                      <tr key={r.id} className="border-b border-white/5 hover:bg-zinc-800/40 transition">
                         <td className="py-2.5 px-4">
-                          <p className="font-medium text-zinc-800 truncate max-w-[130px]">{r.empresa}</p>
+                          <p className="font-medium text-zinc-200 truncate max-w-[130px]">{r.empresa}</p>
                           <p className="text-[10px] text-zinc-400">
                             {new Date(r.fecha_propuesta).toLocaleDateString("es-PE", { day: "2-digit", month: "short" })}
                           </p>
                         </td>
-                        <td className="py-2.5 pr-3 text-zinc-700">
+                        <td className="py-2.5 pr-3 text-zinc-300">
                           {LABEL_SERVICIO[r.servicio as ServicioPropuesta] ?? r.servicio}
                         </td>
                         <td className="py-2.5 pr-3">
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full ${ESTADO_COLOR[r.estado] ?? "bg-zinc-100 text-zinc-600"}`}>
+                          <span className={`${BADGE_BASE} text-[10px] px-2 py-0.5 ${ESTADO_COLOR[r.estado] ?? "bg-zinc-800 text-zinc-400"}`}>
                             {ESTADO_LABEL[r.estado] ?? r.estado}
                           </span>
                         </td>
-                        <td className="py-2.5 pr-4 text-right font-medium text-zinc-800">{fmt(monto)}</td>
+                        <td className="py-2.5 pr-4 text-right font-medium text-zinc-200">{fmt(monto)}</td>
                         <td className="py-2.5 pr-4 text-zinc-500 max-w-[140px] truncate">
                           {r.motivo_cierre_perdido ?? "—"}
                         </td>
@@ -280,9 +280,9 @@ function TablaEmpresas({
               contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
               cursor={{ fill: "rgba(0,0,0,0.03)" }}
             />
-            <Bar dataKey="Enviadas" fill={COLORS.primary} radius={[3, 3, 0, 0]} barSize={12} />
-            <Bar dataKey="Ganadas"  fill="#16a34a"        radius={[3, 3, 0, 0]} barSize={12} />
-            <Bar dataKey="Perdidas" fill={COLORS.danger}  radius={[3, 3, 0, 0]} barSize={12} />
+            <Bar filter="url(#neon-glow)" dataKey="Enviadas" fill={COLORS.primary} radius={[3, 3, 0, 0]} barSize={12} />
+            <Bar filter="url(#neon-glow)" dataKey="Ganadas"  fill="#16a34a"        radius={[3, 3, 0, 0]} barSize={12} />
+            <Bar filter="url(#neon-glow)" dataKey="Perdidas" fill={COLORS.danger}  radius={[3, 3, 0, 0]} barSize={12} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -290,15 +290,15 @@ function TablaEmpresas({
       {/* Tabla */}
       <div className="mt-4 overflow-x-auto max-h-64 overflow-y-auto">
         <table className="w-full text-xs">
-          <thead className="sticky top-0 bg-white">
-            <tr className="border-b border-zinc-100">
-              <th className="text-left py-2 px-3 text-zinc-500 font-medium">Empresa</th>
-              <th className="text-center py-2 pr-3 text-zinc-500 font-medium">Enviadas</th>
-              <th className="text-center py-2 pr-3 text-zinc-500 font-medium">Ganadas</th>
-              <th className="text-center py-2 pr-3 text-zinc-500 font-medium">Perdidas</th>
-              <th className="text-right py-2 pr-3 text-zinc-500 font-medium">Pipeline</th>
-              <th className="text-right py-2 pr-3 text-zinc-500 font-medium">Ingresos</th>
-              <th className="text-center py-2 pr-3 text-zinc-500 font-medium">Conv.</th>
+          <thead className={`${STICKY_BASE} sticky top-0`}>
+            <tr className="border-b border-white/8">
+              <th className="text-left py-2 px-3 text-zinc-100 font-medium">Empresa</th>
+              <th className="text-center py-2 pr-3 text-zinc-100 font-medium">Enviadas</th>
+              <th className="text-center py-2 pr-3 text-zinc-100 font-medium">Ganadas</th>
+              <th className="text-center py-2 pr-3 text-zinc-100 font-medium">Perdidas</th>
+              <th className="text-right py-2 pr-3 text-zinc-100 font-medium">Pipeline</th>
+              <th className="text-right py-2 pr-3 text-zinc-100 font-medium">Ingresos</th>
+              <th className="text-center py-2 pr-3 text-zinc-100 font-medium">Conv.</th>
             </tr>
           </thead>
           <tbody>
@@ -308,20 +308,20 @@ function TablaEmpresas({
                 <tr
                   key={r.prospecto_id}
                   onClick={() => setDrill({ titulo: r.empresa, rows: detalle[r.prospecto_id] ?? [] })}
-                  className="border-b border-zinc-50 hover:bg-brand/5 cursor-pointer group transition"
+                  className="border-b border-white/5 hover:bg-brand/5 cursor-pointer group transition"
                 >
                   <td className="py-2.5 px-3">
-                    <p className="font-medium text-zinc-800 group-hover:text-brand truncate max-w-[140px]">{r.empresa}</p>
+                    <p className="font-medium text-zinc-200 group-hover:text-brand truncate max-w-[140px]">{r.empresa}</p>
                     {r.ciudad && <p className="text-[10px] text-zinc-400">{r.ciudad}</p>}
                   </td>
-                  <td className="py-2.5 pr-3 text-center text-zinc-700">{r.enviadas + r.en_negociacion}</td>
+                  <td className="py-2.5 pr-3 text-center text-zinc-300">{r.enviadas + r.en_negociacion}</td>
                   <td className="py-2.5 pr-3 text-center font-semibold text-green-700">{r.ganadas}</td>
                   <td className="py-2.5 pr-3 text-center text-red-500">{r.perdidas}</td>
-                  <td className="py-2.5 pr-3 text-right text-zinc-700">{r.monto_activo > 0 ? fmt(r.monto_activo) : "—"}</td>
-                  <td className="py-2.5 pr-3 text-right font-semibold text-zinc-800">{r.monto_ganado > 0 ? fmt(r.monto_ganado) : "—"}</td>
+                  <td className="py-2.5 pr-3 text-right text-zinc-300">{r.monto_activo > 0 ? fmt(r.monto_activo) : "—"}</td>
+                  <td className="py-2.5 pr-3 text-right font-semibold text-zinc-200">{r.monto_ganado > 0 ? fmt(r.monto_ganado) : "—"}</td>
                   <td className="py-2.5 pr-3 text-center">
                     {(r.ganadas + r.perdidas) > 0
-                      ? <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${conv >= 50 ? "bg-green-100 text-green-700" : conv > 0 ? "bg-yellow-50 text-yellow-700" : "bg-red-50 text-red-500"}`}>{conv}%</span>
+                      ? <span className={`${BADGE_BASE} text-[10px] font-bold px-1.5 py-0.5 ${conv >= 50 ? "bg-green-100 text-green-700" : conv > 0 ? "bg-yellow-50 text-yellow-700" : "bg-red-50 text-red-500"}`}>{conv}%</span>
                       : <span className="text-zinc-300">—</span>
                     }
                   </td>
@@ -375,9 +375,9 @@ function TablaServicios({
               contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
               cursor={{ fill: "rgba(0,0,0,0.03)" }}
             />
-            <Bar dataKey="Activas"  fill={COLORS.primary} radius={[0, 3, 3, 0]} barSize={10} />
-            <Bar dataKey="Ganadas"  fill="#16a34a"        radius={[0, 3, 3, 0]} barSize={10} />
-            <Bar dataKey="Perdidas" fill={COLORS.danger}  radius={[0, 3, 3, 0]} barSize={10} />
+            <Bar filter="url(#neon-glow)" dataKey="Activas"  fill={COLORS.primary} radius={[0, 3, 3, 0]} barSize={10} />
+            <Bar filter="url(#neon-glow)" dataKey="Ganadas"  fill="#16a34a"        radius={[0, 3, 3, 0]} barSize={10} />
+            <Bar filter="url(#neon-glow)" dataKey="Perdidas" fill={COLORS.danger}  radius={[0, 3, 3, 0]} barSize={10} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -385,15 +385,15 @@ function TablaServicios({
       {/* Tabla */}
       <div className="mt-4 overflow-x-auto max-h-64 overflow-y-auto">
         <table className="w-full text-xs">
-          <thead className="sticky top-0 bg-white">
-            <tr className="border-b border-zinc-100">
-              <th className="text-left py-2 px-3 text-zinc-500 font-medium">Servicio</th>
-              <th className="text-center py-2 pr-3 text-zinc-500 font-medium">Activas</th>
-              <th className="text-center py-2 pr-3 text-zinc-500 font-medium">Ganadas</th>
-              <th className="text-center py-2 pr-3 text-zinc-500 font-medium">Perdidas</th>
-              <th className="text-right py-2 pr-3 text-zinc-500 font-medium">Pipeline</th>
-              <th className="text-right py-2 pr-3 text-zinc-500 font-medium">Ingresos</th>
-              <th className="text-center py-2 pr-3 text-zinc-500 font-medium">Conv.</th>
+          <thead className={`${STICKY_BASE} sticky top-0`}>
+            <tr className="border-b border-white/8">
+              <th className="text-left py-2 px-3 text-zinc-100 font-medium">Servicio</th>
+              <th className="text-center py-2 pr-3 text-zinc-100 font-medium">Activas</th>
+              <th className="text-center py-2 pr-3 text-zinc-100 font-medium">Ganadas</th>
+              <th className="text-center py-2 pr-3 text-zinc-100 font-medium">Perdidas</th>
+              <th className="text-right py-2 pr-3 text-zinc-100 font-medium">Pipeline</th>
+              <th className="text-right py-2 pr-3 text-zinc-100 font-medium">Ingresos</th>
+              <th className="text-center py-2 pr-3 text-zinc-100 font-medium">Conv.</th>
             </tr>
           </thead>
           <tbody>
@@ -403,22 +403,22 @@ function TablaServicios({
                 <tr
                   key={r.servicio}
                   onClick={() => setDrill({ titulo: LABEL_SERVICIO[r.servicio as ServicioPropuesta] ?? r.servicio, rows: detalle[r.servicio] ?? [] })}
-                  className="border-b border-zinc-50 hover:bg-brand/5 cursor-pointer group transition"
+                  className="border-b border-white/5 hover:bg-brand/5 cursor-pointer group transition"
                 >
                   <td className="py-2.5 px-3">
-                    <p className="font-medium text-zinc-800 group-hover:text-brand">
+                    <p className="font-medium text-zinc-200 group-hover:text-brand">
                       {LABEL_SERVICIO[r.servicio as ServicioPropuesta] ?? r.servicio}
                     </p>
                     <p className="text-[10px] text-zinc-400">{r.total} total</p>
                   </td>
-                  <td className="py-2.5 pr-3 text-center text-zinc-700">{r.enviadas + r.en_negociacion}</td>
+                  <td className="py-2.5 pr-3 text-center text-zinc-300">{r.enviadas + r.en_negociacion}</td>
                   <td className="py-2.5 pr-3 text-center font-semibold text-green-700">{r.ganadas}</td>
                   <td className="py-2.5 pr-3 text-center text-red-500">{r.perdidas}</td>
-                  <td className="py-2.5 pr-3 text-right text-zinc-700">{r.monto_activo > 0 ? fmt(r.monto_activo) : "—"}</td>
-                  <td className="py-2.5 pr-3 text-right font-semibold text-zinc-800">{r.monto_ganado > 0 ? fmt(r.monto_ganado) : "—"}</td>
+                  <td className="py-2.5 pr-3 text-right text-zinc-300">{r.monto_activo > 0 ? fmt(r.monto_activo) : "—"}</td>
+                  <td className="py-2.5 pr-3 text-right font-semibold text-zinc-200">{r.monto_ganado > 0 ? fmt(r.monto_ganado) : "—"}</td>
                   <td className="py-2.5 pr-3 text-center">
                     {(r.ganadas + r.perdidas) > 0
-                      ? <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${conv >= 50 ? "bg-green-100 text-green-700" : conv > 0 ? "bg-yellow-50 text-yellow-700" : "bg-red-50 text-red-500"}`}>{conv}%</span>
+                      ? <span className={`${BADGE_BASE} text-[10px] font-bold px-1.5 py-0.5 ${conv >= 50 ? "bg-green-100 text-green-700" : conv > 0 ? "bg-yellow-50 text-yellow-700" : "bg-red-50 text-red-500"}`}>{conv}%</span>
                       : <span className="text-zinc-300">—</span>
                     }
                   </td>
@@ -492,20 +492,20 @@ export function AnalisisPropuestas() {
           <div className="flex items-center gap-2">
             <Target size={14} className="text-brand shrink-0" />
             <div>
-              <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Objetivos del mes</p>
+              <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Objetivos del mes</p>
               <p className="text-[10px] text-zinc-400 mt-0.5">Real vs meta mensual · editable</p>
             </div>
           </div>
           {!editando ? (
             <button
               onClick={() => setEditando(true)}
-              className="flex items-center gap-1.5 text-xs text-zinc-600 hover:text-brand transition"
+              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-brand transition"
             >
               <Pencil size={12} /> Editar metas
             </button>
           ) : (
             <div className="flex items-center gap-2">
-              <button onClick={() => { setFormMetas(metas); setEditando(false); }} className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-700 transition">
+              <button onClick={() => { setFormMetas(metas); setEditando(false); }} className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 transition">
                 <X size={12} /> Cancelar
               </button>
               <button
@@ -527,7 +527,7 @@ export function AnalisisPropuestas() {
               { key: "ingresos_mes",   label: "Meta ingresos / mes (S/)", hint: "en soles" },
             ].map(({ key, label, hint }) => (
               <div key={key} className="flex flex-col gap-1.5">
-                <p className="text-xs font-medium text-zinc-700">{label}</p>
+                <p className="text-xs font-medium text-zinc-300">{label}</p>
                 <p className="text-[10px] text-zinc-400">{hint}</p>
                 <input
                   type="number"
@@ -565,8 +565,8 @@ export function AnalisisPropuestas() {
               color={COLORS.primary}
               subt={`${fmt(mes_actual.valor_activo)} en pipeline activo`}
             />
-            <div className="flex-1 min-w-0 bg-white border border-zinc-100 rounded-2xl p-4 flex flex-col gap-2">
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Tasa de conversión</p>
+            <div className={`flex-1 min-w-0 ${GLASS_BASE} p-4 flex flex-col gap-2`}>
+              <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-widest">Tasa de conversión</p>
               <p className={`text-2xl font-bold leading-none ${convGlobal >= 60 ? "text-green-700" : convGlobal >= 40 ? "text-amber-600" : convGlobal > 0 ? "text-red-500" : "text-zinc-400"}`}>
                 {convGlobal > 0 ? `${convGlobal}%` : "—"}
               </p>
@@ -586,7 +586,7 @@ export function AnalisisPropuestas() {
         <div className="flex items-center gap-2 mb-4">
           <Lightbulb size={14} className="text-brand shrink-0" />
           <div>
-            <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Diagnóstico de brecha</p>
+            <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Diagnóstico de brecha</p>
             <p className="text-[10px] text-zinc-400 mt-0.5">¿Por qué no llegaste al objetivo?</p>
           </div>
         </div>
@@ -605,7 +605,7 @@ export function AnalisisPropuestas() {
                 : ins.tipo === "oportunidad" ? <Lightbulb    size={13} className="text-brand"    />
                 :                             <CheckCircle2  size={13} className="text-green-600" />}
               </div>
-              <p className="text-xs text-zinc-700 leading-relaxed">{ins.texto}</p>
+              <p className="text-xs text-zinc-300 leading-relaxed">{ins.texto}</p>
             </div>
           ))}
         </div>
@@ -614,13 +614,13 @@ export function AnalisisPropuestas() {
       {/* ── Análisis por empresa / servicio ── */}
       <div className={CARD_CLASS}>
         {/* Tabs */}
-        <div className="flex items-center gap-1 mb-5 border-b border-zinc-100 pb-3">
+        <div className="flex items-center gap-1 mb-5 border-b border-white/8 pb-3">
           <button
             onClick={() => setTab("empresa")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
               tab === "empresa"
                 ? "bg-zinc-900 text-white"
-                : "text-zinc-500 hover:bg-zinc-100"
+                : "text-zinc-500 hover:bg-zinc-800"
             }`}
           >
             <Building2 size={12} /> Por empresa
@@ -630,7 +630,7 @@ export function AnalisisPropuestas() {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
               tab === "servicio"
                 ? "bg-zinc-900 text-white"
-                : "text-zinc-500 hover:bg-zinc-100"
+                : "text-zinc-500 hover:bg-zinc-800"
             }`}
           >
             <Layers size={12} /> Por servicio

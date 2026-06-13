@@ -1,6 +1,6 @@
 /** client/src/components/dashboard/BrochuresChart.tsx */
 import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { NeonDonut } from "../ui/NeonDonut";
 import { Send } from "lucide-react";
 import type { Metricas } from "../../pages/DashboardPage";
 
@@ -31,40 +31,24 @@ export function BrochuresChart({ metricas }: Props) {
       </h2>
 
       <div className="flex items-center gap-6">
-        <div className="relative flex-shrink-0">
-          <ResponsiveContainer width={110} height={110}>
-            <PieChart>
-              <Pie
-                data={datosGrafico}
-                cx="50%" cy="50%"
-                innerRadius={36} outerRadius={50}
-                paddingAngle={3}
-                dataKey="value"
-                stroke="none"
-              >
-                {datosGrafico.map((entry, i) => (
-                  <Cell key={i} fill={entry.color} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold tracking-tight text-zinc-900 leading-none">{total}</span>
-            <span className="text-[9px] text-zinc-400 uppercase tracking-widest mt-0.5">total</span>
-          </div>
-        </div>
+        <NeonDonut
+          data={datosGrafico.map((d) => ({ label: d.name, value: d.value, color: d.color }))}
+          size={120}
+          centerValue={total}
+          centerLabel="total"
+        />
 
         <div className="flex-1 space-y-3">
           {datos.length === 0 ? (
-            <p className="text-[12px] text-zinc-600">Sin registros</p>
+            <p className="text-[12px] text-zinc-400">Sin registros</p>
           ) : (
             datos.map((item, i) => (
               <div key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-[12px] font-medium text-zinc-700 capitalize">{item.name}</span>
+                  <span className="text-[12px] font-medium text-zinc-300 capitalize">{item.name}</span>
                 </div>
-                <span className="text-[13px] font-semibold text-zinc-900">{item.value}</span>
+                <span className="text-[13px] font-semibold text-zinc-100">{item.value}</span>
               </div>
             ))
           )}

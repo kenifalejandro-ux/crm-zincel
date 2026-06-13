@@ -1,5 +1,6 @@
 /**client/src/components/reuniones/ReunionForm.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { AlignLeft, Calendar, Clock, Link, StickyNote, AlertCircle, Users, Search } from "lucide-react";
@@ -28,7 +29,7 @@ function TimePicker({ value, onChange, label }: { value: string; onChange: (v: s
   const selCls = "px-2 py-1.5 text-xs bg-zinc-900 border border-zinc-600 rounded-lg text-zinc-200 focus:outline-none focus:ring-2 focus:ring-brand/25 [color-scheme:dark]";
   return (
     <div className="space-y-1.5">
-      <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest">{label}</label>
+      <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest">{label}</label>
       <div className="flex items-center gap-1.5 border-b border-zinc-600 pb-1.5">
         <Clock size={14} className="text-yellow-500 shrink-0" />
         <select value={hh} onChange={e => onChange(`${e.target.value}:${mm || "00"}`)} className={selCls}>
@@ -49,7 +50,7 @@ function TimePicker({ value, onChange, label }: { value: string; onChange: (v: s
 function Field({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest">{label}</label>
+      <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest">{label}</label>
       <div className="flex items-center gap-2.5 border-b border-zinc-600 pb-1.5 focus-within:border-brand transition-colors group">
         <span className="text-yellow-500 shrink-0">{icon}</span>
         {children}
@@ -118,7 +119,7 @@ export function ReunionForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
         {/* Selector de prospecto — solo desde ReunionesPage */}
         {prospectos && (
           <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 space-y-2">
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5">
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5">
               <Users size={11} className="text-yellow-500"/>Prospecto *
             </label>
 
@@ -148,7 +149,7 @@ export function ReunionForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
                   value={busqueda}
                   onChange={e => setBusqueda(e.target.value)}
                   placeholder="Escribe empresa o contacto..."
-                  className="w-full pl-8 pr-3 py-2.5 text-xs bg-zinc-900 border border-zinc-600 rounded-xl text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/50"
+                  className={`${INPUT_BASE} w-full pl-8 pr-3 py-2.5 text-xs border-zinc-600 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/50`}
                 />
                 {busqueda && (
                   <div className="mt-1 max-h-52 overflow-y-auto rounded-xl border border-zinc-600 bg-zinc-900 divide-y divide-zinc-800">
@@ -196,7 +197,7 @@ export function ReunionForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
           </div>
 
           <div>
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block mb-1.5">Modalidad</label>
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest block mb-1.5">Modalidad</label>
             <select value={form.modalidad} onChange={e => set("modalidad", e.target.value)} className={sel}>
               {MODALIDADES.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
             </select>
@@ -210,12 +211,12 @@ export function ReunionForm({ abierto, onCerrar, onGuardado, prospectoId, prospe
 
         {/* Notas */}
         <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4">
-          <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-2">
+          <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-2">
             <StickyNote size={11} className="text-yellow-500"/>Notas
           </label>
           <textarea value={form.notas} onChange={e => set("notas", e.target.value)} rows={3}
             placeholder="Temas a tratar, preparación necesaria..."
-            className="w-full text-xs bg-zinc-900/50 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none" />
+            className={`${INPUT_BASE} w-full text-xs bg-zinc-900/50 border-zinc-700 px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none`} />
         </div>
 
         {error && (

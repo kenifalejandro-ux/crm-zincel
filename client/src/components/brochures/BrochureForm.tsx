@@ -1,5 +1,6 @@
 /**client/src/components/brochures/BrochureForm.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import { useState } from "react";
 import { Calendar, StickyNote, AlertCircle, Mail, MessageCircle, Globe, Camera, Share2, Users } from "lucide-react";
 import type { ReactNode } from "react";
@@ -21,7 +22,7 @@ const sel = "w-full px-3 py-2.5 text-xs bg-zinc-800 border border-yellow-300/30 
 function Field({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest">{label}</label>
+      <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest">{label}</label>
       <div className="flex items-center gap-2.5 border-b border-zinc-600 pb-1.5 focus-within:border-brand transition-colors">
         <span className="text-yellow-500 shrink-0">{icon}</span>
         {children}
@@ -86,7 +87,7 @@ export function BrochureForm({ abierto, onCerrar, onGuardado, prospectoId, prosp
         {/* Selector de prospecto — solo desde BrochuresPage */}
         {prospectos && (
           <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4">
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
               <Users size={11} className="text-yellow-500"/>Prospecto *
             </label>
             <select value={prospectoSel} onChange={e => setProspectoSel(e.target.value)} className={sel}>
@@ -105,7 +106,7 @@ export function BrochureForm({ abierto, onCerrar, onGuardado, prospectoId, prosp
           </Field>
 
           <div>
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest block mb-2">Canal de envío</label>
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest block mb-2">Canal de envío</label>
             <div className="grid grid-cols-2 gap-2">
               {CANALES.map(c => (
                 <button key={c.value} onClick={() => setCanal(c.value)}
@@ -124,12 +125,12 @@ export function BrochureForm({ abierto, onCerrar, onGuardado, prospectoId, prosp
 
         {/* Notas */}
         <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4">
-          <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-2">
+          <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-2">
             <StickyNote size={11} className="text-yellow-500"/>Notas
           </label>
           <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={3}
             placeholder="Ej: Enviado con propuesta de rediseño..."
-            className="w-full text-xs bg-zinc-900/50 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none" />
+            className={`${INPUT_BASE} w-full text-xs bg-zinc-900/50 border-zinc-700 px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none`} />
         </div>
 
         {error && (

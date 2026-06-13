@@ -48,29 +48,29 @@ export function HeatmapHoras({ data }: Props) {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h3 className={HEADER_CLASS}><Clock size={14} className="mr-2.5 text-amber-500" strokeWidth={2} />Mejor hora para llamar</h3>
-          <p className="text-[11px] text-zinc-600 font-medium mt-1">
+          <p className="text-[11px] text-zinc-400 font-medium mt-1">
             Altura = volumen · color = % contestadas · gris = muestra insuficiente (&lt;{MIN_MUESTRA})
           </p>
         </div>
         <div className="text-right space-y-1">
           {mejorHora ? (
             <div>
-              <p className="text-[10px] text-zinc-600">Más efectiva</p>
-              <p className="text-sm font-bold text-zinc-800">{horaLabel(mejorHora.hora)}</p>
-              <p className="text-[10px] text-zinc-700">{mejorHora.tasa}% · {mejorHora.total} llamadas</p>
+              <p className="text-[10px] text-zinc-400">Más efectiva</p>
+              <p className="text-sm font-bold text-zinc-200">{horaLabel(mejorHora.hora)}</p>
+              <p className="text-[10px] text-zinc-300">{mejorHora.tasa}% · {mejorHora.total} llamadas</p>
             </div>
           ) : masVolumen && masVolumen.total > 0 ? (
             <div>
-              <p className="text-[10px] text-zinc-600">Mayor volumen</p>
+              <p className="text-[10px] text-zinc-400">Mayor volumen</p>
               <p className="text-sm font-bold text-brand">{horaLabel(masVolumen.hora)}</p>
-              <p className="text-[10px] text-zinc-600">Muestra aún baja</p>
+              <p className="text-[10px] text-zinc-400">Muestra aún baja</p>
             </div>
           ) : null}
         </div>
       </div>
 
       {data.length === 0 ? (
-        <div className="flex items-center justify-center h-24 text-xs text-zinc-600">
+        <div className="flex items-center justify-center h-24 text-xs text-zinc-400">
           Sin datos para el período seleccionado
         </div>
       ) : (
@@ -101,14 +101,14 @@ export function HeatmapHoras({ data }: Props) {
           <div className="flex gap-1 mt-1">
             {HORAS.map(hora => (
               <div key={hora} className="flex-1 text-center">
-                <span className="text-[9px] text-zinc-600">{horaLabel(hora)}</span>
+                <span className="text-[9px] text-zinc-400">{horaLabel(hora)}</span>
               </div>
             ))}
           </div>
         </>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-zinc-100">
+      <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-white/8">
         {[
           { color: "bg-[#27272a]",          label: "+60%" },
           { color: "bg-brand",          label: "40–60%" },
@@ -117,7 +117,7 @@ export function HeatmapHoras({ data }: Props) {
           { color: "bg-zinc-200 opacity-50", label: `<${MIN_MUESTRA} llamadas` },
           { color: "bg-zinc-100",            label: "Sin datos" },
         ].map(({ color, label }) => (
-          <span key={label} className="flex items-center gap-1 text-[10px] text-zinc-700">
+          <span key={label} className="flex items-center gap-1 text-[10px] text-zinc-300">
             <span className={`w-2.5 h-2.5 rounded-sm ${color} inline-block`} />
             {label}
           </span>

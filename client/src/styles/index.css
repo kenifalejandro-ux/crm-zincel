@@ -3,6 +3,7 @@
 /* 1️⃣ TODOS los imports PRIMERO */
 @import "../styles/section.css";
 @import './tailwind.css';
+@import './neon.css';
 
 
 
@@ -112,25 +113,57 @@ html {
 /* ── Fondo animado — luz solar que viaja de esquina en esquina ── */
 
 /* CSS @property permite animar colores de gradiente directamente */
-@property --sun-x     { syntax: '<percentage>'; inherits: false; initial-value: 10%; }
-@property --sun-y     { syntax: '<percentage>'; inherits: false; initial-value: 90%; }
-@property --sun-color { syntax: '<color>';      inherits: false; initial-value: rgba(255, 210, 80, 0.45); }
+@property --sun-x     { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
+@property --sun-y     { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
+@property --sun-color { syntax: '<color>';      inherits: false; initial-value: rgba(6, 182, 212, 0.18); }
 
 @keyframes sun-travel {
-  0%   { --sun-x: 10%;  --sun-y: 90%; --sun-color: rgba(206, 171, 17,  0.30); } /* gold brand  */
-  25%  { --sun-x: 90%;  --sun-y: 80%; --sun-color: rgba(251, 191, 36,  0.25); } /* amber warm  */
-  50%  { --sun-x: 80%;  --sun-y: 10%; --sun-color: rgba(206, 171, 17,  0.20); } /* gold soft   */
-  75%  { --sun-x: 10%;  --sun-y: 20%; --sun-color: rgba(245, 208, 100, 0.28); } /* yellow warm */
-  100% { --sun-x: 10%;  --sun-y: 90%; --sun-color: rgba(206, 171, 17,  0.30); } /* vuelve      */
+  0%   { --sun-x: 20%;  --sun-y: 80%; --sun-color: rgba(6,  182, 212, 0.18); }
+  25%  { --sun-x: 85%;  --sun-y: 70%; --sun-color: rgba(99,  102, 241, 0.14); }
+  50%  { --sun-x: 75%;  --sun-y: 15%; --sun-color: rgba(6,  182, 212, 0.12); }
+  75%  { --sun-x: 15%;  --sun-y: 25%; --sun-color: rgba(168, 85,  247, 0.15); }
+  100% { --sun-x: 20%;  --sun-y: 80%; --sun-color: rgba(6,  182, 212, 0.18); }
 }
 
 .crm-sun-bg {
   background: radial-gradient(
-    ellipse 90% 90% at var(--sun-x) var(--sun-y),
+    ellipse 70% 70% at var(--sun-x) var(--sun-y),
     var(--sun-color) 0%,
-    transparent 70%
+    transparent 60%
   );
-  animation: sun-travel 18s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: sun-travel 22s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ── Neon glow REAL en Recharts (filtro SVG #neon-glow, ver NeonFilters.tsx) ── */
+/* Líneas */
+.recharts-line-curve {
+  filter: url(#neon-glow-strong);
+}
+/* Áreas */
+.recharts-area-curve {
+  filter: url(#neon-glow);
+}
+/* Barras */
+.recharts-bar-rectangle path,
+.recharts-rectangle.recharts-bar-rectangle {
+  filter: url(#neon-glow);
+}
+/* Sectores de donut/pie */
+.recharts-pie-sector path,
+.recharts-sector {
+  filter: url(#neon-glow);
+}
+/* Radial bars (gauges) */
+.recharts-radial-bar-sector {
+  filter: url(#neon-glow);
+}
+/* Puntos / dots */
+.recharts-dot {
+  filter: url(#neon-glow-strong);
+}
+/* Scatter */
+.recharts-scatter-symbol {
+  filter: url(#neon-glow);
 }
 
 

@@ -1,5 +1,6 @@
 /** client/src/pages/LoginPage.tsx */
 
+import { BADGE_BASE, INPUT_BASE } from "../lib/tokens";
 import { useMemo, useRef, useState } from "react";
 import {
   Eye,
@@ -196,12 +197,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-white overflow-hidden">
+    <div className="min-h-screen flex bg-slate-800/60 overflow-hidden">
       {/* ───────────────────────────────────────────────────────────── */}
       {/* LEFT PANEL */}
       {/* ───────────────────────────────────────────────────────────── */}
 
-      <div className="relative w-full lg:w-[42%] bg-zinc-100 flex items-center justify-center px-7 py-10 overflow-hidden">
+      <div className="relative w-full lg:w-[42%] bg-zinc-800 flex items-center justify-center px-7 py-10 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(206,171,17,0.08),transparent_30%)]" />
 
@@ -221,11 +222,11 @@ export default function LoginPage() {
               </span>
             </div>
 
-            <h1 className="text-[2rem] font-bold tracking-tight text-zinc-900">
+            <h1 className="text-[2rem] font-bold tracking-tight text-zinc-100">
               Zincel CRM
             </h1>
 
-            <p className="text-sm text-zinc-700 mt-2 leading-relaxed">
+            <p className="text-sm text-zinc-300 mt-2 leading-relaxed">
               Gestiona clientes, campañas y ventas desde una
               sola plataforma moderna.
             </p>
@@ -264,7 +265,7 @@ export default function LoginPage() {
           >
             {/* EMAIL */}
             <div>
-              <label className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-zinc-700 mb-2">
+              <label className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-zinc-100 mb-2">
                 Correo electrónico
               </label>
 
@@ -275,23 +276,13 @@ export default function LoginPage() {
                 placeholder="tu@email.com"
                 required
                 onChange={(e) => setEmail(e.target.value)}
-                className="
-                  w-full h-[52px] px-4 rounded-2xl
-                  bg-white border border-zinc-200
-                  text-sm text-zinc-800
-                  placeholder:text-zinc-600
-                  shadow-sm
-                  focus:outline-none
-                  focus:ring-4 focus:ring-amber-500/10
-                  focus:border-amber-500/50
-                  transition-all duration-200
-                "
+                className={`${INPUT_BASE} w-full h-[52px] px-4 text-sm text-zinc-200 placeholder:text-zinc-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/50 transition-all duration-200`}
               />
             </div>
 
             {/* PASSWORD */}
             <div>
-              <label className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-zinc-700 mb-2">
+              <label className="block text-[11px] uppercase tracking-[0.18em] font-semibold text-zinc-100 mb-2">
                 Contraseña
               </label>
 
@@ -303,17 +294,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   required
                   onChange={(e) => setPassword(e.target.value)}
-                  className="
-                    w-full h-[52px] px-4 pr-12 rounded-2xl
-                    bg-white border border-zinc-200
-                    text-sm text-zinc-800
-                    placeholder:text-zinc-600
-                    shadow-sm
-                    focus:outline-none
-                    focus:ring-4 focus:ring-amber-500/10
-                    focus:border-amber-500/50
-                    transition-all duration-200
-                  "
+                  className={`${INPUT_BASE} w-full h-[52px] px-4 pr-12 text-sm text-zinc-200 placeholder:text-zinc-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/50 transition-all duration-200`}
                 />
 
                 <button
@@ -324,7 +305,7 @@ export default function LoginPage() {
                   }
                   className="
                     absolute right-4 top-1/2 -translate-y-1/2
-                    text-zinc-600 hover:text-zinc-700
+                    text-zinc-400 hover:text-zinc-300
                     transition-colors
                   "
                 >
@@ -400,8 +381,8 @@ export default function LoginPage() {
           </motion.form>
 
           {/* FOOTER */}
-          <div className="mt-10 pt-6 border-t border-zinc-200">
-            <p className="text-xs text-zinc-700 text-center">
+          <div className="mt-10 pt-6 border-t border-white/10">
+            <p className="text-xs text-zinc-300 text-center">
               © {currentYear} Zincel CRM · Plataforma de
               gestión comercial
             </p>
@@ -432,14 +413,7 @@ export default function LoginPage() {
         <div className="relative z-10 w-full max-w-2xl">
           {/* BADGE */}
           <motion.div
-            className="
-              inline-flex items-center gap-2
-              px-4 py-2 rounded-full
-              border border-white/10
-              bg-white/[0.04]
-              backdrop-blur-sm
-              mb-8
-            "
+            className={`${BADGE_BASE} inline-flex items-center gap-2 px-4 py-2 border-white/10 bg-white/[0.04] backdrop-blur-sm mb-8`}
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -474,7 +448,7 @@ export default function LoginPage() {
           <motion.p
             className="
               mt-5
-              text-zinc-600
+              text-zinc-400
               text-base
               leading-relaxed
               max-w-xl
@@ -517,7 +491,7 @@ export default function LoginPage() {
               (month) => (
                 <span
                   key={month}
-                  className="text-[11px] text-zinc-600 font-medium"
+                  className="text-[11px] text-zinc-400 font-medium"
                 >
                   {month}
                 </span>
@@ -577,7 +551,7 @@ export default function LoginPage() {
                     {value}
                   </p>
 
-                  <p className="text-[11px] text-zinc-700 mt-1">
+                  <p className="text-[11px] text-zinc-300 mt-1">
                     {label}
                   </p>
                 </motion.div>
@@ -650,7 +624,7 @@ export default function LoginPage() {
             </motion.h3>
 
             <motion.p
-              className="text-zinc-700 text-sm mt-2"
+              className="text-zinc-300 text-sm mt-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.55 }}

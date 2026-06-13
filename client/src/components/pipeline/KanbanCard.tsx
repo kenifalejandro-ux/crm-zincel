@@ -1,5 +1,6 @@
 /**client/src/components/pipeline/KanbanCard.tsx */
 
+import { GLASS_BASE } from "../../lib/tokens";
 import { useState, useRef } from "react";
 import { Phone, User, DollarSign, GripVertical, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import type { Prospecto } from "../../types/prospecto.types";
@@ -117,21 +118,20 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onClick={() => { if (!dragging.current) onClick(p); }}
-        className={`bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:shadow-md
-                   cursor-grab active:cursor-grabbing transition-shadow select-none group ${ringClass}`}
+        className={`${GLASS_BASE} p-3 hover:shadow-md cursor-grab active:cursor-grabbing transition-shadow select-none group ${ringClass}`}
       >
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-1.5 min-w-0">
             <div className={`w-2 h-2 rounded-full shrink-0 ${PRIORIDAD_DOT[p.prioridad]}`} />
-            <p className="text-xs font-semibold text-zinc-800 truncate leading-tight">{p.empresa}</p>
+            <p className="text-xs font-semibold text-zinc-200 truncate leading-tight">{p.empresa}</p>
           </div>
-          <GripVertical size={13} className="text-gray-300 group-hover:text-gray-600 shrink-0 mt-0.5 transition-colors" />
+          <GripVertical size={13} className="text-gray-300 group-hover:text-gray-400 shrink-0 mt-0.5 transition-colors" />
         </div>
 
         {p.nombre_contacto && (
           <div className="flex items-center gap-1.5 mb-1.5">
-            <User size={11} className="text-zinc-600 shrink-0" />
-            <p className="text-[11px] text-zinc-700 truncate">{p.nombre_contacto}</p>
+            <User size={11} className="text-zinc-400 shrink-0" />
+            <p className="text-[11px] text-zinc-300 truncate">{p.nombre_contacto}</p>
           </div>
         )}
         {p.telefono && (
@@ -145,8 +145,8 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-gray-50">
-          <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium truncate ${COLOR_ESTADO[p.estado_lead] ?? "bg-gray-100 text-gray-600"}`}>
+        <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-white/5">
+          <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium truncate ${COLOR_ESTADO[p.estado_lead] ?? "bg-zinc-800 text-gray-400"}`}>
             {LABEL_ESTADO[p.estado_lead] ?? p.estado_lead}
           </span>
           <div className="flex items-center gap-1.5 shrink-0">
@@ -156,7 +156,7 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
               return (
                 <div className="flex flex-col items-end">
                   <span className={`text-[10px] font-bold ${s.text}`}>{s.label} {score}</span>
-                  <span className="text-[9px] text-zinc-600">{prob}% cierre</span>
+                  <span className="text-[9px] text-zinc-400">{prob}% cierre</span>
                 </div>
               );
             })()}
@@ -181,36 +181,36 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onClick={() => { if (!dragging.current) setExpandido(v => !v); }}
-      className={`bg-white border border-gray-100 border-l-4 ${borderColor}  shadow-sm
+      className={`${GLASS_BASE} border-l-4 ${borderColor}
                  hover:shadow-md cursor-pointer transition-shadow select-none group ${ringClass}`}
     >
       {/* Header siempre visible */}
       <div className="flex items-center justify-between gap-2 px-3 py-2.5">
         <div className="flex items-center gap-1.5 min-w-0">
           <div className={`w-2 h-2 rounded-full shrink-0 ${PRIORIDAD_DOT[p.prioridad]}`} />
-          <p className="text-xs font-semibold text-zinc-800 truncate leading-tight">{p.empresa}</p>
+          <p className="text-xs font-semibold text-zinc-200 truncate leading-tight">{p.empresa}</p>
         </div>
         <div className="flex items-center gap-1 shrink-0">
           {montoFmt && (
             <span className="text-[10px] font-semibold text-green-600">{montoFmt}</span>
           )}
-          <GripVertical size={12} className="text-gray-300 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
+          <GripVertical size={12} className="text-gray-300 group-hover:text-gray-400 transition-colors cursor-grab active:cursor-grabbing" />
           {expandido
-            ? <ChevronUp  size={12} className="text-gray-600" />
-            : <ChevronDown size={12} className="text-gray-300 group-hover:text-gray-600 transition-colors" />
+            ? <ChevronUp  size={12} className="text-gray-400" />
+            : <ChevronDown size={12} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
           }
         </div>
       </div>
 
       {/* Contenido expandido */}
       {expandido && (
-        <div className="px-3 pb-3 border-t border-gray-50 pt-2 space-y-2">
+        <div className="px-3 pb-3 border-t border-white/5 pt-2 space-y-2">
 
           {/* Contacto */}
           {p.nombre_contacto && (
             <div className="flex items-center gap-1.5">
               <User size={11} className="text-zinc-400 shrink-0" />
-              <p className="text-[11px] text-zinc-600 truncate">{p.nombre_contacto}</p>
+              <p className="text-[11px] text-zinc-400 truncate">{p.nombre_contacto}</p>
             </div>
           )}
           {p.telefono && (
@@ -227,22 +227,22 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
           {/* Propuestas */}
           {p.propuestas_list && p.propuestas_list.length > 0 && (
             <div className="space-y-1 pt-1">
-              <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
+              <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-widest">
                 {p.propuestas_list.length} propuesta{p.propuestas_list.length > 1 ? "s" : ""}
               </p>
               {p.propuestas_list.map(pr => {
                 const est = ESTADO_PROPUESTA[pr.estado] ?? { label: pr.estado, cls: "bg-zinc-100 text-zinc-500 border-zinc-200" };
                 return (
-                  <div key={pr.id} className="flex items-center justify-between gap-2 rounded-lg bg-zinc-50 px-2 py-1.5 border border-zinc-100">
+                  <div key={pr.id} className="flex items-center justify-between gap-2 rounded-lg bg-zinc-800/40 px-2 py-1.5 border border-white/8">
                     <div className="min-w-0 flex-1">
-                      <p className="text-[11px] font-semibold text-zinc-800 truncate">
+                      <p className="text-[11px] font-semibold text-zinc-200 truncate">
                         {LABEL_SERVICIO[pr.servicio] ?? pr.servicio}
                       </p>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded-full border font-medium ${est.cls}`}>
                         {est.label}
                       </span>
                     </div>
-                    <p className="text-[11px] font-bold text-zinc-900 shrink-0">
+                    <p className="text-[11px] font-bold text-zinc-100 shrink-0">
                       S/ {Number(pr.monto).toLocaleString("es-PE", { maximumFractionDigits: 0 })}
                     </p>
                   </div>
@@ -252,7 +252,7 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
           )}
 
           {/* Score + botón */}
-          <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-gray-50">
+          <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-white/5">
             {score !== undefined && nivel && (() => {
               const s = SCORE_STYLE[nivel];
               const prob = calcularProbabilidad(score);
@@ -266,7 +266,7 @@ export function KanbanCard({ prospecto: p, score, nivel, onDragStart, onClick }:
             <button
               onClick={e => { e.stopPropagation(); onClick(p); }}
               className="flex items-center gap-1 text-[10px] font-medium text-zinc-500
-                         hover:text-zinc-800 hover:bg-zinc-100 rounded-lg px-2 py-1 transition-colors ml-auto"
+                         hover:text-zinc-200 hover:bg-zinc-800 rounded-lg px-2 py-1 transition-colors ml-auto"
             >
               <ExternalLink size={10} /> Detalle
             </button>

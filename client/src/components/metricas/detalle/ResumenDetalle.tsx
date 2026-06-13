@@ -1,5 +1,6 @@
 /** src/components/metricas/detalle/ResumenDetalle.tsx */
 
+import { PANEL_BASE } from "../../../lib/tokens";
 import { MetricasCalculadas } from "../../../utils/metricas.calc";
 import { Metrica }            from "../../../types/metricas.types";
 
@@ -41,10 +42,10 @@ interface KpiBoxProps {
 }
 
 const KpiBox = ({ label, valor, sub }: KpiBoxProps) => (
-  <div className="bg-zinc-50 rounded-xl p-3 space-y-0.5">
-    <p className="text-[10px] text-zinc-600 uppercase tracking-wide">{label}</p>
-    <p className="text-lg font-bold text-zinc-800">{valor}</p>
-    {sub && <p className="text-[10px] text-zinc-600">{sub}</p>}
+  <div className={`${PANEL_BASE} p-3 space-y-0.5`}>
+    <p className="text-[10px] text-zinc-100 uppercase tracking-wide">{label}</p>
+    <p className="text-lg font-bold text-zinc-200">{valor}</p>
+    {sub && <p className="text-[10px] text-zinc-400">{sub}</p>}
   </div>
 );
 
@@ -52,12 +53,12 @@ export const ResumenDetalle = ({ metrica: m, calculado: c }: Props) => (
   <div className="space-y-5">
 
     {/* Health Score */}
-    <div className="flex items-center gap-4 bg-zinc-50 rounded-xl p-4">
+    <div className={`${PANEL_BASE} flex items-center gap-4 p-4`}>
       <div className="text-center">
         <p className={`text-5xl font-black ${COLOR_SCORE[c.health_color]}`}>
           {c.health_score}
         </p>
-        <p className="text-[10px] text-zinc-600 mt-0.5">/ 100</p>
+        <p className="text-[10px] text-zinc-400 mt-0.5">/ 100</p>
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
@@ -65,7 +66,7 @@ export const ResumenDetalle = ({ metrica: m, calculado: c }: Props) => (
             Campaña {c.health_label}
           </span>
         </div>
-        <p className="text-xs text-zinc-700">
+        <p className="text-xs text-zinc-300">
           {c.health_color === "green"  && "Esta campaña está rindiendo muy bien. Considera escalar el presupuesto."}
           {c.health_color === "blue"   && "La campaña tiene buen rendimiento con oportunidades de mejora."}
           {c.health_color === "yellow" && "La campaña necesita optimización. Revisa las métricas en rojo."}
@@ -76,7 +77,7 @@ export const ResumenDetalle = ({ metrica: m, calculado: c }: Props) => (
 
     {/* KPIs calculados */}
     <div>
-      <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wide mb-2">
+      <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wide mb-2">
         Métricas calculadas
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -102,7 +103,7 @@ export const ResumenDetalle = ({ metrica: m, calculado: c }: Props) => (
       m.me_gusta > 0 || m.comentarios > 0 || m.compartidos > 0 || m.guardados > 0 ||
       m.perfil_visitas > 0 || m.reproducciones > 0) && (
       <div>
-        <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wide mb-2">
+        <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wide mb-2">
           Datos de alcance y engagement
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -126,24 +127,24 @@ export const ResumenDetalle = ({ metrica: m, calculado: c }: Props) => (
 
     {/* Semáforos */}
     <div>
-      <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wide mb-2">
+      <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wide mb-2">
         Evaluación vs benchmark de mercado
       </p>
       <div className="space-y-2">
         {Object.entries(c.semaforos).map(([key, s]) => (
           <div
             key={key}
-            className={`border-l-4 ${COLOR_SEMAFORO[s.estado]} bg-zinc-50 rounded-r-xl px-4 py-2.5 flex items-start justify-between gap-4`}
+            className={`border-l-4 ${COLOR_SEMAFORO[s.estado]} bg-zinc-800/40 rounded-r-xl px-4 py-2.5 flex items-start justify-between gap-4`}
           >
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-0.5">
                 <div className={`w-1.5 h-1.5 rounded-full ${COLOR_DOT[s.estado]}`} />
-                <span className="text-xs font-semibold text-zinc-700 uppercase">{key}</span>
-                <span className="text-xs text-zinc-600">Benchmark: {s.benchmark}</span>
+                <span className="text-xs font-semibold text-zinc-100 uppercase">{key}</span>
+                <span className="text-xs text-zinc-400">Benchmark: {s.benchmark}</span>
               </div>
-              <p className="text-xs text-zinc-700">{s.lectura}</p>
+              <p className="text-xs text-zinc-300">{s.lectura}</p>
             </div>
-            <span className="text-sm font-bold text-zinc-800 shrink-0">
+            <span className="text-sm font-bold text-zinc-200 shrink-0">
               {key === "roas" ? `${s.valor}x` :
                key === "frecuencia" ? `${s.valor}x` :
                key === "ctr" ? `${s.valor}%` :

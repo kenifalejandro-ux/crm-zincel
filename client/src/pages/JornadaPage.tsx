@@ -1,5 +1,7 @@
 /**client/src/pages/JornadaPage.tsx */
 
+import { GLASS_BASE, BADGE_BASE, INPUT_BASE, PANEL_BASE } from "../lib/tokens";
+import { NeonDonut } from "../components/ui/NeonDonut";
 import { useEffect, useState, useRef } from "react";
 import {
   Clock, Plus, Trash2, Edit2, Check, X,
@@ -107,21 +109,21 @@ function EmpresaSelector({ value, onChange, prospectos }: {
   return (
     <div ref={ref} className="relative">
       <button type="button" onClick={() => { setAbierto(o => !o); setQuery(""); setCursor(-1); }}
-        className="w-full flex items-center gap-2 px-3 py-2 text-xs border border-gray-200 rounded-lg hover:border-gray-300 bg-white text-left transition">
+        className="w-full flex items-center gap-2 px-3 py-2 text-xs border border-white/10 rounded-lg hover:border-white/15 bg-slate-800/60 text-left transition">
         <Building2 size={13} className="text-zinc-400 shrink-0" />
-        <span className={seleccionada ? "text-zinc-800 flex-1 truncate" : "text-zinc-400 flex-1"}>
+        <span className={seleccionada ? "text-zinc-200 flex-1 truncate" : "text-zinc-400 flex-1"}>
           {seleccionada ? seleccionada.empresa : "Seleccionar empresa (opcional)"}
         </span>
         {seleccionada && (
-          <span onClick={e => { e.stopPropagation(); onChange(null); }} className="text-zinc-400 hover:text-zinc-700">
+          <span onClick={e => { e.stopPropagation(); onChange(null); }} className="text-zinc-400 hover:text-zinc-300">
             <X size={11} />
           </span>
         )}
       </button>
       {abierto && (
-        <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-          <div className="p-2 border-b border-gray-100">
-            <div className="flex items-center gap-2 px-2 py-1.5 bg-gray-50 rounded-lg">
+        <div className="absolute z-50 left-0 right-0 mt-1 bg-slate-800/60 border border-white/10 rounded-xl shadow-lg overflow-hidden">
+          <div className="p-2 border-b border-white/8">
+            <div className="flex items-center gap-2 px-2 py-1.5 bg-zinc-800/40 rounded-lg">
               <Search size={12} className="text-zinc-400" />
               <input
                 autoFocus
@@ -145,7 +147,7 @@ function EmpresaSelector({ value, onChange, prospectos }: {
                       ? "bg-amber-100 text-amber-900 font-semibold"
                       : p.id === value
                         ? "bg-amber-50 text-amber-800 font-semibold"
-                        : "text-zinc-700 hover:bg-amber-50"
+                        : "text-zinc-300 hover:bg-amber-50"
                   }`}>
                   {p.empresa}
                 </button>
@@ -198,20 +200,20 @@ function RegistroForm({ inicial, fechaDefault, prospectos, onGuardar, onCancelar
           <label className="block text-xs text-zinc-500 mb-1">Fecha</label>
           <input type="date" value={form.fecha} max={fechaISO(new Date())}
             onChange={e => setForm(f => ({ ...f, fecha: e.target.value }))}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400" required />
+            className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400`} required />
         </div>
         <div>
           <label className="block text-xs text-zinc-500 mb-1">Horas</label>
           <input type="number" step="0.5" min="0.5" max="24" placeholder="ej. 2.5"
             value={form.horas} onChange={e => setForm(f => ({ ...f, horas: e.target.value }))}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400" required />
+            className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400`} required />
         </div>
       </div>
 
       <div>
         <label className="block text-xs text-zinc-500 mb-1">Servicio</label>
         <select value={form.servicio} onChange={e => setForm(f => ({ ...f, servicio: e.target.value as ServicioJornada }))}
-          className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+          className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400`}>
           {SERVICIOS_JORNADA.map(s => <option key={s} value={s}>{SERVICIO_LABELS[s]}</option>)}
         </select>
       </div>
@@ -219,7 +221,7 @@ function RegistroForm({ inicial, fechaDefault, prospectos, onGuardar, onCancelar
       <div>
         <label className="block text-xs text-zinc-500 mb-1">Actividad</label>
         <select value={form.categoria} onChange={e => setForm(f => ({ ...f, categoria: e.target.value as ActividadJornada }))}
-          className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+          className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400`}>
           {ACTIVIDADES_JORNADA.map(a => <option key={a} value={a}>{ACTIVIDAD_LABELS[a]}</option>)}
         </select>
       </div>
@@ -234,7 +236,7 @@ function RegistroForm({ inicial, fechaDefault, prospectos, onGuardar, onCancelar
         <label className="block text-xs text-zinc-500 mb-1">Descripción <span className="text-zinc-400">(opcional)</span></label>
         <textarea rows={2} placeholder="¿Qué hiciste exactamente?"
           value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))}
-          className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-amber-400" />
+          className={`${INPUT_BASE} w-full px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-amber-400`} />
       </div>
 
       {error && <p className="text-xs text-red-500">{error}</p>}
@@ -246,7 +248,7 @@ function RegistroForm({ inicial, fechaDefault, prospectos, onGuardar, onCancelar
         </button>
         {onCancelar && (
           <button type="button" onClick={onCancelar}
-            className="px-3 py-2 border border-gray-200 text-xs rounded-lg hover:bg-gray-50 transition">
+            className="px-3 py-2 border border-white/10 text-xs rounded-lg hover:bg-zinc-800/40 transition">
             <X size={14} />
           </button>
         )}
@@ -265,14 +267,14 @@ function RegistroItem({ registro, prospectos, onEliminar, onEditar }: {
   const colorActividad = registro.categoria ? ACTIVIDAD_COLORS[registro.categoria] : "#9ca3af";
 
   return (
-    <div className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 hover:border-gray-200 bg-white transition group">
+    <div className={`${PANEL_BASE} flex items-start gap-3 p-3 hover:border-white/10 transition group`}>
       <div className="mt-1 w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: colorServicio }} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold text-zinc-800">
+          <span className="text-xs font-semibold text-zinc-200">
             {registro.servicio ? SERVICIO_LABELS[registro.servicio] : "—"}
           </span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-zinc-500" style={{ borderLeft: `3px solid ${colorActividad}` }}>
+          <span className={`${BADGE_BASE} text-[10px] px-1.5 py-0.5 text-zinc-500`} style={{ borderLeft: `3px solid ${colorActividad}` }}>
             {registro.categoria ? ACTIVIDAD_LABELS[registro.categoria] : "—"}
           </span>
           <span className="text-xs font-bold text-amber-600 ml-auto">{formatHoras(registro.horas)}</span>
@@ -298,7 +300,7 @@ function RegistroItem({ registro, prospectos, onEliminar, onEditar }: {
             <button onClick={() => onEliminar(registro.id)}
               className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition"><Check size={12} /></button>
             <button onClick={() => setConfirmando(false)}
-              className="p-1.5 text-zinc-400 hover:bg-gray-50 rounded-lg transition"><X size={12} /></button>
+              className="p-1.5 text-zinc-400 hover:bg-zinc-800/40 rounded-lg transition"><X size={12} /></button>
           </>
         ) : (
           <button onClick={() => setConfirmando(true)}
@@ -403,7 +405,7 @@ export default function JornadaPage() {
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-zinc-900 flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-zinc-100 flex items-center gap-2">
           <Clock size={22} className="text-amber-500" />
           Mi Jornada
         </h1>
@@ -417,7 +419,7 @@ export default function JornadaPage() {
           { label: "Semana", valor: resumen?.horas_semana ?? 0, color: "text-blue-600"    },
           { label: "Mes",    valor: resumen?.horas_mes    ?? 0, color: "text-emerald-600" },
         ].map(({ label, valor, color }) => (
-          <div key={label} className="bg-white rounded-2xl border border-gray-100 p-5 text-center">
+          <div key={label} className={`${GLASS_BASE} p-5 text-center`}>
             <p className={`text-2xl font-bold ${color}`}>{formatHoras(valor)}</p>
             <p className="text-xs text-zinc-500 mt-0.5">{label}</p>
           </div>
@@ -430,19 +432,19 @@ export default function JornadaPage() {
         <div className="lg:col-span-2 space-y-4">
 
           {/* Lista registros */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-4">
+          <div className={`${GLASS_BASE} p-4`}>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-zinc-700">Registros</span>
+                <span className="text-xs font-semibold text-zinc-300">Registros</span>
                 {totalDia > 0 && (
-                  <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                  <span className={`${BADGE_BASE} text-xs font-bold text-amber-600 px-2 py-0.5`}>
                     {formatHoras(totalDia)}
                   </span>
                 )}
               </div>
               <input type="date" value={fechaFiltro} max={hoy}
                 onChange={e => setFechaFiltro(e.target.value)}
-                className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                className={`${INPUT_BASE} text-xs px-2 py-1 focus:outline-none focus:ring-2 focus:ring-amber-400`} />
             </div>
 
             {cargando ? (
@@ -474,9 +476,9 @@ export default function JornadaPage() {
           </div>
 
           {/* Formulario nuevo registro */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-4">
+          <div className={`${GLASS_BASE} p-4`}>
             <button onClick={() => setMostrarForm(f => !f)}
-              className="flex items-center gap-2 text-xs font-semibold text-zinc-700 w-full mb-3">
+              className="flex items-center gap-2 text-xs font-semibold text-zinc-300 w-full mb-3">
               <Plus size={14} className="text-amber-500" />
               Nuevo registro
               <span className="ml-auto text-zinc-400">{mostrarForm ? "▲" : "▼"}</span>
@@ -491,29 +493,25 @@ export default function JornadaPage() {
         <div className="lg:col-span-3 space-y-4">
 
           {/* Donut por servicio */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+          <div className={`${GLASS_BASE} p-5`}>
             <div className="flex items-center gap-2 mb-4">
               <BarChart2 size={15} className="text-amber-500" />
-              <span className="text-xs font-semibold text-zinc-700">Horas por servicio — este mes</span>
+              <span className="text-xs font-semibold text-zinc-300">Horas por servicio — este mes</span>
             </div>
             {donutServicio.length === 0 ? (
               <div className="text-center py-10 text-xs text-zinc-400">Sin datos aún</div>
             ) : (
               <div className="flex gap-4 items-center">
-                <ResponsiveContainer width={160} height={160}>
-                  <PieChart>
-                    <Pie data={donutServicio} dataKey="value" innerRadius={45} outerRadius={70} paddingAngle={2}>
-                      {donutServicio.map((d, i) => <Cell key={i} fill={d.color} />)}
-                    </Pie>
-                    <Tooltip formatter={(v: any) => formatHoras(Number(v))} contentStyle={{ fontSize: 11, borderRadius: 8 }} />
-                  </PieChart>
-                </ResponsiveContainer>
+                <NeonDonut
+                  data={donutServicio.map((d) => ({ label: d.name, value: d.value, color: d.color }))}
+                  size={160}
+                />
                 <div className="flex-1 space-y-1.5">
                   {donutServicio.map(d => (
                     <div key={d.name} className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
-                      <span className="text-xs text-zinc-600 flex-1 truncate">{d.name}</span>
-                      <span className="text-xs font-semibold text-zinc-800">{formatHoras(d.value)}</span>
+                      <span className="text-xs text-zinc-400 flex-1 truncate">{d.name}</span>
+                      <span className="text-xs font-semibold text-zinc-200">{formatHoras(d.value)}</span>
                     </div>
                   ))}
                 </div>
@@ -522,21 +520,21 @@ export default function JornadaPage() {
           </div>
 
           {/* Barras semana por servicio */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+          <div className={`${GLASS_BASE} p-5`}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <BarChart2 size={15} className="text-blue-500" />
-                <span className="text-xs font-semibold text-zinc-700">Horas por servicio — semana</span>
+                <span className="text-xs font-semibold text-zinc-300">Horas por servicio — semana</span>
               </div>
               <div className="flex items-center gap-1">
-                <button onClick={semanaAnterior} className="p-1 hover:bg-gray-100 rounded-lg transition">
+                <button onClick={semanaAnterior} className="p-1 hover:bg-zinc-800 rounded-lg transition">
                   <ChevronLeft size={14} className="text-zinc-500" />
                 </button>
                 <span className="text-[10px] text-zinc-500 px-1">
                   {dias[0].getDate()} {MES_LABELS[dias[0].getMonth()]} – {dias[6].getDate()} {MES_LABELS[dias[6].getMonth()]}
                 </span>
                 <button onClick={semanaSiguiente} disabled={fechaISO(dias[6]) >= hoy}
-                  className="p-1 hover:bg-gray-100 rounded-lg transition disabled:opacity-30">
+                  className="p-1 hover:bg-zinc-800 rounded-lg transition disabled:opacity-30">
                   <ChevronRight size={14} className="text-zinc-500" />
                 </button>
               </div>
@@ -554,7 +552,7 @@ export default function JornadaPage() {
                   />
                   <Legend formatter={v => SERVICIO_LABELS[v as ServicioJornada] ?? v} wrapperStyle={{ fontSize: 10 }} />
                   {serviciosEnSemana.map(srv => (
-                    <Bar key={srv} dataKey={srv} stackId="a" fill={SERVICIO_COLORS[srv]}
+                    <Bar filter="url(#neon-glow)" key={srv} dataKey={srv} stackId="a" fill={SERVICIO_COLORS[srv]}
                       radius={srv === serviciosEnSemana[serviciosEnSemana.length - 1] ? [3, 3, 0, 0] : [0, 0, 0, 0]} />
                   ))}
                 </BarChart>

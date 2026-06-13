@@ -1,4 +1,5 @@
 /**client/src/prospectos/ProspectosForm.tsx */
+import { INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
 import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import {
@@ -147,7 +148,7 @@ function Field({ icon, label, required, children }: { icon: ReactNode; label: st
       <label className="text-[10px] text-zinc-400 font-medium">
         {label}{required && <span className="text-brand ml-0.5">*</span>}
       </label>
-      <div className="flex items-center gap-2 border-b border-zinc-200 pb-1.5 focus-within:border-brand transition-colors group">
+      <div className="flex items-center gap-2 border-b border-white/10 pb-1.5 focus-within:border-brand transition-colors group">
         <span className="text-yellow-500 group-focus-within:text-brand transition-colors shrink-0">{icon}</span>
         {children}
       </div>
@@ -584,7 +585,7 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
             {/* Cantidad de trabajadores + tamaño auto + plan sugerido */}
             <div>
               <label className="text-[10px] text-zinc-400 font-medium block mb-1">NRO. DE TRABAJADORES</label>
-              <div className="flex items-center gap-2 border-b border-zinc-200 pb-1.5 focus-within:border-brand transition-colors group">
+              <div className="flex items-center gap-2 border-b border-white/10 pb-1.5 focus-within:border-brand transition-colors group">
                 <span className="text-yellow-500 group-focus-within:text-brand transition-colors shrink-0">
                   <Users size={14} />
                 </span>
@@ -642,7 +643,7 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
                       }}
                       className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border transition-all ${
                         activa
-                          ? "bg-brand border-brand text-zinc-900"
+                          ? "bg-brand border-brand text-zinc-100"
                           : "bg-zinc-700 border-zinc-600 text-zinc-300 hover:border-brand/50"
                       }`}
                     >
@@ -856,7 +857,7 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
                     value={(form as any).motivo_perdida_detalle ?? ""}
                     onChange={e => set("motivo_perdida_detalle", e.target.value)}
                     placeholder="Especifica el motivo..."
-                    className="w-full px-3 py-2 text-xs bg-white border border-red-200 rounded-xl text-zinc-700 focus:outline-none focus:ring-2 focus:ring-red-200 transition-all"
+                    className={`${INPUT_BASE} w-full px-3 py-2 text-xs border-red-200 text-zinc-300 focus:outline-none focus:ring-2 focus:ring-red-200 transition-all`}
                   />
                 )}
               </div>
@@ -905,14 +906,14 @@ export function ProspectoForm({ prospecto, onCerrar, onGuardado }: ProspectoForm
         </div>
 
         {/* ── NOTAS ── */}
-        <div className="rounded-2xl border border-zinc-100 bg-white p-5">
+        <div className={`${PANEL_BASE} p-5`}>
           <div className="flex items-center gap-2 mb-3">
             <StickyNote size={13} className="text-brand" />
-            <span className="text-[11px] font-bold text-zinc-600 uppercase tracking-widest">Notas</span>
+            <span className="text-[11px] font-bold text-zinc-100 uppercase tracking-widest">Notas</span>
           </div>
           <textarea value={form.notas} onChange={e => set("notas", e.target.value)} rows={3}
             placeholder="Observaciones generales del prospecto..."
-            className="w-full text-xs bg-zinc-50 border border-zinc-100 rounded-xl px-3 py-2.5 text-zinc-700 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/40 transition-all resize-none" />
+            className={`${INPUT_BASE} w-full text-xs px-3 py-2.5 text-zinc-300 focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand/40 transition-all resize-none`} />
         </div>
 
         {error && (

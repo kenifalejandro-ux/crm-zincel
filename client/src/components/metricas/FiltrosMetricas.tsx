@@ -34,7 +34,7 @@ export const FiltrosMetricas = ({ filtros, empresas, onChange }: Props) => (
     )}
 
     {/* Separador visual */}
-    <div className="h-5 w-px bg-slate-200" />
+    <div className="h-5 w-px bg-slate-700" />
 
     {/* Desde */}
     <div className="flex items-center gap-2">
@@ -62,7 +62,7 @@ export const FiltrosMetricas = ({ filtros, empresas, onChange }: Props) => (
     {(filtros.desde || filtros.hasta) && (
       <button
         onClick={() => onChange({ ...filtros, desde: undefined, hasta: undefined })}
-        className="text-[11px] text-slate-400 hover:text-slate-600 underline transition"
+        className="text-[11px] text-slate-400 hover:text-slate-400 underline transition"
       >
         Limpiar
       </button>

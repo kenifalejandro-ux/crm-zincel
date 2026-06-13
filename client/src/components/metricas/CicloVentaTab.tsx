@@ -1,5 +1,6 @@
 /** src/components/metricas/CicloVentaTab.tsx */
 
+import { GLASS_BASE } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import api from "@/services/api";
 import { TrendingUp, Clock, Calendar } from "lucide-react";
@@ -113,37 +114,37 @@ export function CicloVentaTab({ empresa }: Props) {
 
       {/* KPIs resumen */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-5 flex items-center gap-4">
+        <div className={`${GLASS_BASE} p-5 flex items-center gap-4`}>
           <div className="p-2.5 bg-amber-50 rounded-xl"><Clock size={18} className="text-amber-500" /></div>
           <div>
             <p className="text-xs text-zinc-500">Ciclo promedio</p>
-            <p className="text-xl font-bold text-zinc-900">{promedioDias ? `${promedioDias} días` : "—"}</p>
+            <p className="text-xl font-bold text-zinc-100">{promedioDias ? `${promedioDias} días` : "—"}</p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-5 flex items-center gap-4">
+        <div className={`${GLASS_BASE} p-5 flex items-center gap-4`}>
           <div className="p-2.5 bg-green-50 rounded-xl"><TrendingUp size={18} className="text-green-500" /></div>
           <div>
             <p className="text-xs text-zinc-500">Ventas registradas</p>
-            <p className="text-xl font-bold text-zinc-900">{ventas.length}</p>
+            <p className="text-xl font-bold text-zinc-100">{ventas.length}</p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-5 flex items-center gap-4">
+        <div className={`${GLASS_BASE} p-5 flex items-center gap-4`}>
           <div className="p-2.5 bg-violet-50 rounded-xl"><Calendar size={18} className="text-violet-500" /></div>
           <div>
             <p className="text-xs text-zinc-500">Campañas en historial</p>
-            <p className="text-xl font-bold text-zinc-900">{campanas.length}</p>
+            <p className="text-xl font-bold text-zinc-100">{campanas.length}</p>
           </div>
         </div>
       </div>
 
       {/* Timeline Gantt */}
-      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-6">
-        <h3 className="text-sm font-semibold text-zinc-700 mb-1">Línea de tiempo: campañas y ventas</h3>
+      <div className={`${GLASS_BASE} p-6`}>
+        <h3 className="text-sm font-semibold text-zinc-300 mb-1">Línea de tiempo: campañas y ventas</h3>
         <p className="text-xs text-zinc-400 mb-5">Barras = duración de campaña · Diamantes = fecha de cierre de venta</p>
 
         <div className="relative">
           {/* Eje X — meses */}
-          <div className="relative h-5 mb-3 border-b border-zinc-100">
+          <div className="relative h-5 mb-3 border-b border-white/8">
             {meses.map((m) => (
               <span
                 key={m.label}
@@ -165,7 +166,7 @@ export function CicloVentaTab({ empresa }: Props) {
                 <div key={c.id} className="relative h-7 flex items-center">
                   {/* Línea de fondo */}
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full h-px bg-zinc-50" />
+                    <div className="w-full h-px bg-zinc-800/40" />
                   </div>
                   {/* Barra de campaña */}
                   <div
@@ -196,7 +197,7 @@ export function CicloVentaTab({ empresa }: Props) {
                 title={`Venta ${fmtMonto(Number(v.monto))}\n${v.proyecto}\n${fmtFecha(v.fecha_venta)}`}
               >
                 <div className="flex-1" style={{ borderLeft: "2px dashed #4ade80", opacity: 0.6 }} />
-                <div className={`w-3 h-3 rotate-45 ${s.dot} border-2 border-white shadow-sm`} />
+                <div className={`w-3 h-3 rotate-45 ${s.dot} border-2 border-white/10 shadow-sm`} />
                 <span className="text-[9px] text-green-600 font-semibold mt-0.5 -rotate-45 origin-top-left whitespace-nowrap">
                   {fmtMonto(Number(v.monto))}
                 </span>
@@ -206,7 +207,7 @@ export function CicloVentaTab({ empresa }: Props) {
         </div>
 
         {/* Leyenda */}
-        <div className="flex items-center gap-4 mt-8 pt-4 border-t border-zinc-50">
+        <div className="flex items-center gap-4 mt-8 pt-4 border-t border-white/5">
           {Object.entries(PROY_COLOR).map(([p, s]) => (
             <div key={p} className="flex items-center gap-1.5">
               <div className={`w-3 h-2 rounded-full ${s.bar}`} />
@@ -214,7 +215,7 @@ export function CicloVentaTab({ empresa }: Props) {
             </div>
           ))}
           <div className="flex items-center gap-1.5 ml-2">
-            <div className="w-2.5 h-2.5 rotate-45 bg-green-400 border border-white" />
+            <div className="w-2.5 h-2.5 rotate-45 bg-green-400 border border-white/10" />
             <span className="text-[11px] text-zinc-500">Cierre de venta</span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -225,12 +226,12 @@ export function CicloVentaTab({ empresa }: Props) {
       </div>
 
       {/* Tabla de ciclo por venta */}
-      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-50">
-          <h3 className="text-sm font-semibold text-zinc-700">Ciclo por venta</h3>
+      <div className={`${GLASS_BASE} overflow-hidden`}>
+        <div className="px-5 py-4 border-b border-white/5">
+          <h3 className="text-sm font-semibold text-zinc-300">Ciclo por venta</h3>
           <p className="text-xs text-zinc-400 mt-0.5">Tiempo desde inicio de campaña hasta cierre</p>
         </div>
-        <div className="divide-y divide-zinc-50">
+        <div className="divide-y divide-white/5">
           {ventasConCiclo.map((v) => {
             const proyNorm = v.proyecto?.includes("Alborada") ? "Alborada"
               : v.proyecto?.includes("Villa") ? "Terrenos Villa"
@@ -242,7 +243,7 @@ export function CicloVentaTab({ empresa }: Props) {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className={`w-2.5 h-2.5 rounded-full ${s.dot}`} />
-                    <span className="font-semibold text-zinc-800">{fmtMonto(Number(v.monto))}</span>
+                    <span className="font-semibold text-zinc-200">{fmtMonto(Number(v.monto))}</span>
                     <span className={`text-xs px-1.5 py-0.5 rounded border ${s.chip}`}>{v.proyecto}</span>
                   </div>
                   <span className="text-xs text-zinc-500">Cierre: {fmtFecha(v.fecha_venta)}</span>
@@ -267,17 +268,17 @@ export function CicloVentaTab({ empresa }: Props) {
                           <div className={`w-1.5 h-1.5 rounded-full ${sc.bar} mt-0.5 shrink-0`} />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs text-zinc-700 truncate">{c.campana_nombre}</span>
+                              <span className="text-xs text-zinc-300 truncate">{c.campana_nombre}</span>
                               <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${confCls}`}>{conf}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <div className="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                              <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                                 <div
                                   className={`h-full ${sc.bar} rounded-full`}
                                   style={{ width: `${(dias / maxDias) * 100}%` }}
                                 />
                               </div>
-                              <span className="text-[11px] font-semibold text-zinc-600 shrink-0">{dias} días</span>
+                              <span className="text-[11px] font-semibold text-zinc-400 shrink-0">{dias} días</span>
                               <span className="text-[10px] text-zinc-400 shrink-0">
                                 ({fmtFecha(c.periodo_inicio)} → cierre)
                               </span>

@@ -60,19 +60,19 @@ export function LlamadaHistorial({ prospectoId, onEditar, onEliminar, refetch }:
   );
 
   if (llamadas.length === 0) return (
-    <p className="text-xs text-zinc-800 text-center py-6">Sin llamadas registradas</p>
+    <p className="text-xs text-zinc-200 text-center py-6">Sin llamadas registradas</p>
   );
 
   return (
     <div className="space-y-2">
       {llamadas.map(l => (
-        <div key={l.id} className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition">
-          <div className={`mt-0.5 p-1.5 rounded-lg shrink-0 ${l.contestada ? "bg-green-50 text-green-600" : "bg-gray-100 text-zinc-800"}`}>
+        <div key={l.id} className="flex items-start gap-3 p-3 rounded-lg border border-white/8 hover:bg-zinc-800/40 transition">
+          <div className={`mt-0.5 p-1.5 rounded-lg shrink-0 ${l.contestada ? "bg-green-50 text-green-600" : "bg-zinc-800 text-zinc-200"}`}>
             {l.contestada ? <PhoneCall size={14} /> : <PhoneMissed size={14} />}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-medium text-gray-700 capitalize">{l.canal}</span>
+              <span className="text-xs font-medium text-gray-300 capitalize">{l.canal}</span>
               {l.resultado && (
                 <Badge color={COLORES_RESULTADO[l.resultado] ?? "gray"}>
                   {LABELS[l.resultado] ?? l.resultado}
@@ -83,7 +83,7 @@ export function LlamadaHistorial({ prospectoId, onEditar, onEliminar, refetch }:
                   {l.intentos} intentos
                 </span>
               )}
-              <span className="flex items-center gap-1 text-xs text-zinc-700">
+              <span className="flex items-center gap-1 text-xs text-zinc-300">
                 <Clock size={11} />
                 {new Date(l.fecha).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
                 {l.hora_fin && <> – {l.hora_fin.slice(0, 5)}</>}
@@ -101,10 +101,10 @@ export function LlamadaHistorial({ prospectoId, onEditar, onEliminar, refetch }:
                 }
               </p>
             )}
-            {l.notas && <p className="text-xs text-zinc-800 mt-1 truncate">{l.notas}</p>}
+            {l.notas && <p className="text-xs text-zinc-200 mt-1 truncate">{l.notas}</p>}
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <span className="text-xs text-zinc-800 mr-1">
+            <span className="text-xs text-zinc-200 mr-1">
               {new Date(l.fecha).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
             </span>
             {onEditar && (

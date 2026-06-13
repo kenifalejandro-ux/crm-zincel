@@ -26,8 +26,8 @@ export function KpisReuniones({ total, programadas, realizadas, canceladas }: Pr
           <div className={`inline-flex p-2 rounded-lg ${k.bg} ${k.color} mb-3`}>
             {k.icon}
           </div>
-          <p className="text-2xl font-semibold text-zinc-800">{k.valor}</p>
-          <p className="text-xs text-zinc-600 mt-0.5">{k.label}</p>
+          <p className="text-2xl font-semibold text-zinc-200">{k.valor}</p>
+          <p className="text-xs text-zinc-400 mt-0.5">{k.label}</p>
         </div>
       ))}
     </div>

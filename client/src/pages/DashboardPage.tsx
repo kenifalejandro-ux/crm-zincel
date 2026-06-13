@@ -1,7 +1,7 @@
 /**client/src/pages/DashboardPage.tsx */
 
 import { useEffect, useState } from "react";
-import { CARD_CLASS, HEADER_CLASS } from "../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, GLASS_BASE, BADGE_BASE } from "../lib/tokens";
 import { ChevronDown, ChevronLeft, ChevronRight, CheckSquare, AlertCircle, Clock, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown as ChevronDownIcon } from "lucide-react";
@@ -234,7 +234,7 @@ export default function DashboardPage() {
           <div className="crm-section-accent h-8" />
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Análisis</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight">Análisis</h1>
               {actualizando && (
                 <div className="w-3.5 h-3.5 rounded-full border-2 border-brand border-t-transparent animate-spin" />
               )}
@@ -244,7 +244,7 @@ export default function DashboardPage() {
           <div className="relative">
             <button
               onClick={() => { setDropdownModulo(v => !v); setIntelAbierto(false); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg transition"
             >
               Dashboard <ChevronDownIcon size={16} />
             </button>
@@ -254,7 +254,7 @@ export default function DashboardPage() {
                 {/* Backdrop para cerrar al click fuera */}
                 <div className="fixed inset-0 z-40" onClick={() => { setDropdownModulo(false); setIntelAbierto(false); }} />
 
-                <div className="absolute left-0 top-[calc(100%+6px)] z-50 bg-white border border-zinc-100 rounded-xl shadow-xl w-56 py-1.5">
+                <div className="absolute left-0 top-[calc(100%+6px)] z-50 bg-slate-800/60 border border-white/8 rounded-xl shadow-xl w-56 py-1.5">
 
                   {/* Dashboard — activo */}
                   <button className="w-full  text-left px-3 py-2 text-xs font-semibold text-brand bg-brand/5 flex items-center gap-2">
@@ -264,18 +264,18 @@ export default function DashboardPage() {
                   {/* Objetivos */}
                   <button
                     onClick={() => { navigate("/objetivos"); setDropdownModulo(false); }}
-                    className="w-full text-left px-3 py-2 text-xs text-zinc-700 hover:bg-zinc-50 hover:text-brand transition flex items-center gap-2"
+                    className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800/40 hover:text-brand transition flex items-center gap-2"
                   >
                     🎯 Objetivos
                   </button>
 
                   {/* Separador */}
-                  <div className="mx-3 my-1 border-t border-zinc-100" />
+                  <div className="mx-3 my-1 border-t border-white/8" />
 
                   {/* Inteligencia — sección colapsable */}
                   <button
                     onClick={() => setIntelAbierto(v => !v)}
-                    className="w-full text-left px-3 py-2 text-xs font-semibold text-zinc-500 hover:text-zinc-800 flex items-center justify-between transition"
+                    className="w-full text-left px-3 py-2 text-xs font-semibold text-zinc-500 hover:text-zinc-200 flex items-center justify-between transition"
                   >
                     <span>🧠 Inteligencia</span>
                     <ChevronDown size={12} className={`transition-transform ${intelAbierto ? "rotate-180" : ""}`} />
@@ -296,7 +296,7 @@ export default function DashboardPage() {
                         <button
                           key={m.id}
                           onClick={() => { navigate("/inteligencia", { state: { modulo: m.id } }); setDropdownModulo(false); setIntelAbierto(false); }}
-                          className="w-full text-left pl-6 pr-3 py-1.5 text-xs text-zinc-600 hover:bg-zinc-50 hover:text-brand transition flex items-center gap-2"
+                          className="w-full text-left pl-6 pr-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800/40 hover:text-brand transition flex items-center gap-2"
                         >
                           <span>{m.emoji}</span> {m.label}
                         </button>
@@ -319,7 +319,7 @@ export default function DashboardPage() {
               className={`px-4 py-2 rounded-lg text-xs font-medium transition-all
                 ${filtroPeriodo === p
                   ? "bg-brand text-white shadow-sm"
-                  : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"}`}>
+                  : "bg-slate-800/60 border border-white/10 text-zinc-300 hover:bg-zinc-800/40"}`}>
               {p === "hoy" ? "Hoy" : "Semana"}
             </button>
           ))}
@@ -331,7 +331,7 @@ export default function DashboardPage() {
               className={`flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-medium transition-all
                 ${filtroPeriodo === "mes"
                   ? "bg-brand text-white shadow-sm"
-                  : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"}`}>
+                  : "bg-slate-800/60 border border-white/10 text-zinc-300 hover:bg-zinc-800/40"}`}>
               <Calendar size={12} />
               {filtroPeriodo === "mes"
                 ? `${MESES_CORTO[mesSeleccionado.mes]} ${mesSeleccionado.anio}`
@@ -340,19 +340,19 @@ export default function DashboardPage() {
             </button>
 
             {pickerAbierto && (
-              <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4 w-56">
+              <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-slate-800/60 border border-white/10 rounded-xl shadow-xl p-4 w-56">
                 {/* Nav año */}
                 <div className="flex items-center justify-between mb-3">
                   <button
                     onClick={() => setAnioNavegando(y => y - 1)}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50">
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-white/10 hover:bg-zinc-800/40">
                     <ChevronLeft size={14} />
                   </button>
-                  <span className="text-xs font-semibold text-zinc-800">{anioNavegando}</span>
+                  <span className="text-xs font-semibold text-zinc-200">{anioNavegando}</span>
                   <button
                     onClick={() => setAnioNavegando(y => y + 1)}
                     disabled={anioNavegando >= hoy.getFullYear()}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-30">
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-white/10 hover:bg-zinc-800/40 disabled:opacity-30">
                     <ChevronRight size={14} />
                   </button>
                 </div>
@@ -372,8 +372,8 @@ export default function DashboardPage() {
                         }}
                         className={`py-1.5 text-xs rounded-lg transition capitalize ${
                           esActual  ? "bg-brand text-white font-semibold" :
-                          esFuturo  ? "text-zinc-700 cursor-not-allowed" :
-                                      "text-zinc-600 hover:bg-brand/5 hover:text-brand"
+                          esFuturo  ? "text-zinc-300 cursor-not-allowed" :
+                                      "text-zinc-400 hover:bg-brand/5 hover:text-brand"
                         }`}>
                         {m}
                       </button>
@@ -389,7 +389,7 @@ export default function DashboardPage() {
             className={`px-4 py-2 rounded-lg text-xs font-medium transition-all
               ${filtroPeriodo === "anio"
                 ? "bg-brand text-white shadow-sm"
-                : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"}`}>
+                : "bg-slate-800/60 border border-white/10 text-zinc-300 hover:bg-zinc-800/40"}`}>
             Año
           </button>
 
@@ -400,14 +400,14 @@ export default function DashboardPage() {
               className={`flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-medium transition-all
                 ${filtroPeriodo === "dia"
                   ? "bg-brand text-white shadow-sm"
-                  : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"}`}>
+                  : "bg-slate-800/60 border border-white/10 text-zinc-300 hover:bg-zinc-800/40"}`}>
               <Calendar size={12} />
               {filtroPeriodo === "dia" ? formatDiaBtn(diaSeleccionado) : "Día"}
               <ChevronDown size={12} />
             </button>
 
             {calAbierto && (
-              <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4 w-72">
+              <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-slate-800/60 border border-white/10 rounded-xl shadow-xl p-4 w-72">
                 {/* Nav mes/año */}
                 <div className="flex items-center justify-between mb-3">
                   <button
@@ -415,10 +415,10 @@ export default function DashboardPage() {
                       const d = new Date(n.anio, n.mes - 1, 1);
                       return { mes: d.getMonth(), anio: d.getFullYear() };
                     })}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50">
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-white/10 hover:bg-zinc-800/40">
                     <ChevronLeft size={14} />
                   </button>
-                  <span className="text-xs font-semibold text-zinc-800">
+                  <span className="text-xs font-semibold text-zinc-200">
                     {MESES_FULL[calNav.mes]} {calNav.anio}
                   </span>
                   <button
@@ -426,7 +426,7 @@ export default function DashboardPage() {
                       const d = new Date(n.anio, n.mes + 1, 1);
                       return { mes: d.getMonth(), anio: d.getFullYear() };
                     })}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50">
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-white/10 hover:bg-zinc-800/40">
                     <ChevronRight size={14} />
                   </button>
                 </div>
@@ -434,7 +434,7 @@ export default function DashboardPage() {
                 {/* Cabecera días */}
                 <div className="grid grid-cols-7 mb-1">
                   {DIAS_SEMANA.map(d => (
-                    <div key={d} className="text-center text-[10px] font-semibold text-zinc-600 py-1">{d}</div>
+                    <div key={d} className="text-center text-[10px] font-semibold text-zinc-400 py-1">{d}</div>
                   ))}
                 </div>
 
@@ -452,7 +452,7 @@ export default function DashboardPage() {
                           w-full aspect-square flex items-center justify-center rounded-lg text-xs font-medium transition-all
                           ${seleccionado ? "bg-brand text-white" :
                             esHoy        ? "border-2 border-brand text-brand" :
-                                           "text-zinc-700 hover:bg-brand/5"}
+                                           "text-zinc-300 hover:bg-brand/5"}
                         `}>
                         {dia}
                       </button>
@@ -537,15 +537,15 @@ export default function DashboardPage() {
       {resumenTareas && (
         <div
           onClick={() => navigate("/tareas")}
-          className="bg-white border border-gray-100 rounded-2xl p-4 cursor-pointer hover:shadow-md transition-shadow"
+          className={`${GLASS_BASE} p-4 cursor-pointer hover:shadow-md transition-shadow`}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <CheckSquare size={16} className="text-amber-500" />
-              <p className="text-sm font-semibold text-zinc-800">Tareas pendientes</p>
+              <p className="text-sm font-semibold text-zinc-200">Tareas pendientes</p>
             </div>
             {(resumenTareas.vencidas + resumenTareas.hoy) > 0 && (
-              <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-600 font-semibold">
+              <span className={`${BADGE_BASE} px-2 py-0.5 text-xs text-red-600 font-semibold`}>
                 {resumenTareas.vencidas + resumenTareas.hoy} urgentes
               </span>
             )}

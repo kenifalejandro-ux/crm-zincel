@@ -1,0 +1,18 @@
+{
+  // Usar el TypeScript del proyecto (5.9.3): soporta moduleResolution "bundler"
+  // y el campo "exports" de react-router-dom v7. Evita el "cannot find module".
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // No indexar los worktrees de agentes (copias paralelas con tsconfig viejo
+  // que rompían los tipos de react-router-dom / react en el editor).
+  "files.exclude": {
+    "**/.claude/worktrees": true
+  },
+  "files.watcherExclude": {
+    "**/.claude/worktrees/**": true
+  },
+  "search.exclude": {
+    "**/.claude/worktrees": true
+  }
+}

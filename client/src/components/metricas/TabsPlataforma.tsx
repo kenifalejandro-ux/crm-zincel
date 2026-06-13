@@ -104,7 +104,7 @@ export function TabsPlataforma({ activa, onChange }: Props) {
             </button>
 
             {estaAbierto && (
-              <div className="absolute top-full left-0 mt-1.5 z-50 bg-white border border-slate-200 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.10)] py-1.5 min-w-[170px]">
+              <div className="absolute top-full left-0 mt-1.5 z-50 bg-slate-800/60 border border-white/10 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.10)] py-1.5 min-w-[170px]">
                 {grupo.tabs.map(tab => (
                   <button
                     key={tab.value}
@@ -112,7 +112,7 @@ export function TabsPlataforma({ activa, onChange }: Props) {
                     className={`w-full flex items-center gap-2.5 px-4 py-2 text-xs text-left transition ${
                       activa === tab.value
                         ? "bg-brand/8 font-bold text-amber-700"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+                        : "text-slate-400 hover:bg-slate-800/40 hover:text-slate-200"
                     }`}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${tab.dot}`} />

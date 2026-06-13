@@ -1,5 +1,5 @@
 /** client/src/components/dashboard/ReunionesChart.tsx */
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
 import {
   RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer, Tooltip,
 } from "recharts";
@@ -17,9 +17,9 @@ const TooltipReuniones = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-1.5 text-xs">
-      <p className="font-semibold text-zinc-800">{d.name}</p>
-      <p className="text-zinc-600">{d.value} reunión{d.value !== 1 ? "es" : ""}</p>
+    <div className={`${TOOLTIP_BASE} px-3 py-1.5 text-xs`}>
+      <p className="font-semibold text-zinc-200">{d.name}</p>
+      <p className="text-zinc-400">{d.value} reunión{d.value !== 1 ? "es" : ""}</p>
     </div>
   );
 };
@@ -58,7 +58,7 @@ export function ReunionesChart({ metricas }: Props) {
               endAngle={-270}
             >
               <PolarAngleAxis type="number" domain={[0, maxVal]} angleAxisId={0} tick={false} />
-              <RadialBar
+              <RadialBar filter="url(#neon-glow)"
                 background={{ fill: "#f4f4f5" }}
                 dataKey="value"
                 cornerRadius={4}
@@ -71,8 +71,8 @@ export function ReunionesChart({ metricas }: Props) {
         {/* Leyenda + conteos */}
         <div className="flex-1 space-y-3">
           <div className="text-center mb-2">
-            <p className="text-2xl font-bold text-zinc-900 leading-none">{total}</p>
-            <p className="text-[9px] text-zinc-400 uppercase tracking-widest mt-0.5">total</p>
+            <p className="text-2xl font-bold text-zinc-100 leading-none">{total}</p>
+            <p className="text-[9px] text-zinc-100 uppercase tracking-widest mt-0.5">total</p>
           </div>
           {[...REUNIONES_ITEMS].reverse().map((item, i) => {
             const valor = (metricas.reuniones as any)[item.key] as number;
@@ -80,9 +80,9 @@ export function ReunionesChart({ metricas }: Props) {
               <div key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.fill }} />
-                  <span className="text-[12px] font-medium text-zinc-700">{item.label}</span>
+                  <span className="text-[12px] font-medium text-zinc-300">{item.label}</span>
                 </div>
-                <span className="text-[13px] font-semibold text-zinc-900">{valor}</span>
+                <span className="text-[13px] font-semibold text-zinc-100">{valor}</span>
               </div>
             );
           })}

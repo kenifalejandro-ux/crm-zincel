@@ -8,7 +8,7 @@ import {
 import {
   Trophy, AlertTriangle, Lightbulb, CheckCircle2, Zap,
 } from "lucide-react";
-import { CARD_CLASS, COLORS } from "../../lib/tokens";
+import { CARD_CLASS, COLORS, BADGE_BASE } from "../../lib/tokens";
 import { getAnalisisPipeline } from "../../services/propuestas.api";
 import type { ServicioAnalisis } from "../../services/propuestas.api";
 import { LABEL_SERVICIO } from "../../types/propuesta.types";
@@ -174,7 +174,7 @@ export function InsightServicios() {
       <div className="flex items-center gap-2">
         <Zap size={14} className="text-brand shrink-0" />
         <div>
-          <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Inteligencia por servicio</p>
+          <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Inteligencia por servicio</p>
           <p className="text-[10px] text-zinc-400 mt-0.5">Qué servicios venden más, cuáles se pierden y dónde está el dinero</p>
         </div>
       </div>
@@ -190,9 +190,9 @@ export function InsightServicios() {
               contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
               cursor={{ fill: "rgba(0,0,0,0.03)" }}
             />
-            <Bar dataKey="Ganadas"  fill="#16a34a"      radius={[3, 3, 0, 0]} barSize={12} />
-            <Bar dataKey="Activas"  fill={COLORS.primary} radius={[3, 3, 0, 0]} barSize={12} />
-            <Bar dataKey="Perdidas" fill={COLORS.danger} radius={[3, 3, 0, 0]} barSize={12} />
+            <Bar filter="url(#neon-glow)" dataKey="Ganadas"  fill="#16a34a"      radius={[3, 3, 0, 0]} barSize={12} />
+            <Bar filter="url(#neon-glow)" dataKey="Activas"  fill={COLORS.primary} radius={[3, 3, 0, 0]} barSize={12} />
+            <Bar filter="url(#neon-glow)" dataKey="Perdidas" fill={COLORS.danger} radius={[3, 3, 0, 0]} barSize={12} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -201,32 +201,28 @@ export function InsightServicios() {
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-zinc-100">
-              <th className="text-left py-2 px-3 text-zinc-500 font-medium">Servicio</th>
-              <th className="text-center py-2 pr-2 text-zinc-500 font-medium">Activas</th>
+            <tr className="border-b border-white/8">
+              <th className="text-left py-2 px-3 text-zinc-100 font-medium">Servicio</th>
+              <th className="text-center py-2 pr-2 text-zinc-100 font-medium">Activas</th>
               <th className="text-center py-2 pr-2 text-green-600 font-medium">Ganadas</th>
               <th className="text-center py-2 pr-2 text-red-500 font-medium">Perdidas</th>
-              <th className="text-right py-2 pr-2 text-zinc-500 font-medium">Ingresos</th>
-              <th className="text-center py-2 pr-3 text-zinc-500 font-medium">Cierre %</th>
+              <th className="text-right py-2 pr-2 text-zinc-100 font-medium">Ingresos</th>
+              <th className="text-center py-2 pr-3 text-zinc-100 font-medium">Cierre %</th>
             </tr>
           </thead>
           <tbody>
             {datos.map(r => {
               const c = convRate(r.ganadas, r.perdidas);
               return (
-                <tr key={r.servicio} className="border-b border-zinc-50 hover:bg-zinc-50 transition">
-                  <td className="py-2.5 px-3 font-medium text-zinc-800">{lbl(r.servicio)}</td>
-                  <td className="py-2.5 pr-2 text-center text-zinc-600">{r.enviadas + r.en_negociacion}</td>
+                <tr key={r.servicio} className="border-b border-white/5 hover:bg-zinc-800/40 transition">
+                  <td className="py-2.5 px-3 font-medium text-zinc-200">{lbl(r.servicio)}</td>
+                  <td className="py-2.5 pr-2 text-center text-zinc-400">{r.enviadas + r.en_negociacion}</td>
                   <td className="py-2.5 pr-2 text-center font-semibold text-green-700">{r.ganadas}</td>
                   <td className="py-2.5 pr-2 text-center text-red-500">{r.perdidas}</td>
-                  <td className="py-2.5 pr-2 text-right text-zinc-700">{r.monto_ganado > 0 ? fmt(r.monto_ganado) : "—"}</td>
+                  <td className="py-2.5 pr-2 text-right text-zinc-300">{r.monto_ganado > 0 ? fmt(r.monto_ganado) : "—"}</td>
                   <td className="py-2.5 pr-3 text-center">
                     {c !== null
-                      ? <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                          c >= 60 ? "bg-green-100 text-green-700"
-                          : c >= 30 ? "bg-yellow-50 text-yellow-700"
-                          : "bg-red-50 text-red-500"
-                        }`}>{c}%</span>
+                      ? <span className={`${BADGE_BASE} text-[10px] font-bold px-1.5 py-0.5 ${ c >= 60 ? "bg-green-100 text-green-700" : c >= 30 ? "bg-yellow-50 text-yellow-700" : "bg-red-50 text-red-500" }`}>{c}%</span>
                       : <span className="text-[10px] text-zinc-300">—</span>
                     }
                   </td>
@@ -240,13 +236,13 @@ export function InsightServicios() {
       {/* Insights automáticos */}
       {insights.length > 0 && (
         <div className="space-y-2">
-          <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider pt-1">Análisis automático</p>
+          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wider pt-1">Análisis automático</p>
           {insights.map((ins, i) => (
             <div key={i} className={`flex items-start gap-3 rounded-xl p-3 ${INSIGHT_BG[ins.tipo]}`}>
               {INSIGHT_ICON[ins.tipo]}
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold text-zinc-800 mb-0.5">{ins.titulo}</p>
-                <p className="text-[11px] text-zinc-600 leading-relaxed">{ins.texto}</p>
+                <p className="text-[11px] font-semibold text-zinc-200 mb-0.5">{ins.titulo}</p>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">{ins.texto}</p>
               </div>
             </div>
           ))}

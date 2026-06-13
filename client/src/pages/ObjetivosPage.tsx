@@ -43,7 +43,7 @@ export default function ObjetivosPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 tracking-tight">Objetivos</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-zinc-100 tracking-tight">Objetivos</h1>
           <p className="text-xs text-zinc-400 mt-1">Metas operativas diarias — llamadas, reuniones, brochures y propuestas</p>
         </div>
         <FiltroPeriodoBotones

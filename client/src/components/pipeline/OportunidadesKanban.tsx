@@ -1,5 +1,6 @@
 /** client/src/components/pipeline/OportunidadesKanban.tsx */
 
+import { GLASS_BASE, BADGE_BASE, PANEL_BASE } from "../../lib/tokens";
 import { useEffect, useRef, useState } from "react";
 import { Phone, Building2, MapPin, TrendingUp, Trophy, AlertCircle, GripVertical, ChevronDown, ChevronUp } from "lucide-react";
 import { getKanbanOportunidades, actualizarPropuesta, type OportunidadKanban } from "../../services/propuestas.api";
@@ -68,26 +69,26 @@ function OportunidadCard({
       onDragStart={() => { dragging.current = true; onDragStart(op.id); }}
       onDragEnd={() => setTimeout(() => { dragging.current = false; }, 100)}
       onClick={() => { if (!dragging.current) setExpandido(v => !v); }}
-      className="bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md cursor-pointer transition-shadow select-none group"
+      className={`${GLASS_BASE} hover:shadow-md cursor-pointer transition-shadow select-none group`}
     >
       {/* Header siempre visible */}
       <div className="flex items-center justify-between gap-2 px-3 py-2.5">
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold text-zinc-800 truncate">{op.empresa}</p>
+          <p className="text-xs font-semibold text-zinc-200 truncate">{op.empresa}</p>
           {op.nombre_contacto && (
             <p className="text-[11px] text-zinc-500 truncate mt-0.5">{op.nombre_contacto}</p>
           )}
         </div>
         <div className="flex items-center gap-1 shrink-0">
           {montoNum > 0 && <span className="text-[10px] font-semibold text-green-600">{fmt(montoNum)}</span>}
-          <GripVertical size={12} className="text-gray-300 group-hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing" />
-          {expandido ? <ChevronUp size={12} className="text-gray-600" /> : <ChevronDown size={12} className="text-gray-300 group-hover:text-gray-600 transition-colors" />}
+          <GripVertical size={12} className="text-gray-300 group-hover:text-gray-400 transition-colors cursor-grab active:cursor-grabbing" />
+          {expandido ? <ChevronUp size={12} className="text-gray-400" /> : <ChevronDown size={12} className="text-gray-300 group-hover:text-gray-400 transition-colors" />}
         </div>
       </div>
 
       {/* Tags siempre visibles */}
       <div className="flex items-center gap-1.5 px-3 pb-2">
-        <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${SERVICIO_COLOR[op.servicio] ?? "bg-zinc-100 text-zinc-600"}`}>
+        <span className={`${BADGE_BASE} text-[9px] font-semibold px-1.5 py-0.5 ${SERVICIO_COLOR[op.servicio] ?? "bg-zinc-800 text-zinc-400"}`}>
           {SERVICIO_LABEL[op.servicio] ?? op.servicio}
         </span>
         {op.ciudad && <span className="text-[9px] text-zinc-400">{op.ciudad}</span>}
@@ -95,7 +96,7 @@ function OportunidadCard({
 
       {/* Contenido expandido */}
       {expandido && (
-        <div className="px-3 pb-3 border-t border-gray-50 pt-2 space-y-2">
+        <div className="px-3 pb-3 border-t border-white/5 pt-2 space-y-2">
 
           {op.descripcion && (
             <p className="text-[11px] text-zinc-500 leading-relaxed">{op.descripcion}</p>
@@ -104,7 +105,7 @@ function OportunidadCard({
           {op.telefono && (
             <div className="flex items-center gap-1.5">
               <Phone size={11} className="text-zinc-400 shrink-0" />
-              <p className="text-[11px] text-zinc-600">{op.telefono}</p>
+              <p className="text-[11px] text-zinc-400">{op.telefono}</p>
             </div>
           )}
 
@@ -115,9 +116,9 @@ function OportunidadCard({
               { label: "Negociación",  val: op.fecha_negociacion },
               { label: "Cierre",       val: op.fecha_cierre },
             ].filter(f => f.val).map(f => (
-              <div key={f.label} className="bg-zinc-50 rounded-lg px-2 py-1">
+              <div key={f.label} className="bg-zinc-800/40 rounded-lg px-2 py-1">
                 <p className="text-[9px] text-zinc-400">{f.label}</p>
-                <p className="text-[10px] font-semibold text-zinc-700">
+                <p className="text-[10px] font-semibold text-zinc-300">
                   {new Date(f.val!).toLocaleDateString("es-PE", { day: "2-digit", month: "short" })}
                 </p>
               </div>
@@ -134,7 +135,7 @@ function OportunidadCard({
 
           {/* Monto cerrado si aplica */}
           {op.monto_cerrado && op.monto_cerrado > 0 && op.estado === "cerrada_ganada" && (
-            <div className="flex items-center justify-between pt-1 border-t border-gray-50">
+            <div className="flex items-center justify-between pt-1 border-t border-white/5">
               <span className="text-[10px] text-zinc-400">Monto cerrado</span>
               <span className="text-[11px] font-bold text-green-600">
                 {fmt(op.moneda === "USD" ? op.monto_cerrado * op.tipo_cambio : op.monto_cerrado)}
@@ -258,25 +259,25 @@ export function OportunidadesKanban() {
       {/* Stats globales */}
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-6 shrink-0">
-          <div className="bg-white border border-zinc-100 rounded-xl p-3 text-center">
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wide">Pipeline activo</p>
+          <div className={`${GLASS_BASE} p-3 text-center`}>
+            <p className="text-[10px] text-zinc-100 uppercase tracking-wide">Pipeline activo</p>
             <p className="text-lg font-bold text-amber-600">{fmt(stats.total_activo)}</p>
           </div>
-          <div className="bg-white border border-zinc-100 rounded-xl p-3 text-center">
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wide">Ganado total</p>
+          <div className={`${GLASS_BASE} p-3 text-center`}>
+            <p className="text-[10px] text-zinc-100 uppercase tracking-wide">Ganado total</p>
             <p className="text-lg font-bold text-green-600">{fmt(stats.total_ganado)}</p>
           </div>
           {porEmpresa[0] && (
-            <div className="bg-white border border-zinc-100 rounded-xl p-3 text-center">
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wide flex items-center justify-center gap-1"><Trophy size={10} /> Mejor empresa</p>
-              <p className="text-sm font-bold text-zinc-800 truncate" title={porEmpresa[0].empresa}>{nombreCorto(porEmpresa[0].empresa)}</p>
+            <div className={`${GLASS_BASE} p-3 text-center`}>
+              <p className="text-[10px] text-zinc-100 uppercase tracking-wide flex items-center justify-center gap-1"><Trophy size={10} /> Mejor empresa</p>
+              <p className="text-sm font-bold text-zinc-200 truncate" title={porEmpresa[0].empresa}>{nombreCorto(porEmpresa[0].empresa)}</p>
               <p className="text-[10px] text-zinc-500">{porEmpresa[0].tasa}% cierre · {porEmpresa[0].ganadas}/{porEmpresa[0].total}</p>
             </div>
           )}
           {porServicio[0] && (
-            <div className="bg-white border border-zinc-100 rounded-xl p-3 text-center">
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wide flex items-center justify-center gap-1"><TrendingUp size={10} /> Mejor servicio</p>
-              <p className="text-sm font-bold text-zinc-800 truncate">{porServicio[0].servicio}</p>
+            <div className={`${GLASS_BASE} p-3 text-center`}>
+              <p className="text-[10px] text-zinc-100 uppercase tracking-wide flex items-center justify-center gap-1"><TrendingUp size={10} /> Mejor servicio</p>
+              <p className="text-sm font-bold text-zinc-200 truncate">{porServicio[0].servicio}</p>
               <p className="text-[10px] text-zinc-500">{porServicio[0].tasa}% cierre · {porServicio[0].ganadas}/{porServicio[0].total}</p>
             </div>
           )}
@@ -295,7 +296,7 @@ export function OportunidadesKanban() {
           return (
             <div
               key={col.key}
-              className={`flex flex-col shrink-0 w-72 rounded-2xl border-t-2 bg-zinc-50 ${col.color} ${dragOver === col.key ? "ring-2 ring-brand/40" : ""}`}
+              className={`${PANEL_BASE} flex flex-col shrink-0 w-72 border-t-2 ${col.color} ${dragOver === col.key ? "ring-2 ring-brand/40" : ""}`}
               onDragOver={e => { e.preventDefault(); setDragOver(col.key); }}
               onDragLeave={() => setDragOver(null)}
               onDrop={() => handleDrop(col.key)}
@@ -304,20 +305,20 @@ export function OportunidadesKanban() {
               <div className="px-4 py-3 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
                   <span className={`w-2.5 h-2.5 rounded-full ${col.dot}`} />
-                  <span className="text-sm font-semibold text-zinc-800">{col.label}</span>
-                  <span className="text-xs bg-white border border-zinc-200 text-zinc-600 px-1.5 py-0.5 rounded-full font-medium">
+                  <span className="text-sm font-semibold text-zinc-200">{col.label}</span>
+                  <span className={`${BADGE_BASE} text-xs text-zinc-400 px-1.5 py-0.5 font-medium`}>
                     {ops.length}
                   </span>
                 </div>
                 {totalCol > 0 && (
-                  <span className="text-xs font-bold text-zinc-700">{fmt(totalCol)}</span>
+                  <span className="text-xs font-bold text-zinc-300">{fmt(totalCol)}</span>
                 )}
               </div>
 
               {/* Cards */}
               <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2 min-h-[200px]">
                 {ops.length === 0 ? (
-                  <div className="flex items-center justify-center h-24 border-2 border-dashed border-zinc-200 rounded-xl">
+                  <div className="flex items-center justify-center h-24 border-2 border-dashed border-white/10 rounded-xl">
                     <p className="text-[11px] text-zinc-400">Arrastra aquí</p>
                   </div>
                 ) : ops.map(op => (
@@ -339,19 +340,19 @@ export function OportunidadesKanban() {
 
           {/* Por empresa */}
           {porEmpresa.length > 0 && (
-            <div className="bg-white border border-zinc-100 rounded-2xl p-4">
+            <div className={`${GLASS_BASE} p-4`}>
               <div className="flex items-center gap-2 mb-3">
                 <Building2 size={13} className="text-zinc-500" />
-                <p className="text-[11px] font-bold text-zinc-600 uppercase tracking-wide">Tasa de cierre por empresa</p>
+                <p className="text-[11px] font-bold text-zinc-100 uppercase tracking-wide">Tasa de cierre por empresa</p>
               </div>
               <div className="space-y-2.5">
                 {porEmpresa.map(e => (
                   <div key={e.empresa}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[11px] text-zinc-700 truncate max-w-[60%]">{e.empresa}</span>
-                      <span className="text-[11px] font-bold text-zinc-800">{e.tasa}% · {e.ganadas}/{e.total}</span>
+                      <span className="text-[11px] text-zinc-300 truncate max-w-[60%]">{e.empresa}</span>
+                      <span className="text-[11px] font-bold text-zinc-200">{e.tasa}% · {e.ganadas}/{e.total}</span>
                     </div>
-                    <div className="h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                       <div className="h-full rounded-full bg-brand transition-all" style={{ width: `${e.tasa}%` }} />
                     </div>
                   </div>
@@ -362,19 +363,19 @@ export function OportunidadesKanban() {
 
           {/* Por servicio */}
           {porServicio.length > 0 && (
-            <div className="bg-white border border-zinc-100 rounded-2xl p-4">
+            <div className={`${GLASS_BASE} p-4`}>
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp size={13} className="text-zinc-500" />
-                <p className="text-[11px] font-bold text-zinc-600 uppercase tracking-wide">Tasa de cierre por servicio</p>
+                <p className="text-[11px] font-bold text-zinc-100 uppercase tracking-wide">Tasa de cierre por servicio</p>
               </div>
               <div className="space-y-2.5">
                 {porServicio.map(s => (
                   <div key={s.servicio}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[11px] text-zinc-700">{s.servicio}</span>
-                      <span className="text-[11px] font-bold text-zinc-800">{s.tasa}% · {s.ganadas}/{s.total}</span>
+                      <span className="text-[11px] text-zinc-300">{s.servicio}</span>
+                      <span className="text-[11px] font-bold text-zinc-200">{s.tasa}% · {s.ganadas}/{s.total}</span>
                     </div>
-                    <div className="h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                       <div className="h-full rounded-full bg-zinc-800 transition-all" style={{ width: `${s.tasa}%` }} />
                     </div>
                   </div>

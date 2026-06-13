@@ -1,5 +1,6 @@
 /** client/src/components/metricas/ModalEditarMetrica.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import { useState, useEffect } from "react";
 import { ModalEditar }         from "../ui/ModalEditar";
 import { Input }               from "../ui/Input";
@@ -88,7 +89,7 @@ export function metricaToForm(m: Metrica): FormEditarMetrica {
 
 const Seccion = ({ titulo, children }: { titulo: string; children: React.ReactNode }) => (
   <div className="space-y-2">
-    <p className="text-[11px] font-semibold text-zinc-600 uppercase tracking-wide">{titulo}</p>
+    <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wide">{titulo}</p>
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">{children}</div>
   </div>
 );
@@ -102,7 +103,7 @@ const Campo = ({
   calculado?: boolean;
 }) => (
   <div>
-    <label className="text-xs text-zinc-700 mb-1 block">
+    <label className="text-xs text-zinc-300 mb-1 block">
       {label}
       {calculado && <span className="ml-1 text-[10px] text-blue-400 font-normal">· auto</span>}
     </label>
@@ -110,11 +111,7 @@ const Campo = ({
       type="number" min="0" value={value}
       onChange={(e) => onChange(e.target.value)}
       readOnly={calculado}
-      className={`w-full border rounded-lg px-3 py-2 text-xs focus:outline-none transition ${
-        calculado
-          ? "border-zinc-100 bg-zinc-50 text-zinc-600 cursor-not-allowed"
-          : "border-zinc-200 focus:ring-2 focus:ring-brand/50"
-      }`}
+      className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none transition ${ calculado ? "border-white/8 text-zinc-400 cursor-not-allowed" : "border-white/10 focus:ring-2 focus:ring-brand/50" }`}
       placeholder="0"
     />
   </div>
@@ -199,13 +196,13 @@ export function ModalEditarMetrica({ metrica, guardando, error, onGuardar, onCer
         {/* Plataforma */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-zinc-700 mb-1 block">Plataforma *</label>
+            <label className="text-xs text-zinc-300 mb-1 block">Plataforma *</label>
             <select
               value={form.plataforma}
               onChange={(e) =>
                 setForm((f) => ({ ...f, plataforma: e.target.value as Plataforma, sub_plataforma: "" }))
               }
-              className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
+              className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
             >
               <option value="meta">Meta Ads</option>
               <option value="google">Google Ads</option>
@@ -214,11 +211,11 @@ export function ModalEditarMetrica({ metrica, guardando, error, onGuardar, onCer
           </div>
           {form.plataforma === "meta" && (
             <div>
-              <label className="text-xs text-zinc-700 mb-1 block">Red social</label>
+              <label className="text-xs text-zinc-300 mb-1 block">Red social</label>
               <select
                 value={form.sub_plataforma}
                 onChange={(e) => set("sub_plataforma", e.target.value)}
-                className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
+                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
               >
                 <option value="">Ambas</option>
                 <option value="facebook">Facebook</option>
@@ -278,12 +275,12 @@ export function ModalEditarMetrica({ metrica, guardando, error, onGuardar, onCer
         </Seccion>
 
         <div>
-          <label className="text-xs text-zinc-700 mb-1 block">Notas</label>
+          <label className="text-xs text-zinc-300 mb-1 block">Notas</label>
           <textarea
             value={form.notas}
             onChange={(e) => set("notas", e.target.value)}
             rows={2}
-            className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
+            className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none`}
             placeholder="Observaciones opcionales..."
           />
         </div>

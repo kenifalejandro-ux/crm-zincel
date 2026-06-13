@@ -154,8 +154,8 @@ export default function BrochuresPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Brochures</h1>
-          <p className="text-xs text-zinc-600 mt-0.5">{brochures.length} envíos registrados</p>
+          <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">Brochures</h1>
+          <p className="text-xs text-zinc-400 mt-0.5">{brochures.length} envíos registrados</p>
         </div>
         <div className="flex gap-2">
           <TableBulkActions count={seleccionados.length} onDelete={eliminarSeleccionados} />

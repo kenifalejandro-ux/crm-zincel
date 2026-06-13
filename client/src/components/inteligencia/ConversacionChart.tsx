@@ -1,7 +1,7 @@
 /** client/src/components/inteligencia/ConversacionChart.tsx */
 
 import { useEffect, useState } from "react";
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, PANEL_BASE } from "../../lib/tokens";
 import { MessageSquare, ArrowRight, Clock } from "lucide-react";
 import { getInteligenciaConversacion, getLeadsPorEstado, type InteligenciaConversacion } from "../../services/inteligencia.api";
 import { DrilldownModal } from "./DrilldownModal";
@@ -107,8 +107,8 @@ export function ConversacionChart({ filtros, periodoLabel }: Props) {
         </div>
         {mejorAccion && (
           <div className="shrink-0 text-right">
-            <p className="text-[9px] text-zinc-400 uppercase tracking-wider">Acción más frecuente</p>
-            <p className="text-[12px] font-bold text-zinc-800 mt-0.5">
+            <p className="text-[9px] text-zinc-100 uppercase tracking-wider">Acción más frecuente</p>
+            <p className="text-[12px] font-bold text-zinc-200 mt-0.5">
               {ACCION_LABEL[mejorAccion.accion_acordada] ?? mejorAccion.accion_acordada}
             </p>
             <p className="text-[10px] text-zinc-500">{mejorAccion.total} veces</p>
@@ -119,7 +119,7 @@ export function ConversacionChart({ filtros, periodoLabel }: Props) {
       {/* ── Acciones acordadas ── */}
       {data.acciones_acordadas.length > 0 && (
         <div>
-          <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold mb-3 flex items-center gap-1.5">
+          <p className="text-[10px] text-zinc-100 uppercase tracking-widest font-semibold mb-3 flex items-center gap-1.5">
             <ArrowRight size={10} />Acción acordada al colgar
           </p>
           <div className="space-y-2.5">
@@ -128,17 +128,17 @@ export function ConversacionChart({ filtros, periodoLabel }: Props) {
               const color = ACCION_COLORS[item.accion_acordada] ?? COLORS.mutedDark;
               return (
                 <div key={item.accion_acordada} className="flex items-center gap-3">
-                  <span className="text-[11px] text-zinc-600 w-32 shrink-0 truncate">
+                  <span className="text-[11px] text-zinc-400 w-32 shrink-0 truncate">
                     {ACCION_LABEL[item.accion_acordada] ?? item.accion_acordada}
                   </span>
-                  <div className="flex-1 h-6 bg-zinc-100 rounded-md overflow-hidden">
+                  <div className="flex-1 h-6 bg-zinc-800 rounded-md overflow-hidden">
                     <div
                       className="h-full rounded-md transition-all duration-700"
                       style={{ width: `${pct}%`, backgroundColor: color }}
                     />
                   </div>
                   <div className="w-20 shrink-0 flex items-center justify-end gap-1.5">
-                    <span className="text-[11px] font-bold text-zinc-700">{pct}%</span>
+                    <span className="text-[11px] font-bold text-zinc-300">{pct}%</span>
                     <span className="text-[10px] text-zinc-400">({item.total})</span>
                   </div>
                 </div>
@@ -150,8 +150,8 @@ export function ConversacionChart({ filtros, periodoLabel }: Props) {
 
       {/* ── Resultados de llamadas contestadas ── */}
       {data.resultados_contestadas.length > 0 && (
-        <div className="pt-2 border-t border-zinc-100">
-          <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold mb-3 flex items-center gap-1.5">
+        <div className="pt-2 border-t border-white/8">
+          <p className="text-[10px] text-zinc-100 uppercase tracking-widest font-semibold mb-3 flex items-center gap-1.5">
             <MessageSquare size={10} />Estado de prospectos contactados
           </p>
           <div className="space-y-2">
@@ -163,18 +163,18 @@ export function ConversacionChart({ filtros, periodoLabel }: Props) {
                 <button
                   key={item.resultado}
                   onClick={() => abrirDrilldown(item.resultado, label)}
-                  className="w-full flex items-center gap-3 hover:bg-zinc-50 rounded-lg px-1 py-0.5 transition group"
+                  className="w-full flex items-center gap-3 hover:bg-zinc-800/40 rounded-lg px-1 py-0.5 transition group"
                 >
-                  <span className="text-[11px] text-zinc-600 w-32 shrink-0 truncate text-left group-hover:text-zinc-900">
+                  <span className="text-[11px] text-zinc-400 w-32 shrink-0 truncate text-left group-hover:text-zinc-100">
                     {label}
                   </span>
-                  <div className="flex-1 h-5 bg-zinc-100 rounded-md overflow-hidden">
+                  <div className="flex-1 h-5 bg-zinc-800 rounded-md overflow-hidden">
                     <div
                       className="h-full rounded-md transition-all duration-700"
                       style={{ width: `${pct}%`, backgroundColor: color }}
                     />
                   </div>
-                  <span className="text-[11px] font-semibold text-zinc-600 w-8 shrink-0 text-right">
+                  <span className="text-[11px] font-semibold text-zinc-400 w-8 shrink-0 text-right">
                     {item.total}
                   </span>
                 </button>
@@ -189,17 +189,17 @@ export function ConversacionChart({ filtros, periodoLabel }: Props) {
 
       {/* ── Duración por resultado ── */}
       {data.duracion_por_resultado.length > 0 && (
-        <div className="pt-2 border-t border-zinc-100">
-          <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold mb-3 flex items-center gap-1.5">
+        <div className="pt-2 border-t border-white/8">
+          <p className="text-[10px] text-zinc-100 uppercase tracking-widest font-semibold mb-3 flex items-center gap-1.5">
             <Clock size={10} />Duración promedio por resultado
           </p>
           <div className="grid grid-cols-2 gap-2">
             {data.duracion_por_resultado.slice(0, 4).map(item => (
-              <div key={item.resultado} className="bg-zinc-50 rounded-xl px-3 py-2.5">
+              <div key={item.resultado} className={`${PANEL_BASE} px-3 py-2.5`}>
                 <p className="text-[10px] text-zinc-400 truncate">
                   {RESULTADO_LABEL[item.resultado] ?? item.resultado}
                 </p>
-                <p className="text-[16px] font-bold text-zinc-800 leading-tight">
+                <p className="text-[16px] font-bold text-zinc-200 leading-tight">
                   {item.duracion_prom} <span className="text-[10px] font-normal text-zinc-400">min</span>
                 </p>
                 <p className="text-[9px] text-zinc-400">{item.total} llamadas</p>

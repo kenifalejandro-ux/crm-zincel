@@ -1,6 +1,6 @@
 /** client/src/components/inteligencia/AbandonoPipeline.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { XCircle } from "lucide-react";
@@ -30,9 +30,9 @@ const TooltipBar = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm p-2.5 text-xs">
-      <p className="font-semibold text-zinc-800 truncate max-w-[200px]">{d.label ?? d.motivo}</p>
-      <p className="text-zinc-600 mt-0.5">{d.total} ocurrencia{d.total !== 1 ? "s" : ""}</p>
+    <div className={`${TOOLTIP_BASE} p-2.5 text-xs`}>
+      <p className="font-semibold text-zinc-200 truncate max-w-[200px]">{d.label ?? d.motivo}</p>
+      <p className="text-zinc-400 mt-0.5">{d.total} ocurrencia{d.total !== 1 ? "s" : ""}</p>
     </div>
   );
 };
@@ -75,18 +75,18 @@ export function AbandonoPipelineChart() {
           </div>
           <div>
             <h3 className={HEADER_CLASS}>Análisis de abandono del pipeline</h3>
-            <p className="text-[11px] text-zinc-600">{totalPerdidos} leads perdidos/descartados · ¿dónde y por qué se pierden?</p>
+            <p className="text-[11px] text-zinc-400">{totalPerdidos} leads perdidos/descartados · ¿dónde y por qué se pierden?</p>
           </div>
         </div>
 
         {/* Toggle capas */}
-        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-zinc-800 rounded-lg p-1">
           <button
             onClick={() => setCapa("primer_contacto")}
             className={`px-3 py-1 text-xs rounded-md transition ${
               capa === "primer_contacto"
-                ? "bg-white shadow-sm text-zinc-800 font-medium"
-                : "text-zinc-700 hover:text-zinc-700"
+                ? "bg-slate-800/60 shadow-sm text-zinc-200 font-medium"
+                : "text-zinc-300 hover:text-zinc-300"
             }`}
           >
             📞 Primer contacto
@@ -95,8 +95,8 @@ export function AbandonoPipelineChart() {
             onClick={() => setCapa("propuesta")}
             className={`px-3 py-1 text-xs rounded-md transition ${
               capa === "propuesta"
-                ? "bg-white shadow-sm text-zinc-800 font-medium"
-                : "text-zinc-700 hover:text-zinc-700"
+                ? "bg-slate-800/60 shadow-sm text-zinc-200 font-medium"
+                : "text-zinc-300 hover:text-zinc-300"
             }`}
           >
             📄 Etapa propuesta
@@ -107,26 +107,26 @@ export function AbandonoPipelineChart() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {/* Abandono por etapa del pipeline */}
         <div>
-          <p className="text-xs font-medium text-zinc-700 mb-2">Pérdidas por etapa del pipeline</p>
+          <p className="text-xs font-medium text-zinc-300 mb-2">Pérdidas por etapa del pipeline</p>
           <div className="space-y-2">
             {data.por_etapa.length === 0 ? (
-              <p className="text-xs text-zinc-700 text-center py-4">Sin datos de pérdida</p>
+              <p className="text-xs text-zinc-300 text-center py-4">Sin datos de pérdida</p>
             ) : (
               data.por_etapa.map((e) => {
                 const pct   = totalPerdidos > 0 ? Math.round((e.total / totalPerdidos) * 100) : 0;
                 const color = ETAPA_COLOR[e.etapa] ?? COLORS.muted;
                 return (
                   <div key={e.etapa} className="flex items-center gap-2">
-                    <span className="text-[10px] text-zinc-700 w-20 shrink-0">
+                    <span className="text-[10px] text-zinc-300 w-20 shrink-0">
                       {ETAPA_LABEL[e.etapa] ?? e.etapa}
                     </span>
-                    <div className="flex-1 bg-zinc-100 rounded-full h-2">
+                    <div className="flex-1 bg-zinc-800 rounded-full h-2">
                       <div
                         className="h-2 rounded-full transition-all"
-                        style={{ width: `${Math.max(pct, 2)}%`, background: color }}
+                        style={{ width: `${Math.max(pct, 2)}%`, background: color, boxShadow: `0 0 6px ${color}` }}
                       />
                     </div>
-                    <span className="text-[10px] font-semibold text-zinc-600 w-8 text-right">{e.total}</span>
+                    <span className="text-[10px] font-semibold text-zinc-400 w-8 text-right">{e.total}</span>
                   </div>
                 );
               })
@@ -136,7 +136,7 @@ export function AbandonoPipelineChart() {
 
         {/* Motivos según capa seleccionada */}
         <div>
-          <p className="text-xs font-medium text-zinc-700 mb-2">
+          <p className="text-xs font-medium text-zinc-300 mb-2">
             {capa === "primer_contacto"
               ? "Motivos — no interesado (llamadas)"
               : "Motivos — venta perdida (propuestas)"
@@ -144,26 +144,26 @@ export function AbandonoPipelineChart() {
           </p>
 
           {capa === "primer_contacto" && (
-            <p className="text-[10px] text-zinc-600 mb-2">
+            <p className="text-[10px] text-zinc-400 mb-2">
               ¿Por qué el cliente rechazó en el primer contacto?
             </p>
           )}
           {capa === "propuesta" && (
-            <p className="text-[10px] text-zinc-600 mb-2">
+            <p className="text-[10px] text-zinc-400 mb-2">
               ¿Por qué se cayó la venta en etapa de propuesta/negociación?
             </p>
           )}
 
           {motivoActivo.length === 0 ? (
             <div className="text-center py-6">
-              <p className="text-xs text-zinc-600">Sin motivos registrados</p>
+              <p className="text-xs text-zinc-400">Sin motivos registrados</p>
               {capa === "propuesta" && (
-                <p className="text-[10px] text-zinc-700 mt-1">
+                <p className="text-[10px] text-zinc-300 mt-1">
                   Selecciona el motivo al marcar una propuesta como "Cerrada perdida" o "Vencida"
                 </p>
               )}
               {capa === "primer_contacto" && (
-                <p className="text-[10px] text-zinc-700 mt-1">
+                <p className="text-[10px] text-zinc-300 mt-1">
                   Selecciona el motivo al registrar una llamada con resultado "No interesado"
                 </p>
               )}
@@ -186,7 +186,7 @@ export function AbandonoPipelineChart() {
                   width={95}
                 />
                 <Tooltip content={<TooltipBar />} cursor={{ fill: COLORS.surface }} />
-                <Bar dataKey="total" radius={[0, 4, 4, 0]}>
+                <Bar filter="url(#neon-glow)" dataKey="total" radius={[0, 4, 4, 0]}>
                   {motivoActivo.map((_, i) => (
                     <Cell
                       key={i}
@@ -203,7 +203,7 @@ export function AbandonoPipelineChart() {
           )}
 
           {motivoActivo.length > 0 && (
-            <p className="text-[10px] text-zinc-600 mt-1 text-right">
+            <p className="text-[10px] text-zinc-400 mt-1 text-right">
               {totalActivo} registros con motivo
             </p>
           )}
@@ -213,29 +213,29 @@ export function AbandonoPipelineChart() {
       {/* Cruce etapa × motivo */}
       {data.cruce.length > 0 && (
         <div>
-          <p className="text-xs font-medium text-zinc-700 mb-2">Cruce etapa × motivo (primer contacto)</p>
+          <p className="text-xs font-medium text-zinc-300 mb-2">Cruce etapa × motivo (primer contacto)</p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left py-1.5 text-zinc-600 font-medium">Etapa</th>
-                  <th className="text-left py-1.5 text-zinc-600 font-medium">Motivo</th>
-                  <th className="text-right py-1.5 pr-1 text-zinc-600 font-medium">Leads</th>
+                <tr className="border-b border-white/8">
+                  <th className="text-left py-1.5 text-zinc-100 font-medium">Etapa</th>
+                  <th className="text-left py-1.5 text-zinc-100 font-medium">Motivo</th>
+                  <th className="text-right py-1.5 pr-1 text-zinc-100 font-medium">Leads</th>
                 </tr>
               </thead>
               <tbody>
                 {data.cruce.slice(0, 8).map((c, i) => (
-                  <tr key={i} className="border-b border-gray-50">
+                  <tr key={i} className="border-b border-white/5">
                     <td className="py-1.5">
                       <span
                         className="px-2 py-0.5 rounded-full text-[10px] font-medium text-white"
-                        style={{ background: ETAPA_COLOR[c.etapa] ?? COLORS.muted }}
+                        style={{ background: ETAPA_COLOR[c.etapa] ?? COLORS.muted, boxShadow: `0 0 6px ${ETAPA_COLOR[c.etapa] ?? COLORS.muted}` }}
                       >
                         {ETAPA_LABEL[c.etapa] ?? c.etapa}
                       </span>
                     </td>
-                    <td className="py-1.5 text-zinc-600 max-w-[180px] truncate">{c.motivo}</td>
-                    <td className="py-1.5 pr-1 text-right font-semibold text-zinc-700">{c.total}</td>
+                    <td className="py-1.5 text-zinc-400 max-w-[180px] truncate">{c.motivo}</td>
+                    <td className="py-1.5 pr-1 text-right font-semibold text-zinc-300">{c.total}</td>
                   </tr>
                 ))}
               </tbody>

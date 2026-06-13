@@ -4,6 +4,7 @@
  * Se muestra en la parte superior de MetricasPage si hay alertas activas.
  */
 
+import { GLASS_BASE } from "../../lib/tokens";
 import { useState, useEffect } from "react";
 import { AlertTriangle, X, TrendingDown, Users, Target } from "lucide-react";
 import { getAlertasMetricas, type AlertaMetrica } from "../../services/metricas.api";
@@ -53,29 +54,29 @@ export const AlertasMetricas = ({ empresa }: Props) => {
   const visibles = expanded ? alertas : alertas.slice(0, 3);
 
   return (
-    <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-zinc-50 border-b border-zinc-100">
+    <div className={`${GLASS_BASE} overflow-hidden`}>
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/30">
         <AlertTriangle size={14} className="text-amber-500" />
-        <span className="text-xs font-semibold text-zinc-700">
+        <span className="text-xs font-semibold text-zinc-300">
           {alertas.length} alerta{alertas.length !== 1 ? "s" : ""} detectada{alertas.length !== 1 ? "s" : ""}
         </span>
         {alertas.length > 3 && (
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-[11px] text-zinc-400 hover:text-zinc-600 ml-1 underline underline-offset-2"
+            className="text-[11px] text-zinc-400 hover:text-zinc-400 ml-1 underline underline-offset-2"
           >
             {expanded ? "ver menos" : `+${alertas.length - 3} más`}
           </button>
         )}
         <button
           onClick={() => setCerrado(true)}
-          className="ml-auto p-1 rounded hover:bg-zinc-200 text-zinc-400 hover:text-zinc-600 transition"
+          className="ml-auto p-1 rounded hover:bg-zinc-700 text-zinc-400 hover:text-zinc-400 transition"
         >
           <X size={13} />
         </button>
       </div>
 
-      <div className="divide-y divide-zinc-50">
+      <div className="divide-y divide-white/5">
         {visibles.map((a, i) => {
           const cfg = TIPO_CONFIG[a.tipo];
           return (
@@ -85,7 +86,7 @@ export const AlertasMetricas = ({ empresa }: Props) => {
                 {cfg.label}
               </span>
               <div className="min-w-0">
-                <p className="text-xs text-zinc-800 truncate">
+                <p className="text-xs text-zinc-200 truncate">
                   <span className="font-medium">{a.campana_nombre}</span>
                   <span className="text-zinc-400 ml-1">· {PLAT_LABEL[a.plataforma] ?? a.plataforma}</span>
                   {a.empresa && empresa !== a.empresa && (

@@ -1,6 +1,6 @@
 /** src/components/metricas/MetricasBarChart.tsx */
 
-import { CARD_CLASS, HEADER_CLASS, COLORS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, COLORS, TOOLTIP_BASE } from "../../lib/tokens";
 import {
   RadarChart, PolarGrid, PolarAngleAxis,
   Radar, ResponsiveContainer, Tooltip, Legend,
@@ -26,8 +26,8 @@ const LABELS: Record<string, string> = {
 const TooltipRadar = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-2 text-xs space-y-1">
-      <p className="font-semibold text-zinc-800">{payload[0]?.payload?.metric}</p>
+    <div className={`${TOOLTIP_BASE} px-3 py-2 text-xs space-y-1`}>
+      <p className="font-semibold text-zinc-200">{payload[0]?.payload?.metric}</p>
       {payload.map((p: any, i: number) => (
         <p key={i} style={{ color: p.color }}>
           {p.name}: {p.value.toLocaleString("es-PE")}
@@ -52,7 +52,7 @@ export const MetricasBarChart = ({ metricas }: Props) => {
   const plataformas = Object.keys(mapa);
 
   if (!plataformas.length) return (
-    <div className="flex items-center justify-center h-40 text-xs text-zinc-600">
+    <div className="flex items-center justify-center h-40 text-xs text-zinc-400">
       Sin datos para graficar
     </div>
   );
@@ -81,7 +81,7 @@ export const MetricasBarChart = ({ metricas }: Props) => {
           <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: "#71717a", fontWeight: 500 }} />
           <Tooltip content={<TooltipRadar />} />
           {plataformas.map(p => (
-            <Radar
+            <Radar filter="url(#neon-glow)"
               key={p}
               name={LABELS[p] ?? p}
               dataKey={p}

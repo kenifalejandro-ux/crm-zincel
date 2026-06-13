@@ -1,5 +1,6 @@
 /** client/src/components/metricas/RentabilidadTab.tsx */
 
+import { GLASS_BASE, BADGE_BASE, PANEL_BASE } from "../../lib/tokens";
 import { useState, useMemo, useEffect } from "react";
 import { DollarSign } from "lucide-react";
 import { Metrica } from "../../types/metricas.types";
@@ -261,7 +262,7 @@ export function RentabilidadTab(props: Props) {
 
   if (!empresaEfectiva) {
     return (
-      <div className="flex items-start gap-3 bg-zinc-50 border border-dashed border-zinc-300 rounded-xl px-5 py-6 text-xs text-zinc-500">
+      <div className={`${PANEL_BASE} flex items-start gap-3 border-dashed px-5 py-6 text-xs text-zinc-500`}>
         <DollarSign size={16} className="mt-0.5 text-zinc-400 shrink-0" />
         <p>Selecciona una empresa en los filtros para ver el análisis de {modo === "roi" ? "ROI" : "ROAS"} atribuido.</p>
       </div>
@@ -277,16 +278,16 @@ export function RentabilidadTab(props: Props) {
           <div className="flex items-center gap-2">
             <span className="text-base">💰</span>
             <div>
-              <p className="text-sm font-semibold text-zinc-800">{modo === "roi" ? "ROI atribuido" : "ROAS atribuido"}</p>
+              <p className="text-sm font-semibold text-zinc-200">{modo === "roi" ? "ROI atribuido" : "ROAS atribuido"}</p>
               <p className="text-xs text-zinc-500">{modo === "roi"
                 ? "Evaluación del retorno neto sobre ventas atribuibles."
                 : "Evaluación del retorno por cada sol invertido en campañas con ventas atribuidas."}</p>
             </div>
-            <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+            <span className={`${BADGE_BASE} text-[10px] text-green-700 px-2 py-0.5 font-medium`}>
               {retornoAtribuido.totalVentas} {retornoAtribuido.totalVentas === 1 ? "venta" : "ventas"} registradas
             </span>
             {sectorActivo && (
-              <span className="text-[10px] bg-violet-50 text-violet-600 border border-violet-200 px-2 py-0.5 rounded-full font-medium">
+              <span className={`${BADGE_BASE} text-[10px] text-violet-600 border-violet-200 px-2 py-0.5 font-medium`}>
                 {sectorLabel(sectorActivo)}
               </span>
             )}
@@ -294,18 +295,18 @@ export function RentabilidadTab(props: Props) {
 
           {/* KPIs retorno */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-white border border-zinc-200 border-l-4 border-l-green-400 rounded-xl px-4 py-3">
-              <p className="text-[10px] text-zinc-500 uppercase font-medium">Ingresos atribuidos</p>
-              <p className="text-sm font-bold text-zinc-900 mt-0.5">{FMT_SOL(retornoAtribuido.totalIngresos)}</p>
+            <div className={`${GLASS_BASE} border-l-4 border-l-green-400 px-4 py-3`}>
+              <p className="text-[10px] text-zinc-100 uppercase font-medium">Ingresos atribuidos</p>
+              <p className="text-sm font-bold text-zinc-100 mt-0.5">{FMT_SOL(retornoAtribuido.totalIngresos)}</p>
             </div>
-            <div className="bg-white border border-zinc-200 border-l-4 border-l-amber-400 rounded-xl px-4 py-3">
-              <p className="text-[10px] text-zinc-500 uppercase font-medium">Gasto en campañas</p>
-              <p className="text-sm font-bold text-zinc-900 mt-0.5">{FMT_SOL(retornoAtribuido.totalGasto)}</p>
+            <div className={`${GLASS_BASE} border-l-4 border-l-amber-400 px-4 py-3`}>
+              <p className="text-[10px] text-zinc-100 uppercase font-medium">Gasto en campañas</p>
+              <p className="text-sm font-bold text-zinc-100 mt-0.5">{FMT_SOL(retornoAtribuido.totalGasto)}</p>
             </div>
             {modo === "roas" ? (
-              <div className="bg-white border border-zinc-200 border-l-4 border-l-blue-400 rounded-xl px-4 py-3">
-                <p className="text-[10px] text-zinc-500 uppercase font-medium">ROAS efectivo</p>
-                <p className="text-sm font-bold text-zinc-900 mt-0.5">
+              <div className={`${GLASS_BASE} border-l-4 border-l-blue-400 px-4 py-3`}>
+                <p className="text-[10px] text-zinc-100 uppercase font-medium">ROAS efectivo</p>
+                <p className="text-sm font-bold text-zinc-100 mt-0.5">
                   {retornoAtribuido.roas !== null ? `${retornoAtribuido.roas.toFixed(1)}x` : "—"}
                 </p>
                 {retornoAtribuido.roas !== null && (() => {
@@ -315,9 +316,9 @@ export function RentabilidadTab(props: Props) {
               </div>
             ) : null}
             {modo === "roi" ? (
-              <div className="bg-white border border-zinc-200 border-l-4 border-l-violet-400 rounded-xl px-4 py-3">
-                <p className="text-[10px] text-zinc-500 uppercase font-medium">ROI neto</p>
-                <p className="text-sm font-bold text-zinc-900 mt-0.5">
+              <div className={`${GLASS_BASE} border-l-4 border-l-violet-400 px-4 py-3`}>
+                <p className="text-[10px] text-zinc-100 uppercase font-medium">ROI neto</p>
+                <p className="text-sm font-bold text-zinc-100 mt-0.5">
                   {retornoAtribuido.roi !== null ? `${retornoAtribuido.roi.toFixed(0)}%` : "—"}
                 </p>
                 {retornoAtribuido.roi !== null && (() => {
@@ -329,9 +330,9 @@ export function RentabilidadTab(props: Props) {
           </div>
 
           {/* Detalle por campaña */}
-          <div className="rounded-xl border border-zinc-200 overflow-hidden">
+          <div className={`${PANEL_BASE} overflow-hidden`}>
             <table className="w-full text-xs">
-              <thead className="bg-zinc-50 text-zinc-500 uppercase text-[10px]">
+              <thead className="text-zinc-100 uppercase text-[10px] border-b border-white/30">
                 <tr>
                   <th className="px-4 py-2.5 text-left font-medium">Campaña</th>
                   <th className="px-4 py-2.5 text-right font-medium">Ventas</th>
@@ -340,13 +341,13 @@ export function RentabilidadTab(props: Props) {
                   <th className="px-4 py-2.5 text-right font-medium">{modo === "roi" ? "ROI" : "ROAS"}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-50">
+              <tbody className="divide-y divide-white/5">
                 {retornoAtribuido.campanas.map((c, i) => (
-                  <tr key={i} className="hover:bg-zinc-50 transition">
-                    <td className="px-4 py-2.5 font-medium text-zinc-800 max-w-[200px] truncate">{c.nombre}</td>
-                    <td className="px-4 py-2.5 text-right text-zinc-600">{c.ventas}</td>
+                  <tr key={i} className="hover:bg-zinc-800/40 transition">
+                    <td className="px-4 py-2.5 font-medium text-zinc-200 max-w-[200px] truncate">{c.nombre}</td>
+                    <td className="px-4 py-2.5 text-right text-zinc-400">{c.ventas}</td>
                     <td className="px-4 py-2.5 text-right font-semibold text-green-700">{FMT_SOL(c.ingresos)}</td>
-                    <td className="px-4 py-2.5 text-right text-zinc-600">{FMT_SOL(c.gasto)}</td>
+                    <td className="px-4 py-2.5 text-right text-zinc-400">{FMT_SOL(c.gasto)}</td>
                     <td className="px-4 py-2.5 text-right font-bold">
                       {modo === "roi" ? (
                         c.roi !== null ? (
@@ -369,10 +370,10 @@ export function RentabilidadTab(props: Props) {
           </div>
         </div>
       ) : (
-        <div className="flex items-start gap-3 bg-zinc-50 border border-dashed border-zinc-300 rounded-xl px-5 py-4 text-xs text-zinc-500">
+        <div className={`${PANEL_BASE} flex items-start gap-3 border-dashed px-5 py-4 text-xs text-zinc-500`}>
           <span className="text-lg mt-0.5">💡</span>
           <div className="space-y-0.5">
-            <p className="font-semibold text-zinc-700">Sin ventas registradas — el análisis de rentabilidad estará disponible cuando registres ventas</p>
+            <p className="font-semibold text-zinc-300">Sin ventas registradas — el análisis de rentabilidad estará disponible cuando registres ventas</p>
             <p>Vincula cada venta cerrada a su campaña en <strong>Resultados de campaña</strong> y el ROAS, ROI y rentabilidad se calcularán automáticamente.</p>
           </div>
         </div>
@@ -385,23 +386,23 @@ export function RentabilidadTab(props: Props) {
           <div className="flex items-start justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-base">📊</span>
-              <span className="text-sm font-semibold text-zinc-800">Rentabilidad comercial</span>
+              <span className="text-sm font-semibold text-zinc-200">Rentabilidad comercial</span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${VBADGE[veredictoGlobal]}`}>
                 {VLABEL[veredictoGlobal]}
               </span>
-              <span className="text-[10px] bg-violet-50 text-violet-600 border border-violet-200 px-2 py-0.5 rounded-full font-medium">
+              <span className={`${BADGE_BASE} text-[10px] text-violet-600 border-violet-200 px-2 py-0.5 font-medium`}>
                 {bv.label}
               </span>
             </div>
             {/* Toggle atribución */}
             <div className="flex flex-col items-end gap-0.5">
-              <div className="flex items-center gap-1 bg-zinc-100 rounded-lg p-0.5">
+              <div className="flex items-center gap-1 bg-zinc-800 rounded-lg p-0.5">
                 {(["campana", "portfolio"] as VistaRentabilidad[]).map((v) => (
                   <button key={v} onClick={() => setVistaRentabilidad(v)}
                     className={`px-2.5 py-1 rounded-md text-[10px] font-semibold transition ${
                       vistaRentabilidad === v
-                        ? "bg-white shadow-sm text-zinc-900"
-                        : "text-zinc-500 hover:text-zinc-700"
+                        ? "bg-slate-800/60 shadow-sm text-zinc-100"
+                        : "text-zinc-500 hover:text-zinc-300"
                     }`}>
                     {v === "campana" ? "Por campaña" : "Portfolio total"}
                   </button>
@@ -417,9 +418,9 @@ export function RentabilidadTab(props: Props) {
 
           {/* KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-white border border-zinc-200 border-l-4 border-l-amber-400 rounded-xl px-4 py-3">
-              <p className="text-[10px] text-zinc-500 uppercase font-medium">Inversión total</p>
-              <p className="text-sm font-bold text-zinc-900 mt-0.5">{FMT_SOL(costoTotal)}</p>
+            <div className={`${GLASS_BASE} border-l-4 border-l-amber-400 px-4 py-3`}>
+              <p className="text-[10px] text-zinc-100 uppercase font-medium">Inversión total</p>
+              <p className="text-sm font-bold text-zinc-100 mt-0.5">{FMT_SOL(costoTotal)}</p>
               <p className="text-[9px] text-zinc-400 mt-0.5">
                 pauta {FMT_SOL(gastoBase)}
                 {retornoAtribuido.totalHonorarios > 0 && ` + hon. ${FMT_SOL(retornoAtribuido.totalHonorarios)}`}
@@ -431,20 +432,16 @@ export function RentabilidadTab(props: Props) {
               )}
             </div>
 
-            <div className="bg-white border border-zinc-200 border-l-4 border-l-green-400 rounded-xl px-4 py-3">
-              <p className="text-[10px] text-zinc-500 uppercase font-medium">Valor vendido</p>
-              <p className="text-sm font-bold text-zinc-900 mt-0.5">{FMT_SOL(retornoAtribuido.totalIngresos)}</p>
+            <div className={`${GLASS_BASE} border-l-4 border-l-green-400 px-4 py-3`}>
+              <p className="text-[10px] text-zinc-100 uppercase font-medium">Valor vendido</p>
+              <p className="text-sm font-bold text-zinc-100 mt-0.5">{FMT_SOL(retornoAtribuido.totalIngresos)}</p>
               <p className="text-[9px] text-zinc-400 mt-0.5">
                 {retornoAtribuido.totalVentas} {retornoAtribuido.totalVentas === 1 ? "propiedad" : "propiedades"}
               </p>
             </div>
 
-            <div className={`bg-white border border-l-4 rounded-xl px-4 py-3 ${
-              estadoPct === "excelente" ? "border-zinc-200 border-l-green-400"
-              : estadoPct === "aceptable" ? "border-zinc-200 border-l-amber-400"
-              : "border-zinc-200 border-l-red-400"
-            }`}>
-              <p className="text-[10px] text-zinc-500 uppercase font-medium">% costo / valor vendido</p>
+            <div className={`${GLASS_BASE} border-l-4 px-4 py-3 ${ estadoPct === "excelente" ? "border-white/10 border-l-green-400" : estadoPct === "aceptable" ? "border-white/10 border-l-amber-400" : "border-white/10 border-l-red-400" }`}>
+              <p className="text-[10px] text-zinc-100 uppercase font-medium">% costo / valor vendido</p>
               <p className={`text-sm font-bold mt-0.5 ${
                 estadoPct === "excelente" ? "text-green-700"
                 : estadoPct === "aceptable" ? "text-amber-600"
@@ -460,13 +457,8 @@ export function RentabilidadTab(props: Props) {
               </p>
             </div>
 
-            <div className={`bg-white border border-l-4 rounded-xl px-4 py-3 ${
-              estadoRoasVenta === "excelente" ? "border-zinc-200 border-l-green-400"
-              : estadoRoasVenta === "aceptable" ? "border-zinc-200 border-l-amber-400"
-              : estadoRoasVenta === "alto" ? "border-zinc-200 border-l-red-400"
-              : "border-zinc-200 border-l-zinc-300"
-            }`}>
-              <p className="text-[10px] text-zinc-500 uppercase font-medium">ROAS de ventas</p>
+            <div className={`${GLASS_BASE} border-l-4 px-4 py-3 ${ estadoRoasVenta === "excelente" ? "border-white/10 border-l-green-400" : estadoRoasVenta === "aceptable" ? "border-white/10 border-l-amber-400" : estadoRoasVenta === "alto" ? "border-white/10 border-l-red-400" : "border-white/10 border-l-zinc-300" }`}>
+              <p className="text-[10px] text-zinc-100 uppercase font-medium">ROAS de ventas</p>
               <p className={`text-sm font-bold mt-0.5 ${colorMulti}`}>
                 {multi !== null ? `${multi.toFixed(1)}x` : "—"}
               </p>
@@ -482,12 +474,12 @@ export function RentabilidadTab(props: Props) {
           </div>
 
           {/* Narrativa cuantitativa */}
-          <div className="bg-gradient-to-br from-zinc-50 to-blue-50 border border-zinc-200 rounded-xl p-4 space-y-2">
-            <p className="text-xs font-semibold text-zinc-700">¿Qué dice el mercado para {bv.label.toLowerCase()}?</p>
+          <div className={`${PANEL_BASE} p-4 space-y-2`}>
+            <p className="text-xs font-semibold text-zinc-300">¿Qué dice el mercado para {bv.label.toLowerCase()}?</p>
 
             <div className="flex items-start gap-3">
               <div className="min-w-[4px] self-stretch bg-violet-300 rounded-full" />
-              <p className="text-xs text-zinc-600">
+              <p className="text-xs text-zinc-400">
                 <strong>Por cada S/ 1 invertido</strong> (pauta + honorarios), generaste{" "}
                 <strong className={colorMulti}>S/ {multi !== null ? multi.toFixed(2) : "—"}</strong>{" "}
                 en valor vendido.{" "}
@@ -499,7 +491,7 @@ export function RentabilidadTab(props: Props) {
 
             <div className="flex items-start gap-3">
               <div className="min-w-[4px] self-stretch bg-amber-300 rounded-full" />
-              <p className="text-xs text-zinc-600">
+              <p className="text-xs text-zinc-400">
                 El costo comercial fue el{" "}
                 <strong className={
                   estadoPct === "excelente" ? "text-green-700"
@@ -517,7 +509,7 @@ export function RentabilidadTab(props: Props) {
               </p>
             </div>
 
-            <p className="text-[11px] text-zinc-500 border-t border-zinc-200 pt-2 mt-1 italic">
+            <p className="text-[11px] text-zinc-500 border-t border-white/10 pt-2 mt-1 italic">
               {narrativaCierre}
             </p>
           </div>
@@ -525,14 +517,14 @@ export function RentabilidadTab(props: Props) {
           {/* Simulador honorario vs comisión */}
           {retornoAtribuido.totalIngresos > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-zinc-700">
+              <p className="text-xs font-semibold text-zinc-300">
                 Simulador: honorario fijo vs. comisión por venta
                 <span className="text-[10px] font-normal text-zinc-400 ml-2">sobre el valor vendido registrado</span>
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <div className="bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-3">
-                  <p className="text-[10px] text-zinc-500 font-medium uppercase">Honorario cobrado</p>
-                  <p className="text-sm font-bold text-zinc-800 mt-1">
+                <div className={`${PANEL_BASE} px-3 py-3`}>
+                  <p className="text-[10px] text-zinc-100 font-medium uppercase">Honorario cobrado</p>
+                  <p className="text-sm font-bold text-zinc-200 mt-1">
                     {retornoAtribuido.totalHonorarios > 0
                       ? FMT_SOL(retornoAtribuido.totalHonorarios)
                       : "No registrado"}
@@ -545,9 +537,9 @@ export function RentabilidadTab(props: Props) {
                     ? comision - retornoAtribuido.totalHonorarios : null;
                   const esMayor  = diff !== null && diff > 0;
                   return (
-                    <div key={pct} className={`border rounded-xl px-3 py-3 ${esMayor ? "bg-green-50 border-green-200" : "bg-zinc-50 border-zinc-200"}`}>
-                      <p className="text-[10px] text-zinc-500 font-medium uppercase">{pct}% comisión</p>
-                      <p className="text-sm font-bold text-zinc-800 mt-1">{FMT_SOL(comision)}</p>
+                    <div key={pct} className={`border rounded-xl px-3 py-3 ${esMayor ? "bg-green-50 border-green-200" : "bg-zinc-800/40 border-white/10"}`}>
+                      <p className="text-[10px] text-zinc-100 font-medium uppercase">{pct}% comisión</p>
+                      <p className="text-sm font-bold text-zinc-200 mt-1">{FMT_SOL(comision)}</p>
                       {diff !== null && (
                         <p className={`text-[9px] font-semibold mt-0.5 ${esMayor ? "text-green-600" : "text-red-400"}`}>
                           {diff > 0 ? "+" : ""}{FMT_SOL(Math.abs(diff))} {esMayor ? "adicional" : "menos"}
@@ -565,7 +557,7 @@ export function RentabilidadTab(props: Props) {
           )}
 
           {/* Fuentes */}
-          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 space-y-1">
+          <div className={`${PANEL_BASE} p-3 space-y-1`}>
             <p className="text-[10px] font-medium text-zinc-500">Benchmarks {bv.label} — fuentes:</p>
             {bv.fuentes.map((f) => (
               <a key={f.url} href={f.url} target="_blank" rel="noopener noreferrer"

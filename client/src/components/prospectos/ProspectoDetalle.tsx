@@ -1,5 +1,6 @@
 /**client/src/prospectos/ProspectoDetalle.tsx */
 
+import { BADGE_BASE } from "../../lib/tokens";
 import { useEffect, useRef, useState } from "react";
 import { Pencil, Trash2, Phone, Calendar, FileText, Globe, Mail, MapPin, Building2, User, ClipboardList, GitBranch, CheckSquare, Plus, MessageSquare, BookOpen } from "lucide-react";
 import { SpeechPanel } from "./SpeechPanel";
@@ -213,12 +214,12 @@ function ScoreGauge({ score, nivel, prob }: { score: number; nivel: NivelScore; 
       </svg>
       {/* Probabilidad debajo del gauge */}
       <div className="flex items-center justify-between w-full px-1 -mt-1">
-        <span className="text-[10px] text-zinc-600">0%</span>
+        <span className="text-[10px] text-zinc-400">0%</span>
         <div className="text-center">
-          <p className="text-[10px] text-zinc-600">Prob. de cierre</p>
+          <p className="text-[10px] text-zinc-400">Prob. de cierre</p>
           <p className="text-base font-black" style={{ color }}>{prob}%</p>
         </div>
-        <span className="text-[10px] text-zinc-600">100%</span>
+        <span className="text-[10px] text-zinc-400">100%</span>
       </div>
     </div>
   );
@@ -323,7 +324,7 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
       )}
 
       {open && (
-        <div className="absolute left-0 top-full mt-1.5 z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4 w-72">
+        <div className="absolute left-0 top-full mt-1.5 z-50 bg-slate-800/60 border border-white/10 rounded-xl shadow-xl p-4 w-72">
 
           {/* Gauge + nivel label */}
           <div className="mb-3">
@@ -357,29 +358,29 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
           </div>
 
           {/* Tabla de factores */}
-          <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wide mb-2">Por qué tiene este score</p>
+          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wide mb-2">Por qué tiene este score</p>
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left pb-1.5 text-zinc-600 font-medium">Factor</th>
-                <th className="text-left pb-1.5 text-zinc-600 font-medium">Valor</th>
-                <th className="text-right pb-1.5 text-zinc-600 font-medium">Pts</th>
+              <tr className="border-b border-white/8">
+                <th className="text-left pb-1.5 text-zinc-100 font-medium">Factor</th>
+                <th className="text-left pb-1.5 text-zinc-100 font-medium">Valor</th>
+                <th className="text-right pb-1.5 text-zinc-100 font-medium">Pts</th>
               </tr>
             </thead>
             <tbody>
               {breakdown.map(f => (
-                <tr key={f.factor} className="border-b border-gray-50">
-                  <td className="py-1.5 text-zinc-600 pr-2">{f.factor}</td>
-                  <td className="py-1.5 text-zinc-700 pr-2 truncate max-w-[90px]">{f.valor}</td>
-                  <td className={`py-1.5 text-right font-semibold ${f.puntos > 0 ? "text-emerald-600" : f.puntos < 0 ? "text-red-500" : "text-zinc-600"}`}>
+                <tr key={f.factor} className="border-b border-white/5">
+                  <td className="py-1.5 text-zinc-400 pr-2">{f.factor}</td>
+                  <td className="py-1.5 text-zinc-300 pr-2 truncate max-w-[90px]">{f.valor}</td>
+                  <td className={`py-1.5 text-right font-semibold ${f.puntos > 0 ? "text-emerald-600" : f.puntos < 0 ? "text-red-500" : "text-zinc-400"}`}>
                     {f.puntos > 0 ? `+${f.puntos}` : f.puntos === 0 ? "—" : f.puntos}
                   </td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr className="border-t-2 border-gray-200">
-                <td colSpan={2} className="pt-2 font-bold text-zinc-800">Total</td>
+              <tr className="border-t-2 border-white/10">
+                <td colSpan={2} className="pt-2 font-bold text-zinc-200">Total</td>
                 <td className={`pt-2 text-right text-base font-bold ${cfg.cls.split(" ")[1]}`}>{score}</td>
               </tr>
             </tfoot>
@@ -397,13 +398,13 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
           {/* Historial de score */}
           {historial.length > 0 && (
             <div className="mt-3">
-              <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wide mb-2">Historial de score</p>
+              <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wide mb-2">Historial de score</p>
               <table className="w-full text-[11px] mb-2">
                 <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left pb-1 text-zinc-600 font-medium">Fecha</th>
-                    <th className="text-right pb-1 text-zinc-600 font-medium">Score</th>
-                    <th className="text-right pb-1 text-zinc-600 font-medium">Nivel</th>
+                  <tr className="border-b border-white/8">
+                    <th className="text-left pb-1 text-zinc-100 font-medium">Fecha</th>
+                    <th className="text-right pb-1 text-zinc-100 font-medium">Score</th>
+                    <th className="text-right pb-1 text-zinc-100 font-medium">Nivel</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -411,11 +412,11 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
                     const prev  = historial[i + 1]?.score;
                     const dif   = prev !== undefined ? h.score - prev : null;
                     return (
-                      <tr key={h.registrado_en} className="border-b border-gray-50">
-                        <td className="py-1 text-zinc-700">
+                      <tr key={h.registrado_en} className="border-b border-white/5">
+                        <td className="py-1 text-zinc-300">
                           {new Date(h.registrado_en).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
                         </td>
-                        <td className="py-1 text-right font-semibold text-zinc-700">
+                        <td className="py-1 text-right font-semibold text-zinc-300">
                           {h.score}
                           {dif !== null && dif !== 0 && (
                             <span className={`ml-1 text-[9px] ${dif > 0 ? "text-emerald-500" : "text-red-400"}`}>
@@ -423,7 +424,7 @@ function ScoreBadge({ score, nivel, breakdown, accion, insight, delta, historial
                             </span>
                           )}
                         </td>
-                        <td className="py-1 text-right text-zinc-600">
+                        <td className="py-1 text-right text-zinc-400">
                           {h.nivel === "caliente" ? "🔥" : h.nivel === "activo" ? "⬆" : h.nivel === "tibio" ? "→" : "❄"}
                         </td>
                       </tr>
@@ -761,16 +762,16 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
             return (
               <div className="flex items-center gap-1.5 flex-wrap">
                 {diasF1 != null && diasF1 >= 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-700">
+                  <span className={`${BADGE_BASE} inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-blue-700`}>
                     📋 Contacto→Propuesta: {diasF1}d
                   </span>
                 )}
                 {diasF2 != null && diasF2 >= 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-700">
+                  <span className={`${BADGE_BASE} inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-amber-700`}>
                     ⚖️ Propuesta→Cierre: {diasF2}d
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-green-100 text-green-700">
+                <span className={`${BADGE_BASE} inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-green-700`}>
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   Total: {diasTotal}d
                 </span>
@@ -797,17 +798,17 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
 
         {/* Tabs informacion-llamadas-reuniones etc*/}
         <div className="overflow-x-auto mb-5 -mx-1 px-1">
-          <div className="flex gap-1 bg-gray-100 p-1 rounded-lg min-w-max">
+          <div className="flex gap-1 bg-zinc-800 p-1 rounded-lg min-w-max">
             {TABS.map(t => (
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition shrink-0 whitespace-nowrap
-                  ${tab === t.key ? "bg-white shadow-sm text-zinc-800 font-medium" : "text-zinc-800 hover:text-gray-700"}`}
+                  ${tab === t.key ? "bg-slate-800/60 shadow-sm text-zinc-200 font-medium" : "text-zinc-200 hover:text-gray-300"}`}
               >
                 {t.icon} {t.label}
                 {t.badge && t.badge > 0 && (
-                  <span className="ml-0.5 px-1.5 py-0.5 text-[10px] rounded-full bg-orange-500 text-white font-medium leading-none">
+                  <span className={`${BADGE_BASE} ml-0.5 px-1.5 py-0.5 text-[10px] text-white font-medium leading-none`}>
                     {t.badge}
                   </span>
                 )}
@@ -822,16 +823,16 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
             <div className="grid grid-cols-2 gap-4">
               {/* Empresa */}
               <div className="space-y-3">
-                <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide">Empresa</p>
+                <p className="text-xs font-semibold text-zinc-200 uppercase tracking-wide">Empresa</p>
                 {(detalle.actividad_economica || detalle.sector) && (
                   <div className="flex items-start gap-2">
-                    <Building2 size={14} className="text-zinc-800 mt-0.5 shrink-0" />
-                    <span className="text-xs text-gray-700">{detalle.actividad_economica || detalle.sector}</span>
+                    <Building2 size={14} className="text-zinc-200 mt-0.5 shrink-0" />
+                    <span className="text-xs text-gray-300">{detalle.actividad_economica || detalle.sector}</span>
                   </div>
                 )}
                 {detalle.pagina_web && detalle.pagina_web.toLowerCase() !== "no" && (
                   <div className="flex items-start gap-2">
-                    <Globe size={14} className="text-zinc-800 mt-0.5 shrink-0" />
+                    <Globe size={14} className="text-zinc-200 mt-0.5 shrink-0" />
                     <a href={detalle.pagina_web.startsWith("http") ? detalle.pagina_web : `https://${detalle.pagina_web}`}
                       target="_blank" rel="noreferrer"
                       className="text-xs text-blue-500 hover:underline truncate">
@@ -841,20 +842,14 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
                 )}
                 {detalle.web_activa !== undefined && (
                   <div className="flex items-start gap-2">
-                    <span className="text-xs text-zinc-800 mt-0.5 shrink-0">Web activa:</span>
-                    <span className="text-xs text-gray-700">{detalle.web_activa ? "Sí" : "No"}</span>
+                    <span className="text-xs text-zinc-200 mt-0.5 shrink-0">Web activa:</span>
+                    <span className="text-xs text-gray-300">{detalle.web_activa ? "Sí" : "No"}</span>
                   </div>
                 )}
                 {detalle.web_activa && detalle.estado_web && (
                   <div className="flex items-start gap-2">
-                    <span className="text-xs text-zinc-800 mt-0.5 shrink-0">Estado web:</span>
-                    <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                      detalle.estado_web === "actualizada"       ? "bg-green-100 text-green-700"  :
-                      detalle.estado_web === "por_actualizar"    ? "bg-yellow-100 text-yellow-700" :
-                      detalle.estado_web === "vencida"           ? "bg-red-100 text-red-700"      :
-                      detalle.estado_web === "en_mantenimiento"  ? "bg-blue-100 text-blue-700"    :
-                      "bg-zinc-100 text-zinc-600"
-                    }`}>
+                    <span className="text-xs text-zinc-200 mt-0.5 shrink-0">Estado web:</span>
+                    <span className={`${BADGE_BASE} text-[11px] font-medium px-2 py-0.5 ${ detalle.estado_web === "actualizada" ? "bg-green-100 text-green-700" : detalle.estado_web === "por_actualizar" ? "bg-yellow-100 text-yellow-700" : detalle.estado_web === "vencida" ? "bg-red-100 text-red-700" : detalle.estado_web === "en_mantenimiento" ? "bg-blue-100 text-blue-700" : "bg-zinc-800 text-zinc-400" }`}>
                       {{
                         actualizada:      "Actualizada",
                         por_actualizar:   "Por actualizar",
@@ -867,35 +862,35 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
                 )}
                 {detalle.proveedor_web && (
                   <div className="flex items-start gap-2">
-                    <span className="text-xs text-zinc-800 mt-0.5 shrink-0">Proveedor:</span>
-                    <span className="text-xs text-gray-700">{detalle.proveedor_web}</span>
+                    <span className="text-xs text-zinc-200 mt-0.5 shrink-0">Proveedor:</span>
+                    <span className="text-xs text-gray-300">{detalle.proveedor_web}</span>
                   </div>
                 )}
                 {detalle.ciudad && (
                   <div className="flex items-start gap-2">
-                    <MapPin size={14} className="text-zinc-800 mt-0.5 shrink-0" />
-                    <span className="text-xs text-gray-700">
+                    <MapPin size={14} className="text-zinc-200 mt-0.5 shrink-0" />
+                    <span className="text-xs text-gray-300">
                       {detalle.ciudad}{detalle.region ? `, ${detalle.region}` : ""}{detalle.pais ? `, ${detalle.pais}` : ""}
                     </span>
                   </div>
                 )}
                 {detalle.tamano_empresa && (
                   <div className="flex items-start gap-2">
-                    <User size={14} className="text-zinc-800 mt-0.5 shrink-0" />
-                    <span className="text-xs text-gray-700">{detalle.tamano_empresa.replace(/_/g, " ")} empleados</span>
+                    <User size={14} className="text-zinc-200 mt-0.5 shrink-0" />
+                    <span className="text-xs text-gray-300">{detalle.tamano_empresa.replace(/_/g, " ")} empleados</span>
                   </div>
                 )}
               </div>
 
               {/* Contacto */}
               <div className="space-y-3">
-                <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide">Contacto</p>
+                <p className="text-xs font-semibold text-zinc-200 uppercase tracking-wide">Contacto</p>
                 {detalle.nombre_contacto && (
                   <div className="flex items-start gap-2">
-                    <User size={14} className="text-zinc-800 mt-0.5 shrink-0" />
+                    <User size={14} className="text-zinc-200 mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-xs text-gray-700">{detalle.nombre_contacto}</p>
-                      {detalle.cargo && <p className="text-xs text-zinc-800">{detalle.cargo}</p>}
+                      <p className="text-xs text-gray-300">{detalle.nombre_contacto}</p>
+                      {detalle.cargo && <p className="text-xs text-zinc-200">{detalle.cargo}</p>}
                     </div>
                   </div>
                 )}
@@ -917,8 +912,8 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
                 )}
                 {detalle.email_contacto && (
                   <div className="flex items-start gap-2">
-                    <Mail size={14} className="text-zinc-800 mt-0.5 shrink-0" />
-                    <a href={`mailto:${detalle.email_contacto}`} className="text-xs text-gray-700 hover:text-brand transition truncate">
+                    <Mail size={14} className="text-zinc-200 mt-0.5 shrink-0" />
+                    <a href={`mailto:${detalle.email_contacto}`} className="text-xs text-gray-300 hover:text-brand transition truncate">
                       {detalle.email_contacto}
                     </a>
                   </div>
@@ -928,14 +923,14 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
 
             {/* Notas */}
             {detalle.notas && (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-xs font-semibold text-zinc-800 uppercase tracking-wide mb-2">Notas</p>
+              <div className="bg-zinc-800/40 rounded-lg p-4">
+                <p className="text-xs font-semibold text-zinc-200 uppercase tracking-wide mb-2">Notas</p>
                 <p className="text-xs gray-100 whitespace-pre-wrap">{detalle.notas}</p>
               </div>
             )}
 
             {/* Fechas */}
-            <div className="flex gap-4 text-xs text-zinc-800 pt-1 border-t border-gray-100">
+            <div className="flex gap-4 text-xs text-zinc-200 pt-1 border-t border-white/8">
               <span>Creado: {new Date(detalle.creado_en).toLocaleDateString("es-PE")}</span>
               <span>Actualizado: {new Date(detalle.actualizado_en).toLocaleDateString("es-PE")}</span>
             </div>
@@ -968,22 +963,22 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
               </Button>
             </div>
             {reuniones.length === 0 ? (
-              <p className="text-xs text-zinc-800 text-center py-6">Sin reuniones registradas</p>
+              <p className="text-xs text-zinc-200 text-center py-6">Sin reuniones registradas</p>
             ) : (
               <div className="space-y-2">
                 {reuniones.map(r => (
-                  <div key={r.id} className="p-3 rounded-lg border border-gray-100 flex items-start justify-between hover:bg-gray-50 transition">
+                  <div key={r.id} className="p-3 rounded-lg border border-white/8 flex items-start justify-between hover:bg-zinc-800/40 transition">
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-zinc-800">{r.titulo}</p>
-                      <p className="text-xs text-zinc-800 mt-0.5 capitalize">{r.modalidad.replace(/_/g, " ")}</p>
-                      {r.notas && <p className="text-xs text-zinc-800 mt-1 truncate">{r.notas}</p>}
+                      <p className="text-xs font-medium text-zinc-200">{r.titulo}</p>
+                      <p className="text-xs text-zinc-200 mt-0.5 capitalize">{r.modalidad.replace(/_/g, " ")}</p>
+                      {r.notas && <p className="text-xs text-zinc-200 mt-1 truncate">{r.notas}</p>}
                     </div>
                     <div className="flex items-start gap-1 shrink-0 ml-4">
                       <div className="text-right mr-1">
-                        <p className="text-xs font-medium text-gray-700">
+                        <p className="text-xs font-medium text-gray-300">
                           {new Date(r.fecha_hora).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
                         </p>
-                        <p className="text-xs text-zinc-800">
+                        <p className="text-xs text-zinc-200">
                           {new Date(r.fecha_hora).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
                         </p>
                         <Badge color={r.estado === "realizada" ? "green" : r.estado === "cancelada" ? "red" : "blue"}>
@@ -1015,17 +1010,17 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
               </Button>
             </div>
             {brochures.length === 0 ? (
-              <p className="text-xs text-zinc-800 text-center py-6">Sin brochures enviados</p>
+              <p className="text-xs text-zinc-200 text-center py-6">Sin brochures enviados</p>
             ) : (
               <div className="space-y-2">
                 {brochures.map(b => (
-                  <div key={b.id} className="p-3 rounded-lg border border-gray-100 flex items-center justify-between hover:bg-gray-50 transition">
+                  <div key={b.id} className="p-3 rounded-lg border border-white/8 flex items-center justify-between hover:bg-zinc-800/40 transition">
                     <div>
-                      <span className="text-xs font-medium text-gray-700 capitalize">{b.canal}</span>
-                      {b.notas && <p className="text-xs text-zinc-800 mt-0.5">{b.notas}</p>}
+                      <span className="text-xs font-medium text-gray-300 capitalize">{b.canal}</span>
+                      {b.notas && <p className="text-xs text-zinc-200 mt-0.5">{b.notas}</p>}
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <span className="text-xs text-zinc-800 mr-1">
+                      <span className="text-xs text-zinc-200 mr-1">
                         {new Date(b.fecha_envio).toLocaleDateString("es-PE")}
                       </span>
                       <button onClick={() => editarBrochure.abrir({ ...b, empresa: detalle.empresa })}
@@ -1088,7 +1083,7 @@ export function ProspectoDetalle({ prospecto, onCerrar, onEditar, onActualizado 
         {tab === "propuestas" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-xs text-zinc-700">
+              <p className="text-xs text-zinc-300">
                 {propuestas.length} propuesta{propuestas.length !== 1 ? "s" : ""} registrada{propuestas.length !== 1 ? "s" : ""}
               </p>
               <Button size="sm" onClick={() => { setFormPropuesta(FORM_PROPUESTA_VACIO); setModalNuevaPropuesta(true); }}>

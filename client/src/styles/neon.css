@@ -1,0 +1,152 @@
+/** client/src/styles/neon.css
+ *
+ *  Sistema neon premium — ÚNICA fuente de verdad visual.
+ *  Importado después de Tailwind (en styles/index.css).
+ *
+ *  Para cambiar el acento de TODO el CRM: edita --accent (triplete RGB).
+ *  Para subir/bajar el glow global: edita --glow (0 = sin glow, 1 = normal, 2 = intenso).
+ */
+
+:root {
+  --accent: 6 182 212;        /* cyan-500 — debe coincidir con COLORS.primary */
+  --violet: 168 85 247;
+  --pink:   236 72 153;
+  --glow:   1;
+  --font-display: "Space Grotesk", sans-serif;
+}
+
+.font-display { font-family: var(--font-display); }
+
+/* ── Utilidades de acento dinámico ──────────────────────────────────────── */
+.text-accent      { color: rgb(var(--accent)); }
+.bg-accent        { background-color: rgb(var(--accent)); }
+.bg-accent-10     { background-color: rgb(var(--accent) / 0.10); }
+.bg-accent-15     { background-color: rgb(var(--accent) / 0.15); }
+.border-accent-20 { border-color: rgb(var(--accent) / 0.20); }
+.border-accent-30 { border-color: rgb(var(--accent) / 0.30); }
+.glow-dot         { box-shadow: 0 0 8px currentColor; }
+
+/* ── CARD ───────────────────────────────────────────────────────────────── */
+.neon-card {
+  --ca: var(--accent);
+  background: linear-gradient(180deg, rgba(17, 25, 43, 0.82), rgba(9, 14, 28, 0.90));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgb(var(--ca) / calc(0.34 * var(--glow)));
+  border-radius: 1.25rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgb(var(--ca) / calc(0.07 * var(--glow))),
+    0 0 22px rgb(var(--ca) / calc(0.20 * var(--glow))),
+    0 0 60px rgb(var(--ca) / calc(0.08 * var(--glow))),
+    0 14px 40px rgba(0, 0, 0, 0.55);
+}
+.neon-pink   { --ca: var(--pink); }
+.neon-violet { --ca: var(--violet); }
+
+.neon-hover { transition: box-shadow 0.3s, border-color 0.3s; }
+.neon-hover:hover {
+  border-color: rgb(var(--ca) / calc(0.55 * var(--glow)));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 1px rgb(var(--ca) / calc(0.14 * var(--glow))),
+    0 0 34px rgb(var(--ca) / calc(0.34 * var(--glow))),
+    0 0 80px rgb(var(--ca) / calc(0.12 * var(--glow))),
+    0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* ── PANEL · sub-secciones dentro de un card ────────────────────────────── */
+.neon-panel {
+  background: rgba(30, 41, 59, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0.9rem;
+}
+.neon-panel-hover { transition: all 0.2s; }
+.neon-panel-hover:hover {
+  background: rgba(40, 53, 76, 0.55);
+  border-color: rgb(var(--accent) / 0.35);
+  box-shadow: 0 0 16px rgb(var(--accent) / calc(0.14 * var(--glow)));
+}
+
+/* ── BADGE ──────────────────────────────────────────────────────────────── */
+.neon-badge {
+  background: rgb(var(--accent) / 0.14);
+  border: 1px solid rgb(var(--accent) / 0.35);
+  border-radius: 999px;
+  box-shadow: 0 0 8px rgb(var(--accent) / calc(0.25 * var(--glow)));
+}
+
+/* ── INPUT ──────────────────────────────────────────────────────────────── */
+.neon-input {
+  background: rgba(9, 14, 28, 0.8);
+  border: 1px solid rgb(var(--accent) / 0.22);
+  border-radius: 0.75rem;
+  color: #e4e4e7;
+  outline: none;
+  transition: all 0.2s;
+}
+.neon-input::placeholder { color: #52525b; }
+.neon-input:focus {
+  border-color: rgb(var(--accent) / 0.6);
+  box-shadow: 0 0 14px rgb(var(--accent) / calc(0.30 * var(--glow)));
+}
+select.neon-input option { background: #0a101f; color: #e4e4e7; }
+
+/* ── MODAL ──────────────────────────────────────────────────────────────── */
+.neon-modal {
+  background: rgba(7, 11, 22, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgb(var(--accent) / 0.40);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 0 0 1px rgb(var(--accent) / 0.10),
+    0 0 50px rgb(var(--accent) / calc(0.35 * var(--glow))),
+    0 20px 60px rgba(0, 0, 0, 0.95);
+}
+
+/* ── TOOLTIP (recharts) ─────────────────────────────────────────────────── */
+.neon-tooltip {
+  background: rgba(10, 16, 31, 0.97);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgb(var(--accent) / 0.35);
+  border-radius: 0.5rem;
+  box-shadow:
+    0 0 16px rgb(var(--accent) / calc(0.30 * var(--glow))),
+    0 8px 24px rgba(0, 0, 0, 0.7);
+}
+
+/* ── Botones ────────────────────────────────────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, rgb(var(--accent)), rgb(var(--accent) / 0.72));
+  color: #04101a;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 18px rgb(var(--accent) / calc(0.45 * var(--glow))), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: all 0.2s;
+}
+.btn-primary:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 0 28px rgb(var(--accent) / calc(0.60 * var(--glow))), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 0.75rem;
+  transition: all 0.2s;
+}
+.btn-ghost:hover {
+  border-color: rgb(var(--accent) / 0.4);
+  color: rgb(var(--accent));
+  background: rgb(var(--accent) / 0.07);
+}
+
+/* ── Animaciones de entrada (estado base = visible) ─────────────────────── */
+@keyframes neonFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .fade-up { animation: neonFadeUp 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) backwards; }
+}
+@keyframes neonSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.slide-in { animation: neonSlideIn 0.3s cubic-bezier(0.2, 0.7, 0.3, 1); }
+@keyframes neonPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.pulse-dot { animation: neonPulse 1.4s ease-in-out infinite; }

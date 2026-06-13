@@ -1,5 +1,6 @@
 /** client/src/pages/ConfiguracionPage.tsx */
 
+import { GLASS_BASE, MODAL_BASE, BADGE_BASE, INPUT_BASE } from "../lib/tokens";
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Eye, EyeOff, CheckCircle, XCircle, AlertTriangle, RefreshCw, ExternalLink, Play, Loader2 } from "lucide-react";
 import { PlataformaCuenta, PlataformaCuentaForm, PlataformaAPI } from "../types/plataformaCuentas.types";
@@ -22,19 +23,19 @@ function SemaforoToken({ fecha }: { fecha?: string | null }) {
   if (dias === null) return null;
 
   if (dias < 0) return (
-    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200">
+    <span className={`${BADGE_BASE} inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 text-red-600 border-red-200`}>
       <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
       Token vencido
     </span>
   );
   if (dias <= 5) return (
-    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+    <span className={`${BADGE_BASE} inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 text-amber-700 border-amber-200`}>
       <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
       Vence en {dias}d
     </span>
   );
   return (
-    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
+    <span className={`${BADGE_BASE} inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 text-green-700 border-green-200`}>
       <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
       Token vigente
     </span>
@@ -199,8 +200,8 @@ export default function ConfiguracionPage() {
 
       {/* Header */}
       <div>
-        <h1 className="text-xl font-semibold text-zinc-800">Configuración</h1>
-        <p className="text-xs text-zinc-600 mt-0.5">Gestiona las cuentas publicitarias conectadas al CRM</p>
+        <h1 className="text-xl font-semibold text-zinc-200">Configuración</h1>
+        <p className="text-xs text-zinc-400 mt-0.5">Gestiona las cuentas publicitarias conectadas al CRM</p>
       </div>
 
       {/* Alertas de tokens por vencer */}
@@ -234,13 +235,13 @@ export default function ConfiguracionPage() {
       )}
 
       {/* Card cuentas API */}
-      <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm">
+      <div className={`${GLASS_BASE}`}>
 
         {/* Header card */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
           <div>
-            <p className="text-sm font-semibold text-zinc-800">Cuentas publicitarias</p>
-            <p className="text-[11px] text-zinc-600">Meta Ads · TikTok Ads · Google Ads</p>
+            <p className="text-sm font-semibold text-zinc-200">Cuentas publicitarias</p>
+            <p className="text-[11px] text-zinc-400">Meta Ads · TikTok Ads · Google Ads</p>
           </div>
           <div className="flex gap-2 flex-wrap">
             {(["meta", "tiktok", "google"] as PlataformaAPI[]).map(p => (
@@ -257,7 +258,7 @@ export default function ConfiguracionPage() {
           {([["todas", "Todas"], ["meta", "Meta"], ["tiktok", "TikTok"], ["google", "Google"]] as const).map(([val, lbl]) => (
             <button key={val} onClick={() => setTabPlat(val)}
               className={`px-3 py-1.5 text-xs rounded-lg transition ${
-                tabPlat === val ? "bg-zinc-900 text-white font-medium" : "text-zinc-700 hover:bg-zinc-100"
+                tabPlat === val ? "bg-zinc-900 text-white font-medium" : "text-zinc-300 hover:bg-zinc-800"
               }`}>
               {lbl} {val !== "todas" && `(${cuentas.filter(c => c.plataforma === val).length})`}
             </button>
@@ -267,38 +268,38 @@ export default function ConfiguracionPage() {
         {/* Lista */}
         {cuentasFiltradas.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <p className="text-sm text-zinc-600">No hay cuentas configuradas</p>
-            <p className="text-xs text-zinc-700 mt-1">
+            <p className="text-sm text-zinc-400">No hay cuentas configuradas</p>
+            <p className="text-xs text-zinc-300 mt-1">
               Agrega las credenciales de cada plataforma para sincronizar campañas automáticamente
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-zinc-50 mt-3">
+          <div className="divide-y divide-white/5 mt-3">
             {cuentasFiltradas.map(c => {
               const p        = PLATAFORMAS[c.plataforma];
               const sincing  = sincronizando === c.id;
               const msg      = syncMsg?.id === c.id ? syncMsg : null;
               return (
-                <div key={c.id} className="flex items-center justify-between px-6 py-4 hover:bg-zinc-50/60 transition">
+                <div key={c.id} className="flex items-center justify-between px-6 py-4 hover:bg-white/8/5/60 transition">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`w-7 h-7 rounded-lg ${p.bg} flex items-center justify-center shrink-0`}>
                       <span className="text-white text-xs font-bold">{p.icon}</span>
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-medium text-zinc-800">{c.empresa}</p>
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${p.color} ${p.border} bg-white`}>
+                        <p className="text-sm font-medium text-zinc-200">{c.empresa}</p>
+                        <span className={`${BADGE_BASE} text-[10px] font-semibold px-1.5 py-0.5 ${p.color} ${p.border}`}>
                           {p.label}
                         </span>
                         <SemaforoToken fecha={c.token_vence_en} />
                         {c.sync_error && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200" title={c.sync_error}>
+                          <span className={`${BADGE_BASE} inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 text-red-600 border-red-200`} title={c.sync_error}>
                             <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
                             Error sync
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-zinc-600 font-mono mt-0.5">{c.account_id}</p>
+                      <p className="text-[11px] text-zinc-400 font-mono mt-0.5">{c.account_id}</p>
 
                       {/* Último sync */}
                       <p className="text-[11px] text-zinc-500 mt-0.5">
@@ -317,9 +318,7 @@ export default function ConfiguracionPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                      c.activo ? "bg-green-50 text-green-600" : "bg-zinc-100 text-zinc-600"
-                    }`}>
+                    <span className={`${BADGE_BASE} text-[10px] font-medium px-2 py-0.5 ${ c.activo ? "bg-green-50 text-green-600" : "bg-zinc-800 text-zinc-400" }`}>
                       {c.activo ? "Activo" : "Inactivo"}
                     </span>
 
@@ -343,11 +342,11 @@ export default function ConfiguracionPage() {
                       </button>
                     )}
                     <button onClick={() => abrirEditar(c)}
-                      className="p-1.5 text-zinc-600 hover:text-brand hover:bg-brand/5 rounded-lg transition">
+                      className="p-1.5 text-zinc-400 hover:text-brand hover:bg-brand/5 rounded-lg transition">
                       <Pencil size={13} />
                     </button>
                     <button onClick={() => handleEliminar(c)}
-                      className="p-1.5 text-zinc-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+                      className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
                       <Trash2 size={13} />
                     </button>
                   </div>
@@ -358,11 +357,11 @@ export default function ConfiguracionPage() {
         )}
 
         {/* Info */}
-        <div className="px-6 py-3 border-t border-zinc-50 bg-zinc-50/50 rounded-b-2xl mt-2">
-          <p className="text-[11px] text-zinc-600">
+        <div className="px-6 py-3 border-t border-white/5 bg-zinc-50/50 rounded-b-2xl mt-2">
+          <p className="text-[11px] text-zinc-400">
             El CRM sincroniza automáticamente todas las cuentas activas <strong>cada día a las 2:00 am</strong> (últimos 30 días).
             Usa el botón <span className="inline-flex items-center gap-1 align-middle"><Play size={10} className="text-violet-600" /> sync</span> para forzar una sincronización manual.
-            Si no hay cuenta configurada, usa las variables del archivo <code className="bg-zinc-100 px-1 rounded">.env</code>.
+            Si no hay cuenta configurada, usa las variables del archivo <code className="bg-zinc-800 px-1 rounded">.env</code>.
           </p>
         </div>
       </div>
@@ -370,18 +369,18 @@ export default function ConfiguracionPage() {
       {/* Modal */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+          <div className={`${MODAL_BASE} w-full max-w-md`}>
 
-            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
               <div className="flex items-center gap-2">
                 <div className={`w-7 h-7 rounded-lg ${cfg.bg} flex items-center justify-center`}>
                   <span className="text-white text-xs font-bold">{cfg.icon}</span>
                 </div>
-                <h2 className="text-sm font-semibold text-zinc-800">
+                <h2 className="text-sm font-semibold text-zinc-200">
                   {editando ? `Editar cuenta · ${cfg.label}` : `Nueva cuenta · ${cfg.label}`}
                 </h2>
               </div>
-              <button onClick={() => setModal(false)} className="text-zinc-600 hover:text-zinc-600 text-lg leading-none">✕</button>
+              <button onClick={() => setModal(false)} className="text-zinc-400 hover:text-zinc-400 text-lg leading-none">✕</button>
             </div>
 
             <div className="px-6 py-5 space-y-4">
@@ -389,7 +388,7 @@ export default function ConfiguracionPage() {
               {/* Plataforma (solo al crear) */}
               {!editando && (
                 <div>
-                  <label className="text-xs font-medium text-zinc-600 mb-1 block">Plataforma</label>
+                  <label className="text-xs font-medium text-zinc-400 mb-1 block">Plataforma</label>
                   <div className="flex gap-2">
                     {(["meta", "tiktok", "google"] as PlataformaAPI[]).map(p => (
                       <button key={p} type="button" onClick={() => set("plataforma", p)}
@@ -406,32 +405,32 @@ export default function ConfiguracionPage() {
               )}
 
               <div>
-                <label className="text-xs font-medium text-zinc-600 mb-1 block">Empresa / Cliente *</label>
+                <label className="text-xs font-medium text-zinc-400 mb-1 block">Empresa / Cliente *</label>
                 <input value={form.empresa} onChange={e => set("empresa", e.target.value)}
                   placeholder="Ej: Codeli, Zincel Ideas"
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50" />
-                <p className="text-[10px] text-zinc-600 mt-1">Debe coincidir exactamente con el nombre en las métricas</p>
+                  className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`} />
+                <p className="text-[10px] text-zinc-400 mt-1">Debe coincidir exactamente con el nombre en las métricas</p>
               </div>
 
               <div>
-                <label className="text-xs font-medium text-zinc-600 mb-1 block">{cfg.accountLabel} *</label>
+                <label className="text-xs font-medium text-zinc-400 mb-1 block">{cfg.accountLabel} *</label>
                 <input value={form.account_id} onChange={e => set("account_id", e.target.value)}
                   placeholder={cfg.accountPlaceholder}
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand/50" />
-                <p className="text-[10px] text-zinc-600 mt-1">{cfg.accountHint}</p>
+                  className={`${INPUT_BASE} w-full px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand/50`} />
+                <p className="text-[10px] text-zinc-400 mt-1">{cfg.accountHint}</p>
               </div>
 
               <div>
-                <label className="text-xs font-medium text-zinc-600 mb-1 block">
+                <label className="text-xs font-medium text-zinc-400 mb-1 block">
                   Access Token {editando ? "(vacío = no cambiar)" : "*"}
                 </label>
                 <div className="relative">
                   <input type={verToken ? "text" : "password"}
                     value={form.access_token} onChange={e => set("access_token", e.target.value)}
                     placeholder={editando ? "••••••• (sin cambios si está vacío)" : "Token de acceso..."}
-                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 pr-10 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand/50" />
+                    className={`${INPUT_BASE} w-full px-3 py-2 pr-10 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand/50`} />
                   <button type="button" onClick={() => setVerToken(v => !v)} tabIndex={-1}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-600">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-400">
                     {verToken ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
@@ -439,30 +438,30 @@ export default function ConfiguracionPage() {
 
               {/* Fecha de vencimiento del token */}
               <div>
-                <label className="text-xs font-medium text-zinc-600 mb-1 block">
+                <label className="text-xs font-medium text-zinc-400 mb-1 block">
                   Fecha de vencimiento del token
                 </label>
                 <input
                   type="date"
                   value={form.token_vence_en}
                   onChange={e => set("token_vence_en", e.target.value)}
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
+                  className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
                 />
-                <p className="text-[10px] text-zinc-600 mt-1">
+                <p className="text-[10px] text-zinc-400 mt-1">
                   El CRM te alertará 5 días antes del vencimiento
                 </p>
               </div>
 
               <div>
-                <label className="text-xs font-medium text-zinc-600 mb-1 block">Notas (opcional)</label>
+                <label className="text-xs font-medium text-zinc-400 mb-1 block">Notas (opcional)</label>
                 <input value={form.notas} onChange={e => set("notas", e.target.value)}
                   placeholder="Ej: Token de sistema, creado por cuenta principal"
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50" />
+                  className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`} />
               </div>
 
               <button type="button" onClick={() => set("activo", !form.activo)}
                 className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition ${
-                  form.activo ? "bg-green-50 border-green-200 text-green-700" : "bg-zinc-50 border-zinc-200 text-zinc-700"
+                  form.activo ? "bg-green-50 border-green-200 text-green-700" : "bg-zinc-800/40 border-white/10 text-zinc-300"
                 }`}>
                 {form.activo ? <><CheckCircle size={13} /> Activo</> : <><XCircle size={13} /> Inactivo</>}
               </button>
@@ -472,9 +471,9 @@ export default function ConfiguracionPage() {
               )}
             </div>
 
-            <div className="flex gap-2 px-6 py-4 border-t border-zinc-100">
+            <div className="flex gap-2 px-6 py-4 border-t border-white/8">
               <button onClick={() => setModal(false)}
-                className="flex-1 py-2 text-xs text-zinc-600 border border-zinc-200 rounded-lg hover:bg-zinc-50 transition">
+                className="flex-1 py-2 text-xs text-zinc-400 border border-white/10 rounded-lg hover:bg-zinc-800/40 transition">
                 Cancelar
               </button>
               <button onClick={handleGuardar} disabled={guardando}
@@ -489,15 +488,15 @@ export default function ConfiguracionPage() {
       {/* Modal renovar token TikTok */}
       {modalRenovar && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
+          <div className={`${MODAL_BASE} w-full max-w-md`}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-pink-500 flex items-center justify-center">
                   <RefreshCw size={13} className="text-white" />
                 </div>
-                <h2 className="text-sm font-semibold text-zinc-800">Renovar Token · TikTok Ads</h2>
+                <h2 className="text-sm font-semibold text-zinc-200">Renovar Token · TikTok Ads</h2>
               </div>
-              <button onClick={() => setModalRenovar(null)} className="text-zinc-600 hover:text-zinc-600 text-lg leading-none">✕</button>
+              <button onClick={() => setModalRenovar(null)} className="text-zinc-400 hover:text-zinc-400 text-lg leading-none">✕</button>
             </div>
 
             <div className="px-6 py-5 space-y-4">
@@ -510,8 +509,8 @@ export default function ConfiguracionPage() {
                 <div className="flex items-start gap-2">
                   <span className="w-5 h-5 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
                   <div>
-                    <p className="text-xs text-zinc-700 font-medium">Autoriza la app en TikTok</p>
-                    <p className="text-[11px] text-zinc-600 mt-0.5">Abre el enlace y acepta los permisos con tu cuenta.</p>
+                    <p className="text-xs text-zinc-300 font-medium">Autoriza la app en TikTok</p>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">Abre el enlace y acepta los permisos con tu cuenta.</p>
                     {authUrl && (
                       <a href={authUrl} target="_blank" rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 mt-1.5 text-xs font-semibold text-pink-600 hover:text-pink-700">
@@ -524,23 +523,23 @@ export default function ConfiguracionPage() {
                 <div className="flex items-start gap-2">
                   <span className="w-5 h-5 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
                   <div className="flex-1">
-                    <p className="text-xs text-zinc-700 font-medium">Pega la URL de redirección</p>
-                    <p className="text-[11px] text-zinc-600 mt-0.5">Después de autorizar, copia la URL completa del navegador y pégala aquí.</p>
+                    <p className="text-xs text-zinc-300 font-medium">Pega la URL de redirección</p>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">Después de autorizar, copia la URL completa del navegador y pégala aquí.</p>
                     <textarea
                       value={urlRedireccion}
                       onChange={e => setUrlRedireccion(e.target.value)}
                       placeholder="https://www.zincelideas.com/?auth_code=..."
                       rows={2}
-                      className="w-full mt-2 border border-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none font-mono"
+                      className={`${INPUT_BASE} w-full mt-2 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none font-mono`}
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-2 px-6 py-4 border-t border-zinc-100">
+            <div className="flex gap-2 px-6 py-4 border-t border-white/8">
               <button onClick={() => setModalRenovar(null)}
-                className="flex-1 py-2 text-xs text-zinc-600 border border-zinc-200 rounded-lg hover:bg-zinc-50 transition">
+                className="flex-1 py-2 text-xs text-zinc-400 border border-white/10 rounded-lg hover:bg-zinc-800/40 transition">
                 Cancelar
               </button>
               <button onClick={handleRenovar} disabled={renovando || !urlRedireccion}

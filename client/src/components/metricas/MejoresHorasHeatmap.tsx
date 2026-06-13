@@ -66,10 +66,10 @@ export function MejoresHorasHeatmap({ datos }: Props) {
           <div key={i} className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium ${
             i === 0
               ? "bg-violet-50 border-violet-200 text-violet-800"
-              : "bg-zinc-50 border-zinc-200 text-zinc-700"
+              : "bg-zinc-800/40 border-white/10 text-zinc-300"
           }`}>
             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
-              i === 0 ? "bg-violet-600 text-white" : "bg-zinc-200 text-zinc-600"
+              i === 0 ? "bg-violet-600 text-white" : "bg-zinc-700 text-zinc-400"
             }`}>
               {i + 1}
             </span>

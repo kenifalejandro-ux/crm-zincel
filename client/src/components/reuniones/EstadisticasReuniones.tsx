@@ -1,6 +1,6 @@
 /** client/src/components/reuniones/EstadisticasReuniones.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE, INPUT_BASE } from "../../lib/tokens";
 import {
   ComposedChart, Bar, Line, XAxis, YAxis, Tooltip,
   CartesianGrid, ResponsiveContainer, Legend,
@@ -40,16 +40,16 @@ const TooltipPersonalizado = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   const d = payload[0]?.payload as StatItem;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm p-3 text-xs">
-      <p className="font-semibold text-zinc-800 mb-1">{label}</p>
-      <p className="text-zinc-700">Total: <span className="font-medium">{d.total}</span></p>
-      <p className="text-zinc-700">Realizadas: <span className="font-medium">{d.realizadas}</span></p>
-      <p className="text-zinc-700">Programadas: <span className="font-medium">{d.programadas}</span></p>
+    <div className={`${TOOLTIP_BASE} p-3 text-xs`}>
+      <p className="font-semibold text-zinc-200 mb-1">{label}</p>
+      <p className="text-zinc-300">Total: <span className="font-medium">{d.total}</span></p>
+      <p className="text-zinc-300">Realizadas: <span className="font-medium">{d.realizadas}</span></p>
+      <p className="text-zinc-300">Programadas: <span className="font-medium">{d.programadas}</span></p>
       {d.canceladas > 0 && (
         <p className="text-red-400">Canceladas: <span className="font-medium">{d.canceladas}</span></p>
       )}
       {d.total > 0 && (
-        <p className="text-zinc-700 mt-1">Tasa realización: {Math.round((d.realizadas / d.total) * 100)}%</p>
+        <p className="text-zinc-300 mt-1">Tasa realización: {Math.round((d.realizadas / d.total) * 100)}%</p>
       )}
     </div>
   );
@@ -71,14 +71,14 @@ export function EstadisticasReuniones({ estadisticas, modalidad, filtroPeriodo, 
         </h2>
         <div className="flex items-center justify-between mb-3">
           {totalItems > 0 && (
-            <p className="text-[11px] text-zinc-600 font-medium">
+            <p className="text-[11px] text-zinc-400 font-medium">
               {totalItems} {labelPeriodo}{totalItems !== 1 ? "s" : ""} · línea de tendencia
             </p>
           )}
           <select
             value={filtroPeriodo}
             onChange={(e) => onPeriodoChange(e.target.value)}
-            className="ml-auto px-3 py-1.5 text-xs border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-400"
+            className={`${INPUT_BASE} ml-auto px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-zinc-400`}
           >
             <option value="dia">Por hora (hoy)</option>
             <option value="semana">Por día (semana)</option>
@@ -88,7 +88,7 @@ export function EstadisticasReuniones({ estadisticas, modalidad, filtroPeriodo, 
         </div>
 
         {estadisticas.length === 0 ? (
-          <p className="text-xs text-zinc-600 text-center py-10">Sin reuniones en este período</p>
+          <p className="text-xs text-zinc-400 text-center py-10">Sin reuniones en este período</p>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <ComposedChart data={estadisticas} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -98,8 +98,8 @@ export function EstadisticasReuniones({ estadisticas, modalidad, filtroPeriodo, 
               <Tooltip content={<TooltipPersonalizado />} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: "10px", paddingTop: "8px" }}
                 formatter={(v) => v === "total" ? "Total" : "Realizadas"} />
-              <Bar dataKey="total" fill={COLORS.primaryLight} name="total" radius={[3, 3, 0, 0]} maxBarSize={28} />
-              <Line type="monotone" dataKey="realizadas" stroke={COLORS.primary} strokeWidth={2}
+              <Bar filter="url(#neon-glow)" dataKey="total" fill={COLORS.primaryLight} name="total" radius={[3, 3, 0, 0]} maxBarSize={28} />
+              <Line filter="url(#neon-glow)" type="monotone" dataKey="realizadas" stroke={COLORS.primary} strokeWidth={2}
                 dot={totalItems <= 10 ? { r: 3, fill: COLORS.primary } : false} activeDot={{ r: 4 }} name="realizadas" />
             </ComposedChart>
           </ResponsiveContainer>
@@ -113,30 +113,30 @@ export function EstadisticasReuniones({ estadisticas, modalidad, filtroPeriodo, 
           Por modalidad
         </h2>
         {modalidad.length === 0 ? (
-          <p className="text-xs text-zinc-600 text-center py-6">Sin registros aún</p>
+          <p className="text-xs text-zinc-400 text-center py-6">Sin registros aún</p>
         ) : (
           <div className="space-y-2">
             {modalidad.map((m, i) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-zinc-100 last:border-0">
-                <span className="text-xs text-zinc-600">{LABEL_MODALIDAD[m.modalidad] ?? m.modalidad}</span>
-                <span className="text-xs font-medium text-zinc-800">{m.total} reuniones</span>
+              <div key={i} className="flex items-center justify-between py-2 border-b border-white/8 last:border-0">
+                <span className="text-xs text-zinc-400">{LABEL_MODALIDAD[m.modalidad] ?? m.modalidad}</span>
+                <span className="text-xs font-medium text-zinc-200">{m.total} reuniones</span>
               </div>
             ))}
           </div>
         )}
 
         {estadisticas.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-zinc-100">
-            <h3 className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest mb-2">Detalle por {labelPeriodo}</h3>
+          <div className="mt-4 pt-4 border-t border-white/8">
+            <h3 className="text-[10px] font-bold text-zinc-100 uppercase tracking-widest mb-2">Detalle por {labelPeriodo}</h3>
             <div className="max-h-36 overflow-y-auto space-y-1 pr-1">
               {estadisticas.map((stat, i) => (
                 <div key={i} className="flex items-center justify-between text-xs py-0.5">
-                  <span className="text-zinc-700 w-16 shrink-0">{stat.fecha}</span>
-                  <div className="flex-1 mx-2 bg-zinc-100 rounded-full h-1.5">
+                  <span className="text-zinc-300 w-16 shrink-0">{stat.fecha}</span>
+                  <div className="flex-1 mx-2 bg-zinc-800 rounded-full h-1.5">
                     <div className="bg-brand h-1.5 rounded-full"
                       style={{ width: `${stat.total > 0 ? (stat.realizadas / stat.total) * 100 : 0}%` }} />
                   </div>
-                  <span className="text-zinc-700 font-medium w-6 text-right">{stat.total}</span>
+                  <span className="text-zinc-300 font-medium w-6 text-right">{stat.total}</span>
                 </div>
               ))}
             </div>

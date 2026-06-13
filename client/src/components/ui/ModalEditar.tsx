@@ -26,7 +26,7 @@ export function ModalEditar({ nombre, guardando, error, onGuardar, onCerrar, siz
           <p className={`text-xs px-3 py-2 rounded-lg ${dark ? "text-red-400 bg-red-900/30" : "text-red-500 bg-red-50"}`}>{error}</p>
         )}
 
-        <div className={`flex gap-2 pt-1 border-t ${dark ? "border-zinc-700" : "border-zinc-100"}`}>
+        <div className={`flex gap-2 pt-1 border-t ${dark ? "border-zinc-700" : "border-white/8"}`}>
           <Button variant="secondary" className="flex-1" onClick={onCerrar}>
             Cancelar
           </Button>

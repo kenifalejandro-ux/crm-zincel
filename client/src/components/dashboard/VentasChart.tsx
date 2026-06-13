@@ -1,5 +1,5 @@
 /** client/src/components/dashboard/VentasChart.tsx */
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
 import { DollarSign } from "lucide-react";
 import { FunnelChart, Funnel, LabelList, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import type { Metricas } from "../../pages/DashboardPage";
@@ -13,9 +13,9 @@ interface Props {
 const TooltipFunnel = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-1.5 text-xs">
-      <p className="font-semibold text-zinc-800">{payload[0].payload.name}</p>
-      <p className="text-zinc-600">{payload[0].value} contactos</p>
+    <div className={`${TOOLTIP_BASE} px-3 py-1.5 text-xs`}>
+      <p className="font-semibold text-zinc-200">{payload[0].payload.name}</p>
+      <p className="text-zinc-400">{payload[0].value} contactos</p>
     </div>
   );
 };
@@ -41,7 +41,7 @@ export function VentasChart({ metricas }: Props) {
       </h2>
 
       {total === 0 ? (
-        <p className="text-xs text-zinc-600 text-center py-6">Sin registros de ventas</p>
+        <p className="text-xs text-zinc-400 text-center py-6">Sin registros de ventas</p>
       ) : (
         <>
           {/* Funnel */}
@@ -80,17 +80,17 @@ export function VentasChart({ metricas }: Props) {
             ))}
           </div>
 
-          <div className="flex justify-between items-center pt-1 border-t border-zinc-100">
-            <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Tasa de cierre</span>
-            <span className="text-sm font-bold text-zinc-900">{tasaCierre}%</span>
+          <div className="flex justify-between items-center pt-1 border-t border-white/8">
+            <span className="text-[10px] text-zinc-100 uppercase tracking-widest">Tasa de cierre</span>
+            <span className="text-sm font-bold text-zinc-100">{tasaCierre}%</span>
           </div>
         </>
       )}
 
       {/* Por servicio */}
       {porServicio.length > 0 && (
-        <div className="border-t border-zinc-100 pt-4">
-          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-3">
+        <div className="border-t border-white/8 pt-4">
+          <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-widest mb-3">
             Por servicio (cerradas)
           </p>
           <div className="space-y-3">
@@ -100,17 +100,17 @@ export function VentasChart({ metricas }: Props) {
               return (
                 <div key={i}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[12px] font-medium text-zinc-600 capitalize truncate max-w-[130px]">
+                    <span className="text-[12px] font-medium text-zinc-400 capitalize truncate max-w-[130px]">
                       {s.servicio.replace(/_/g, " ")}
                     </span>
                     <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-medium text-zinc-600">{s.cantidad} und</span>
-                      <span className="text-[12px] font-semibold text-zinc-900">
+                      <span className="text-[10px] font-medium text-zinc-400">{s.cantidad} und</span>
+                      <span className="text-[12px] font-semibold text-zinc-100">
                         S/ {s.monto_total.toLocaleString("es-PE", { minimumFractionDigits: 0 })}
                       </span>
                     </div>
                   </div>
-                  <div className="h-1 rounded-full bg-zinc-100">
+                  <div className="h-1 rounded-full bg-zinc-800">
                     <div
                       className="h-1 rounded-full transition-all duration-500"
                       style={{ width: `${pct}%`, backgroundColor: MATTE_COLORS[i % MATTE_COLORS.length] }}

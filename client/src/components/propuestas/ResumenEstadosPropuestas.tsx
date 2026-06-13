@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { ClipboardList, TrendingUp, CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react";
-import { CARD_CLASS, HEADER_CLASS, COLORS } from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, COLORS, PANEL_BASE } from "../../lib/tokens";
 import { getResumenEstadosPropuestas, getKanbanOportunidades } from "../../services/propuestas.api";
 import type { ResumenEstadoPropuesta, OportunidadKanban } from "../../services/propuestas.api";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { NeonDonut } from "../ui/NeonDonut";
 import { DrilldownModal } from "../inteligencia/DrilldownModal";
 import type { LeadDrilldown } from "../inteligencia/DrilldownModal";
 
@@ -93,41 +93,30 @@ export function ResumenEstadosPropuestas({ filtroPeriodo, mesSeleccionado, diaSe
       {/* KPIs + Donut */}
       {total > 0 && <div className="flex items-center gap-4 mb-5">
         {/* Donut */}
-        <div className="relative shrink-0" style={{ width: 100, height: 100 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie data={chartData} cx="50%" cy="50%" innerRadius={32} outerRadius={48} dataKey="total" stroke="none" paddingAngle={2}>
-                {chartData.map((d, i) => <Cell key={i} fill={d.color} />)}
-              </Pie>
-              <Tooltip
-                contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
-                formatter={(val: any, _: any, props: any) => [`${val} prop.`, props.payload.label]}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-lg font-bold text-zinc-900">{total}</span>
-            <span className="text-[9px] text-zinc-400">total</span>
-          </div>
-        </div>
+        <NeonDonut
+          data={chartData.map((d) => ({ label: d.label, value: d.total, color: d.color }))}
+          size={108}
+          centerValue={total}
+          centerLabel="total"
+        />
 
         {/* Mini KPIs */}
         <div className="flex-1 grid grid-cols-2 gap-2">
           <div className="bg-green-50 border border-green-100 rounded-xl p-2.5 text-center">
-            <p className="text-[9px] text-zinc-500 uppercase">Ganadas</p>
+            <p className="text-[9px] text-zinc-100 uppercase">Ganadas</p>
             <p className="text-xl font-bold text-green-600">{ganadas}</p>
           </div>
           <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-2.5 text-center">
-            <p className="text-[9px] text-zinc-500 uppercase">Activas</p>
+            <p className="text-[9px] text-zinc-100 uppercase">Activas</p>
             <p className="text-xl font-bold text-yellow-600">{activas}</p>
           </div>
-          <div className="bg-zinc-50 border border-zinc-100 rounded-xl p-2.5 text-center">
-            <p className="text-[9px] text-zinc-500 uppercase">Conversión</p>
-            <p className="text-xl font-bold text-zinc-800">{conversion}%</p>
+          <div className={`${PANEL_BASE} p-2.5 text-center`}>
+            <p className="text-[9px] text-zinc-100 uppercase">Conversión</p>
+            <p className="text-xl font-bold text-zinc-200">{conversion}%</p>
           </div>
-          <div className="bg-zinc-50 border border-zinc-100 rounded-xl p-2.5 text-center">
-            <p className="text-[9px] text-zinc-500 uppercase">Pipeline</p>
-            <p className="text-sm font-bold text-zinc-800">{fmt(montoTotal)}</p>
+          <div className={`${PANEL_BASE} p-2.5 text-center`}>
+            <p className="text-[9px] text-zinc-100 uppercase">Pipeline</p>
+            <p className="text-sm font-bold text-zinc-200">{fmt(montoTotal)}</p>
           </div>
         </div>
       </div>}
@@ -146,11 +135,11 @@ export function ResumenEstadosPropuestas({ filtroPeriodo, mesSeleccionado, diaSe
             >
               <div className="shrink-0">{e.icon}</div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-zinc-800">{e.label}</p>
+                <p className="text-xs font-semibold text-zinc-200">{e.label}</p>
                 <p className="text-[10px] text-zinc-500">{fmt(item.monto_total)}</p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-sm font-bold text-zinc-800">{item.total}</p>
+                <p className="text-sm font-bold text-zinc-200">{item.total}</p>
                 <p className="text-[10px] text-zinc-400">{pct}%</p>
               </div>
             </button>

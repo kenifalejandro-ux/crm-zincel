@@ -2,7 +2,7 @@
 
 import { useState }                    from "react";
 import { DollarSign, TrendingDown, TrendingUp, AlertCircle, RefreshCw, Landmark } from "lucide-react";
-import { CARD_CLASS, HEADER_CLASS }   from "../../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, INPUT_BASE }   from "../../lib/tokens";
 import { FlujoCajaChart }             from "./FlujoCajaChart";
 import { EgresosPorCategoriaChart }   from "./EgresosPorCategoriaChart";
 import { IngresosPorServicioChart }   from "./IngresosPorServicioChart";
@@ -19,9 +19,9 @@ function KpiCard({
     <div className={`${CARD_CLASS} !p-4 flex items-center gap-4`}>
       <div className={`${bg} p-2.5 rounded-lg ${color}`}>{icon}</div>
       <div>
-        <p className="text-[11px] text-zinc-600 font-medium uppercase">{label}</p>
-        <p className="text-lg font-bold text-zinc-800 leading-tight">{valor}</p>
-        {sub && <p className="text-[11px] text-zinc-600 mt-0.5">{sub}</p>}
+        <p className="text-[11px] text-zinc-100 font-medium uppercase">{label}</p>
+        <p className="text-lg font-bold text-zinc-200 leading-tight">{valor}</p>
+        {sub && <p className="text-[11px] text-zinc-400 mt-0.5">{sub}</p>}
       </div>
     </div>
   );
@@ -80,18 +80,18 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
 
       {/* Tipo de cambio configurable */}
       <div className={`${CARD_CLASS} !px-4 !py-3 flex flex-wrap items-center gap-3 text-xs`}>
-        <span className="text-zinc-700 font-medium">Tipo de cambio USD → PEN</span>
+        <span className="text-zinc-300 font-medium">Tipo de cambio USD → PEN</span>
         <div className="flex items-center gap-1.5">
-          <span className="text-zinc-600">S/</span>
+          <span className="text-zinc-400">S/</span>
           <input
             type="number"
             min={1}
             step={0.01}
             value={tipoCambio}
             onChange={(e) => handleGuardarManual(Number(e.target.value))}
-            className="w-20 px-2 py-1 border border-zinc-200 rounded-lg text-xs text-center focus:outline-none focus:ring-2 focus:ring-zinc-400"
+            className={`${INPUT_BASE} w-20 px-2 py-1 text-xs text-center focus:outline-none focus:ring-2 focus:ring-zinc-400`}
           />
-          <span className="text-zinc-600">/ USD</span>
+          <span className="text-zinc-400">/ USD</span>
         </div>
         <button
           onClick={handleActualizarAPI}
@@ -101,7 +101,7 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
           <RefreshCw size={12} className={actualizando ? "animate-spin" : ""} />
           {actualizando ? "Obteniendo..." : "Actualizar desde API"}
         </button>
-        <div className="ml-auto text-[11px] text-zinc-600">
+        <div className="ml-auto text-[11px] text-zinc-400">
           {tcError && <span className="text-red-500">{tcError}</span>}
           {!tcError && tcActualizadoEn && <span>Actualizado: {fmtFecha(tcActualizadoEn)}</span>}
           {!tcError && !tcActualizadoEn && <span>Todos los montos en PEN</span>}
@@ -192,19 +192,19 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
         <h3 className={HEADER_CLASS}><Landmark size={14} className="mr-2.5 text-slate-500" strokeWidth={2} />Detalle del período</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
           <div className="space-y-0.5">
-            <p className="text-zinc-600">Total acordado</p>
-            <p className="font-semibold text-zinc-800">{fmt(ingresos.total_acordado)}</p>
+            <p className="text-zinc-400">Total acordado</p>
+            <p className="font-semibold text-zinc-200">{fmt(ingresos.total_acordado)}</p>
           </div>
           <div className="space-y-0.5">
-            <p className="text-zinc-600">Adelantos cobrados</p>
+            <p className="text-zinc-400">Adelantos cobrados</p>
             <p className="font-semibold text-brand">{fmt(ingresos.total_cobrado)}</p>
           </div>
           <div className="space-y-0.5">
-            <p className="text-zinc-600">Saldo pendiente (período)</p>
+            <p className="text-zinc-400">Saldo pendiente (período)</p>
             <p className="font-semibold text-orange-500">{fmt(ingresos.total_por_cobrar)}</p>
           </div>
           <div className="space-y-0.5">
-            <p className="text-zinc-600">Cobrado completo</p>
+            <p className="text-zinc-400">Cobrado completo</p>
             <p className="font-semibold text-green-600">{fmt(ingresos.cobrado_completo)}</p>
           </div>
         </div>

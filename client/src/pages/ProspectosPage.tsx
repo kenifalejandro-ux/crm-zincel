@@ -219,7 +219,7 @@ const eliminarSeleccionados = async () => {
         <div className="flex items-center gap-3">
           <div className="crm-section-accent h-8" />
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Prospectos</h1>
+            <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Prospectos</h1>
             <p className="text-xs text-slate-500 mt-0.5">{total} registros en total</p>
           </div>
         </div>

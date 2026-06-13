@@ -60,7 +60,7 @@ export function PaquetesWebChart() {
   if (cargando) {
     return (
       <div className={CARD_CLASS}>
-        <div className="animate-pulse h-40 bg-zinc-100 rounded-xl" />
+        <div className="animate-pulse h-40 bg-zinc-800 rounded-xl" />
       </div>
     );
   }
@@ -83,7 +83,7 @@ export function PaquetesWebChart() {
         </h2>
         {totalCotizados > 0 && (
           <div className="flex gap-3 text-[11px] text-zinc-500">
-            <span><span className="font-bold text-zinc-700">{totalCotizados}</span> cotizados</span>
+            <span><span className="font-bold text-zinc-300">{totalCotizados}</span> cotizados</span>
             <span><span className="font-bold text-emerald-600">{totalVendidos}</span> vendidos</span>
           </div>
         )}
@@ -109,7 +109,7 @@ export function PaquetesWebChart() {
                   </span>
                   <div className="flex items-center gap-3 text-[11px]">
                     <span className="text-zinc-500">
-                      <span className="font-bold text-zinc-800">{d.cotizados}</span> cotiz.
+                      <span className="font-bold text-zinc-200">{d.cotizados}</span> cotiz.
                     </span>
                     <span className="text-zinc-500">
                       <span className="font-bold text-emerald-600">{d.vendidos}</span> vend.
@@ -125,7 +125,7 @@ export function PaquetesWebChart() {
                   </div>
                 </div>
                 {/* Barra cotizados */}
-                <div className="relative w-full bg-zinc-100 rounded-full h-2">
+                <div className="relative w-full bg-zinc-800 rounded-full h-2">
                   <div
                     className="h-2 rounded-full transition-all duration-500"
                     style={{ width: `${pct}%`, backgroundColor: cfg.color }}

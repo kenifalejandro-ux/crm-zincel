@@ -1,5 +1,6 @@
 /**client/src/components/ui/Modal.tsx */
 
+import { MODAL_BASE } from "../../lib/tokens";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { GripHorizontal, X } from "lucide-react";
 
@@ -80,16 +81,14 @@ export function Modal({ abierto, onCerrar, titulo, children, size = "md", varian
       >
         <div
           ref={contentRef}
-          className={`rounded-2xl shadow-2xl w-full ${sizes[size]} max-h-[90vh] flex flex-col border ${
-            isDragging ? "ring-2 ring-brand/30 shadow-3xl" : ""
-          } ${variant === "dark" ? "bg-zinc-800 border-zinc-700" : "bg-white border-gray-200"}`}
+          className={`${MODAL_BASE} w-full ${sizes[size]} max-h-[90vh] flex flex-col ${ isDragging ? "ring-2 ring-brand/30 shadow-3xl" : "" } ${variant === "dark" ? "bg-zinc-800 border-zinc-700" : "bg-slate-800/60 border-white/10"}`}
         >
           {/* Header arrastrable */}
           <div
             onMouseDown={onHeaderMouseDown}
             className={`flex items-center justify-between px-6 py-4 shrink-0 select-none ${
               isDragging ? "cursor-grabbing" : "cursor-grab"
-            } ${variant === "dark" ? "border-b border-zinc-700" : "border-b border-gray-100"}`}
+            } ${variant === "dark" ? "border-b border-zinc-700" : "border-b border-white/8"}`}
           >
             <div className="flex items-center gap-2">
               <GripHorizontal size={13} className="text-zinc-300 shrink-0" />
@@ -99,7 +98,7 @@ export function Modal({ abierto, onCerrar, titulo, children, size = "md", varian
                   <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">{titulo}</h2>
                 </div>
               ) : (
-                <h2 className="text-base font-semibold text-zinc-800">{titulo}</h2>
+                <h2 className="text-base font-semibold text-zinc-200">{titulo}</h2>
               )}
             </div>
             <button
@@ -108,7 +107,7 @@ export function Modal({ abierto, onCerrar, titulo, children, size = "md", varian
               className={`p-1.5 rounded-lg transition cursor-pointer ${
                 variant === "dark"
                   ? "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
-                  : "text-zinc-800 hover:bg-gray-100"
+                  : "text-zinc-200 hover:bg-zinc-800"
               }`}
             >
               <X size={16} />
@@ -131,16 +130,12 @@ export function Modal({ abierto, onCerrar, titulo, children, size = "md", varian
       onClick={() => { if (!mouseDownInContent.current) onCerrar(); }}
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-      <div ref={contentRef} className={`relative rounded-2xl shadow-xl w-full ${sizes[size]} max-h-[90vh] flex flex-col ${
-        variant === "dark"
-          ? "bg-zinc-800 border border-zinc-700"
-          : "bg-white"
-      }`}>
+      <div ref={contentRef} className={`${MODAL_BASE} relative w-full ${sizes[size]} max-h-[90vh] flex flex-col ${ variant === "dark" ? "bg-zinc-800 border-zinc-700" : "bg-slate-800/60" }`}>
         {/* Header */}
         <div className={`flex items-center justify-between px-6 py-4 shrink-0 ${
           variant === "dark"
             ? "border-b border-zinc-700"
-            : "border-b border-gray-100"
+            : "border-b border-white/8"
         }`}>
           {variant === "dark" ? (
             <div className="flex items-center gap-2.5">
@@ -148,14 +143,14 @@ export function Modal({ abierto, onCerrar, titulo, children, size = "md", varian
               <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">{titulo}</h2>
             </div>
           ) : (
-            <h2 className="text-base font-semibold text-zinc-800">{titulo}</h2>
+            <h2 className="text-base font-semibold text-zinc-200">{titulo}</h2>
           )}
           <button
             onClick={onCerrar}
             className={`p-1.5 rounded-lg transition ${
               variant === "dark"
                 ? "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
-                : "text-zinc-800 hover:bg-gray-100"
+                : "text-zinc-200 hover:bg-zinc-800"
             }`}
           >
             <X size={16} />

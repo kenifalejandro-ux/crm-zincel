@@ -6,7 +6,7 @@ import { listarResultados, crearResultado, actualizarResultado, eliminarResultad
 import { getMetricas } from "../services/metricas.api";
 import type { Resultado, ResultadoInput, ConfianzaAtribucion } from "../types/resultado.types";
 import type { Metrica } from "../types/metricas.types";
-import { GLASS_BASE } from "../lib/tokens";
+import { GLASS_BASE, MODAL_BASE, INPUT_BASE } from "../lib/tokens";
 
 const EMPTY_FORM: ResultadoInput = {
   empresa:              "",
@@ -181,7 +181,7 @@ export default function ResultadosPage() {
         <div className="flex items-center gap-3">
           <div className="crm-section-accent h-8" />
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Resultados de campaña</h1>
+            <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Resultados de campaña</h1>
             <p className="text-xs text-slate-400 mt-0.5">Ventas atribuidas a campañas publicitarias</p>
           </div>
         </div>
@@ -196,15 +196,15 @@ export default function ResultadosPage() {
       {/* ── KPIs ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className={`${GLASS_BASE} px-5 py-5 space-y-1.5`}>
-          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><DollarSign size={11}/> Total ingresos atribuidos</p>
+          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-widest flex items-center gap-1.5"><DollarSign size={11}/> Total ingresos atribuidos</p>
           <p className="text-3xl font-black text-green-600 tabular-nums leading-tight">{S(totalIngresos)}</p>
         </div>
         <div className={`${GLASS_BASE} px-5 py-5 space-y-1.5`}>
-          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><ShoppingBag size={11}/> Total ventas registradas</p>
+          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-widest flex items-center gap-1.5"><ShoppingBag size={11}/> Total ventas registradas</p>
           <p className="text-3xl font-black text-blue-600 tabular-nums leading-tight">{totalVentas}</p>
         </div>
         <div className={`${GLASS_BASE} px-5 py-5 space-y-1.5`}>
-          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><TrendingUp size={11}/> Ticket promedio</p>
+          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-widest flex items-center gap-1.5"><TrendingUp size={11}/> Ticket promedio</p>
           <p className="text-3xl font-black text-violet-600 tabular-nums leading-tight">{S(ticketPromedio)}</p>
         </div>
       </div>
@@ -212,11 +212,11 @@ export default function ResultadosPage() {
       {/* ── Resumen por empresa ── */}
       {Object.keys(porEmpresa).length > 0 && (
         <div className={`${GLASS_BASE} overflow-hidden`}>
-          <div className="px-5 py-4 border-b border-slate-100">
-            <p className="text-sm font-bold text-slate-800">Por empresa</p>
+          <div className="px-5 py-4 border-b border-white/8">
+            <p className="text-sm font-bold text-slate-200">Por empresa</p>
           </div>
           <table className="w-full text-xs">
-            <thead className="bg-slate-50 text-slate-500 uppercase text-[10px]">
+            <thead className="bg-slate-800/40 text-zinc-100 uppercase text-[10px]">
               <tr>
                 <th className="px-5 py-2.5 text-left font-semibold">Empresa</th>
                 <th className="px-4 py-2.5 text-right font-semibold">Ventas</th>
@@ -226,11 +226,11 @@ export default function ResultadosPage() {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {Object.entries(porEmpresa).map(([emp, d]) => (
-                <tr key={emp} className="hover:bg-slate-50/60 transition">
-                  <td className="px-5 py-3 font-semibold text-slate-800">{emp}</td>
+                <tr key={emp} className="hover:bg-white/8/5/60 transition">
+                  <td className="px-5 py-3 font-semibold text-slate-200">{emp}</td>
                   <td className="px-4 py-3 text-right text-blue-600 font-medium">{d.ventas}</td>
                   <td className="px-4 py-3 text-right text-green-600 font-bold">{S(d.ingresos)}</td>
-                  <td className="px-4 py-3 text-right text-slate-600">{S(d.ingresos / d.ventas)}</td>
+                  <td className="px-4 py-3 text-right text-slate-400">{S(d.ingresos / d.ventas)}</td>
                 </tr>
               ))}
             </tbody>
@@ -241,18 +241,18 @@ export default function ResultadosPage() {
       {/* ── Tabla ── */}
       <div className="space-y-3">
         <div className="flex items-center gap-3 flex-wrap">
-          <p className="text-sm font-semibold text-zinc-800">Todas las ventas</p>
+          <p className="text-sm font-semibold text-zinc-200">Todas las ventas</p>
           <select
             value={filtroEmp}
             onChange={(e) => setFiltroEmp(e.target.value)}
-            className="text-xs border border-zinc-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className={`${INPUT_BASE} text-xs px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand/30`}
           >
             <option value="">Todas las empresas</option>
             {empresas.map((e) => <option key={e} value={e}>{e}</option>)}
           </select>
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+        <div className={`${GLASS_BASE} overflow-hidden`}>
           {loading ? (
             <div className="p-10 text-center text-zinc-400 text-sm">Cargando...</div>
           ) : errorCarga ? (
@@ -265,7 +265,7 @@ export default function ResultadosPage() {
             </div>
           ) : (
             <table className="w-full text-xs">
-              <thead className="bg-zinc-50 text-zinc-500 uppercase text-[10px]">
+              <thead className="bg-zinc-800/40 text-zinc-100 uppercase text-[10px]">
                 <tr>
                   <th className="px-5 py-2.5 text-left font-medium">Empresa</th>
                   <th className="px-4 py-2.5 text-left font-medium">Campaña(s)</th>
@@ -278,7 +278,7 @@ export default function ResultadosPage() {
                   <th className="px-4 py-2.5"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-50">
+              <tbody className="divide-y divide-white/5">
                 {resultados.map((r) => {
                   const monto    = Number(r.monto);
                   const costo    = Number(r.costo_venta ?? 0);
@@ -287,9 +287,9 @@ export default function ResultadosPage() {
                   const confCfg  = CONFIANZA_CFG[conf];
                   const numCamps = r.metrica_ids?.length ?? (r.metrica_id ? 1 : 0);
                   return (
-                    <tr key={r.id} className="hover:bg-zinc-50 transition">
-                      <td className="px-5 py-3 font-medium text-zinc-800">{r.empresa}</td>
-                      <td className="px-4 py-3 text-zinc-600 max-w-[180px]">
+                    <tr key={r.id} className="hover:bg-zinc-800/40 transition">
+                      <td className="px-5 py-3 font-medium text-zinc-200">{r.empresa}</td>
+                      <td className="px-4 py-3 text-zinc-400 max-w-[180px]">
                         {r.metrica_id || numCamps > 0 ? (
                           <>
                             <span className="truncate block">{r.campana_nombre}</span>
@@ -339,8 +339,8 @@ export default function ResultadosPage() {
       {/* ── Modal ── */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-sm font-bold text-zinc-900">
+          <div className={`${MODAL_BASE} w-full max-w-lg p-6 space-y-5 max-h-[90vh] overflow-y-auto`}>
+            <h2 className="text-sm font-bold text-zinc-100">
               {editando ? "Editar venta" : "Registrar venta"}
             </h2>
 
@@ -357,7 +357,7 @@ export default function ResultadosPage() {
                 <select
                   value={form.empresa}
                   onChange={(e) => setForm((f) => ({ ...f, empresa: e.target.value, metrica_ids: [], campana_nombre: "" }))}
-                  className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-brand/30"
+                  className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`}
                 >
                   <option value="">Selecciona empresa</option>
                   {empresas.map((e) => <option key={e} value={e}>{e}</option>)}
@@ -403,25 +403,25 @@ export default function ResultadosPage() {
                   {!form.empresa ? (
                     <p className="text-xs text-zinc-400 italic">Selecciona primero la empresa</p>
                   ) : (
-                    <div className="border border-zinc-200 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
+                    <div className="border border-white/10 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
                       {campanasDeLaEmpresa.map((m) => {
                         const sel       = form.metrica_ids.includes(m.id);
                         const esPrimaria = form.metrica_ids[0] === m.id;
                         return (
                           <label
                             key={m.id}
-                            className={`flex items-start gap-3 px-3 py-2.5 cursor-pointer transition border-b border-zinc-50 last:border-b-0 ${
-                              sel ? "bg-violet-50" : "hover:bg-zinc-50"
+                            className={`flex items-start gap-3 px-3 py-2.5 cursor-pointer transition border-b border-white/5 last:border-b-0 ${
+                              sel ? "bg-violet-50" : "hover:bg-zinc-800/40"
                             }`}
                           >
                             <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5 transition ${
-                              sel ? "bg-violet-600" : "border-2 border-zinc-300"
+                              sel ? "bg-violet-600" : "border-2 border-white/15"
                             }`}>
                               {sel && <Check size={10} className="text-white" strokeWidth={3} />}
                             </div>
                             <input type="checkbox" className="sr-only" checked={sel} onChange={() => toggleCampana(m.id)} />
                             <div className="flex-1 min-w-0">
-                              <p className={`text-xs font-medium truncate ${sel ? "text-violet-800" : "text-zinc-700"}`}>
+                              <p className={`text-xs font-medium truncate ${sel ? "text-violet-800" : "text-zinc-300"}`}>
                                 {m.campana_nombre}
                               </p>
                               <p className="text-[10px] text-zinc-400">
@@ -449,7 +449,7 @@ export default function ResultadosPage() {
                     value={form.monto || ""}
                     onChange={(e) => setForm((f) => ({ ...f, monto: Number(e.target.value) }))}
                     placeholder="ej. 300000"
-                    className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30"
+                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`}
                   />
                 </label>
                 <label className="block space-y-1">
@@ -459,7 +459,7 @@ export default function ResultadosPage() {
                     value={form.costo_venta || ""}
                     onChange={(e) => setForm((f) => ({ ...f, costo_venta: Number(e.target.value) }))}
                     placeholder="ej. 2500"
-                    className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30"
+                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`}
                   />
                 </label>
               </div>
@@ -473,7 +473,7 @@ export default function ResultadosPage() {
                     value={form.proyecto ?? ""}
                     onChange={(e) => setForm((f) => ({ ...f, proyecto: e.target.value }))}
                     placeholder="ej. Casa Villa del Sol"
-                    className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30"
+                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`}
                   />
                 </label>
                 <label className="block space-y-1">
@@ -482,7 +482,7 @@ export default function ResultadosPage() {
                     type="date"
                     value={form.fecha_venta}
                     onChange={(e) => setForm((f) => ({ ...f, fecha_venta: e.target.value }))}
-                    className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30"
+                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`}
                   />
                 </label>
               </div>
@@ -495,7 +495,7 @@ export default function ResultadosPage() {
                   onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))}
                   rows={2}
                   placeholder="Ej: Lead de campaña anterior que cerró tras ver nueva campaña..."
-                  className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30 resize-none"
+                  className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30 resize-none`}
                 />
               </label>
             </div>
@@ -503,7 +503,7 @@ export default function ResultadosPage() {
             <div className="flex gap-2 pt-1">
               <button
                 onClick={() => setModal(false)}
-                className="flex-1 py-2 text-sm border border-zinc-200 rounded-xl text-zinc-600 hover:bg-zinc-50 transition"
+                className="flex-1 py-2 text-sm border border-white/10 rounded-xl text-zinc-400 hover:bg-zinc-800/40 transition"
               >
                 Cancelar
               </button>

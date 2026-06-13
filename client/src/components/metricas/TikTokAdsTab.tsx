@@ -1,5 +1,6 @@
 /** src/components/metricas/TikTokAdsTab.tsx */
 
+import { GLASS_BASE } from "../../lib/tokens";
 import { useState } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -32,13 +33,13 @@ function fmtNum(v: number) {
 interface KpiCardProps { icon: React.ReactNode; label: string; value: string; sub?: string; color: string; }
 function KpiCard({ icon, label, value, sub, color }: KpiCardProps) {
   return (
-    <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-4 flex items-start gap-3">
+    <div className={`${GLASS_BASE} p-4 flex items-start gap-3`}>
       <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
         {icon}
       </div>
       <div className="min-w-0">
         <p className="text-[11px] text-zinc-500 font-medium">{label}</p>
-        <p className="text-lg font-bold text-zinc-800 leading-tight">{value}</p>
+        <p className="text-lg font-bold text-zinc-200 leading-tight">{value}</p>
         {sub && <p className="text-[10px] text-zinc-400 mt-0.5">{sub}</p>}
       </div>
     </div>
@@ -109,7 +110,7 @@ export function TikTokAdsTab({ metricas, empresa, onSync }: Props) {
             <span className="text-white text-sm font-bold">T</span>
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-zinc-800">TikTok Ads</h2>
+            <h2 className="text-sm font-semibold text-zinc-200">TikTok Ads</h2>
             <p className="text-[11px] text-zinc-500 mt-0.5">{empresa} · {tiktok.length} campaña{tiktok.length !== 1 ? "s" : ""}</p>
           </div>
         </div>
@@ -132,11 +133,11 @@ export function TikTokAdsTab({ metricas, empresa, onSync }: Props) {
 
       {tiktok.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-2xl bg-zinc-800 flex items-center justify-center">
             <TrendingUp size={28} className="text-zinc-400" />
           </div>
           <div>
-            <p className="text-sm font-medium text-zinc-700">Sin campañas de TikTok</p>
+            <p className="text-sm font-medium text-zinc-300">Sin campañas de TikTok</p>
             <p className="text-[12px] text-zinc-500 mt-1">
               Haz click en <strong>Sincronizar TikTok</strong> o usa el botón ⚡ para importar desde la API
             </p>
@@ -187,8 +188,8 @@ export function TikTokAdsTab({ metricas, empresa, onSync }: Props) {
 
           {/* Chart: Gasto por campaña */}
           {porCampana.length > 0 && (
-            <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-5">
-              <p className="text-sm font-semibold text-zinc-800 mb-4">Gasto por campaña</p>
+            <div className={`${GLASS_BASE} p-5`}>
+              <p className="text-sm font-semibold text-zinc-200 mb-4">Gasto por campaña</p>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={porCampana} margin={{ top: 0, right: 10, left: 0, bottom: 60 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
@@ -208,7 +209,7 @@ export function TikTokAdsTab({ metricas, empresa, onSync }: Props) {
                     formatter={(v: any) => [`S/ ${Number(v).toFixed(2)}`, "Gasto"]}
                     contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
                   />
-                  <Bar dataKey="gasto" radius={[4, 4, 0, 0]}>
+                  <Bar filter="url(#neon-glow)" dataKey="gasto" radius={[4, 4, 0, 0]}>
                     {porCampana.map((_, i) => (
                       <Cell key={i} fill={i === 0 ? "#000000" : i === 1 ? "#ec4899" : "#f0abfc"} />
                     ))}
@@ -219,45 +220,45 @@ export function TikTokAdsTab({ metricas, empresa, onSync }: Props) {
           )}
 
           {/* Tabla de campañas */}
-          <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
-            <div className="px-5 py-3 border-b border-zinc-100">
-              <p className="text-sm font-semibold text-zinc-800">Detalle de campañas</p>
+          <div className={`${GLASS_BASE} overflow-hidden`}>
+            <div className="px-5 py-3 border-b border-white/8">
+              <p className="text-sm font-semibold text-zinc-200">Detalle de campañas</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-zinc-100 bg-zinc-50">
-                    <th className="text-left px-4 py-2.5 font-medium text-zinc-500">Campaña</th>
-                    <th className="text-left px-4 py-2.5 font-medium text-zinc-500">Período</th>
-                    <th className="text-right px-4 py-2.5 font-medium text-zinc-500">Gasto</th>
-                    <th className="text-right px-4 py-2.5 font-medium text-zinc-500">Impresiones</th>
-                    <th className="text-right px-4 py-2.5 font-medium text-zinc-500">Alcance</th>
-                    <th className="text-right px-4 py-2.5 font-medium text-zinc-500">Clics</th>
-                    <th className="text-right px-4 py-2.5 font-medium text-zinc-500">CTR</th>
-                    <th className="text-right px-4 py-2.5 font-medium text-zinc-500">CPC</th>
-                    <th className="text-right px-4 py-2.5 font-medium text-zinc-500">CPM</th>
+                  <tr className="border-b border-white/8 bg-zinc-800/40">
+                    <th className="text-left px-4 py-2.5 font-medium text-zinc-100">Campaña</th>
+                    <th className="text-left px-4 py-2.5 font-medium text-zinc-100">Período</th>
+                    <th className="text-right px-4 py-2.5 font-medium text-zinc-100">Gasto</th>
+                    <th className="text-right px-4 py-2.5 font-medium text-zinc-100">Impresiones</th>
+                    <th className="text-right px-4 py-2.5 font-medium text-zinc-100">Alcance</th>
+                    <th className="text-right px-4 py-2.5 font-medium text-zinc-100">Clics</th>
+                    <th className="text-right px-4 py-2.5 font-medium text-zinc-100">CTR</th>
+                    <th className="text-right px-4 py-2.5 font-medium text-zinc-100">CPC</th>
+                    <th className="text-right px-4 py-2.5 font-medium text-zinc-100">CPM</th>
                   </tr>
                 </thead>
                 <tbody>
                   {tiktok.map(m => (
-                    <tr key={m.id} className="border-b border-zinc-50 hover:bg-zinc-50/50 transition">
+                    <tr key={m.id} className="border-b border-white/5 hover:bg-white/8/5/50 transition">
                       <td className="px-4 py-2.5 max-w-[200px]">
-                        <p className="font-medium text-zinc-800 truncate">{m.campana_nombre}</p>
+                        <p className="font-medium text-zinc-200 truncate">{m.campana_nombre}</p>
                       </td>
                       <td className="px-4 py-2.5 text-zinc-500 whitespace-nowrap">
                         {m.periodo_inicio.slice(0, 10)} → {m.periodo_fin.slice(0, 10)}
                       </td>
-                      <td className="px-4 py-2.5 text-right font-semibold text-zinc-800">
+                      <td className="px-4 py-2.5 text-right font-semibold text-zinc-200">
                         S/ {n(m.gasto).toFixed(2)}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-zinc-600">{fmtNum(n(m.impresiones))}</td>
-                      <td className="px-4 py-2.5 text-right text-zinc-600">{fmtNum(n(m.alcance))}</td>
-                      <td className="px-4 py-2.5 text-right text-zinc-600">{fmtNum(n(m.clics))}</td>
-                      <td className="px-4 py-2.5 text-right text-zinc-600">{n(m.ctr).toFixed(2)}%</td>
-                      <td className="px-4 py-2.5 text-right text-zinc-600">
+                      <td className="px-4 py-2.5 text-right text-zinc-400">{fmtNum(n(m.impresiones))}</td>
+                      <td className="px-4 py-2.5 text-right text-zinc-400">{fmtNum(n(m.alcance))}</td>
+                      <td className="px-4 py-2.5 text-right text-zinc-400">{fmtNum(n(m.clics))}</td>
+                      <td className="px-4 py-2.5 text-right text-zinc-400">{n(m.ctr).toFixed(2)}%</td>
+                      <td className="px-4 py-2.5 text-right text-zinc-400">
                         {n(m.cpc) > 0 ? `S/ ${n(m.cpc).toFixed(2)}` : "—"}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-zinc-600">
+                      <td className="px-4 py-2.5 text-right text-zinc-400">
                         {n(m.cpm) > 0 ? `S/ ${n(m.cpm).toFixed(2)}` : "—"}
                       </td>
                     </tr>

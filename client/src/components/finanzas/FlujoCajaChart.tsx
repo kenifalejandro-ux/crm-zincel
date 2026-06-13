@@ -1,6 +1,6 @@
 /** client/src/components/finanzas/FlujoCajaChart.tsx */
 
-import { COLORS, CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
@@ -12,8 +12,8 @@ import type { ResumenFinanciero } from "../../types/finanzas.types";
 const TooltipCustom = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-2 text-xs">
-      <p className="font-medium text-zinc-700 mb-1">{label}</p>
+    <div className={`${TOOLTIP_BASE} px-3 py-2 text-xs`}>
+      <p className="font-medium text-zinc-300 mb-1">{label}</p>
       {payload.map((p: any, i: number) => (
         <p key={i} style={{ color: p.color }}>
           {p.name}: S/ {Number(p.value).toLocaleString("es-PE", { minimumFractionDigits: 2 })}
@@ -54,9 +54,9 @@ export function FlujoCajaChart({ flujo }: Props) {
             tickFormatter={(v) => `S/${(v / 1000).toFixed(0)}k`} />
           <Tooltip content={<TooltipCustom />} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Area type="monotone" dataKey="ingresos" name="Ingresos" stackId="flujo"
+          <Area filter="url(#neon-glow)" type="monotone" dataKey="ingresos" name="Ingresos" stackId="flujo"
             stroke={COLORS.dark}   strokeWidth={2} fill="url(#gradIngresos)" />
-          <Area type="monotone" dataKey="egresos"  name="Egresos"  stackId="flujo"
+          <Area filter="url(#neon-glow)" type="monotone" dataKey="egresos"  name="Egresos"  stackId="flujo"
             stroke={COLORS.danger} strokeWidth={2} fill="url(#gradEgresos)"  />
         </AreaChart>
       </ResponsiveContainer>

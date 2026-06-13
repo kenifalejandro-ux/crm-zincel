@@ -17,7 +17,7 @@ import {
 
 import { getAnalisisFinanciero }  from "../services/finanzas.api";
 import { getEmpresas, getPeriodos, getAnalisisEmpresa } from "../services/analisisEmpresas.api";
-import { CARD_CLASS, HEADER_CLASS, COLORS }             from "../lib/tokens";
+import { CARD_CLASS, HEADER_CLASS, COLORS, TOOLTIP_BASE, BADGE_BASE, INPUT_BASE }             from "../lib/tokens";
 import type { AnalisisFinanciero, EstadoIndicador, SemaforoFinanciero } from "../types/finanzas.types";
 import type { EmpresaAnalisis, PeriodoFinanciero, AnalisisEmpresa, IndicadorConGauge } from "../types/analisisEmpresas.types";
 
@@ -45,7 +45,7 @@ function GaugeChart({ pct, colorHex }: { pct: number; colorHex: string }) {
   return (
     <PieChart width={130} height={75}>
       {/* Zona de fondo: rojo | naranja | verde */}
-      <Pie
+      <Pie filter="url(#neon-glow)"
         data={[{ v: 1 }, { v: 1 }, { v: 1 }]}
         startAngle={180} endAngle={0}
         cx={65} cy={70}
@@ -58,7 +58,7 @@ function GaugeChart({ pct, colorHex }: { pct: number; colorHex: string }) {
         <Cell fill="#6ee7b7" />
       </Pie>
       {/* Indicador de posición */}
-      <Pie
+      <Pie filter="url(#neon-glow)"
         data={[{ v: safe }, { v: Math.max(0.001, 1 - safe) }]}
         startAngle={180} endAngle={0}
         cx={65} cy={70}
@@ -93,7 +93,7 @@ function GaugeCard({ numero, titulo, indicador, formatear, descripcion, Icon }: 
   return (
     <div className={`${CARD_CLASS} flex flex-col gap-2`}>
       <div className="flex items-start justify-between">
-        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-tight">
+        <span className="text-[10px] font-bold text-zinc-100 uppercase tracking-widest leading-tight">
           {numero}. {titulo}
         </span>
         <Icon size={14} className={`${cfg.color} flex-shrink-0`} />
@@ -106,7 +106,7 @@ function GaugeCard({ numero, titulo, indicador, formatear, descripcion, Icon }: 
           {cfg.label}
         </span>
       </div>
-      <p className="text-[10px] text-zinc-500 text-center leading-relaxed border-t border-zinc-50 pt-2 min-h-[28px]">
+      <p className="text-[10px] text-zinc-500 text-center leading-relaxed border-t border-white/5 pt-2 min-h-[28px]">
         {descripcion}
       </p>
     </div>
@@ -128,12 +128,12 @@ function SemaforoGeneral({ semaforo }: { semaforo: SemaforoFinanciero }) {
       <h3 className={HEADER_CLASS}><span className="w-2 h-2 rounded-full bg-zinc-400 mr-2.5 inline-block" />Semáforo</h3>
       <div className="flex items-center gap-4">
         <div className="flex flex-col items-center gap-1.5">
-          <div className={`w-5 h-5 rounded-full ${cfg.v ? "bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-zinc-200"}`} />
-          <div className={`w-5 h-5 rounded-full ${cfg.a ? "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]"  : "bg-zinc-200"}`} />
-          <div className={`w-5 h-5 rounded-full ${cfg.r ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"    : "bg-zinc-200"}`} />
+          <div className={`w-5 h-5 rounded-full ${cfg.v ? "bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-zinc-700"}`} />
+          <div className={`w-5 h-5 rounded-full ${cfg.a ? "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]"  : "bg-zinc-700"}`} />
+          <div className={`w-5 h-5 rounded-full ${cfg.r ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"    : "bg-zinc-700"}`} />
         </div>
         <div>
-          <p className="text-xs font-bold text-zinc-800">{cfg.titulo}</p>
+          <p className="text-xs font-bold text-zinc-200">{cfg.titulo}</p>
           <p className="text-[10px] text-zinc-500 mt-0.5 leading-relaxed max-w-[180px]">{cfg.desc}</p>
         </div>
       </div>
@@ -146,8 +146,8 @@ function SemaforoGeneral({ semaforo }: { semaforo: SemaforoFinanciero }) {
 const TooltipSimple = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-2 text-xs">
-      <p className="font-medium text-zinc-600 mb-1">{label}</p>
+    <div className={`${TOOLTIP_BASE} px-3 py-2 text-xs`}>
+      <p className="font-medium text-zinc-400 mb-1">{label}</p>
       {payload.map((p: any, i: number) => (
         <p key={i} style={{ color: p.color ?? p.stroke }}>
           {p.name}: {typeof p.value === "number" ? p.value.toFixed(2) : p.value}
@@ -161,8 +161,8 @@ const DonutTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg shadow-sm px-3 py-2 text-xs">
-      <p className="font-semibold text-zinc-700">{d.nombre}</p>
+    <div className={`${TOOLTIP_BASE} px-3 py-2 text-xs`}>
+      <p className="font-semibold text-zinc-300">{d.nombre}</p>
       <p className="text-zinc-500">S/ {Number(d.valor).toLocaleString("es-PE", { minimumFractionDigits: 2 })}</p>
       <p className="text-zinc-400">{d.porcentaje?.toFixed(1)}%</p>
     </div>
@@ -330,13 +330,13 @@ function TablaInterpretacion({ indicadores, formatearPorClave }: TablaInterpreta
       <div className="overflow-x-auto">
         <table className="w-full text-[10px]">
           <thead>
-            <tr className="border-b border-zinc-100">
-              <th className="text-left py-2 pr-3 text-[9px] font-bold text-zinc-400 uppercase tracking-widest w-32">Indicador</th>
-              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-400 uppercase tracking-widest w-20">Valor</th>
-              <th className="text-left py-2 px-3 text-[9px] font-bold text-zinc-400 uppercase tracking-widest w-24 hidden sm:table-cell">Rango Óptimo</th>
-              <th className="text-center py-2 px-3 text-[9px] font-bold text-zinc-400 uppercase tracking-widest w-20">Estado</th>
-              <th className="text-left py-2 px-3 text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Diagnóstico</th>
-              <th className="text-left py-2 pl-3 text-[9px] font-bold text-zinc-400 uppercase tracking-widest hidden lg:table-cell">Acción Recomendada</th>
+            <tr className="border-b border-white/8">
+              <th className="text-left py-2 pr-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest w-32">Indicador</th>
+              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest w-20">Valor</th>
+              <th className="text-left py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest w-24 hidden sm:table-cell">Rango Óptimo</th>
+              <th className="text-center py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest w-20">Estado</th>
+              <th className="text-left py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Diagnóstico</th>
+              <th className="text-left py-2 pl-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest hidden lg:table-cell">Acción Recomendada</th>
             </tr>
           </thead>
           <tbody>
@@ -347,8 +347,8 @@ function TablaInterpretacion({ indicadores, formatearPorClave }: TablaInterpreta
               const ecfg = ESTADO_CFG[ind.estado] ?? ESTADO_CFG.sin_datos;
               const fmt  = formatearPorClave[key] ?? ((v: number) => v.toString());
               return (
-                <tr key={key} className={`border-b border-zinc-50 ${idx % 2 === 0 ? "" : "bg-zinc-50/40"}`}>
-                  <td className="py-2.5 pr-3 font-semibold text-zinc-700 leading-tight">{cfg.nombre}</td>
+                <tr key={key} className={`border-b border-white/5 ${idx % 2 === 0 ? "" : "bg-zinc-50/40"}`}>
+                  <td className="py-2.5 pr-3 font-semibold text-zinc-300 leading-tight">{cfg.nombre}</td>
                   <td className={`py-2.5 px-3 text-right font-bold tabular-nums ${ecfg.color}`}>
                     {ind.valor !== null ? fmt(ind.valor) : "N/D"}
                   </td>
@@ -359,7 +359,7 @@ function TablaInterpretacion({ indicadores, formatearPorClave }: TablaInterpreta
                       {ecfg.label}
                     </span>
                   </td>
-                  <td className="py-2.5 px-3 text-zinc-600 leading-relaxed">
+                  <td className="py-2.5 px-3 text-zinc-400 leading-relaxed">
                     {cfg.diagnostico(ind.valor, ind.estado)}
                   </td>
                   <td className="py-2.5 pl-3 text-zinc-500 leading-relaxed hidden lg:table-cell">
@@ -430,17 +430,17 @@ function BenchmarksSection({ sector, indicadores }: BenchmarksProps) {
           <BarChart2 size={14} className="mr-2.5 text-violet-500" />
           Comparación vs. sector: <span className="text-violet-600 ml-1">{sectorLabel}</span>
         </h3>
-        <span className="text-[9px] text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded-full">Valores de referencia sectorial</span>
+        <span className={`${BADGE_BASE} text-[9px] text-zinc-400 px-2 py-0.5`}>Valores de referencia sectorial</span>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-[10px]">
           <thead>
-            <tr className="border-b border-zinc-100">
-              <th className="text-left py-2 pr-3 text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Indicador</th>
-              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Empresa</th>
-              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Ref. Sector</th>
-              <th className="text-center py-2 px-3 text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Brecha</th>
-              <th className="text-center py-2 pl-3 text-[9px] font-bold text-zinc-400 uppercase tracking-widest hidden sm:table-cell">Vs. Sector</th>
+            <tr className="border-b border-white/8">
+              <th className="text-left py-2 pr-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Indicador</th>
+              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Empresa</th>
+              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Ref. Sector</th>
+              <th className="text-center py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Brecha</th>
+              <th className="text-center py-2 pl-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest hidden sm:table-cell">Vs. Sector</th>
             </tr>
           </thead>
           <tbody>
@@ -456,9 +456,9 @@ function BenchmarksSection({ sector, indicadores }: BenchmarksProps) {
                 ? `${diferencia > 0 ? "+" : ""}${fmtFn(diferencia)}`
                 : "—";
               return (
-                <tr key={key} className="border-b border-zinc-50">
-                  <td className="py-2.5 pr-3 font-semibold text-zinc-700">{nombre}</td>
-                  <td className={`py-2.5 px-3 text-right font-bold tabular-nums ${empresa === null ? "text-zinc-300" : "text-zinc-800"}`}>
+                <tr key={key} className="border-b border-white/5">
+                  <td className="py-2.5 pr-3 font-semibold text-zinc-300">{nombre}</td>
+                  <td className={`py-2.5 px-3 text-right font-bold tabular-nums ${empresa === null ? "text-zinc-300" : "text-zinc-200"}`}>
                     {empresa !== null ? fmtFn(empresa) : "N/D"}
                   </td>
                   <td className="py-2.5 px-3 text-right text-zinc-500 tabular-nums">{fmtFn(referencia)}</td>
@@ -471,11 +471,7 @@ function BenchmarksSection({ sector, indicadores }: BenchmarksProps) {
                   </td>
                   <td className="py-2.5 pl-3 text-center hidden sm:table-cell">
                     {diferencia === null ? null : (
-                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold ${
-                        esMejor ? "bg-emerald-50 text-emerald-700" :
-                        esPeor  ? "bg-red-50 text-red-600" :
-                        "bg-zinc-100 text-zinc-500"
-                      }`}>
+                      <span className={`${BADGE_BASE} inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-semibold ${ esMejor ? "bg-emerald-50 text-emerald-700" : esPeor ? "bg-red-50 text-red-600" : "bg-zinc-800 text-zinc-500" }`}>
                         {esMejor ? "↑ Sobre ref." : esPeor ? "↓ Bajo ref." : "= En línea"}
                       </span>
                     )}
@@ -608,7 +604,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
           {empresa.nombre.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1">
-          <p className="text-sm font-bold text-zinc-800">{empresa.nombre}</p>
+          <p className="text-sm font-bold text-zinc-200">{empresa.nombre}</p>
           <p className="text-[11px] text-zinc-500">
             {empresa.sector && `${empresa.sector} · `}{empresa.moneda} · {periodo.periodo}
             {" · "}{new Date(periodo.fecha_periodo).toLocaleDateString("es-PE", { day: "numeric", month: "long", year: "numeric" })}
@@ -638,8 +634,8 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
           { label: "Cuentas x Cobrar",   valor: Number(periodo.cuentas_por_cobrar),  ok: true },
         ].map(({ label, valor, ok }) => (
           <div key={label} className={CARD_CLASS}>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5">{label}</p>
-            <p className={`text-base font-extrabold tracking-tight ${ok ? "text-zinc-900" : "text-red-500"}`}>
+            <p className="text-[10px] text-zinc-100 uppercase tracking-wider font-semibold mb-1.5">{label}</p>
+            <p className={`text-base font-extrabold tracking-tight ${ok ? "text-zinc-100" : "text-red-500"}`}>
               {fmtM(valor)}
             </p>
           </div>
@@ -648,7 +644,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
 
       {/* 8 Gauges velocímetro */}
       <div>
-        <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <h2 className="text-xs font-semibold text-zinc-100 uppercase tracking-widest mb-4 flex items-center gap-2">
           Dashboard de 8 indicadores clave
           <span className="flex gap-1.5 items-center text-[9px] normal-case font-normal text-zinc-400">
             <span className="w-2 h-2 rounded-full bg-red-300 inline-block" /> Crítico
@@ -686,13 +682,13 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
               <PolarGrid stroke="#f4f4f5" />
               <PolarAngleAxis dataKey="indicador" tick={{ fontSize: 10, fill: "#71717a" }} />
               <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9, fill: "#a1a1aa" }} tickCount={3} />
-              <Radar name="Score" dataKey="valor" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.25} strokeWidth={2} />
+              <Radar filter="url(#neon-glow)" name="Score" dataKey="valor" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.25} strokeWidth={2} />
               <ReTooltip content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
                 const d = payload[0];
                 return (
-                  <div className="bg-white border border-zinc-200 rounded-lg px-3 py-1.5 text-xs shadow-sm">
-                    <p className="font-semibold text-zinc-700">{d.payload?.indicador}</p>
+                  <div className={`${TOOLTIP_BASE} px-3 py-1.5 text-xs`}>
+                    <p className="font-semibold text-zinc-300">{d.payload?.indicador}</p>
                     <p className="text-zinc-500">Score: {d.value}/100</p>
                   </div>
                 );
@@ -713,7 +709,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
               <YAxis tick={{ fontSize: 10, fill: "#71717a" }} axisLine={false} tickLine={false}
                 tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
               <Tooltip content={<TooltipSimple />} />
-              <Bar dataKey="valor" name="Valor" radius={[6, 6, 0, 0]}>
+              <Bar filter="url(#neon-glow)" dataKey="valor" name="Valor" radius={[6, 6, 0, 0]}>
                 {balanceData.map((d, i) => <Cell key={i} fill={d.fill} />)}
               </Bar>
             </BarChart>
@@ -729,22 +725,22 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
             <>
               <ResponsiveContainer width="100%" height={165}>
                 <PieChart>
-                  <Pie data={composicion_activos} dataKey="porcentaje" nameKey="nombre"
+                  <Pie filter="url(#neon-glow)" data={composicion_activos} dataKey="porcentaje" nameKey="nombre"
                     cx="50%" cy="50%" innerRadius={45} outerRadius={72} paddingAngle={2}>
                     {composicion_activos.map((e, i) => <Cell key={i} fill={e.color} />)}
                   </Pie>
                   <ReTooltip content={<DonutTooltip />} />
-                  <Legend formatter={v => <span className="text-[10px] text-zinc-600">{v}</span>} />
+                  <Legend formatter={v => <span className="text-[10px] text-zinc-400">{v}</span>} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-1 mt-1">
                 {composicion_activos.map(c => (
                   <div key={c.nombre} className="flex items-center justify-between text-[10px]">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.color }} />
+                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.color, boxShadow: `0 0 6px ${c.color}` }} />
                       <span className="text-zinc-500">{c.nombre}</span>
                     </div>
-                    <span className="font-semibold text-zinc-700">{c.porcentaje.toFixed(1)}%</span>
+                    <span className="font-semibold text-zinc-300">{c.porcentaje.toFixed(1)}%</span>
                   </div>
                 ))}
               </div>
@@ -758,22 +754,22 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
             <>
               <ResponsiveContainer width="100%" height={165}>
                 <PieChart>
-                  <Pie data={composicion_pasivos} dataKey="porcentaje" nameKey="nombre"
+                  <Pie filter="url(#neon-glow)" data={composicion_pasivos} dataKey="porcentaje" nameKey="nombre"
                     cx="50%" cy="50%" innerRadius={45} outerRadius={72} paddingAngle={2}>
                     {composicion_pasivos.map((e, i) => <Cell key={i} fill={e.color} />)}
                   </Pie>
                   <ReTooltip content={<DonutTooltip />} />
-                  <Legend formatter={v => <span className="text-[10px] text-zinc-600">{v}</span>} />
+                  <Legend formatter={v => <span className="text-[10px] text-zinc-400">{v}</span>} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-1 mt-1">
                 {composicion_pasivos.map(c => (
                   <div key={c.nombre} className="flex items-center justify-between text-[10px]">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.color }} />
+                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.color, boxShadow: `0 0 6px ${c.color}` }} />
                       <span className="text-zinc-500">{c.nombre}</span>
                     </div>
-                    <span className="font-semibold text-zinc-700">{c.porcentaje.toFixed(1)}%</span>
+                    <span className="font-semibold text-zinc-300">{c.porcentaje.toFixed(1)}%</span>
                   </div>
                 ))}
               </div>
@@ -797,10 +793,10 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
                 tickFormatter={v => `${v?.toFixed(0) ?? 0}`} />
               <Tooltip content={<TooltipSimple />} />
               <Legend wrapperStyle={{ fontSize: 10 }} />
-              <Line type="monotone" dataKey="liquidez_corriente" name="Liquidez"   stroke={COLORS.primary}   strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="endeudamiento"       name="Endeud. %" stroke="#f87171"           strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="roe"                 name="ROE %"     stroke={COLORS.success}   strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="disponibilidad"      name="Disp. %"   stroke={COLORS.mutedLight} strokeWidth={2} dot={{ r: 3 }} />
+              <Line filter="url(#neon-glow)" type="monotone" dataKey="liquidez_corriente" name="Liquidez"   stroke={COLORS.primary}   strokeWidth={2} dot={{ r: 3 }} />
+              <Line filter="url(#neon-glow)" type="monotone" dataKey="endeudamiento"       name="Endeud. %" stroke="#f87171"           strokeWidth={2} dot={{ r: 3 }} />
+              <Line filter="url(#neon-glow)" type="monotone" dataKey="roe"                 name="ROE %"     stroke={COLORS.success}   strokeWidth={2} dot={{ r: 3 }} />
+              <Line filter="url(#neon-glow)" type="monotone" dataKey="disponibilidad"      name="Disp. %"   stroke={COLORS.mutedLight} strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -812,7 +808,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
           <h3 className={HEADER_CLASS}><span className="w-2 h-2 rounded-full bg-zinc-400 mr-2.5 inline-block" />Hallazgos Principales</h3>
           <ul className="space-y-2.5">
             {hallazgos.map((h, i) => (
-              <li key={i} className="flex items-start gap-2 text-[11px] text-zinc-600 leading-relaxed">
+              <li key={i} className="flex items-start gap-2 text-[11px] text-zinc-400 leading-relaxed">
                 {h.tipo === "positivo"
                   ? <CheckCircle2 size={13} className="text-emerald-500 mt-0.5 flex-shrink-0" />
                   : <XCircle     size={13} className="text-red-400 mt-0.5 flex-shrink-0" />}
@@ -829,7 +825,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
                 <span className="w-5 h-5 rounded-full bg-zinc-900 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                   {i + 1}
                 </span>
-                <p className="text-[11px] text-zinc-600 leading-relaxed flex-1">{r}</p>
+                <p className="text-[11px] text-zinc-400 leading-relaxed flex-1">{r}</p>
                 <ChevronRight size={11} className="text-zinc-300 mt-0.5 flex-shrink-0" />
               </li>
             ))}
@@ -916,15 +912,15 @@ function PanelInterno() {
           { label: "Caja y Bancos",    valor: resumen.caja_bancos,        ok: resumen.caja_bancos >= 0 },
         ].map(({ label, valor, ok }) => (
           <div key={label} className={CARD_CLASS}>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5">{label}</p>
-            <p className={`text-base font-extrabold tracking-tight ${ok ? "text-zinc-900" : "text-red-500"}`}>{fmt(valor)}</p>
+            <p className="text-[10px] text-zinc-100 uppercase tracking-wider font-semibold mb-1.5">{label}</p>
+            <p className={`text-base font-extrabold tracking-tight ${ok ? "text-zinc-100" : "text-red-500"}`}>{fmt(valor)}</p>
           </div>
         ))}
       </div>
 
       {/* 8 Gauges */}
       <div>
-        <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <h2 className="text-xs font-semibold text-zinc-100 uppercase tracking-widest mb-4 flex items-center gap-2">
           Dashboard de 8 indicadores clave
           <span className="flex gap-1.5 items-center text-[9px] normal-case font-normal text-zinc-400">
             <span className="w-2 h-2 rounded-full bg-red-300 inline-block" /> Crítico
@@ -956,7 +952,7 @@ function PanelInterno() {
               <PolarGrid stroke="#f4f4f5" />
               <PolarAngleAxis dataKey="indicador" tick={{ fontSize: 10, fill: "#71717a" }} />
               <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9, fill: "#a1a1aa" }} tickCount={3} />
-              <Radar name="Score" dataKey="valor" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.25} strokeWidth={2} />
+              <Radar filter="url(#neon-glow)" name="Score" dataKey="valor" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.25} strokeWidth={2} />
             </RadarChart>
           </ResponsiveContainer>
         </div>
@@ -966,22 +962,22 @@ function PanelInterno() {
             <>
               <ResponsiveContainer width="100%" height={165}>
                 <PieChart>
-                  <Pie data={composicion_activos} dataKey="porcentaje" nameKey="nombre"
+                  <Pie filter="url(#neon-glow)" data={composicion_activos} dataKey="porcentaje" nameKey="nombre"
                     cx="50%" cy="50%" innerRadius={45} outerRadius={72} paddingAngle={2}>
                     {composicion_activos.map((e, i) => <Cell key={i} fill={e.color} />)}
                   </Pie>
                   <ReTooltip content={<DonutTooltip />} />
-                  <Legend formatter={v => <span className="text-[10px] text-zinc-600">{v}</span>} />
+                  <Legend formatter={v => <span className="text-[10px] text-zinc-400">{v}</span>} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-1 mt-1">
                 {composicion_activos.map(c => (
                   <div key={c.nombre} className="flex items-center justify-between text-[10px]">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full" style={{ background: c.color }} />
+                      <span className="w-2 h-2 rounded-full" style={{ background: c.color, boxShadow: `0 0 6px ${c.color}` }} />
                       <span className="text-zinc-500">{c.nombre}</span>
                     </div>
-                    <span className="font-semibold text-zinc-700">{c.porcentaje.toFixed(1)}%</span>
+                    <span className="font-semibold text-zinc-300">{c.porcentaje.toFixed(1)}%</span>
                   </div>
                 ))}
               </div>
@@ -997,7 +993,7 @@ function PanelInterno() {
           <h3 className={HEADER_CLASS}><span className="w-2 h-2 rounded-full bg-zinc-400 mr-2.5 inline-block" />Hallazgos</h3>
           <ul className="space-y-2">
             {hallazgos.map((h, i) => (
-              <li key={i} className="flex items-start gap-2 text-[11px] text-zinc-600 leading-relaxed">
+              <li key={i} className="flex items-start gap-2 text-[11px] text-zinc-400 leading-relaxed">
                 {h.tipo === "positivo"
                   ? <CheckCircle2 size={13} className="text-emerald-500 mt-0.5 flex-shrink-0" />
                   : <XCircle     size={13} className="text-red-400 mt-0.5 flex-shrink-0" />}
@@ -1012,7 +1008,7 @@ function PanelInterno() {
             {recomendaciones.map((r, i) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="w-5 h-5 rounded-full bg-zinc-900 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                <p className="text-[11px] text-zinc-600 leading-relaxed">{r}</p>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">{r}</p>
               </li>
             ))}
           </ol>
@@ -1061,13 +1057,13 @@ export default function AnalisisFinancieroPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Análisis Financiero</h1>
+          <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">Análisis Financiero</h1>
           <p className="text-xs text-zinc-500 mt-0.5">Ratios, indicadores y lectura financiera basada en datos reales</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 bg-zinc-800 p-1 rounded-lg w-fit">
         {([
           { value: "interno" as const, label: "Mis Finanzas"  },
           { value: "empresa" as const, label: "Por Empresa"   },
@@ -1076,7 +1072,7 @@ export default function AnalisisFinancieroPage() {
             key={t.value}
             onClick={() => setTab(t.value)}
             className={`px-4 py-1.5 text-xs rounded-md transition ${
-              tab === t.value ? "bg-white shadow-sm text-zinc-800 font-medium" : "text-zinc-600 hover:text-zinc-700"
+              tab === t.value ? "bg-slate-800/60 shadow-sm text-zinc-200 font-medium" : "text-zinc-400 hover:text-zinc-300"
             }`}
           >
             {t.label}
@@ -1088,11 +1084,11 @@ export default function AnalisisFinancieroPage() {
       {tab === "empresa" && (
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <label className="text-[11px] font-medium text-zinc-600 block mb-1">Empresa</label>
+            <label className="text-[11px] font-medium text-zinc-400 block mb-1">Empresa</label>
             <select
               value={empresaId}
               onChange={e => handleEmpresaChange(e.target.value)}
-              className="border border-zinc-200 rounded-lg px-3 py-2 text-xs bg-white focus:outline-none focus:border-zinc-400 min-w-[200px]"
+              className={`${INPUT_BASE} px-3 py-2 text-xs focus:outline-none focus:border-zinc-400 min-w-[200px]`}
             >
               <option value="">Seleccionar empresa…</option>
               {empresas.map(e => (
@@ -1102,11 +1098,11 @@ export default function AnalisisFinancieroPage() {
           </div>
           {empresaId && periodos.length > 0 && (
             <div>
-              <label className="text-[11px] font-medium text-zinc-600 block mb-1">Período</label>
+              <label className="text-[11px] font-medium text-zinc-400 block mb-1">Período</label>
               <select
                 value={periodoId}
                 onChange={e => handlePeriodoChange(e.target.value)}
-                className="border border-zinc-200 rounded-lg px-3 py-2 text-xs bg-white focus:outline-none focus:border-zinc-400 min-w-[160px]"
+                className={`${INPUT_BASE} px-3 py-2 text-xs focus:outline-none focus:border-zinc-400 min-w-[160px]`}
               >
                 {periodos.map(p => (
                   <option key={p.id} value={p.id}>{p.periodo}</option>
@@ -1126,7 +1122,7 @@ export default function AnalisisFinancieroPage() {
       {tab === "empresa" && !empresaId && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <BarChart2 size={40} className="text-zinc-300 mb-3" />
-          <p className="text-sm font-medium text-zinc-600">Selecciona una empresa para ver su análisis</p>
+          <p className="text-sm font-medium text-zinc-400">Selecciona una empresa para ver su análisis</p>
           <p className="text-xs text-zinc-400 mt-1">Registra empresas en Finanzas → Empresas</p>
         </div>
       )}

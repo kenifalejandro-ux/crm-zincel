@@ -6,7 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
 } from "recharts";
-import { COLORS } from "../../lib/tokens";
+import { COLORS, MODAL_BASE, BADGE_BASE, INPUT_BASE, PANEL_BASE } from "../../lib/tokens";
 
 const CPL_BENCHMARK = 80;
 const C_REAL = COLORS.muted;
@@ -127,38 +127,38 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white w-full sm:max-w-xl rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[92vh]">
+      <div className={`${MODAL_BASE} w-full sm:max-w-xl sm:rounded-2xl flex flex-col max-h-[92vh]`}>
 
         {/* ── Header ── */}
-        <div className="px-5 pt-5 pb-4 border-b border-zinc-100">
+        <div className="px-5 pt-5 pb-4 border-b border-white/8">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-[11px] font-semibold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded-full">Simulador de campaña</span>
+                <span className={`${BADGE_BASE} text-[11px] font-semibold text-zinc-300 px-2 py-0.5`}>Simulador de campaña</span>
                 <span className="text-[11px] text-zinc-400">{datos.diasHistorial} días de historial</span>
               </div>
-              <h2 className="text-sm font-bold text-zinc-900">¿Qué pasaría con S/ {presupuestoExtra} más?</h2>
+              <h2 className="text-sm font-bold text-zinc-100">¿Qué pasaría con S/ {presupuestoExtra} más?</h2>
               <div className="flex items-center gap-1.5 mt-1 text-xs flex-wrap">
                 <span className="text-zinc-500">S/ {datos.gasto.toFixed(2)}</span>
                 <span className="text-zinc-300">+</span>
                 <span className="text-[#ceab11] font-semibold">S/ {presupuestoExtra}</span>
                 <span className="text-zinc-300">=</span>
-                <span className="font-bold text-zinc-900">S/ {totalNuevo.toFixed(2)}</span>
-                <span className="text-zinc-500 bg-zinc-100 px-1.5 py-0.5 rounded-full text-[10px]">×{factor.toFixed(2)}</span>
+                <span className="font-bold text-zinc-100">S/ {totalNuevo.toFixed(2)}</span>
+                <span className={`${BADGE_BASE} text-zinc-500 px-1.5 py-0.5 text-[10px]`}>×{factor.toFixed(2)}</span>
               </div>
             </div>
-            <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-zinc-100 transition shrink-0">
+            <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-zinc-800 transition shrink-0">
               <X size={15} className="text-zinc-500" />
             </button>
           </div>
 
-          <div className="flex gap-1 mt-4 bg-zinc-100 rounded-xl p-1">
+          <div className="flex gap-1 mt-4 bg-zinc-800 rounded-xl p-1">
             {TABS_MODAL.map((t) => (
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition ${
-                  tab === t.key ? "bg-white shadow-sm text-zinc-900" : "text-zinc-500 hover:text-zinc-700"
+                  tab === t.key ? "bg-slate-800/60 shadow-sm text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
                 }`}
               >
                 {t.icon}{t.label}
@@ -186,14 +186,10 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                     <div key={s.label} className="space-y-1.5">
                       <div className="flex items-center justify-between flex-wrap gap-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-zinc-700">{s.label}</span>
+                          <span className="text-xs font-semibold text-zinc-300">{s.label}</span>
                           <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${s.tagColor}`}>{s.tag}</span>
                           {s.extra && (
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                              s.label === "Leads" && cplReal > CPL_BENCHMARK ? "bg-red-100 text-red-600" :
-                              s.label === "Leads" && cplReal > 0 ? "bg-green-100 text-green-600" :
-                              "bg-zinc-100 text-zinc-500"
-                            }`}>{s.extra}</span>
+                            <span className={`${BADGE_BASE} text-[10px] px-1.5 py-0.5 font-medium ${ s.label === "Leads" && cplReal > CPL_BENCHMARK ? "bg-red-100 text-red-600" : s.label === "Leads" && cplReal > 0 ? "bg-green-100 text-green-600" : "bg-zinc-800 text-zinc-500" }`}>{s.extra}</span>
                           )}
                         </div>
                         <div className="text-xs flex items-center gap-2">
@@ -202,7 +198,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                           <span className="font-bold text-[#ceab11]">~{s.proy.toLocaleString()}</span>
                         </div>
                       </div>
-                      <div className="relative h-3 bg-zinc-100 rounded-full overflow-hidden">
+                      <div className="relative h-3 bg-zinc-800 rounded-full overflow-hidden">
                         <div className="absolute inset-0 rounded-full opacity-30" style={{ width: `${pctProy}%`, backgroundColor: s.color }} />
                         <div className="absolute inset-0 rounded-full" style={{ width: `${pctReal}%`, backgroundColor: s.color }} />
                       </div>
@@ -240,18 +236,18 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
               <p className="text-xs text-zinc-500">Simula la próxima campaña ajustando el presupuesto, tipo y CPL objetivo. Los caminos A/B/C te muestran qué esperar según la estrategia.</p>
 
               {/* Inputs */}
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 space-y-3">
-                <p className="text-xs font-semibold text-zinc-700">Parámetros de la próxima campaña</p>
+              <div className={`${PANEL_BASE} p-4 space-y-3`}>
+                <p className="text-xs font-semibold text-zinc-300">Parámetros de la próxima campaña</p>
                 <div className="grid grid-cols-2 gap-3">
                   <label className="space-y-1">
                     <span className="text-[10px] text-zinc-500">Presupuesto (S/)</span>
                     <input type="number" value={budgetSim} onChange={(e) => setBudgetSim(Number(e.target.value))}
-                      className="w-full text-sm border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-brand/30" />
+                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand/30`} />
                   </label>
                   <label className="space-y-1">
                     <span className="text-[10px] text-zinc-500">Tasa de cierre (%)</span>
                     <input type="number" min={0} max={100} value={tasaSim} onChange={(e) => setTasaSim(Number(e.target.value))}
-                      className="w-full text-sm border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-brand/30" />
+                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand/30`} />
                   </label>
                 </div>
                 <div>
@@ -259,7 +255,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                   <div className="flex gap-2">
                     {[{ k: "if" as const, l: "Instant Form" }, { k: "mensajes" as const, l: "Mensajes / Tráfico" }].map((t) => (
                       <button key={t.k} onClick={() => setTipoSim(t.k)}
-                        className={`flex-1 text-xs py-1.5 rounded-lg border font-medium transition ${tipoSim === t.k ? "bg-zinc-900 text-white border-zinc-900" : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"}`}>
+                        className={`flex-1 text-xs py-1.5 rounded-lg border font-medium transition ${tipoSim === t.k ? "bg-zinc-900 text-white border-zinc-900" : "bg-slate-800/60 text-zinc-400 border-white/10 hover:border-zinc-400"}`}>
                         {t.l}
                       </button>
                     ))}
@@ -269,7 +265,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                   <label className="space-y-1">
                     <span className="text-[10px] text-zinc-500">CPL objetivo (S/) — benchmark S/ {CPL_BENCHMARK}</span>
                     <input type="number" min={1} value={cplObjetivo} onChange={(e) => setCplObjetivo(Number(e.target.value))}
-                      className="w-full text-sm border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-brand/30" />
+                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand/30`} />
                     {cplReal > 0 && (
                       <p className="text-[10px] text-zinc-400">CPL actual histórico: S/ {cplReal.toFixed(0)} — benchmark: S/ {CPL_BENCHMARK}</p>
                     )}
@@ -279,7 +275,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                   <label className="space-y-1">
                     <span className="text-[10px] text-zinc-500">Costo objetivo por mensaje (S/)</span>
                     <input type="number" min={0.1} step={0.1} value={costoMsgSim} onChange={(e) => setCostoMsgSim(Number(e.target.value))}
-                      className="w-full text-sm border border-zinc-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-brand/30" />
+                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand/30`} />
                   </label>
                 )}
               </div>
@@ -289,15 +285,15 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                 <div className={`rounded-xl border p-4 space-y-3 ${cplObjetivo <= CPL_BENCHMARK ? "border-green-200 bg-green-50" : "border-amber-200 bg-amber-50"}`}>
                   <div className="flex items-center gap-2">
                     <Target size={14} className={cplObjetivo <= CPL_BENCHMARK ? "text-green-600" : "text-amber-500"} />
-                    <p className="text-xs font-bold text-zinc-800">Proyección — Instant Form con CPL S/ {cplObjetivo}</p>
+                    <p className="text-xs font-bold text-zinc-200">Proyección — Instant Form con CPL S/ {cplObjetivo}</p>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center">
-                    <div><p className="text-[10px] text-zinc-400">Presupuesto</p><p className="text-base font-bold text-zinc-800">S/ {budgetSim.toLocaleString("es-PE")}</p></div>
+                    <div><p className="text-[10px] text-zinc-400">Presupuesto</p><p className="text-base font-bold text-zinc-200">S/ {budgetSim.toLocaleString("es-PE")}</p></div>
                     <div><p className="text-[10px] text-zinc-400">Leads</p><p className={`text-base font-bold ${cplObjetivo <= CPL_BENCHMARK ? "text-green-600" : "text-amber-600"}`}>~{leadsSimIF}</p></div>
-                    <div><p className="text-[10px] text-zinc-400">Ventas est.</p><p className="text-base font-bold text-zinc-800">~{ventasSimIF}</p></div>
+                    <div><p className="text-[10px] text-zinc-400">Ventas est.</p><p className="text-base font-bold text-zinc-200">~{ventasSimIF}</p></div>
                   </div>
                   {cplReal > 0 && (
-                    <p className="text-[10px] text-zinc-500 border-t border-zinc-200 pt-2">
+                    <p className="text-[10px] text-zinc-500 border-t border-white/10 pt-2">
                       vs historial con S/ {budgetSim.toLocaleString("es-PE")}: ~{Math.round(budgetSim / cplReal)} leads al CPL actual (S/ {cplReal.toFixed(0)})
                     </p>
                   )}
@@ -308,12 +304,12 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                 <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-3">
                   <div className="flex items-center gap-2">
                     <Target size={14} className="text-blue-600" />
-                    <p className="text-xs font-bold text-zinc-800">Proyección — Tráfico/Mensajes con S/ {costoMsgSim}/mensaje</p>
+                    <p className="text-xs font-bold text-zinc-200">Proyección — Tráfico/Mensajes con S/ {costoMsgSim}/mensaje</p>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center">
-                    <div><p className="text-[10px] text-zinc-400">Presupuesto</p><p className="text-base font-bold text-zinc-800">S/ {budgetSim.toLocaleString("es-PE")}</p></div>
+                    <div><p className="text-[10px] text-zinc-400">Presupuesto</p><p className="text-base font-bold text-zinc-200">S/ {budgetSim.toLocaleString("es-PE")}</p></div>
                     <div><p className="text-[10px] text-zinc-400">Mensajes</p><p className="text-base font-bold text-blue-600">~{mensajesSimMsg.toLocaleString()}</p></div>
-                    <div><p className="text-[10px] text-zinc-400">Ventas est.</p><p className="text-base font-bold text-zinc-800">~{ventasSimMsg}</p></div>
+                    <div><p className="text-[10px] text-zinc-400">Ventas est.</p><p className="text-base font-bold text-zinc-200">~{ventasSimMsg}</p></div>
                   </div>
                   <p className="text-[10px] text-zinc-400 border-t border-blue-200 pt-2">
                     Tasa de cierre mensajes estimada: {(tasaSim * 0.3).toFixed(1)}% (mensajes no filtrados tienen menor calidad que Instant Form)
@@ -324,7 +320,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
               {/* Caminos A / B / C aplicados al budget del simulador */}
               {tipoSim === "if" && (
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold text-zinc-600">Caminos según estrategia — con S/ {budgetSim.toLocaleString("es-PE")}</p>
+                  <p className="text-xs font-semibold text-zinc-400">Caminos según estrategia — con S/ {budgetSim.toLocaleString("es-PE")}</p>
                   {caminos.map((c) => {
                     const cplC = cplReal > 0 ? Math.round(cplReal * (1 - c.reduccion)) : cplObjetivo;
                     const leadsC = cplC > 0 ? Math.round(budgetSim / cplC) : 0;
@@ -332,12 +328,12 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                     return (
                       <div key={c.id} className={`rounded-xl border ${c.bg} px-4 py-3 flex items-center justify-between gap-2 flex-wrap`}>
                         <div>
-                          <p className="text-xs font-semibold text-zinc-800">Camino {c.id} — {c.label}</p>
+                          <p className="text-xs font-semibold text-zinc-200">Camino {c.id} — {c.label}</p>
                           <p className="text-[10px] text-zinc-500">CPL objetivo: S/ {cplC}</p>
                         </div>
                         <div className="flex gap-4 text-center">
                           <div><p className="text-[10px] text-zinc-400">Leads</p><p className={`text-sm font-bold ${c.color}`}>~{leadsC}</p></div>
-                          <div><p className="text-[10px] text-zinc-400">Ventas</p><p className="text-sm font-bold text-zinc-800">~{ventasC}</p></div>
+                          <div><p className="text-[10px] text-zinc-400">Ventas</p><p className="text-sm font-bold text-zinc-200">~{ventasC}</p></div>
                         </div>
                       </div>
                     );
@@ -358,7 +354,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
 
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-zinc-600">Volumen: Real vs Proyectado</p>
+                  <p className="text-xs font-semibold text-zinc-400">Volumen: Real vs Proyectado</p>
                   <div className="flex items-center gap-3 text-xs text-zinc-500">
                     <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-slate-400 inline-block"/> Real</span>
                     <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ backgroundColor: C_PROY }}/> Proyectado</span>
@@ -370,8 +366,8 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                       <XAxis dataKey="name" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                       <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
                       <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }} formatter={(val) => [Number(val).toLocaleString(), ""]} />
-                      <Bar dataKey="real"       name="Real"       fill={C_REAL} radius={[4,4,0,0]} />
-                      <Bar dataKey="proyectado" name="Proyectado" fill={C_PROY} radius={[4,4,0,0]} opacity={0.85} />
+                      <Bar filter="url(#neon-glow)" dataKey="real"       name="Real"       fill={C_REAL} radius={[4,4,0,0]} />
+                      <Bar filter="url(#neon-glow)" dataKey="proyectado" name="Proyectado" fill={C_PROY} radius={[4,4,0,0]} opacity={0.85} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -382,24 +378,24 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                   <RadarChart data={radarData}>
                     <PolarGrid stroke="#e4e4e7" />
                     <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10, fill: "#71717a" }} />
-                    <Radar name="Real"       dataKey="real"       fill={C_REAL} fillOpacity={0.3} stroke={C_REAL} strokeWidth={1.5} />
-                    <Radar name="Proyectado" dataKey="proyectado" fill={C_PROY} fillOpacity={0.2} stroke={C_PROY} strokeWidth={2} />
+                    <Radar filter="url(#neon-glow)" name="Real"       dataKey="real"       fill={C_REAL} fillOpacity={0.3} stroke={C_REAL} strokeWidth={1.5} />
+                    <Radar filter="url(#neon-glow)" name="Proyectado" dataKey="proyectado" fill={C_PROY} fillOpacity={0.2} stroke={C_PROY} strokeWidth={2} />
                     <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }} formatter={(val, name) => [`${Number(val).toFixed(1)}`, name as string]} />
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
 
-              <div className="rounded-xl border border-zinc-200 overflow-hidden">
+              <div className="rounded-xl border border-white/10 overflow-hidden">
                 <table className="w-full text-xs">
-                  <thead className="bg-zinc-50">
+                  <thead className="bg-zinc-800/40">
                     <tr>
-                      <th className="text-left px-3 py-2.5 text-zinc-500 font-medium">Métrica</th>
-                      <th className="text-right px-3 py-2.5 text-zinc-600 font-medium">Real</th>
+                      <th className="text-left px-3 py-2.5 text-zinc-100 font-medium">Métrica</th>
+                      <th className="text-right px-3 py-2.5 text-zinc-100 font-medium">Real</th>
                       <th className="text-right px-3 py-2.5 text-[#ceab11] font-medium">Proyectado</th>
                       <th className="text-right px-3 py-2.5 text-green-600 font-medium">Δ</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-50">
+                  <tbody className="divide-y divide-white/5">
                     {[
                       { l: "Inversión",    r: `S/${datos.gasto.toFixed(2)}`,             pr: `S/${totalNuevo.toFixed(2)}`,          delta: `+S/${presupuestoExtra}`,             esc: true  },
                       { l: "Impresiones",  r: datos.impresiones.toLocaleString(),         pr: `~${p.impresiones.toLocaleString()}`,  delta: `+${((factor-1)*100).toFixed(0)}%`,  esc: true  },
@@ -411,8 +407,8 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                       { l: "CTR",          r: `${datos.ctr.toFixed(2)}%`,                pr: `${p.ctr.toFixed(2)}%`,               delta: "=",                                  esc: false },
                       { l: "CPC",          r: `S/${datos.cpc.toFixed(2)}`,               pr: `S/${p.cpc.toFixed(2)}`,              delta: "=",                                  esc: false },
                     ].map((row) => (
-                      <tr key={row.l} className="hover:bg-zinc-50">
-                        <td className="px-3 py-2 text-zinc-700 font-medium">{row.l}</td>
+                      <tr key={row.l} className="hover:bg-zinc-800/40">
+                        <td className="px-3 py-2 text-zinc-300 font-medium">{row.l}</td>
                         <td className="px-3 py-2 text-right text-zinc-500">{row.r}</td>
                         <td className="px-3 py-2 text-right text-[#b08d47] font-semibold">{row.pr}</td>
                         <td className={`px-3 py-2 text-right font-medium ${row.esc ? "text-green-600" : "text-zinc-400"}`}>{row.delta}</td>
@@ -422,11 +418,11 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                 </table>
               </div>
 
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 space-y-2">
-                <p className="text-xs font-semibold text-zinc-700 flex items-center gap-1.5">
+              <div className={`${PANEL_BASE} p-4 space-y-2`}>
+                <p className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
                   <Lightbulb size={12} className="text-amber-500" /> Próximos pasos recomendados
                 </p>
-                <ol className="space-y-1.5 text-xs text-zinc-600 list-decimal list-inside">
+                <ol className="space-y-1.5 text-xs text-zinc-400 list-decimal list-inside">
                   <li>Activar Instant Form para capturar leads directamente y medir CPL real.</li>
                   <li>Preguntas filtro en el formulario: ¿busca para vivir o invertir? ¿tiene presupuesto?</li>
                   <li>Conectar webhook para que los leads lleguen al CRM automáticamente.</li>
@@ -438,7 +434,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
 
         </div>
 
-        <div className="px-5 pb-5 pt-3 border-t border-zinc-100">
+        <div className="px-5 pb-5 pt-3 border-t border-white/8">
           <button onClick={onCerrar} className="w-full py-2.5 text-sm font-medium bg-zinc-900 text-white rounded-xl hover:bg-zinc-700 transition">
             Cerrar
           </button>

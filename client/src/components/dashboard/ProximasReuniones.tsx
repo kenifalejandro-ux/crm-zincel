@@ -15,20 +15,20 @@ export function ProximasReuniones({ reuniones }: Props) {
         Próximas reuniones
       </h2>
       {reuniones.length === 0 ? (
-        <p className="text-[12px] text-zinc-600 text-center py-6 font-medium">No hay reuniones programadas</p>
+        <p className="text-[12px] text-zinc-400 text-center py-6 font-medium">No hay reuniones programadas</p>
       ) : (
         <div className="space-y-1">
           {reuniones.map((r, i) => (
-            <div key={r.id || i} className="flex items-center justify-between py-3 border-b border-zinc-100/50 last:border-0">
+            <div key={r.id || i} className="flex items-center justify-between py-3 border-b border-white/8/50 last:border-0">
               <div>
-                <p className="text-[13px] font-semibold text-zinc-900 mb-0.5">{r.titulo}</p>
-                <p className="text-[11px] text-zinc-700 uppercase tracking-wide">{r.empresa} <span className="mx-1">·</span> {r.modalidad}</p>
+                <p className="text-[13px] font-semibold text-zinc-100 mb-0.5">{r.titulo}</p>
+                <p className="text-[11px] text-zinc-100 uppercase tracking-wide">{r.empresa} <span className="mx-1">·</span> {r.modalidad}</p>
               </div>
               <div className="text-right">
-                <p className="text-[12px] font-medium text-zinc-900">
+                <p className="text-[12px] font-medium text-zinc-100">
                   {new Date(r.fecha_hora).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
                 </p>
-                <p className="text-[11px] text-zinc-600">
+                <p className="text-[11px] text-zinc-400">
                   {new Date(r.fecha_hora).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
                 </p>
               </div>

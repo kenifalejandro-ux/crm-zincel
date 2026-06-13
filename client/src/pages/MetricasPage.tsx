@@ -305,7 +305,7 @@ export default function MetricasPage() {
         <div className="flex items-center gap-3">
           <div className="crm-section-accent h-8" />
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Métricas de campañas</h1>
+            <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">Métricas de campañas</h1>
             <p className="text-xs text-zinc-500 mt-0.5">Meta Ads · Google Ads · TikTok Ads</p>
           </div>
         </div>
@@ -320,6 +320,28 @@ export default function MetricasPage() {
               onDelete={eliminarSeleccionados}
               onAsignarProyectos={asignarProyecto}
             />
+
+            {/* Importar desde API */}
+            <button
+              onClick={() => setModalAPI(true)}
+              className="relative group p-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white transition shadow-[0_0_14px_rgba(139,92,246,0.5)]"
+            >
+              <Zap size={17} />
+              <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+                Importar desde API
+              </span>
+            </button>
+
+            {/* Importar CSV */}
+            <button
+              onClick={() => setModalCSV(true)}
+              className="relative group p-2 rounded-xl bg-slate-800/60 hover:bg-slate-700 border border-white/10 text-zinc-300 transition"
+            >
+              <Upload size={17} />
+              <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+                Importar CSV
+              </span>
+            </button>
 
             {/* Registro manual */}
             <button
@@ -353,7 +375,7 @@ export default function MetricasPage() {
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition ${
                 soloVentas
                   ? "bg-emerald-50 border-emerald-300 text-emerald-700"
-                  : "bg-white border-zinc-200 text-zinc-500 hover:border-zinc-300"
+                  : "bg-slate-800/60 border-white/10 text-zinc-500 hover:border-white/15"
               }`}
             >
               <span className={`w-2 h-2 rounded-full ${soloVentas ? "bg-emerald-500" : "bg-zinc-300"}`} />

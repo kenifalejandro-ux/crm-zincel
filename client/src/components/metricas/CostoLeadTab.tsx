@@ -1,5 +1,6 @@
 /** src/components/metricas/CostoLeadTab.tsx */
 
+import { GLASS_BASE, BADGE_BASE, PANEL_BASE } from "../../lib/tokens";
 import { useEffect, useMemo, useState } from "react";
 import { DollarSign, MessageSquare, BarChart3, Sparkles } from "lucide-react";
 import { Metrica } from "../../types/metricas.types";
@@ -121,7 +122,7 @@ export function CostoLeadTab({ metricas, empresa }: Props) {
 
   if (!empresaEfectiva) {
     return (
-      <div className="flex items-start gap-3 bg-zinc-50 border border-dashed border-zinc-300 rounded-xl px-5 py-6 text-xs text-zinc-500">
+      <div className={`${PANEL_BASE} flex items-start gap-3 border-dashed px-5 py-6 text-xs text-zinc-500`}>
         <DollarSign size={16} className="mt-0.5 text-zinc-400 shrink-0" />
         <p>Selecciona una empresa en los filtros para ver CPL y costo por venta atribuida.</p>
       </div>
@@ -133,51 +134,51 @@ export function CostoLeadTab({ metricas, empresa }: Props) {
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-base">📈</span>
         <div>
-          <p className="text-sm font-semibold text-zinc-800">Costo por Lead & Costo por Venta Atribuida</p>
+          <p className="text-sm font-semibold text-zinc-200">Costo por Lead & Costo por Venta Atribuida</p>
           <p className="text-xs text-zinc-500">Basado en las métricas y las ventas registradas en Resultados.</p>
         </div>
         {sectorActivo && (
-          <span className="text-[10px] bg-violet-50 text-violet-600 border border-violet-200 px-2 py-0.5 rounded-full font-medium">
+          <span className={`${BADGE_BASE} text-[10px] text-violet-600 border-violet-200 px-2 py-0.5 font-medium`}>
             {sectorLabel(sectorActivo)}
           </span>
         )}
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white border border-zinc-200 rounded-xl px-4 py-4">
-          <p className="text-[10px] text-zinc-500 uppercase">Gasto total</p>
-          <p className="text-lg font-bold text-zinc-900 mt-2">{FMT_SOL(resumen.totalGasto)}</p>
+        <div className={`${GLASS_BASE} px-4 py-4`}>
+          <p className="text-[10px] text-zinc-100 uppercase">Gasto total</p>
+          <p className="text-lg font-bold text-zinc-100 mt-2">{FMT_SOL(resumen.totalGasto)}</p>
         </div>
-        <div className="bg-white border border-zinc-200 rounded-xl px-4 py-4">
-          <p className="text-[10px] text-zinc-500 uppercase">Leads totales</p>
-          <p className="text-lg font-bold text-zinc-900 mt-2">{resumen.totalLeads.toLocaleString()}</p>
+        <div className={`${GLASS_BASE} px-4 py-4`}>
+          <p className="text-[10px] text-zinc-100 uppercase">Leads totales</p>
+          <p className="text-lg font-bold text-zinc-100 mt-2">{resumen.totalLeads.toLocaleString()}</p>
         </div>
-        <div className="bg-white border border-zinc-200 rounded-xl px-4 py-4">
-          <p className="text-[10px] text-zinc-500 uppercase">CPL promedio</p>
-          <p className="text-lg font-bold text-zinc-900 mt-2">{resumen.cpl !== null ? FMT_SOL(resumen.cpl) : "—"}</p>
+        <div className={`${GLASS_BASE} px-4 py-4`}>
+          <p className="text-[10px] text-zinc-100 uppercase">CPL promedio</p>
+          <p className="text-lg font-bold text-zinc-100 mt-2">{resumen.cpl !== null ? FMT_SOL(resumen.cpl) : "—"}</p>
         </div>
-        <div className="bg-white border border-zinc-200 rounded-xl px-4 py-4">
-          <p className="text-[10px] text-zinc-500 uppercase">Ventas atribuidas</p>
-          <p className="text-lg font-bold text-zinc-900 mt-2">{resumen.ventasAtribuidas}</p>
+        <div className={`${GLASS_BASE} px-4 py-4`}>
+          <p className="text-[10px] text-zinc-100 uppercase">Ventas atribuidas</p>
+          <p className="text-lg font-bold text-zinc-100 mt-2">{resumen.ventasAtribuidas}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="bg-white border border-zinc-200 rounded-xl p-4">
-          <p className="text-[10px] text-zinc-500 uppercase">Monto atribuido</p>
-          <p className="text-xl font-bold text-zinc-900 mt-2">{FMT_SOL(resumen.totalMonto)}</p>
+        <div className={`${GLASS_BASE} p-4`}>
+          <p className="text-[10px] text-zinc-100 uppercase">Monto atribuido</p>
+          <p className="text-xl font-bold text-zinc-100 mt-2">{FMT_SOL(resumen.totalMonto)}</p>
           <p className="text-[11px] text-zinc-500 mt-2">Total de ingresos atribuidos a las campañas con ventas registradas.</p>
         </div>
-        <div className="bg-white border border-zinc-200 rounded-xl p-4">
-          <p className="text-[10px] text-zinc-500 uppercase">Costo por venta atribuida</p>
-          <p className="text-xl font-bold text-zinc-900 mt-2">{resumen.costoPorVenta !== null ? FMT_SOL(resumen.costoPorVenta) : "—"}</p>
+        <div className={`${GLASS_BASE} p-4`}>
+          <p className="text-[10px] text-zinc-100 uppercase">Costo por venta atribuida</p>
+          <p className="text-xl font-bold text-zinc-100 mt-2">{resumen.costoPorVenta !== null ? FMT_SOL(resumen.costoPorVenta) : "—"}</p>
           <p className="text-[11px] text-zinc-500 mt-2">Incluye gasto de pauta + costo de cierre dividido por ventas atribuidas.</p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 overflow-hidden">
+      <div className="rounded-xl border border-white/10 overflow-hidden">
         <table className="w-full text-xs">
-          <thead className="bg-zinc-50 text-zinc-500 uppercase text-[10px]">
+          <thead className="bg-zinc-800/40 text-zinc-100 uppercase text-[10px]">
             <tr>
               <th className="px-4 py-3 text-left">Campaña</th>
               <th className="px-4 py-3 text-right">Gasto</th>
@@ -188,24 +189,24 @@ export function CostoLeadTab({ metricas, empresa }: Props) {
               <th className="px-4 py-3 text-right">ROAS atribuido</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-50">
+          <tbody className="divide-y divide-white/5">
             {tabla.map((c) => (
-              <tr key={c.nombre} className="hover:bg-zinc-50 transition">
-                <td className="px-4 py-3 font-medium text-zinc-800 max-w-[220px] truncate">{c.nombre}</td>
-                <td className="px-4 py-3 text-right text-zinc-600">{FMT_SOL(c.gasto)}</td>
-                <td className="px-4 py-3 text-right text-zinc-600">{c.leads.toLocaleString()}</td>
-                <td className="px-4 py-3 text-right text-zinc-800">{c.cpl !== null ? FMT_SOL(c.cpl) : "—"}</td>
-                <td className="px-4 py-3 text-right text-zinc-800">{c.ventas}</td>
-                <td className="px-4 py-3 text-right text-zinc-800">{c.costoPorVentaAtribuida !== null ? FMT_SOL(c.costoPorVentaAtribuida) : "—"}</td>
-                <td className="px-4 py-3 text-right text-zinc-800">{c.roasAtribuido !== null ? `${c.roasAtribuido.toFixed(1)}x` : "—"}</td>
+              <tr key={c.nombre} className="hover:bg-zinc-800/40 transition">
+                <td className="px-4 py-3 font-medium text-zinc-200 max-w-[220px] truncate">{c.nombre}</td>
+                <td className="px-4 py-3 text-right text-zinc-400">{FMT_SOL(c.gasto)}</td>
+                <td className="px-4 py-3 text-right text-zinc-400">{c.leads.toLocaleString()}</td>
+                <td className="px-4 py-3 text-right text-zinc-200">{c.cpl !== null ? FMT_SOL(c.cpl) : "—"}</td>
+                <td className="px-4 py-3 text-right text-zinc-200">{c.ventas}</td>
+                <td className="px-4 py-3 text-right text-zinc-200">{c.costoPorVentaAtribuida !== null ? FMT_SOL(c.costoPorVentaAtribuida) : "—"}</td>
+                <td className="px-4 py-3 text-right text-zinc-200">{c.roasAtribuido !== null ? `${c.roasAtribuido.toFixed(1)}x` : "—"}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 text-xs text-zinc-500">
-        <p className="font-semibold text-zinc-700">Notas</p>
+      <div className={`${PANEL_BASE} p-4 text-xs text-zinc-500`}>
+        <p className="font-semibold text-zinc-300">Notas</p>
         <ul className="list-disc list-inside space-y-1 mt-2">
           <li>El CPL se calcula a partir del gasto total dividido por leads registradas en las métricas.</li>
           <li>El costo por venta atribuida incluye el gasto de pauta y el costo de cierre registrado en Resultados.</li>

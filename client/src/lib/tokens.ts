@@ -1,66 +1,96 @@
 /** client/src/lib/tokens.ts
  *
- *  Tokens de diseño — colores para recharts (fill/stroke).
- *  Para botones y clases Tailwind, cambia --color-brand en globals.css.
- *  COLORS.primary debe coincidir con --color-brand.
+ *  Tokens de diseño — versión premium.
+ *  Las bases visuales viven en styles/neon.css (clases .neon-*) para que
+ *  el glow sea AJUSTABLE globalmente vía variables CSS (--accent, --glow)
+ *  sin tocar cientos de clases Tailwind arbitrarias.
+ *
+ *  Los nombres exportados se mantienen — el resto del CRM no necesita cambios.
  */
 
-
-// ── Colores hex (usados en recharts fill/stroke y valores inline) ─────────────
+// ── Colores hex (recharts fill/stroke y valores inline) ──────────────────────
 export const COLORS = {
-  primary:      "#ceab11",  // debe coincidir con --color-brand en globals.css
-  primaryHover: "#b08d47",  // gold oscuro para hover
-  ejemplo:      "#fcf8ec",  // gold oscuro para hover
-  primaryLight: "#b8cbe8",  // gold muy claro (barras de fondo, fills suaves)
-  dark:         "#27272a",  // zinc-800 (negro suave, contraste fuerte)
-  muted:        "#52525b",  // zinc-600 (gris legible)
-  mutedDark:    "#3f3f46",  // zinc-700 (gris oscuro legible)
-  mutedLight:   "#ceab11",  // debe coincidir con --color-brand en globals.css
-  danger:       "#f87171",  // red-400 (errores, cancelaciones)
-  success:      "#22c55e",  // green-500 (propuestas, logros, confirmaciones)
-  surface:      "#f4f4f5",  // zinc-100 (grids, fondos de gráfico)
+  primary:      "#06b6d4",  // cyan-500 — debe coincidir con --accent de neon.css
+  primaryHover: "#0891b2",  // cyan-600
+  primaryLight: "#164e63",  // cyan-900
+  dark:         "#e2e8f0",  // slate-200
+  muted:        "#94a3b8",  // slate-400
+  mutedDark:    "#64748b",  // slate-500
+  mutedLight:   "#22d3ee",  // cyan-400
+  danger:       "#f87171",  // red-400
+  warning:      "#fbbf24",  // amber-400
+  success:      "#34d399",  // emerald-400
+  surface:      "#1e293b",  // slate-800
 } as const;
 
-
-// ── Paleta ordenada para gráficos multi-serie ─────────────────────────────────
+// ── Paleta ordenada para gráficos multi-serie ────────────────────────────────
 export const CHART_PALETTE: string[] = [
-  COLORS.dark,
   COLORS.primary,
-  COLORS.muted,
+  "#a855f7",   // violeta
+  "#ec4899",   // rosa
   COLORS.mutedLight,
+  COLORS.muted,
   COLORS.mutedDark,
   COLORS.primaryLight,
-  "#52525b",  // zinc-700
 ];
 
+// ── Etapas del pipeline (colores neon compartidos por todo el CRM) ──────────
+export const ETAPA_COLOR: Record<string, string> = {
+  nuevo:             "#06b6d4",
+  contactado:        "#3b82f6",
+  interesado:        "#22d3ee",
+  propuesta_enviada: "#a855f7",
+  negociacion:       "#ec4899",
+};
 
-// ── Glass · ÚNICA fuente de verdad del efecto glassmorphism ───────────────────
-// Cambia SOLO esta constante para ajustar el glass en todo el CRM.
-// La consumen: <GlassCard>, CARD_CLASS, SECTION_PANEL y las clases .crm-card/.crm-section-panel.
-export const GLASS_BASE =
-  "bg-amber-400/10 backdrop-blur-xl border border-white/60 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04),_0_8px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/[0.03]"
+// ═══════════════════════════════════════════════════════════════════════════
+//  BASES POR TIPO DE ELEMENTO — definidas en styles/neon.css
+//  Cambia --accent / --glow en :root para ajustar TODO el CRM de una vez.
+// ═══════════════════════════════════════════════════════════════════════════
 
-export const GLASS_HOVER =
-  "transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.12)]"
+export const CARD_BASE   = "neon-card";
+export const GLASS_BASE  = CARD_BASE;                 // alias retro-compatible
+export const CARD_PURPLE = "neon-card neon-violet";
+export const CARD_PINK   = "neon-card neon-pink";
 
-// ── Clases Tailwind reutilizables (derivadas del glass) ───────────────────────
-export const CARD_CLASS =
-  `${GLASS_BASE} ${GLASS_HOVER} p-6`
+export const PANEL_BASE  = "neon-panel";
+export const PANEL_HOVER = "neon-panel neon-panel-hover";
 
-export const SECTION_PANEL =
-  `${GLASS_BASE} p-6`
+export const BADGE_BASE  = "neon-badge";
+export const INPUT_BASE  = "neon-input";
+export const MODAL_BASE  = "neon-modal";
+
+export const STICKY_BASE =
+  "bg-slate-900/90 backdrop-blur-xl border-b border-white/[0.07]";
+
+export const TOOLTIP_BASE = "neon-tooltip";
+
+export const GLASS_HOVER = "neon-hover";
+
+// ── Botones ──────────────────────────────────────────────────────────────────
+export const BTN_PRIMARY = "btn-primary";
+export const BTN_GHOST   = "btn-ghost";
+
+// ── Texto / tipografía ───────────────────────────────────────────────────────
+export const HEADING_TEXT = "text-zinc-100";
+
+export const CARD_CLASS    = `${GLASS_BASE} ${GLASS_HOVER} p-6`;
+export const SECTION_PANEL = `${GLASS_BASE} p-6`;
 
 export const DATA_VALUE_CLASS =
-  "text-2xl font-bold tabular-nums leading-tight"
+  "font-display text-2xl font-bold tabular-nums leading-tight text-zinc-100";
 
 export const LABEL_CLASS_SM =
-  "text-[10px] font-semibold uppercase tracking-widest text-slate-400"
+  "text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500";
 
 export const PAGE_TITLE =
-  "text-2xl font-bold text-slate-900 tracking-tight"
+  "font-display text-2xl font-bold text-zinc-100 tracking-tight";
 
 export const SECTION_TITLE =
-  "text-sm font-semibold text-slate-800"
+  "text-sm font-semibold text-zinc-200";
+
+export const SECTION_KICKER =
+  "text-[10px] font-bold uppercase tracking-[0.2em] text-accent";
 
 export const HEADER_CLASS =
-  "text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-5 flex items-center gap-0";
+  "text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-5 flex items-center gap-0";

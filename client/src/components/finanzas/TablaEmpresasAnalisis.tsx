@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Edit2, Trash2, ChevronDown, ChevronRight, BarChart2, Calendar, TrendingUp, Zap } from "lucide-react";
-import { CARD_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, BADGE_BASE, PANEL_BASE } from "../../lib/tokens";
 import { useEditar } from "../../hooks/useEditar";
 import {
   getEmpresas, crearEmpresa, actualizarEmpresa, eliminarEmpresa,
@@ -178,7 +178,7 @@ export function TablaEmpresasAnalisis() {
       {empresas.length === 0 && (
         <div className={`${CARD_CLASS} text-center py-14`}>
           <BarChart2 size={32} className="mx-auto text-zinc-300 mb-3" />
-          <p className="text-sm font-medium text-zinc-600">Sin empresas registradas</p>
+          <p className="text-sm font-medium text-zinc-400">Sin empresas registradas</p>
           <p className="text-xs text-zinc-400 mt-1">Agrega una empresa para ingresar sus datos financieros y generar el análisis.</p>
         </div>
       )}
@@ -194,7 +194,7 @@ export function TablaEmpresasAnalisis() {
             <div className="flex items-start gap-3">
               <button
                 onClick={() => toggleExpandir(empresa.id)}
-                className="mt-0.5 p-1 hover:bg-zinc-100 rounded-lg transition text-zinc-400 flex-shrink-0"
+                className="mt-0.5 p-1 hover:bg-zinc-800 rounded-lg transition text-zinc-400 flex-shrink-0"
               >
                 {expandida ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               </button>
@@ -202,9 +202,9 @@ export function TablaEmpresasAnalisis() {
               <div className="flex-1 min-w-0">
                 {/* Nombre + sector */}
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-sm font-semibold text-zinc-800">{empresa.nombre}</p>
+                  <p className="text-sm font-semibold text-zinc-200">{empresa.nombre}</p>
                   {empresa.sector && (
-                    <span className="text-[10px] bg-zinc-100 text-zinc-500 px-2 py-0.5 rounded-full">{empresa.sector}</span>
+                    <span className={`${BADGE_BASE} text-[10px] text-zinc-500 px-2 py-0.5`}>{empresa.sector}</span>
                   )}
                   <span className="text-[10px] text-zinc-400">{empresa.moneda}</span>
                 </div>
@@ -258,13 +258,13 @@ export function TablaEmpresasAnalisis() {
                 )}
                 <button
                   onClick={() => setModalPeriodo(empresa.id)}
-                  className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] bg-zinc-100 hover:bg-zinc-200 text-zinc-600 rounded-lg transition"
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-lg transition"
                 >
                   <Plus size={11} /> Período
                 </button>
                 <button
                   onClick={() => editEmpresa.abrir(empresa)}
-                  className="p-1.5 hover:bg-zinc-100 rounded-lg transition text-zinc-400"
+                  className="p-1.5 hover:bg-zinc-800 rounded-lg transition text-zinc-400"
                 >
                   <Edit2 size={13} />
                 </button>
@@ -279,14 +279,14 @@ export function TablaEmpresasAnalisis() {
 
             {/* ── Períodos expandidos ── */}
             {expandida && (
-              <div className="mt-4 border-t border-zinc-50 pt-4 space-y-2">
+              <div className="mt-4 border-t border-white/5 pt-4 space-y-2">
                 {periodos.length === 0 && (
                   <p className="text-xs text-zinc-400 text-center py-4">Sin períodos. Agrega el primer período financiero.</p>
                 )}
                 {periodos.map(p => (
-                  <div key={p.id} className="flex items-center gap-3 bg-zinc-50 rounded-xl px-4 py-3">
+                  <div key={p.id} className={`${PANEL_BASE} flex items-center gap-3 px-4 py-3`}>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-zinc-700">{p.periodo}</p>
+                      <p className="text-xs font-semibold text-zinc-300">{p.periodo}</p>
                       <p className="text-[10px] text-zinc-400 mt-0.5">{fmtFecha(p.fecha_periodo)}</p>
                     </div>
                     <div className="hidden sm:flex items-center gap-4 text-[10px] text-zinc-500">
@@ -303,7 +303,7 @@ export function TablaEmpresasAnalisis() {
                       </button>
                       <button
                         onClick={() => editPeriodo.abrir({ ...p, empresa_nombre: empresa.nombre })}
-                        className="p-1.5 hover:bg-white rounded-lg transition text-zinc-400"
+                        className="p-1.5 hover:bg-slate-800/60 rounded-lg transition text-zinc-400"
                       >
                         <Edit2 size={12} />
                       </button>

@@ -6,7 +6,7 @@ import type { Okr } from "../../types/okr.types";
 import { getOkrs, createOkr } from "../../services/okr.api";
 import { OkrCard } from "./OkrCard";
 import { OkrModal } from "./OkrModal";
-import { CARD_CLASS } from "../../lib/tokens";
+import { CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
 
 const anioActual = new Date().getFullYear();
 const mesActual  = new Date().getMonth(); // 0-indexed
@@ -61,14 +61,14 @@ export function OkrList() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Target size={14} className="text-brand" />
-          <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+          <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">
             OKRs Corporativos
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={cargar}
-            className="p-1.5 text-zinc-400 hover:text-brand transition rounded-lg hover:bg-zinc-100"
+            className="p-1.5 text-zinc-400 hover:text-brand transition rounded-lg hover:bg-zinc-800"
             title="Actualizar"
           >
             <RefreshCw size={13} className={cargando ? "animate-spin" : ""} />
@@ -94,7 +94,7 @@ export function OkrList() {
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
                 anioFiltro === a
                   ? "bg-zinc-900 text-white"
-                  : "bg-white border border-zinc-200 text-zinc-500 hover:border-zinc-300"
+                  : "bg-slate-800/60 border border-white/10 text-zinc-500 hover:border-white/15"
               }`}
             >
               {a}
@@ -102,7 +102,7 @@ export function OkrList() {
           ))}
         </div>
 
-        <div className="w-px h-4 bg-zinc-200" />
+        <div className="w-px h-4 bg-zinc-700" />
 
         {/* Trimestre */}
         <div className="flex gap-1">
@@ -113,7 +113,7 @@ export function OkrList() {
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
                 qFiltro === t.q
                   ? "bg-amber-50 text-brand border border-brand/30"
-                  : "bg-white border border-zinc-200 text-zinc-500 hover:border-zinc-300"
+                  : "bg-slate-800/60 border border-white/10 text-zinc-500 hover:border-white/15"
               }`}
             >
               {t.label}
@@ -127,19 +127,19 @@ export function OkrList() {
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-xs text-zinc-400">{resumen.total} objetivo{resumen.total !== 1 ? "s" : ""}</span>
           {resumen.encamino > 0 && (
-            <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+            <span className={`${BADGE_BASE} flex items-center gap-1 text-[11px] font-semibold text-emerald-700 px-2 py-0.5`}>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               {resumen.encamino} en camino
             </span>
           )}
           {resumen.riesgo > 0 && (
-            <span className="flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
+            <span className={`${BADGE_BASE} flex items-center gap-1 text-[11px] font-semibold text-amber-700 px-2 py-0.5`}>
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
               {resumen.riesgo} en riesgo
             </span>
           )}
           {resumen.critico > 0 && (
-            <span className="flex items-center gap-1 text-[11px] font-semibold text-red-700 bg-red-50 px-2 py-0.5 rounded-full">
+            <span className={`${BADGE_BASE} flex items-center gap-1 text-[11px] font-semibold text-red-700 px-2 py-0.5`}>
               <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
               {resumen.critico} crítico{resumen.critico > 1 ? "s" : ""}
             </span>

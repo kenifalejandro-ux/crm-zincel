@@ -17,7 +17,7 @@ import TareasPage        from "../pages/TareasPage";
 import PipelinePage      from "../pages/PipelinePage";
 import PlantillasPage    from "../pages/PlantillasPage";
 import InteligenciaPage  from "../pages/InteligenciaPage";
-import InicioPage        from "../pages/InicioPage";
+import { InicioPage }    from "../features/inicio/InicioPage";
 import ObjetivosPage          from "../pages/ObjetivosPage";
 import OkrPage                from "../pages/OkrPage";
 import AnalisisIntentosPage   from "../pages/AnalisisIntentosPage";

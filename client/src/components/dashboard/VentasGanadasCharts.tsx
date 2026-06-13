@@ -51,8 +51,8 @@ function SubChart({
               cursor={{ fill: "rgba(0,0,0,0.02)" }}
             />
             <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 10, paddingTop: 6 }} />
-            <Bar dataKey="Ganadas"  fill="#22c55e" radius={[0, 3, 3, 0]} barSize={10} />
-            <Bar dataKey="Perdidas" fill="#ef4444" radius={[0, 3, 3, 0]} barSize={10} />
+            <Bar filter="url(#neon-glow)" dataKey="Ganadas"  fill="#22c55e" radius={[0, 3, 3, 0]} barSize={10} />
+            <Bar filter="url(#neon-glow)" dataKey="Perdidas" fill="#ef4444" radius={[0, 3, 3, 0]} barSize={10} />
           </BarChart>
         </ResponsiveContainer>
       )}

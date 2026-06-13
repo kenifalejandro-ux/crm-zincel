@@ -1,7 +1,7 @@
 /** client/src/components/inteligencia/RegionInteligente.tsx */
 
 import { useState } from "react";
-import { COLORS, CARD_CLASS } from "../../lib/tokens";
+import { COLORS, CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
 import { MapPin, X, Flame, TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
 import type { RegionEtapa } from "../../services/prospectos.api";
 import { PeruMap, normalizeRegion } from "../ui/PeruMap";
@@ -122,12 +122,12 @@ function EmbудоConversion({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[
   ];
 
   return (
-    <div className="mt-5 pt-5 border-t border-zinc-100">
+    <div className="mt-5 pt-5 border-t border-white/8">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider">
-          Embudo de conversión — <span className="capitalize text-zinc-700">{d.zona.replace(/_/g," ")}</span>
+        <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-wider">
+          Embudo de conversión — <span className="capitalize text-zinc-300">{d.zona.replace(/_/g," ")}</span>
         </p>
-        <div className="flex items-center gap-3 text-[9px] text-zinc-600">
+        <div className="flex items-center gap-3 text-[9px] text-zinc-400">
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-yellow-500 inline-block"/>Región</span>
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-zinc-700 inline-block"/>Promedio</span>
         </div>
@@ -141,10 +141,10 @@ function EmbудоConversion({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[
             contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
             formatter={((val: any, name: any) => [val, name === "region" ? "Esta región" : "Promedio"]) as any}
           />
-          <Bar dataKey="region" name="region" radius={[3,3,0,0]} maxBarSize={30}>
+          <Bar filter="url(#neon-glow)" dataKey="region" name="region" radius={[3,3,0,0]} maxBarSize={30}>
             {etapas.map((e, i) => <Cell key={i} fill={e.color} />)}
           </Bar>
-          <Bar dataKey="prom" name="prom" fill={COLORS.surface} radius={[3,3,0,0]} maxBarSize={30} />
+          <Bar filter="url(#neon-glow)" dataKey="prom" name="prom" fill={COLORS.surface} radius={[3,3,0,0]} maxBarSize={30} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -165,8 +165,8 @@ function RadarEficiencia({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[] })
   ];
 
   return (
-    <div className="mt-4 pt-4 border-t border-zinc-100">
-      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+    <div className="mt-4 pt-4 border-t border-white/8">
+      <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-wider mb-2">
         Radar de eficiencia vs promedio
       </p>
       <ResponsiveContainer width="100%" height={220}>
@@ -174,8 +174,8 @@ function RadarEficiencia({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[] })
           <PolarGrid stroke="#f4f4f5" />
           <PolarAngleAxis dataKey="metrica" tick={{ fontSize: 9, fill: "#71797a" }} />
           <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-          <Radar name="Promedio" dataKey="avg" stroke={COLORS.surface} fill={COLORS.dark} fillOpacity={0.5} />
-          <Radar name="Región" dataKey="valor" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.25} />
+          <Radar filter="url(#neon-glow)" name="Promedio" dataKey="avg" stroke={COLORS.surface} fill={COLORS.dark} fillOpacity={0.5} />
+          <Radar filter="url(#neon-glow)" name="Región" dataKey="valor" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.25} />
           <Tooltip
             contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
             formatter={((val: any, name: any) => [`${val}%`, name]) as any}
@@ -214,15 +214,15 @@ function InsightRegion({ d }: { d: RegionEtapa }) {
   if (!insights.length) return null;
 
   return (
-    <div className="mt-4 pt-4 border-t border-zinc-100 space-y-2">
-      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Diagnóstico</p>
+    <div className="mt-4 pt-4 border-t border-white/8 space-y-2">
+      <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-wider">Diagnóstico</p>
       {insights.map((ins, i) => (
         <div key={i} className={`flex items-start gap-2 rounded-lg px-3 py-2 ${ins.tipo === "ok" ? "bg-green-50" : "bg-amber-50"}`}>
           {ins.tipo === "ok"
             ? <CheckCircle size={12} className="text-green-500 mt-0.5 shrink-0" />
             : <AlertCircle size={12} className="text-amber-500 mt-0.5 shrink-0" />
           }
-          <p className="text-[10px] text-zinc-600 leading-relaxed">{ins.texto}</p>
+          <p className="text-[10px] text-zinc-400 leading-relaxed">{ins.texto}</p>
         </div>
       ))}
     </div>
@@ -300,27 +300,27 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
         <div className="flex items-center gap-2">
           <MapPin size={14} className="text-zinc-500" strokeWidth={2} />
           <div>
-            <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Análisis estratégico por región</p>
+            <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Análisis estratégico por región</p>
             <p className="text-[10px] text-zinc-400 mt-0.5">Embudo · Eficiencia · Diagnóstico · Clic para detalle</p>
           </div>
         </div>
         <div className="flex items-center gap-5 flex-wrap">
           <div className="text-right">
-            <p className="text-[9px] text-zinc-400 uppercase tracking-wider">Mayor volumen</p>
-            <p className="text-[12px] font-bold text-zinc-800 capitalize">{topRegion.zona.replace(/_/g," ")}</p>
+            <p className="text-[9px] text-zinc-100 uppercase tracking-wider">Mayor volumen</p>
+            <p className="text-[12px] font-bold text-zinc-200 capitalize">{topRegion.zona.replace(/_/g," ")}</p>
             <p className="text-[10px] text-zinc-500">{topRegion.total} leads</p>
           </div>
           {mejorConv.cerrados > 0 && (
             <div className="text-right">
-              <p className="text-[9px] text-zinc-400 uppercase tracking-wider">Mejor conversión</p>
-              <p className="text-[12px] font-bold text-zinc-800 capitalize">{mejorConv.zona.replace(/_/g," ")}</p>
+              <p className="text-[9px] text-zinc-100 uppercase tracking-wider">Mejor conversión</p>
+              <p className="text-[12px] font-bold text-zinc-200 capitalize">{mejorConv.zona.replace(/_/g," ")}</p>
               <p className="text-[10px] text-zinc-500">{pct(mejorConv.cerrados, mejorConv.total)}% cierre</p>
             </div>
           )}
-          <div className="flex rounded-lg border border-zinc-200 overflow-hidden text-[10px] font-semibold">
+          <div className="flex rounded-lg border border-white/10 overflow-hidden text-[10px] font-semibold">
             {(["volumen","conversion"] as Modo[]).map(m => (
               <button key={m} onClick={() => setModo(m)}
-                className={`px-3 py-1.5 transition-colors ${modo === m ? "bg-zinc-900 text-white" : "bg-white text-zinc-500 hover:bg-zinc-50"}`}>
+                className={`px-3 py-1.5 transition-colors ${modo === m ? "bg-zinc-900 text-white" : "bg-slate-800/60 text-zinc-500 hover:bg-zinc-800/40"}`}>
                 {m === "volumen" ? "Volumen" : "Conversión"}
               </button>
             ))}
@@ -337,13 +337,13 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
             <div className="ml-auto flex rounded-lg border border-amber-200 overflow-hidden text-[9px] font-semibold">
               <button
                 onClick={() => setVistaRec("activas")}
-                className={`px-2.5 py-1 transition-colors ${vistaRec === "activas" ? "bg-amber-500 text-white" : "bg-white text-amber-600 hover:bg-amber-50"}`}
+                className={`px-2.5 py-1 transition-colors ${vistaRec === "activas" ? "bg-amber-500 text-white" : "bg-slate-800/60 text-amber-600 hover:bg-amber-50"}`}
               >
                 Más activas
               </button>
               <button
                 onClick={() => setVistaRec("oportunidad")}
-                className={`px-2.5 py-1 transition-colors ${vistaRec === "oportunidad" ? "bg-amber-500 text-white" : "bg-white text-amber-600 hover:bg-amber-50"}`}
+                className={`px-2.5 py-1 transition-colors ${vistaRec === "oportunidad" ? "bg-amber-500 text-white" : "bg-slate-800/60 text-amber-600 hover:bg-amber-50"}`}
               >
                 Sin explotar
               </button>
@@ -357,12 +357,12 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
                 {recsActivas.map((s, i) => (
                   <button key={s.region.zona}
                     onClick={() => handleSelectRegion(normalize(s.region.zona))}
-                    className="text-left p-2.5 rounded-lg bg-white border border-amber-100 hover:border-amber-300 transition-colors">
+                    className="text-left p-2.5 rounded-lg bg-slate-800/60 border border-amber-100 hover:border-amber-300 transition-colors">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[11px] font-bold text-zinc-800 capitalize">
+                      <span className="text-[11px] font-bold text-zinc-200 capitalize">
                         {MEDAL[i]} {s.region.zona.replace(/_/g," ")}
                       </span>
-                      <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">{s.score}pts</span>
+                      <span className={`${BADGE_BASE} text-[10px] font-bold text-amber-600 px-1.5 py-0.5`}>{s.score}pts</span>
                     </div>
                     {s.motivos.map(m => <p key={m} className="text-[9px] text-zinc-500">· {m}</p>)}
                     <div className="mt-2 w-full bg-amber-100 rounded-full h-1">
@@ -405,11 +405,11 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-3 pt-1">
 
           {selected ? (
-            <div className="border border-zinc-200 rounded-xl p-3 space-y-3 overflow-y-auto max-h-[640px]">
+            <div className="border border-white/10 rounded-xl p-3 space-y-3 overflow-y-auto max-h-[640px]">
               <div className="flex items-center justify-between">
-                <p className="text-[13px] font-bold text-zinc-800 capitalize">{selected.zona.replace(/_/g," ")}</p>
+                <p className="text-[13px] font-bold text-zinc-200 capitalize">{selected.zona.replace(/_/g," ")}</p>
                 <button onClick={() => setSelected(null)}>
-                  <X size={13} className="text-zinc-400 hover:text-zinc-700" />
+                  <X size={13} className="text-zinc-400 hover:text-zinc-300" />
                 </button>
               </div>
 
@@ -421,16 +421,16 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
                   { label: "Cerrados",      value: selected.cerrados,                color: "text-green-600" },
                   { label: "Tasa cierre",   value: `${pct(selected.cerrados,selected.total)}%`, color: "text-brand" },
                 ].map(k => (
-                  <div key={k.label} className="bg-zinc-50 rounded-lg px-2.5 py-2">
-                    <p className="text-[9px] text-zinc-400 uppercase">{k.label}</p>
+                  <div key={k.label} className="bg-zinc-800/40 rounded-lg px-2.5 py-2">
+                    <p className="text-[9px] text-zinc-100 uppercase">{k.label}</p>
                     <p className={`text-[16px] font-bold ${k.color}`}>{k.value}</p>
                   </div>
                 ))}
               </div>
 
               {/* Tasas de conversión por etapa */}
-              <div className="border-t border-zinc-100 pt-2.5">
-                <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Tasas por etapa</p>
+              <div className="border-t border-white/8 pt-2.5">
+                <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-2">Tasas por etapa</p>
                 {[
                   { label: "Contacto (llam. contest.)", val: pct(selected.llamadas_contestadas, selected.llamadas),    den: selected.llamadas },
                   { label: "Brochures / contactados",   val: pct(selected.brochures ?? 0, selected.llamadas_contestadas), den: selected.llamadas_contestadas },
@@ -441,10 +441,10 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
                   <div key={t.label} className="mb-2">
                     <div className="flex justify-between mb-0.5">
                       <span className="text-[9px] text-zinc-500">{t.label}</span>
-                      <span className="text-[9px] font-bold text-zinc-700">{t.den > 0 ? `${t.val}%` : "—"}</span>
+                      <span className="text-[9px] font-bold text-zinc-300">{t.den > 0 ? `${t.val}%` : "—"}</span>
                     </div>
                     {t.den > 0 && (
-                      <div className="w-full bg-zinc-100 rounded-full h-1.5">
+                      <div className="w-full bg-zinc-800 rounded-full h-1.5">
                         <div className="h-1.5 rounded-full transition-all duration-500"
                           style={{ width: `${t.val}%`, backgroundColor: t.val >= 50 ? COLORS.dark : t.val >= 25 ? COLORS.mutedDark : COLORS.muted }} />
                       </div>
@@ -454,13 +454,13 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
               </div>
 
               {/* Valor pipeline */}
-              <div className="flex justify-between items-center border-t border-zinc-100 pt-2">
+              <div className="flex justify-between items-center border-t border-white/8 pt-2">
                 <span className="text-[10px] text-zinc-500">Valor pipeline</span>
                 <span className="text-[12px] font-bold text-brand">{fmtVal(selected.valor)}</span>
               </div>
             </div>
           ) : (
-            <div className="border border-dashed border-zinc-200 rounded-xl flex items-center justify-center h-[200px]">
+            <div className="border border-dashed border-white/10 rounded-xl flex items-center justify-center h-[200px]">
               <p className="text-[10px] text-zinc-400 text-center px-4 leading-relaxed">
                 Clic en un<br />departamento<br />para el análisis completo
               </p>
@@ -468,32 +468,32 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
           )}
 
           {/* Leyenda */}
-          <div className="border border-zinc-100 rounded-xl p-3">
-            <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-2.5">
+          <div className="border border-white/8 rounded-xl p-3">
+            <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-2.5">
               {modo === "volumen" ? "Cantidad de leads" : "Tasa de cierre"}
             </p>
             {(modo === "volumen" ? LEYENDA_VOLUMEN : LEYENDA_CONV).map(({ color, label }) => (
               <div key={label} className="flex items-center gap-2 mb-1.5">
-                <div className="w-4 h-3 rounded shrink-0 border border-zinc-200" style={{ backgroundColor: color }} />
-                <span className="text-[10px] text-zinc-600">{label}</span>
+                <div className="w-4 h-3 rounded shrink-0 border border-white/10" style={{ backgroundColor: color }} />
+                <span className="text-[10px] text-zinc-400">{label}</span>
               </div>
             ))}
           </div>
 
           {/* Top regiones */}
-          <div className="border border-zinc-100 rounded-xl p-3">
-            <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Top regiones</p>
+          <div className="border border-white/8 rounded-xl p-3">
+            <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-2">Top regiones</p>
             <div className="space-y-0.5">
               {data.slice(0, 7).map((d, i) => (
                 <div key={d.zona}
                   className={`flex items-center gap-2 px-1.5 py-1 rounded-lg cursor-pointer transition-colors ${
-                    selected?.zona === d.zona ? "bg-zinc-100" : "hover:bg-zinc-50"
+                    selected?.zona === d.zona ? "bg-zinc-800" : "hover:bg-zinc-800/40"
                   }`}
                   onClick={() => handleSelectRegion(normalize(d.zona))}
                 >
                   <span className="text-[9px] text-zinc-400 w-3 shrink-0">{i + 1}</span>
-                  <span className="text-[10px] text-zinc-700 flex-1 truncate capitalize">{d.zona.replace(/_/g," ")}</span>
-                  <span className="text-[10px] font-bold text-zinc-800 shrink-0">{d.total}</span>
+                  <span className="text-[10px] text-zinc-300 flex-1 truncate capitalize">{d.zona.replace(/_/g," ")}</span>
+                  <span className="text-[10px] font-bold text-zinc-200 shrink-0">{d.total}</span>
                 </div>
               ))}
             </div>

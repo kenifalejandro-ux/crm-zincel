@@ -127,13 +127,13 @@ export function DashboardEstadoLeads({ fechaDesde, fechaHasta }: Props) {
                       <button
                         key={item.key}
                         onClick={() => ir(item.key)}
-                        className="w-full flex items-center justify-between px-1.5 py-0.5 rounded-lg text-left hover:bg-white/60 transition-all"
+                        className="w-full flex items-center justify-between px-1.5 py-0.5 rounded-lg text-left hover:bg-white/8/5 transition-all"
                       >
                         <div className="flex items-center gap-1.5 min-w-0">
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.dot}`} />
-                          <span className="text-[10px] text-zinc-600 truncate">{item.label}</span>
+                          <span className="text-[10px] text-zinc-400 truncate">{item.label}</span>
                         </div>
-                        <span className="text-[10px] font-bold text-zinc-800 shrink-0 ml-1">{val}</span>
+                        <span className="text-[10px] font-bold text-zinc-200 shrink-0 ml-1">{val}</span>
                       </button>
                     );
                   })}
@@ -148,7 +148,7 @@ export function DashboardEstadoLeads({ fechaDesde, fechaHasta }: Props) {
       )}
 
       {/* Footer */}
-      <div className="pt-3 border-t border-zinc-100 space-y-1.5">
+      <div className="pt-3 border-t border-white/8 space-y-1.5">
         {resumen && (() => {
           const contactados    = GRUPOS[0].items.reduce((s, i) => s + ((resumen as any)[i.key] ?? 0), 0);
           const noContactados  = GRUPOS[1].items.reduce((s, i) => s + ((resumen as any)[i.key] ?? 0), 0);
@@ -159,16 +159,16 @@ export function DashboardEstadoLeads({ fechaDesde, fechaHasta }: Props) {
                 Contactados <span className="font-semibold text-green-600">{contactados}</span>
                 {" + "}No contactados <span className="font-semibold text-gray-500">{noContactados}</span>
                 {" = "}
-                <span className="font-bold text-zinc-700">{sumaCuadre}</span>
+                <span className="font-bold text-zinc-300">{sumaCuadre}</span>
               </span>
             </div>
           );
         })()}
         <div className="flex justify-between items-center">
-          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+          <span className="text-[10px] font-bold text-zinc-100 uppercase tracking-widest">
             {fechaDesde ? "Prospectos en el período" : "Total prospectos"}
           </span>
-          <span className="text-sm font-bold text-zinc-800">{resumen?.total ?? "—"}</span>
+          <span className="text-sm font-bold text-zinc-200">{resumen?.total ?? "—"}</span>
         </div>
       </div>
     </div>

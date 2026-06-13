@@ -1,5 +1,6 @@
 /** client/src/components/brochures/ModalBrochure.tsx */
 
+import { MODAL_BASE, INPUT_BASE } from "../../lib/tokens";
 import { CANALES } from "./ResumenCanales";
 
 export interface FormBrochure {
@@ -26,16 +27,16 @@ export function ModalBrochure({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4">
-        <h2 className="text-base font-semibold text-zinc-800">Registrar envío de brochure</h2>
+      <div className={`${MODAL_BASE} w-full max-w-md p-6 space-y-4`}>
+        <h2 className="text-base font-semibold text-zinc-200">Registrar envío de brochure</h2>
 
         {/* Prospecto */}
         <div>
-          <label className="text-xs font-medium text-gray-700 mb-1 block">Prospecto</label>
+          <label className="text-xs font-medium text-gray-300 mb-1 block">Prospecto</label>
           <select
             value={form.prospecto_id}
             onChange={(e) => set({ prospecto_id: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
+            className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
           >
             <option value="">Selecciona un prospecto</option>
             {prospectos.map((p) => (
@@ -48,11 +49,11 @@ export function ModalBrochure({
 
         {/* Canal */}
         <div>
-          <label className="text-xs font-medium text-gray-700 mb-1 block">Canal de envío</label>
+          <label className="text-xs font-medium text-gray-300 mb-1 block">Canal de envío</label>
           <select
             value={form.canal}
             onChange={(e) => set({ canal: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
+            className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
           >
             {CANALES.map((c) => (
               <option key={c} value={c} className="capitalize">{c}</option>
@@ -62,24 +63,24 @@ export function ModalBrochure({
 
         {/* Fecha de envío */}
         <div>
-          <label className="text-xs font-medium text-gray-700 mb-1 block">Fecha de envío</label>
+          <label className="text-xs font-medium text-gray-300 mb-1 block">Fecha de envío</label>
           <input
             type="date"
             value={form.fecha_envio}
             onChange={(e) => set({ fecha_envio: e.target.value })}
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50"
+            className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
           />
         </div>
 
         {/* Notas */}
         <div>
-          <label className="text-xs font-medium text-gray-700 mb-1 block">Notas</label>
+          <label className="text-xs font-medium text-gray-300 mb-1 block">Notas</label>
           <textarea
             rows={2}
             value={form.notas}
             onChange={(e) => set({ notas: e.target.value })}
             placeholder="Ej: Enviado con propuesta de rediseño..."
-            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none"
+            className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50 resize-none`}
           />
         </div>
 
@@ -91,7 +92,7 @@ export function ModalBrochure({
         <div className="flex gap-2 pt-1">
           <button
             onClick={onCerrar}
-            className="flex-1 px-4 py-2 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600 transition"
+            className="flex-1 px-4 py-2 text-xs border border-white/10 rounded-lg hover:bg-zinc-800/40 text-gray-400 transition"
           >
             Cancelar
           </button>

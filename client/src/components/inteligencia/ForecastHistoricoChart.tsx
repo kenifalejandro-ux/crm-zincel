@@ -30,15 +30,15 @@ function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   const row = payload[0]?.payload as ChartRow;
   return (
-    <div className="bg-white border border-zinc-100 rounded-xl shadow-lg px-3 py-2.5 text-xs">
-      <p className="font-semibold text-zinc-700 mb-1">{label}</p>
+    <div className="bg-slate-800/60 border border-white/8 rounded-xl shadow-lg px-3 py-2.5 text-xs">
+      <p className="font-semibold text-zinc-300 mb-1">{label}</p>
       {row.isActual ? (
         <>
-          {row.cerrado > 0 && <p className="text-zinc-500">Cerrado: <span className="font-bold text-zinc-900">{fmt(row.cerrado)}</span></p>}
+          {row.cerrado > 0 && <p className="text-zinc-500">Cerrado: <span className="font-bold text-zinc-100">{fmt(row.cerrado)}</span></p>}
           <p className="text-zinc-500">Proyectado: <span className="font-bold" style={{ color: COLORS.primary }}>{fmt(row.proyectado)}</span></p>
         </>
       ) : (
-        <p className="text-zinc-500">Cerrado: <span className="font-bold text-zinc-900">{fmt(row.cerrado)}</span></p>
+        <p className="text-zinc-500">Cerrado: <span className="font-bold text-zinc-100">{fmt(row.cerrado)}</span></p>
       )}
     </div>
   );
@@ -89,8 +89,8 @@ export function ForecastHistoricoChart() {
     <div className={CARD_CLASS}>
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-zinc-100">
-            <TrendingUp size={14} className="text-zinc-600" />
+          <div className="p-1.5 rounded-lg bg-zinc-800">
+            <TrendingUp size={14} className="text-zinc-400" />
           </div>
           <div>
             <h3 className={HEADER_CLASS}>Histórico de ingresos cerrados</h3>
@@ -99,7 +99,7 @@ export function ForecastHistoricoChart() {
         </div>
         {promedio > 0 && (
           <div className="text-right shrink-0">
-            <p className="text-sm font-bold text-zinc-800">{fmt(promedio)}</p>
+            <p className="text-sm font-bold text-zinc-200">{fmt(promedio)}</p>
             <p className="text-[10px] text-zinc-400">promedio mensual</p>
           </div>
         )}
@@ -129,13 +129,13 @@ export function ForecastHistoricoChart() {
             />
           )}
           {/* Barras de meses anteriores (cerrado real) */}
-          <Bar dataKey="cerrado" radius={[6, 6, 0, 0]} maxBarSize={44}>
+          <Bar filter="url(#neon-glow)" dataKey="cerrado" radius={[6, 6, 0, 0]} maxBarSize={44}>
             {chartData.map((entry, i) => (
               <Cell key={i} fill={COLORS.dark} fillOpacity={entry.isActual ? 0 : 1} />
             ))}
           </Bar>
           {/* Barra del mes actual (proyectado) */}
-          <Bar dataKey="proyectado" radius={[6, 6, 0, 0]} maxBarSize={44} fill={COLORS.primary} fillOpacity={0.75} />
+          <Bar filter="url(#neon-glow)" dataKey="proyectado" radius={[6, 6, 0, 0]} maxBarSize={44} fill={COLORS.primary} fillOpacity={0.75} />
         </BarChart>
       </ResponsiveContainer>
 

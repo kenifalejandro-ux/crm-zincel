@@ -10,7 +10,8 @@
     "start": "tsx server.ts",
     "server": "tsx server.ts",
     "client": "npm run dev --prefix client",
-    "dev": "concurrently \"tsx watch server.ts\" \"npm run dev --prefix client\"",
+    "dev": "CHOKIDAR_USEPOLLING=true concurrently \"tsx watch server.ts\" \"npm run dev --prefix client\"",
+    "dev:fast": "concurrently \"tsx watch server.ts\" \"npm run dev --prefix client\"",
     "build": "npm run build --prefix client"
   },
   "keywords": [],

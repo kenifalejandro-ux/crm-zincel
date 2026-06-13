@@ -1,5 +1,6 @@
 /** client/src/components/finanzas/ModalIngreso.tsx */
 
+import { INPUT_BASE } from "../../lib/tokens";
 import type { ReactNode } from "react";
 import { Building2, Briefcase, FileText, Banknote, DollarSign, Wallet, Tag, Calendar, StickyNote, ArrowLeftRight } from "lucide-react";
 import type { FormIngreso, TipoServicio, EstadoIngreso, Moneda } from "../../types/finanzas.types";
@@ -27,7 +28,7 @@ const ESTADOS: { value: EstadoIngreso; label: string }[] = [
 function Field({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest">{label}</label>
+      <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest">{label}</label>
       <div className="flex items-center gap-2.5 border-b border-zinc-600 pb-1.5 focus-within:border-brand transition-colors">
         <span className="text-yellow-500 shrink-0">{icon}</span>
         {children}
@@ -70,7 +71,7 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
                 placeholder="Ej: Empresa XYZ" className={fi} />
             </Field>
             <div>
-              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+              <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
                 <Briefcase size={11} className="text-yellow-500"/>Tipo de servicio
               </label>
               <select value={form.tipo_servicio}
@@ -93,7 +94,7 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
           {/* Moneda + Monto + Cobrado */}
           <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 grid grid-cols-3 gap-x-4 gap-y-4">
             <div>
-              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+              <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
                 <Banknote size={11} className="text-yellow-500"/>Moneda
               </label>
               <select value={form.moneda}
@@ -127,7 +128,7 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
                 <span className="text-amber-400 font-medium">TC al registrar: S/</span>
                 <input type="number" min={1} step={0.01} value={form.tipo_cambio}
                   onChange={(e) => set({ tipo_cambio: e.target.value })}
-                  className="w-20 px-2 py-1 border border-amber-700/50 rounded-lg text-xs text-center bg-zinc-800 text-zinc-200 focus:outline-none focus:ring-1 focus:ring-brand [color-scheme:dark]" />
+                  className={`${INPUT_BASE} w-20 px-2 py-1 border-amber-700/50 text-xs text-center text-zinc-200 focus:outline-none focus:ring-1 focus:ring-brand [color-scheme:dark]`} />
                 <span className="text-amber-400">/ USD</span>
                 <span className="text-zinc-500 ml-auto text-[10px]">Se guarda con el registro</span>
               </div>
@@ -147,7 +148,7 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
           {/* Estado + Fechas */}
           <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4 grid grid-cols-2 gap-x-6 gap-y-4">
             <div>
-              <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+              <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
                 <Tag size={11} className="text-yellow-500"/>Estado
               </label>
               <select value={form.estado}
@@ -170,12 +171,12 @@ export function ModalIngreso({ form, cargando, onFormChange, onGuardar, onCerrar
 
           {/* Notas */}
           <div className="rounded-2xl border border-zinc-700 bg-zinc-800 p-4">
-            <label className="text-[10px] text-zinc-400 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-2">
+            <label className="text-[10px] text-zinc-100 font-semibold uppercase tracking-widest flex items-center gap-1.5 mb-2">
               <StickyNote size={11} className="text-yellow-500"/>Notas
             </label>
             <textarea rows={2} value={form.notas}
               onChange={(e) => set({ notas: e.target.value })}
-              className="w-full text-xs bg-zinc-900/50 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none" />
+              className={`${INPUT_BASE} w-full text-xs bg-zinc-900/50 border-zinc-700 px-3 py-2.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand/25 resize-none`} />
           </div>
 
           {/* Botones */}

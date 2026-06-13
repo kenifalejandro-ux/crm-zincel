@@ -1,5 +1,6 @@
 /** client/src/components/prospectos/TimelineDetalle.tsx */
 
+import { STICKY_BASE } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import {
   Phone, Calendar, FileText, ClipboardList, CheckSquare,
@@ -138,7 +139,7 @@ export function TimelineDetalle({ prospectoId, llamadas, reuniones, brochures, p
   );
 
   if (sorted.length === 0) return (
-    <div className="text-center py-10 text-xs text-zinc-600">
+    <div className="text-center py-10 text-xs text-zinc-400">
       <Clock size={28} className="mx-auto mb-2 opacity-40" />
       Sin actividad registrada
     </div>
@@ -156,33 +157,33 @@ export function TimelineDetalle({ prospectoId, llamadas, reuniones, brochures, p
   return (
     <div className="space-y-4">
       {esFallback && (
-        <p className="text-[10px] text-zinc-600 italic text-center">
+        <p className="text-[10px] text-zinc-400 italic text-center">
           Mostrando historial anterior al sistema de timeline
         </p>
       )}
 
       {grupos.map(g => (
         <div key={g.fecha}>
-          <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wider mb-2 sticky top-0 bg-white py-1">
+          <p className={`${STICKY_BASE} text-[10px] font-semibold text-zinc-100 uppercase tracking-wider mb-2 sticky top-0 py-1`}>
             {g.fecha}
           </p>
           <div className="relative pl-6 space-y-3">
-            <div className="absolute left-2.5 top-0 bottom-0 w-px bg-gray-100" />
+            <div className="absolute left-2.5 top-0 bottom-0 w-px bg-zinc-800" />
             {g.items.map(log => {
               const cfg = TIPO_CONFIG[log.tipo] ?? TIPO_CONFIG.nota;
               return (
                 <div key={log.id} className="relative flex items-start gap-3">
-                  <div className={`absolute -left-4 top-1.5 w-2 h-2 rounded-full border-2 border-white ${cfg.dot}`} />
+                  <div className={`absolute -left-4 top-1.5 w-2 h-2 rounded-full border-2 border-white/10 ${cfg.dot}`} />
                   <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center -ml-1 ${cfg.bg} ${cfg.color}`}>
                     {cfg.icon}
                   </div>
                   <div className="flex-1 min-w-0 pb-1">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-xs font-medium text-zinc-800 leading-snug">{log.titulo}</p>
-                      <span className="text-[10px] text-zinc-600 shrink-0">{formatHora(log.creado_en)}</span>
+                      <p className="text-xs font-medium text-zinc-200 leading-snug">{log.titulo}</p>
+                      <span className="text-[10px] text-zinc-400 shrink-0">{formatHora(log.creado_en)}</span>
                     </div>
                     {log.descripcion && (
-                      <p className="text-[11px] text-zinc-600 mt-0.5 leading-relaxed">{log.descripcion}</p>
+                      <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">{log.descripcion}</p>
                     )}
                   </div>
                 </div>
@@ -193,7 +194,7 @@ export function TimelineDetalle({ prospectoId, llamadas, reuniones, brochures, p
       ))}
 
       {/* Leyenda */}
-      <div className="flex gap-3 flex-wrap pt-2 border-t border-gray-100">
+      <div className="flex gap-3 flex-wrap pt-2 border-t border-white/8">
         {(["llamada","reunion","propuesta","brochure","pipeline","tarea"] as TipoActividad[]).map(t => {
           const cfg = TIPO_CONFIG[t];
           const label: Record<string, string> = {
@@ -203,7 +204,7 @@ export function TimelineDetalle({ prospectoId, llamadas, reuniones, brochures, p
           return (
             <div key={t} className="flex items-center gap-1.5">
               <div className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-              <span className="text-[10px] text-zinc-600">{label[t]}</span>
+              <span className="text-[10px] text-zinc-400">{label[t]}</span>
             </div>
           );
         })}

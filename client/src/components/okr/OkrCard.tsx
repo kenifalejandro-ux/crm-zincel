@@ -1,5 +1,6 @@
 /** client/src/components/okr/OkrCard.tsx */
 
+import { GLASS_BASE, INPUT_BASE } from "../../lib/tokens";
 import { useState } from "react";
 import {
   Trophy, DollarSign, ClipboardList, TrendingUp,
@@ -86,12 +87,12 @@ function KrRow({ kr, okrId, onRefresh }: { kr: KeyResult; okrId: string; onRefre
 
   return (
     <>
-      <div className="group flex items-center gap-3 py-2.5 border-b border-zinc-50 last:border-0">
+      <div className="group flex items-center gap-3 py-2.5 border-b border-white/5 last:border-0">
         <span className={`shrink-0 ${cfg.color}`}>{cfg.icon}</span>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-1">
-            <p className="text-xs font-medium text-zinc-700 truncate">{kr.titulo}</p>
+            <p className="text-xs font-medium text-zinc-300 truncate">{kr.titulo}</p>
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition shrink-0">
               <button onClick={() => setEditKr(true)} className="p-0.5 text-zinc-400 hover:text-brand transition">
                 <Pencil size={11} />
@@ -110,7 +111,7 @@ function KrRow({ kr, okrId, onRefresh }: { kr: KeyResult; okrId: string; onRefre
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+            <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
               <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
             </div>
             <span className="text-[10px] text-zinc-500 shrink-0">
@@ -136,7 +137,7 @@ function KrRow({ kr, okrId, onRefresh }: { kr: KeyResult; okrId: string; onRefre
                     type="number" min={0} value={inputActual}
                     onChange={e => setInputActual(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter") guardarActual(); if (e.key === "Escape") setEditActual(false); }}
-                    className="w-16 text-[11px] px-1.5 py-0.5 border border-zinc-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand/40 text-center"
+                    className={`${INPUT_BASE} w-16 text-[11px] px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-brand/40 text-center`}
                     autoFocus
                   />
                   <button onClick={() => setEditActual(false)}><X size={11} className="text-zinc-400" /></button>
@@ -192,7 +193,7 @@ export function OkrCard({ okr, onRefresh }: Props) {
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-zinc-100 shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_4px_16px_rgba(0,0,0,0.04)] p-5">
+      <div className={`${GLASS_BASE} shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_4px_16px_rgba(0,0,0,0.04)] p-5`}>
         {/* Header */}
         <div className="flex items-start gap-3">
           <ProgressRing value={okr.progreso_total} />
@@ -209,28 +210,28 @@ export function OkrCard({ okr, onRefresh }: Props) {
                     {Q_LABEL[okr.trimestre]} {okr.anio}
                   </span>
                 </div>
-                <h3 className="text-sm font-bold text-zinc-900 leading-snug">{okr.titulo}</h3>
+                <h3 className="text-sm font-bold text-zinc-100 leading-snug">{okr.titulo}</h3>
                 {okr.descripcion && (
                   <p className="text-xs text-zinc-400 mt-0.5 leading-snug">{okr.descripcion}</p>
                 )}
               </div>
 
               <div className="flex items-center gap-0.5 shrink-0">
-                <button onClick={() => setExpandido(v => !v)} className="p-1.5 text-zinc-400 hover:text-zinc-700 transition rounded-lg hover:bg-zinc-50">
+                <button onClick={() => setExpandido(v => !v)} className="p-1.5 text-zinc-400 hover:text-zinc-300 transition rounded-lg hover:bg-zinc-800/40">
                   {expandido ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                 </button>
-                <button onClick={() => setEditOkr(true)} className="p-1.5 text-zinc-400 hover:text-brand transition rounded-lg hover:bg-zinc-50">
+                <button onClick={() => setEditOkr(true)} className="p-1.5 text-zinc-400 hover:text-brand transition rounded-lg hover:bg-zinc-800/40">
                   <Pencil size={13} />
                 </button>
                 {!confirmDel ? (
-                  <button onClick={() => setConfirmDel(true)} className="p-1.5 text-zinc-400 hover:text-red-500 transition rounded-lg hover:bg-zinc-50">
+                  <button onClick={() => setConfirmDel(true)} className="p-1.5 text-zinc-400 hover:text-red-500 transition rounded-lg hover:bg-zinc-800/40">
                     <Trash2 size={13} />
                   </button>
                 ) : (
                   <div className="flex items-center gap-1 bg-red-50 rounded-lg px-2 py-1">
                     <span className="text-[10px] text-red-600 font-medium">¿Eliminar?</span>
                     <button onClick={async () => { await deleteOkr(okr.id); onRefresh(); }} className="text-red-500 hover:text-red-700"><Check size={12} /></button>
-                    <button onClick={() => setConfirmDel(false)} className="text-zinc-400 hover:text-zinc-700"><X size={12} /></button>
+                    <button onClick={() => setConfirmDel(false)} className="text-zinc-400 hover:text-zinc-300"><X size={12} /></button>
                   </div>
                 )}
               </div>
@@ -247,10 +248,10 @@ export function OkrCard({ okr, onRefresh }: Props) {
               <>
                 {krResultados.length > 0 && (
                   <div className="mb-3">
-                    <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-1">
+                    <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-1">
                       Resultados
                     </p>
-                    <div className="border-t border-zinc-50">
+                    <div className="border-t border-white/5">
                       {krResultados.map(kr => (
                         <KrRow key={kr.id} kr={kr} okrId={okr.id} onRefresh={onRefresh} />
                       ))}
@@ -259,10 +260,10 @@ export function OkrCard({ okr, onRefresh }: Props) {
                 )}
                 {krActividades.length > 0 && (
                   <div>
-                    <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-1">
+                    <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-1">
                       Actividades
                     </p>
-                    <div className="border-t border-zinc-50">
+                    <div className="border-t border-white/5">
                       {krActividades.map(kr => (
                         <KrRow key={kr.id} kr={kr} okrId={okr.id} onRefresh={onRefresh} />
                       ))}

@@ -50,7 +50,7 @@ export function ActividadHoy({ metricas }: Props) {
               endAngle={-270}
             >
               <PolarAngleAxis type="number" domain={[0, maxVal]} angleAxisId={0} tick={false} />
-              <RadialBar
+              <RadialBar filter="url(#neon-glow)"
                 background={{ fill: "#f4f4f5" }}
                 dataKey="value"
                 cornerRadius={5}
@@ -64,9 +64,9 @@ export function ActividadHoy({ metricas }: Props) {
             <div key={i} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.fill }} />
-                <span className="text-[12px] font-medium text-zinc-700">{item.name}</span>
+                <span className="text-[12px] font-medium text-zinc-300">{item.name}</span>
               </div>
-              <span className="text-[15px] font-bold text-zinc-900">{item.value}</span>
+              <span className="text-[15px] font-bold text-zinc-100">{item.value}</span>
             </div>
           ))}
         </div>

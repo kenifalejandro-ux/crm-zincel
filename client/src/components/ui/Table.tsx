@@ -1,5 +1,6 @@
 /**client/src/components/ui/Table.tsx */
 
+import { GLASS_BASE } from "../../lib/tokens";
 import { type ReactNode } from "react";
 
 interface Column<T> {
@@ -20,13 +21,13 @@ interface TableProps<T> {
 
 export function Table<T>({ columns, data, loading, empty = "Sin registros", rowKey, onRowClick }: TableProps<T>) {
   return (
-    <div className="bg-white rounded-2xl border border-zinc-100 shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_6px_20px_rgba(0,0,0,0.06)] overflow-hidden">
+    <div className={`${GLASS_BASE} shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_6px_20px_rgba(0,0,0,0.06)] overflow-hidden`}>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50">
+            <tr className="border-b border-white/8 bg-zinc-800/40">
               {columns.map(col => (
-                <th key={col.key} className={`text-left px-5 py-3 text-xs font-medium text-zinc-800 uppercase tracking-wide ${col.className ?? ""}`}>
+                <th key={col.key} className={`text-left px-5 py-3 text-xs font-medium text-zinc-200 uppercase tracking-wide ${col.className ?? ""}`}>
                   {col.label}
                 </th>
               ))}
@@ -41,7 +42,7 @@ export function Table<T>({ columns, data, loading, empty = "Sin registros", rowK
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="text-center py-12 text-xs text-zinc-800">
+                <td colSpan={columns.length} className="text-center py-12 text-xs text-zinc-200">
                   {empty}
                 </td>
               </tr>
@@ -49,7 +50,7 @@ export function Table<T>({ columns, data, loading, empty = "Sin registros", rowK
               <tr
                 key={rowKey(row)}
                 onClick={() => onRowClick?.(row)}
-                className={`hover:bg-gray-50 transition-colors ${onRowClick ? "cursor-pointer" : ""}`}
+                className={`hover:bg-zinc-800/40 transition-colors ${onRowClick ? "cursor-pointer" : ""}`}
               >
                 {columns.map(col => (
                   <td key={col.key} className={`px-5 py-3.5 ${col.className ?? ""}`}>

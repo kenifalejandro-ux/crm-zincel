@@ -13,7 +13,7 @@ import type { Resultado } from "../../types/resultado.types";
 import { getBenchmarkPorEmpresa } from "../../services/benchmarks.api";
 import { listarResultados } from "../../services/resultados.api";
 import { sectorLabel } from "../../utils/sectores";
-import { COLORS } from "../../lib/tokens";
+import { COLORS, GLASS_BASE, BADGE_BASE, PANEL_BASE } from "../../lib/tokens";
 
 interface Props { metricas: Metrica[]; empresa?: string }
 
@@ -519,7 +519,6 @@ export function ComparativaTab({ metricas, empresa }: Props) {
         {mejorCpl && (
           <Highlight
             icon={<Award size={15} className="text-green-600" />}
-            bg="bg-green-50 border-green-200"
             label="Mejor CPL"
             valor={FMT_SOL(mejorCpl.cpl!)}
             sub={mejorCpl.campana_nombre}
@@ -528,7 +527,6 @@ export function ComparativaTab({ metricas, empresa }: Props) {
         {mejorCtr && (
           <Highlight
             icon={<TrendingUp size={15} className="text-blue-600" />}
-            bg="bg-blue-50 border-blue-200"
             label="Mejor CTR"
             valor={FMT_PCT(Number(mejorCtr.ctr))}
             sub={mejorCtr.campana_nombre}
@@ -537,7 +535,6 @@ export function ComparativaTab({ metricas, empresa }: Props) {
         {mayorGasto && (
           <Highlight
             icon={<TrendingDown size={15} className="text-amber-600" />}
-            bg="bg-amber-50 border-amber-200"
             label="Mayor inversión"
             valor={FMT_SOL(Number(mayorGasto.gasto))}
             sub={mayorGasto.campana_nombre}
@@ -547,18 +544,14 @@ export function ComparativaTab({ metricas, empresa }: Props) {
 
       {/* ── Tendencia CPL ── */}
       {tendenciaCpl.length > 0 && (
-        <section className="bg-white border border-zinc-200 rounded-2xl p-5 space-y-3">
+        <section className={`${GLASS_BASE} p-5 space-y-3`}>
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <TrendingUp size={15} className="text-zinc-500" />
-              <span className="text-sm font-semibold text-zinc-800">Tendencia CPL — campañas con Instant Form</span>
+              <span className="text-sm font-semibold text-zinc-200">Tendencia CPL — campañas con Instant Form</span>
             </div>
             {tendenciaCpl.length >= 2 && (
-              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                tendenciaSlope < -5  ? "bg-green-100 text-green-700" :
-                tendenciaSlope > 5   ? "bg-red-100 text-red-700"    :
-                                       "bg-zinc-100 text-zinc-500"
-              }`}>
+              <span className={`${BADGE_BASE} text-[11px] font-medium px-2 py-0.5 ${ tendenciaSlope < -5 ? "bg-green-100 text-green-700" : tendenciaSlope > 5 ? "bg-red-100 text-red-700" : "bg-zinc-800 text-zinc-500" }`}>
                 {tendenciaSlope < -5 ? "CPL bajando" : tendenciaSlope > 5 ? "CPL subiendo" : "CPL estable"}
                 {" "}({tendenciaSlope > 0 ? "+" : ""}{Math.round(tendenciaSlope)} S/ por campaña)
               </span>
@@ -579,8 +572,8 @@ export function ComparativaTab({ metricas, empresa }: Props) {
                 />
                 <ReferenceLine y={cplVerde}    stroke="#16a34a" strokeDasharray="4 2" strokeWidth={1} label={`Obj S/${cplVerde}`} />
                 <ReferenceLine y={cplAmarillo} stroke="#f59e0b" strokeDasharray="4 2" strokeWidth={1} label={`Lím S/${cplAmarillo}`} />
-                <Line dataKey="cpl"       stroke={COLORS.primary} strokeWidth={2} dot={{ r: 4, fill: COLORS.primary }} />
-                <Line dataKey="tendencia" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
+                <Line filter="url(#neon-glow)" dataKey="cpl"       stroke={COLORS.primary} strokeWidth={2} dot={{ r: 4, fill: COLORS.primary }} />
+                <Line filter="url(#neon-glow)" dataKey="tendencia" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
               </LineChart>
             </ResponsiveContainer>}
           </div>
@@ -599,15 +592,15 @@ export function ComparativaTab({ metricas, empresa }: Props) {
       )}
 
       {/* ── Análisis comparativo ── */}
-      <section className="bg-white border border-zinc-200 rounded-2xl p-5 space-y-4">
+      <section className={`${GLASS_BASE} p-5 space-y-4`}>
 
         {/* Header + toggles de vista */}
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <BarChart2 size={15} className="text-zinc-500" />
-            <span className="text-sm font-semibold text-zinc-800">Análisis comparativo</span>
+            <span className="text-sm font-semibold text-zinc-200">Análisis comparativo</span>
           </div>
-          <div className="flex gap-1 bg-zinc-100 rounded-xl p-1">
+          <div className="flex gap-1 bg-zinc-800 rounded-xl p-1">
             {([
               { v: "campana", label: "Por campaña" },
               { v: "mes",     label: "Por mes"     },
@@ -615,7 +608,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
             ] as { v: Vista; label: string }[]).map(({ v, label }) => (
               <button key={v} onClick={() => setVista(v)}
                 className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
-                  vista === v ? "bg-white shadow-sm text-zinc-900" : "text-zinc-500 hover:text-zinc-700"
+                  vista === v ? "bg-slate-800/60 shadow-sm text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
                 }`}>
                 {label}
               </button>
@@ -633,7 +626,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
           ] as { k: MetricaVista; label: string; color: string }[]).map(({ k, label, color }) => (
             <button key={k} onClick={() => setMetricaActiva(k)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
-                metricaActiva === k ? color + " ring-1 ring-offset-1 ring-current" : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300"
+                metricaActiva === k ? color + " ring-1 ring-offset-1 ring-current" : "bg-slate-800/60 text-zinc-500 border-white/10 hover:border-white/15"
               }`}>
               {label}
             </button>
@@ -643,9 +636,9 @@ export function ComparativaTab({ metricas, empresa }: Props) {
         {/* Cards resumen global con estado de benchmark */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {/* Gasto */}
-          <div className={`bg-zinc-50 border border-zinc-100 border-l-4 border-l-amber-400 rounded-xl px-4 py-3 transition ${metricaActiva === "gasto" ? "shadow-sm" : "opacity-60"}`}>
-            <p className="text-[10px] text-zinc-500 uppercase font-medium">Total gasto</p>
-            <p className="text-sm font-bold text-zinc-900 mt-0.5">{FMT_SOL(resumenTotal.gasto)}</p>
+          <div className={`${PANEL_BASE} border-l-4 border-l-amber-400 px-4 py-3 transition ${metricaActiva === "gasto" ? "shadow-sm" : "opacity-60"}`}>
+            <p className="text-[10px] text-zinc-100 uppercase font-medium">Total gasto</p>
+            <p className="text-sm font-bold text-zinc-100 mt-0.5">{FMT_SOL(resumenTotal.gasto)}</p>
           </div>
 
           {/* CPL */}
@@ -655,9 +648,9 @@ export function ComparativaTab({ metricas, empresa }: Props) {
             const badge: Record<string, string> = { excelente: "bg-green-100 text-green-700", aceptable: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
             const label: Record<string, string> = { excelente: "Excelente", aceptable: "Aceptable", alto: "Alto" };
             return (
-              <div className={`bg-zinc-50 border border-zinc-100 border-l-4 border-l-red-400 rounded-xl px-4 py-3 transition ${metricaActiva === "cpl" ? "shadow-sm" : "opacity-60"}`}>
-                <p className="text-[10px] text-zinc-500 uppercase font-medium">CPL promedio</p>
-                <p className="text-sm font-bold text-zinc-900 mt-0.5">{resumenTotal.cpl !== null ? FMT_SOL(resumenTotal.cpl) : "Sin leads"}</p>
+              <div className={`${PANEL_BASE} border-l-4 border-l-red-400 px-4 py-3 transition ${metricaActiva === "cpl" ? "shadow-sm" : "opacity-60"}`}>
+                <p className="text-[10px] text-zinc-100 uppercase font-medium">CPL promedio</p>
+                <p className="text-sm font-bold text-zinc-100 mt-0.5">{resumenTotal.cpl !== null ? FMT_SOL(resumenTotal.cpl) : "Sin leads"}</p>
                 {est && <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${badge[est]}`}>{label[est]}</span>}
               </div>
             );
@@ -670,18 +663,18 @@ export function ComparativaTab({ metricas, empresa }: Props) {
             const badge: Record<string, string> = { excelente: "bg-green-100 text-green-700", aceptable: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
             const label: Record<string, string> = { excelente: "Excelente", aceptable: "Aceptable", alto: "Alto" };
             return (
-              <div className={`bg-zinc-50 border border-zinc-100 border-l-4 border-l-emerald-400 rounded-xl px-4 py-3 transition ${metricaActiva === "ctr" ? "shadow-sm" : "opacity-60"}`}>
-                <p className="text-[10px] text-zinc-500 uppercase font-medium">CTR promedio</p>
-                <p className="text-sm font-bold text-zinc-900 mt-0.5">{`${resumenTotal.ctr.toFixed(2)}%`}</p>
+              <div className={`${PANEL_BASE} border-l-4 border-l-emerald-400 px-4 py-3 transition ${metricaActiva === "ctr" ? "shadow-sm" : "opacity-60"}`}>
+                <p className="text-[10px] text-zinc-100 uppercase font-medium">CTR promedio</p>
+                <p className="text-sm font-bold text-zinc-100 mt-0.5">{`${resumenTotal.ctr.toFixed(2)}%`}</p>
                 {est && <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${badge[est]}`}>{label[est]}</span>}
               </div>
             );
           })()}
 
           {/* Mensajes */}
-          <div className={`bg-zinc-50 border border-zinc-100 border-l-4 border-l-violet-400 rounded-xl px-4 py-3 transition ${metricaActiva === "mensajes" ? "shadow-sm" : "opacity-60"}`}>
-            <p className="text-[10px] text-zinc-500 uppercase font-medium">Mensajes</p>
-            <p className="text-sm font-bold text-zinc-900 mt-0.5">{resumenTotal.mensajes.toLocaleString()}</p>
+          <div className={`${PANEL_BASE} border-l-4 border-l-violet-400 px-4 py-3 transition ${metricaActiva === "mensajes" ? "shadow-sm" : "opacity-60"}`}>
+            <p className="text-[10px] text-zinc-100 uppercase font-medium">Mensajes</p>
+            <p className="text-sm font-bold text-zinc-100 mt-0.5">{resumenTotal.mensajes.toLocaleString()}</p>
           </div>
         </div>
 
@@ -753,7 +746,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
                     label={{ value: `Ace ≥ ${ctrAceptable}%`, position: "insideTopRight", fontSize: 9, fill: "#f59e0b" }} />
                 </>}
 
-                <Bar dataKey={metricaActiva} radius={[4, 4, 0, 0]}>
+                <Bar filter="url(#neon-glow)" dataKey={metricaActiva} radius={[4, 4, 0, 0]}>
                   {datosChart.map((d, i) => {
                     const fill: string =
                       metricaActiva === "cpl" && d.cpl !== null ? cplBgColor(d.cpl)
@@ -769,31 +762,31 @@ export function ComparativaTab({ metricas, empresa }: Props) {
         )}
 
         {datosChart.length === 0 && (
-          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-8 text-center text-xs text-zinc-400">
+          <div className={`${PANEL_BASE} p-8 text-center text-xs text-zinc-400`}>
             Sin datos para graficar con la métrica seleccionada
           </div>
         )}
       </section>
 
       {/* ── Diagnóstico por Métrica ── */}
-      <section className="bg-white border border-zinc-200 rounded-2xl p-5 space-y-3">
+      <section className={`${GLASS_BASE} p-5 space-y-3`}>
         <div className="flex items-center gap-2 flex-wrap">
           <Target size={15} className="text-zinc-500" />
-          <span className="text-sm font-semibold text-zinc-800">Diagnóstico por métrica</span>
+          <span className="text-sm font-semibold text-zinc-200">Diagnóstico por métrica</span>
           {sectorActivo ? (
-            <span className="text-[10px] bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-medium">
+            <span className={`${BADGE_BASE} text-[10px] text-violet-700 px-2 py-0.5 font-medium`}>
               {sectorLabel(sectorActivo)} · benchmarks dinámicos
             </span>
           ) : (
-            <span className="text-[10px] bg-zinc-100 text-zinc-500 px-2 py-0.5 rounded-full">
+            <span className={`${BADGE_BASE} text-[10px] text-zinc-500 px-2 py-0.5`}>
               Inmobiliario (default) · configura en Benchmarks
             </span>
           )}
         </div>
 
-        <div className="rounded-xl border border-zinc-200 overflow-hidden">
+        <div className="rounded-xl border border-white/10 overflow-hidden">
           <table className="w-full text-xs">
-            <thead className="bg-zinc-50 text-zinc-500 uppercase text-[10px]">
+            <thead className="bg-zinc-800/40 text-zinc-100 uppercase text-[10px]">
               <tr>
                 <th className="px-4 py-2.5 text-left font-medium">Métrica</th>
                 <th className="px-4 py-2.5 text-right font-medium">Tu promedio</th>
@@ -802,7 +795,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
                 <th className="px-4 py-2.5 text-center font-medium">Estado</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-50">
+            <tbody className="divide-y divide-white/5">
               {diagnostico.map((d) => {
                 const desvColor = d.desv
                   ? (d.mayor_es_mejor
@@ -810,9 +803,9 @@ export function ComparativaTab({ metricas, empresa }: Props) {
                       : (d.desv.pct >= 0 ? "text-red-500" : "text-green-600"))
                   : "";
                 return (
-                  <tr key={d.key} className="hover:bg-zinc-50 transition">
+                  <tr key={d.key} className="hover:bg-zinc-800/40 transition">
                     <td className="px-4 py-3 max-w-[180px]">
-                      <p className="font-semibold text-zinc-800">{d.label}</p>
+                      <p className="font-semibold text-zinc-200">{d.label}</p>
                       <p className="text-zinc-400 text-[10px] leading-tight">{d.descripcion}</p>
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">
@@ -855,7 +848,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
           </table>
         </div>
 
-        <div className="bg-zinc-50 rounded-xl border border-zinc-200 p-4 space-y-2">
+        <div className={`${PANEL_BASE} p-4 space-y-2`}>
           <p className="text-[10px] text-zinc-500">
             Benchmarks ajustados -20% para Latinoamérica Tier 3 (Perú). Tipo de cambio S/ 3.80/USD.
             CPL calculado solo para campañas con Instant Form (leads &gt; 0).
@@ -907,15 +900,15 @@ function EstadoBadge({ estado }: { estado: "excelente" | "aceptable" | "alto" | 
   return <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${bg}`}>{label}</span>;
 }
 
-function Highlight({ icon, bg, label, valor, sub }: {
-  icon: React.ReactNode; bg: string; label: string; valor: string; sub: string;
+function Highlight({ icon, label, valor, sub }: {
+  icon: React.ReactNode; label: string; valor: string; sub: string;
 }) {
   return (
-    <div className={`rounded-xl border px-4 py-3 space-y-1 ${bg}`}>
-      <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-500">
+    <div className={`${PANEL_BASE} px-4 py-3 space-y-1`}>
+      <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-400">
         {icon}{label}
       </div>
-      <p className="text-lg font-black text-zinc-900">{valor}</p>
+      <p className="text-lg font-black text-zinc-100">{valor}</p>
       <p className="text-[11px] text-zinc-500 truncate">{sub}</p>
     </div>
   );

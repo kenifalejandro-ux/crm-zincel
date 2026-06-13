@@ -1,5 +1,6 @@
 /** src/components/metricas/detalle/AnalisisDetalle.tsx */
 
+import { PANEL_BASE } from "../../../lib/tokens";
 import { MetricasCalculadas } from "../../../utils/metricas.calc";
 import { Metrica }            from "../../../types/metricas.types";
 
@@ -62,7 +63,7 @@ const RECOMENDACIONES: Record<string, Record<string, string>> = {
 export const AnalisisDetalle = ({ metrica: m, calculado: c }: Props) => (
   <div className="space-y-4">
 
-    <p className="text-xs text-zinc-600">
+    <p className="text-xs text-zinc-400">
       Análisis detallado de cada métrica con lectura en lenguaje simple y recomendaciones accionables.
     </p>
 
@@ -80,7 +81,7 @@ export const AnalisisDetalle = ({ metrica: m, calculado: c }: Props) => (
               {key.toUpperCase()}
             </span>
           </div>
-          <span className="text-sm font-black text-zinc-800">
+          <span className="text-sm font-black text-zinc-200">
             {key === "roas"      ? `${s.valor}x`   :
              key === "frecuencia"? `${s.valor}x`   :
              key === "ctr"       ? `${s.valor}%`   :
@@ -89,14 +90,14 @@ export const AnalisisDetalle = ({ metrica: m, calculado: c }: Props) => (
         </div>
 
         {/* Lectura */}
-        <p className="text-xs text-zinc-700 leading-relaxed">{s.lectura}</p>
+        <p className="text-xs text-zinc-300 leading-relaxed">{s.lectura}</p>
 
         {/* Separador */}
-        <div className="border-t border-zinc-200 pt-2">
-          <p className="text-[10px] font-semibold text-zinc-700 uppercase mb-1">
+        <div className="border-t border-white/10 pt-2">
+          <p className="text-[10px] font-semibold text-zinc-100 uppercase mb-1">
             💡 Recomendación
           </p>
-          <p className="text-xs text-zinc-600 leading-relaxed">
+          <p className="text-xs text-zinc-400 leading-relaxed">
             {RECOMENDACIONES[key]?.[s.estado] ?? "Sin recomendación disponible."}
           </p>
         </div>
@@ -142,8 +143,8 @@ export const AnalisisDetalle = ({ metrica: m, calculado: c }: Props) => (
 
     {/* Aviso si faltan ingresos */}
     {m.ingresos === 0 && (
-      <div className="border border-zinc-200 bg-zinc-50 rounded-xl p-4 text-center">
-        <p className="text-xs text-zinc-600">
+      <div className={`${PANEL_BASE} p-4 text-center`}>
+        <p className="text-xs text-zinc-400">
           💡 Agrega los ingresos generados por esta campaña para calcular ROAS, ROI y margen neto.
         </p>
       </div>
