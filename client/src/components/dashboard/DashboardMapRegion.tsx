@@ -21,11 +21,12 @@ function ActividadRegion({ selected }: { selected: RegionEtapa }) {
       </p>
       <ResponsiveContainer width="100%" height={160}>
         <BarChart data={barData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
-          <XAxis dataKey="nombre" tick={{ fontSize: 10, fill: "#71717a" }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fontSize: 10, fill: "#71717a" }} axisLine={false} tickLine={false} allowDecimals={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+          <XAxis dataKey="nombre" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} allowDecimals={false} />
           <Tooltip
-            contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
+            cursor={{ fill: "rgba(255,255,255,0.04)" }}
+            contentStyle={{ fontSize: 11, borderRadius: 8, background: "rgba(10,16,31,0.97)", border: "1px solid rgb(var(--accent) / 0.35)", color: "#e4e4e7" }}
             formatter={(val: any) => [val, ""]}
           />
           <Bar filter="url(#neon-glow)" dataKey="valor" radius={[4, 4, 0, 0]} maxBarSize={52}>
@@ -39,14 +40,15 @@ function ActividadRegion({ selected }: { selected: RegionEtapa }) {
   );
 }
 
+// Escala cyan sobre fondo oscuro (más actividad = cyan más brillante)
 function colorPorVolumen(total: number, maxTotal: number): string {
-  if (total === 0) return "#f4f4f5";
+  if (total === 0) return "#1e293b";   // slate-800 (sin datos)
   const r = total / maxTotal;
-  if (r >= 0.6)  return COLORS.dark;
-  if (r >= 0.3)  return COLORS.mutedDark;
-  if (r >= 0.1)  return "#71717a";
-  if (r >= 0.02) return "#a1a1aa";
-  return "#d4d4d8";
+  if (r >= 0.6)  return "#06b6d4";      // cyan-500
+  if (r >= 0.3)  return "#0891b2";      // cyan-600
+  if (r >= 0.1)  return "#0e7490";      // cyan-700
+  if (r >= 0.02) return "#155e75";      // cyan-800
+  return "#1e3a4f";                     // cyan muy tenue
 }
 
 interface Props {
@@ -85,7 +87,7 @@ export function DashboardMapRegion({ datos }: Props) {
           <PeruMap
             getColor={norm => {
               const d = dataMap.get(norm);
-              return d ? colorPorVolumen(d.total, maxTotal) : "#f4f4f5";
+              return d ? colorPorVolumen(d.total, maxTotal) : "#1e293b";
             }}
             markers={datosValidos.map(d => ({
               zona:  normalizeRegion(d.zona),
@@ -95,7 +97,7 @@ export function DashboardMapRegion({ datos }: Props) {
             selectColor={COLORS.primary}
             onSelect={handleSelect}
             height="100%"
-            bgColor="#f8fafc"
+            bgColor="#0c1322"
           />
         </div>
 
@@ -131,9 +133,9 @@ export function DashboardMapRegion({ datos }: Props) {
               {/* Barra vs mayor región */}
               <div className="border-t border-white/8 pt-2">
                 <p className="text-[9px] text-zinc-400 mb-1">Vs mayor región</p>
-                <div className="w-full bg-zinc-800 rounded-full h-1.5">
-                  <div className="h-1.5 rounded-full bg-zinc-800 transition-all duration-500"
-                    style={{ width: `${Math.round((selected.total / maxTotal) * 100)}%` }} />
+                <div className="w-full bg-white/5 rounded-full h-1.5">
+                  <div className="h-1.5 rounded-full bg-brand transition-all duration-500"
+                    style={{ width: `${Math.round((selected.total / maxTotal) * 100)}%`, boxShadow: "0 0 8px rgb(var(--accent) / 0.6)" }} />
                 </div>
               </div>
             </div>

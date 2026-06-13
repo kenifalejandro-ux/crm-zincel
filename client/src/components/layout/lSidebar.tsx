@@ -138,7 +138,7 @@ function GrupoNav({ grupo, tabActiva, empresaActiva, enMetricas, onCerrar, defau
                 onClick={onCerrar}
                 className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-all ${
                   isActive
-                    ? "bg-cyan-500/10 text-cyan-400 font-semibold"
+                    ? "bg-accent-10 text-accent font-semibold"
                     : "text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
                 }`}
               >
@@ -188,7 +188,7 @@ function CampañasNav({ onCerrar }: { onCerrar: () => void }) {
             : "text-zinc-400 font-medium hover:bg-white/5 hover:text-zinc-200"
         }`}
       >
-        <BarChart2 size={16} className={enMetricas ? "text-brand" : "text-zinc-500"} />
+        <BarChart2 size={16} className={enMetricas ? "text-accent" : "text-zinc-500"} />
         <span className="flex-1 text-left">Campañas</span>
         <ChevronDown
           size={13}
@@ -284,7 +284,7 @@ function SeccionNav({ seccion, leadsCalientes, tareasUrgentes, onCerrar }: {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                     isActive
-                      ? "bg-cyan-500/10 text-cyan-400 font-semibold border border-cyan-500/20"
+                      ? "bg-accent-10 text-accent font-semibold border border-accent-20"
                       : "text-zinc-400 font-medium hover:bg-white/5 hover:text-zinc-200"
                   }`
                 }
@@ -336,7 +336,7 @@ export function lSidebar({ abierto, onCerrar }: Props) {
       <aside
         className={`
           fixed inset-y-0 left-0 z-40 w-64 flex flex-col
-          bg-zinc-900 border-r border-zinc-800
+          neon-sidebar
           transform transition-transform duration-300 ease-in-out
           ${abierto ? "translate-x-0" : "-translate-x-full"}
           lg:relative lg:w-56 lg:translate-x-0 lg:z-auto lg:shrink-0
