@@ -17,6 +17,9 @@
 
 .font-display { font-family: var(--font-display); }
 
+/* El cuerpo de toda la app sigue la misma variable → el panel cambia TODO el CRM */
+body { font-family: var(--font-display); }
+
 /* ── Utilidades de acento dinámico ──────────────────────────────────────── */
 .text-accent      { color: rgb(var(--accent)); }
 .bg-accent        { background-color: rgb(var(--accent)); }
