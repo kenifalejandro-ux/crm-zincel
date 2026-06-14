@@ -1,132 +1,87 @@
-/** src/components/metricas/TabsPlataforma.tsx */
-
-import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+/** src/components/metricas/TabsPlataforma.tsx — REDISEÑO NEON
+ * Antes: dropdowns agrupados en TEMA CLARO (text-amber-700, bg-white, border-slate-200) —
+ *        confusos y fuera del theme. Ahora: navegación de 2 niveles visible —
+ *        grupos (Campañas/Análisis/Estrategia/Orgánico) + sub-tabs del grupo activo.
+ * Props (activa, onChange) y los `value` de cada tab INTACTOS — no cambia la lógica del router.
+ */
+import { Rocket, BarChart2, Target, Leaf } from "lucide-react";
 import { Plataforma } from "../../types/metricas.types";
 
 type Tab = Plataforma | "todas" | "cpl" | "proyeccion" | "comparativa" | "rentabilidad" | "roi" | "benchmarks" | "optimizador" | "formatos" | "ciclo" | "organico" | "competidores";
 
-interface TabItem { value: Tab; label: string; dot: string }
-interface Grupo   { label: string; activeColor: string; borderColor: string; tabs: TabItem[] }
+interface TabItem { value: Tab; label: string; color: string }
+interface Grupo { id: string; label: string; Icon: typeof Rocket; tabs: TabItem[] }
 
 const GRUPOS: Grupo[] = [
-  {
-    label: "Campañas",
-    activeColor: "text-amber-700",
-    borderColor: "border-brand/25 bg-brand/8",
-    tabs: [
-      { value: "todas",  label: "Todas",      dot: "bg-slate-400" },
-      { value: "meta",   label: "Meta Ads",   dot: "bg-blue-500"  },
-      { value: "google", label: "Google Ads", dot: "bg-red-500"   },
-      { value: "tiktok", label: "TikTok Ads", dot: "bg-pink-500"  },
-    ],
-  },
-  {
-    label: "Análisis",
-    activeColor: "text-amber-700",
-    borderColor: "border-brand/25 bg-brand/8",
-    tabs: [
-      { value: "comparativa",  label: "Comparativa",     dot: "bg-emerald-500" },
-      { value: "rentabilidad", label: "ROAS",            dot: "bg-blue-500"    },
-      { value: "roi",          label: "ROI",             dot: "bg-green-500"   },
-      { value: "cpl",          label: "Costo por Lead",  dot: "bg-sky-500"     },
-      { value: "proyeccion",   label: "Proyección",      dot: "bg-violet-500"  },
-      { value: "benchmarks",   label: "Benchmarks",      dot: "bg-orange-500"  },
-    ],
-  },
-  {
-    label: "Estrategia",
-    activeColor: "text-amber-700",
-    borderColor: "border-brand/25 bg-brand/8",
-    tabs: [
-      { value: "optimizador", label: "Optimizador",    dot: "bg-violet-500" },
-      { value: "formatos",    label: "Formatos",       dot: "bg-green-500"  },
-      { value: "ciclo",       label: "Ciclo de Venta", dot: "bg-amber-500"  },
-    ],
-  },
-  {
-    label: "Orgánico",
-    activeColor: "text-amber-700",
-    borderColor: "border-brand/25 bg-brand/8",
-    tabs: [
-      { value: "organico",     label: "Contenido",    dot: "bg-fuchsia-500" },
-      { value: "competidores", label: "Competidores", dot: "bg-rose-500"    },
-    ],
-  },
+  { id: "campanas", label: "Campañas", Icon: Rocket, tabs: [
+    { value: "todas",  label: "Todas",      color: "#94a3b8" },
+    { value: "meta",   label: "Meta Ads",   color: "#3b82f6" },
+    { value: "google", label: "Google Ads", color: "#ef4444" },
+    { value: "tiktok", label: "TikTok Ads", color: "#ec4899" },
+  ]},
+  { id: "analisis", label: "Análisis", Icon: BarChart2, tabs: [
+    { value: "comparativa",  label: "Comparativa",    color: "#34d399" },
+    { value: "rentabilidad", label: "ROAS",           color: "#3b82f6" },
+    { value: "roi",          label: "ROI",            color: "#22c55e" },
+    { value: "cpl",          label: "Costo por Lead", color: "#0ea5e9" },
+    { value: "proyeccion",   label: "Proyección",     color: "#a855f7" },
+    { value: "benchmarks",   label: "Benchmarks",     color: "#f97316" },
+  ]},
+  { id: "estrategia", label: "Estrategia", Icon: Target, tabs: [
+    { value: "optimizador", label: "Optimizador",    color: "#a855f7" },
+    { value: "formatos",    label: "Formatos",       color: "#22c55e" },
+    { value: "ciclo",       label: "Ciclo de Venta", color: "#f59e0b" },
+  ]},
+  { id: "organico", label: "Orgánico", Icon: Leaf, tabs: [
+    { value: "organico",     label: "Contenido",    color: "#d946ef" },
+    { value: "competidores", label: "Competidores", color: "#f43f5e" },
+  ]},
 ];
 
-interface Props {
-  activa:   Tab;
-  onChange: (tab: Tab) => void;
-}
+interface Props { activa: Tab; onChange: (tab: Tab) => void; }
 
 export function TabsPlataforma({ activa, onChange }: Props) {
-  const [abierto, setAbierto] = useState<number | null>(null);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setAbierto(null);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const grupoActivo = GRUPOS.findIndex(g => g.tabs.some(t => t.value === activa));
-  const tabActivaLabel = GRUPOS.flatMap(g => g.tabs).find(t => t.value === activa)?.label ?? "";
+  const grupoActivo = GRUPOS.find(g => g.tabs.some(t => t.value === activa)) ?? GRUPOS[0];
 
   return (
-    <div ref={ref} className="flex items-center gap-2 flex-wrap">
-      {GRUPOS.map((grupo, gi) => {
-        const esGrupoActivo = gi === grupoActivo;
-        const estaAbierto   = abierto === gi;
-
-        return (
-          <div key={gi} className="relative">
+    <div className="neon-card p-2 space-y-2">
+      {/* Grupos */}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {GRUPOS.map((g) => {
+          const act = g.id === grupoActivo.id;
+          return (
             <button
-              onClick={() => setAbierto(estaAbierto ? null : gi)}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition select-none ${
-                esGrupoActivo
-                  ? `${grupo.activeColor} ${grupo.borderColor} shadow-[0_1px_4px_rgba(206,171,17,0.20)]`
-                  : "text-slate-600 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 shadow-sm"
+              key={g.id}
+              onClick={() => onChange(g.tabs[0].value)}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-semibold transition-all border ${
+                act ? "bg-accent-15 text-accent border-accent-30" : "text-zinc-400 border-transparent hover:text-zinc-200 hover:bg-white/[0.04]"
+              }`}
+              style={act ? { boxShadow: "0 0 16px rgb(var(--accent) / calc(0.18*var(--glow)))" } : undefined}
+            >
+              <g.Icon size={14} /> {g.label}
+              <span className="text-[10px] opacity-50 font-normal">{g.tabs.length}</span>
+            </button>
+          );
+        })}
+      </div>
+      {/* Sub-tabs del grupo activo */}
+      <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-white/[0.06]">
+        {grupoActivo.tabs.map((tb) => {
+          const act = tb.value === activa;
+          return (
+            <button
+              key={tb.value}
+              onClick={() => onChange(tb.value)}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                act ? "text-zinc-100 bg-white/[0.07] border-white/15" : "text-zinc-500 border-transparent hover:text-zinc-300 hover:bg-white/[0.03]"
               }`}
             >
-              <span>{grupo.label}</span>
-              {esGrupoActivo && (
-                <span className="text-[10px] opacity-60 font-normal">· {tabActivaLabel}</span>
-              )}
-              <ChevronDown
-                size={12}
-                className={`transition-transform ${estaAbierto ? "rotate-180" : ""} opacity-50`}
-              />
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: tb.color, boxShadow: act ? `0 0 7px ${tb.color}` : "none" }} />
+              {tb.label}
             </button>
-
-            {estaAbierto && (
-              <div className="absolute top-full left-0 mt-1.5 z-50 bg-slate-800/60 border border-white/10 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.10)] py-1.5 min-w-[170px]">
-                {grupo.tabs.map(tab => (
-                  <button
-                    key={tab.value}
-                    onClick={() => { onChange(tab.value); setAbierto(null); }}
-                    className={`w-full flex items-center gap-2.5 px-4 py-2 text-xs text-left transition ${
-                      activa === tab.value
-                        ? "bg-brand/8 font-bold text-amber-700"
-                        : "text-slate-400 hover:bg-slate-800/40 hover:text-slate-200"
-                    }`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${tab.dot}`} />
-                    {tab.label}
-                    {activa === tab.value && (
-                      <span className="ml-auto w-1 h-4 rounded-full bg-brand shrink-0" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

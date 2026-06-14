@@ -65,11 +65,12 @@ export function FiltroPeriodoBotones({ periodo, filtroFecha, onChange }: Props) 
     ? { mes: Number(filtroFecha.split("-")[1]) - 1, anio: Number(filtroFecha.split("-")[0]) }
     : null;
 
+    {/**filtro periodo por fecha */}
   const btnClass = (activo: boolean) =>
-    `px-4 py-2 rounded-lg text-xs font-medium transition-all ${
+    `px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
       activo
-        ? "bg-zinc-900 text-white shadow-sm"
-        : "bg-white border border-gray-200 text-zinc-700 hover:bg-gray-50"
+        ? "bg-accent-15 text-accent border border-accent-30"
+        : "bg-white/[0.04] border border-white/10 text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.07]"
     }`;
 
   return (

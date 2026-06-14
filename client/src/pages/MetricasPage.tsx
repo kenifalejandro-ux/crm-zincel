@@ -302,54 +302,28 @@ export default function MetricasPage() {
 
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="crm-section-accent h-8" />
-          <div>
-            <h1 className="text-2xl font-bold text-zinc-100 tracking-tight">Métricas de campañas</h1>
-            <p className="text-xs text-zinc-500 mt-0.5">Meta Ads · Google Ads · TikTok Ads</p>
-          </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-accent">Marketing</p>
+          <h1 className="font-display text-[28px] font-bold text-zinc-50 tracking-tight leading-tight mt-1">Métricas de campañas</h1>
+          <p className="text-[13px] text-zinc-500 mt-1">Meta Ads · Google Ads · TikTok Ads</p>
         </div>
 
-        {/* Acciones (registrar + masivas) — SOLO en pestañas de ads/detalle */}
+        {/* Header (zona derecha, solo visible en tabs de Ads) — NEON style */}
         {esTabAds && (
-          <div className="flex gap-2">
-            {/* Bulk delete */}
-            <TableBulkActions
-              count={seleccionados.length}
-              proyectos={proyectos}
-              onDelete={eliminarSeleccionados}
-              onAsignarProyectos={asignarProyecto}
-            />
-
-            {/* Importar desde API */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setModalAPI(true)}
-              className="relative group p-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white transition shadow-[0_0_14px_rgba(139,92,246,0.5)]"
+              className="relative group p-2.5 rounded-xl text-white transition"
+              style={{ background: "linear-gradient(135deg, #a855f7, #7c3aed)", boxShadow: "0 0 14px rgba(168,85,247,0.45)" }}
+              title="Importar desde API"
             >
-              <Zap size={17} />
-              <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
-                Importar desde API
-              </span>
+              <Zap size={16} />
             </button>
-
-            {/* Importar CSV */}
-            <button
-              onClick={() => setModalCSV(true)}
-              className="relative group p-2 rounded-xl bg-slate-800/60 hover:bg-slate-700 border border-white/10 text-zinc-300 transition"
-            >
-              <Upload size={17} />
-              <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
-                Importar CSV
-              </span>
+            <button onClick={() => setModalCSV(true)} className="btn-ghost p-2.5 text-zinc-300" title="Importar CSV">
+              <Upload size={16} />
             </button>
-
-            {/* Registro manual */}
-            <button
-              onClick={() => setModal(true)}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
-            >
-              <Plus size={12} />
-              Registrar métricas
+            <button onClick={() => setModal(true)} className="btn-primary flex items-center gap-1.5 px-4 py-2.5 text-[13px]">
+              <Plus size={15} /> Registrar
             </button>
           </div>
         )}
@@ -369,24 +343,17 @@ export default function MetricasPage() {
           <AlertasMetricas empresa={filtros.empresa} />
 
           {/* ── Filtro de objetivo ── */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSoloVentas((v) => !v)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition ${
-                soloVentas
-                  ? "bg-emerald-50 border-emerald-300 text-emerald-700"
-                  : "bg-slate-800/60 border-white/10 text-zinc-500 hover:border-white/15"
-              }`}
-            >
-              <span className={`w-2 h-2 rounded-full ${soloVentas ? "bg-emerald-500" : "bg-zinc-300"}`} />
-              Solo campañas de venta
-            </button>
-            {soloVentas && (
-              <span className="text-[10px] text-zinc-400">
-                Excluye campañas de branding y comunidad del KPI total
-              </span>
-            )}
-          </div>
+          <button
+            onClick={() => setSoloVentas((v) => !v)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition ${
+              soloVentas
+                ? "bg-emerald-500/12 border-emerald-500/30 text-emerald-300"
+                : "bg-white/[0.04] border-white/10 text-zinc-400 hover:text-zinc-200"
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${soloVentas ? "bg-emerald-400" : "bg-zinc-600"}`} />
+            Solo campañas de venta
+          </button>
 
           {/* ── KPIs globales ── */}
           {metricasFiltradas.length > 0 && (
