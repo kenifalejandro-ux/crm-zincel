@@ -10,15 +10,15 @@ interface Props {
 }
 
 const COLOR_CARD: Record<string, string> = {
-  green:  "border-green-200  bg-green-50",
-  yellow: "border-yellow-200 bg-yellow-50",
-  red:    "border-red-200    bg-red-50",
+  green:  "border-emerald-500/30 bg-emerald-500/[0.07]",
+  yellow: "border-amber-500/30   bg-amber-500/[0.07]",
+  red:    "border-red-500/30     bg-red-500/[0.07]",
 };
 
 const COLOR_TITULO: Record<string, string> = {
-  green:  "text-green-700",
-  yellow: "text-yellow-700",
-  red:    "text-red-700",
+  green:  "text-emerald-300",
+  yellow: "text-amber-300",
+  red:    "text-red-300",
 };
 
 const ICONO: Record<string, string> = {
@@ -94,7 +94,7 @@ export const AnalisisDetalle = ({ metrica: m, calculado: c }: Props) => (
 
         {/* Separador */}
         <div className="border-t border-white/10 pt-2">
-          <p className="text-[10px] font-semibold text-zinc-100 uppercase mb-1">
+          <p className="text-[10px] font-semibold text-zinc-500 uppercase mb-1">
             💡 Recomendación
           </p>
           <p className="text-xs text-zinc-400 leading-relaxed">
@@ -107,33 +107,33 @@ export const AnalisisDetalle = ({ metrica: m, calculado: c }: Props) => (
 
     {/* Análisis de ingresos si hay datos */}
     {m.ingresos > 0 && (
-      <div className="border border-brand/20 bg-blue-50 rounded-xl p-4 space-y-2">
+      <div className="border border-blue-500/25 bg-blue-500/[0.07] rounded-xl p-4 space-y-2">
         <div className="flex items-center gap-2">
           <span>💰</span>
-          <span className="text-xs font-bold uppercase tracking-wide text-blue-700">
+          <span className="text-xs font-bold uppercase tracking-wide text-blue-300">
             Rentabilidad
           </span>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <p className="text-[10px] text-blue-500">Ingresos generados</p>
-            <p className="text-sm font-bold text-blue-800">
+            <p className="text-[10px] text-blue-400">Ingresos generados</p>
+            <p className="text-sm font-bold text-blue-200">
               S/ {Number(m.ingresos).toLocaleString("es-PE")}
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-blue-500">Margen neto</p>
-            <p className={`text-sm font-bold ${c.margen_neto >= 0 ? "text-green-700" : "text-red-700"}`}>
+            <p className="text-[10px] text-blue-400">Margen neto</p>
+            <p className={`text-sm font-bold ${c.margen_neto >= 0 ? "text-emerald-300" : "text-red-300"}`}>
               S/ {c.margen_neto.toLocaleString("es-PE")}
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-blue-500">ROAS</p>
-            <p className="text-sm font-bold text-blue-800">{c.roas}x</p>
+            <p className="text-[10px] text-blue-400">ROAS</p>
+            <p className="text-sm font-bold text-blue-200">{c.roas}x</p>
           </div>
           <div>
-            <p className="text-[10px] text-blue-500">ROI</p>
-            <p className={`text-sm font-bold ${c.roi >= 0 ? "text-green-700" : "text-red-700"}`}>
+            <p className="text-[10px] text-blue-400">ROI</p>
+            <p className={`text-sm font-bold ${c.roi >= 0 ? "text-emerald-300" : "text-red-300"}`}>
               {c.roi}%
             </p>
           </div>

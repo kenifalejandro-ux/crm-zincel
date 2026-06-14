@@ -6,23 +6,23 @@ import { FunnelData } from "../../../utils/metricas.calc";
 interface Props { funnel: FunnelData }
 
 const COLOR_ETIQUETA: Record<string, string> = {
-  TOFU:    "bg-blue-100   text-blue-700",
-  MOFU:    "bg-purple-100 text-purple-700",
-  DOFU:    "bg-amber-100  text-amber-700",
-  BOFU:    "bg-orange-100 text-orange-700",
-  REVENUE: "bg-green-100  text-green-700",
+  TOFU:    "bg-blue-500/15   text-blue-300",
+  MOFU:    "bg-purple-500/15 text-purple-300",
+  DOFU:    "bg-amber-500/15  text-amber-300",
+  BOFU:    "bg-orange-500/15 text-orange-300",
+  REVENUE: "bg-emerald-500/15 text-emerald-300",
 };
 
 const COLOR_BARRA: Record<string, string> = {
-  green:  "bg-green-500",
-  yellow: "bg-yellow-500",
+  green:  "bg-emerald-500",
+  yellow: "bg-amber-500",
   red:    "bg-red-500",
 };
 
 const COLOR_TEXTO: Record<string, string> = {
-  green:  "text-green-600",
-  yellow: "text-yellow-600",
-  red:    "text-red-600",
+  green:  "text-emerald-400",
+  yellow: "text-amber-400",
+  red:    "text-red-400",
 };
 
 const DESCRIPCION_ETAPA: Record<string, string> = {
@@ -40,13 +40,13 @@ export const FunnelDetalle = ({ funnel }: Props) => (
 
     {/* Cuello de botella */}
     {funnel.cuello_botella && (
-      <div className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-xl p-4">
+      <div className="flex items-start gap-3 bg-red-500/[0.08] border border-red-500/25 rounded-xl p-4">
         <span className="text-2xl">⚠️</span>
         <div>
-          <p className="text-xs font-semibold text-red-700 mb-0.5">
+          <p className="text-xs font-semibold text-red-300 mb-0.5">
             Cuello de botella detectado en: {funnel.cuello_botella}
           </p>
-          <p className="text-xs text-red-500">
+          <p className="text-xs text-red-400/80">
             Esta es la etapa donde más se pierde el potencial de tu campaña.
             Optimiza este punto para mejorar el rendimiento global.
           </p>
@@ -55,13 +55,13 @@ export const FunnelDetalle = ({ funnel }: Props) => (
     )}
 
     {!funnel.cuello_botella && (
-      <div className="flex items-start gap-3 bg-green-50 border border-green-100 rounded-xl p-4">
+      <div className="flex items-start gap-3 bg-emerald-500/[0.08] border border-emerald-500/25 rounded-xl p-4">
         <span className="text-2xl">✅</span>
         <div>
-          <p className="text-xs font-semibold text-green-700 mb-0.5">
+          <p className="text-xs font-semibold text-emerald-300 mb-0.5">
             Pipeline saludable
           </p>
-          <p className="text-xs text-green-600">
+          <p className="text-xs text-emerald-400">
             No se detectaron cuellos de botella críticos en el funnel de esta campaña.
           </p>
         </div>
@@ -88,7 +88,7 @@ export const FunnelDetalle = ({ funnel }: Props) => (
                 {etapa.etiqueta}
               </span>
               {funnel.cuello_botella === etapa.nombre && (
-                <span className={`${BADGE_BASE} text-[10px] px-1.5 py-0.5 font-medium text-red-700`}>
+                <span className={`${BADGE_BASE} text-[10px] px-1.5 py-0.5 font-medium text-red-300`}>
                   ⚠️ Cuello
                 </span>
               )}
@@ -109,7 +109,7 @@ export const FunnelDetalle = ({ funnel }: Props) => (
           </div>
 
           {/* Barra */}
-          <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all ${COLOR_BARRA[etapa.estado]}`}
               style={{ width: `${Math.min(etapa.porcentaje, 100)}%` }}

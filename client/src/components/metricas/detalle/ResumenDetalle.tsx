@@ -10,28 +10,28 @@ interface Props {
 }
 
 const COLOR_BADGE: Record<string, string> = {
-  green:  "bg-green-100  text-green-700",
-  blue:   "bg-blue-100   text-blue-700",
-  yellow: "bg-yellow-100 text-yellow-700",
-  red:    "bg-red-100    text-red-700",
+  green:  "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
+  blue:   "bg-blue-500/15    text-blue-300 border border-blue-500/30",
+  yellow: "bg-amber-500/15   text-amber-300 border border-amber-500/30",
+  red:    "bg-red-500/15     text-red-300 border border-red-500/30",
 };
 
 const COLOR_SCORE: Record<string, string> = {
-  green:  "text-green-600",
-  blue:   "text-blue-600",
-  yellow: "text-yellow-600",
-  red:    "text-red-600",
+  green:  "text-emerald-400",
+  blue:   "text-blue-400",
+  yellow: "text-amber-400",
+  red:    "text-red-400",
 };
 
 const COLOR_SEMAFORO: Record<string, string> = {
-  green:  "border-l-green-500",
-  yellow: "border-l-yellow-500",
+  green:  "border-l-emerald-500",
+  yellow: "border-l-amber-500",
   red:    "border-l-red-500",
 };
 
 const COLOR_DOT: Record<string, string> = {
-  green:  "bg-green-500",
-  yellow: "bg-yellow-500",
+  green:  "bg-emerald-500",
+  yellow: "bg-amber-500",
   red:    "bg-red-500",
 };
 
@@ -43,7 +43,7 @@ interface KpiBoxProps {
 
 const KpiBox = ({ label, valor, sub }: KpiBoxProps) => (
   <div className={`${PANEL_BASE} p-3 space-y-0.5`}>
-    <p className="text-[10px] text-zinc-100 uppercase tracking-wide">{label}</p>
+    <p className="text-[10px] text-zinc-500 uppercase tracking-wide">{label}</p>
     <p className="text-lg font-bold text-zinc-200">{valor}</p>
     {sub && <p className="text-[10px] text-zinc-400">{sub}</p>}
   </div>
@@ -77,7 +77,7 @@ export const ResumenDetalle = ({ metrica: m, calculado: c }: Props) => (
 
     {/* KPIs calculados */}
     <div>
-      <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wide mb-2">
+      <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-2">
         Métricas calculadas
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -103,7 +103,7 @@ export const ResumenDetalle = ({ metrica: m, calculado: c }: Props) => (
       m.me_gusta > 0 || m.comentarios > 0 || m.compartidos > 0 || m.guardados > 0 ||
       m.perfil_visitas > 0 || m.reproducciones > 0) && (
       <div>
-        <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wide mb-2">
+        <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-2">
           Datos de alcance y engagement
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -127,19 +127,19 @@ export const ResumenDetalle = ({ metrica: m, calculado: c }: Props) => (
 
     {/* Semáforos */}
     <div>
-      <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wide mb-2">
+      <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-2">
         Evaluación vs benchmark de mercado
       </p>
       <div className="space-y-2">
         {Object.entries(c.semaforos).map(([key, s]) => (
           <div
             key={key}
-            className={`border-l-4 ${COLOR_SEMAFORO[s.estado]} bg-zinc-800/40 rounded-r-xl px-4 py-2.5 flex items-start justify-between gap-4`}
+            className={`border-l-4 ${COLOR_SEMAFORO[s.estado]} bg-white/[0.03] border border-white/[0.06] rounded-r-xl px-4 py-2.5 flex items-start justify-between gap-4`}
           >
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-0.5">
                 <div className={`w-1.5 h-1.5 rounded-full ${COLOR_DOT[s.estado]}`} />
-                <span className="text-xs font-semibold text-zinc-100 uppercase">{key}</span>
+                <span className="text-xs font-semibold text-zinc-200 uppercase">{key}</span>
                 <span className="text-xs text-zinc-400">Benchmark: {s.benchmark}</span>
               </div>
               <p className="text-xs text-zinc-300">{s.lectura}</p>

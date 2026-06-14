@@ -20,9 +20,9 @@ interface Props {
 }
 
 const BADGE_PLATAFORMA: Record<string, string> = {
-  meta:   "bg-blue-100 text-blue-700",
-  google: "bg-red-100  text-red-700",
-  tiktok: "bg-pink-100 text-pink-700",
+  meta:   "bg-blue-500/15 text-blue-300 border border-blue-500/30",
+  google: "bg-red-500/15  text-red-300 border border-red-500/30",
+  tiktok: "bg-pink-500/15 text-pink-300 border border-pink-500/30",
 };
 
 const LABEL_PLATAFORMA: Record<string, string> = {
@@ -57,7 +57,7 @@ export const ModalDetalleMetrica = ({ metrica, onCerrar, onSincronizado }: Props
       <div className={`${MODAL_BASE} w-full max-w-2xl max-h-[90vh] flex flex-col`}>
 
         {/* ── Header ── */}
-        <div className="px-6 py-4 border-b border-white/8 shrink-0">
+        <div className="px-6 py-4 border-b border-white/[0.08] shrink-0">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
@@ -79,7 +79,7 @@ export const ModalDetalleMetrica = ({ metrica, onCerrar, onSincronizado }: Props
               {metrica.plataforma === "meta" && esPropia && (
                 <button
                   onClick={() => setModalSync(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border border-brand/20 rounded-lg transition"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-blue-500/12 hover:bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg transition"
                   title="Sincronizar desde Meta Ads"
                 >
                   <RefreshCw size={13} />
