@@ -37,11 +37,11 @@ interface Venta {
 }
 
 const PROY_COLOR: Record<string, { bar: string; chip: string; dot: string }> = {
-  "Alborada":      { bar: "bg-violet-400",  chip: "bg-violet-100 text-violet-700 border-violet-200",  dot: "bg-violet-500"  },
-  "Terrenos Villa":{ bar: "bg-emerald-400", chip: "bg-emerald-100 text-emerald-700 border-emerald-200", dot: "bg-emerald-500" },
-  "San Fernando":  { bar: "bg-sky-400",     chip: "bg-sky-100 text-sky-700 border-sky-200",            dot: "bg-sky-500"     },
+  "Alborada":      { bar: "bg-violet-500",  chip: "bg-violet-500/15 text-violet-300 border-violet-500/30",  dot: "bg-violet-500"  },
+  "Terrenos Villa":{ bar: "bg-emerald-500", chip: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", dot: "bg-emerald-500" },
+  "San Fernando":  { bar: "bg-sky-500",     chip: "bg-sky-500/15 text-sky-300 border-sky-500/30",            dot: "bg-sky-500"     },
 };
-const defaultColor = { bar: "bg-zinc-300", chip: "bg-zinc-100 text-zinc-500 border-zinc-200", dot: "bg-zinc-400" };
+const defaultColor = { bar: "bg-zinc-500", chip: "bg-white/[0.06] text-zinc-400 border-white/10", dot: "bg-zinc-400" };
 
 const fmtFecha = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "2-digit" });
 const fmtMonto = (n: number) => n >= 1000 ? `S/ ${(n / 1000).toFixed(0)}k` : `S/ ${Number(n).toLocaleString("es-PE")}`;
@@ -115,21 +115,21 @@ export function CicloVentaTab({ empresa }: Props) {
       {/* KPIs resumen */}
       <div className="grid grid-cols-3 gap-4">
         <div className={`${GLASS_BASE} p-5 flex items-center gap-4`}>
-          <div className="p-2.5 bg-amber-50 rounded-xl"><Clock size={18} className="text-amber-500" /></div>
+          <div className="p-2.5 bg-amber-500/12 border border-amber-500/30 rounded-xl"><Clock size={18} className="text-amber-400" /></div>
           <div>
             <p className="text-xs text-zinc-500">Ciclo promedio</p>
             <p className="text-xl font-bold text-zinc-100">{promedioDias ? `${promedioDias} días` : "—"}</p>
           </div>
         </div>
         <div className={`${GLASS_BASE} p-5 flex items-center gap-4`}>
-          <div className="p-2.5 bg-green-50 rounded-xl"><TrendingUp size={18} className="text-green-500" /></div>
+          <div className="p-2.5 bg-emerald-500/12 border border-emerald-500/30 rounded-xl"><TrendingUp size={18} className="text-emerald-400" /></div>
           <div>
             <p className="text-xs text-zinc-500">Ventas registradas</p>
             <p className="text-xl font-bold text-zinc-100">{ventas.length}</p>
           </div>
         </div>
         <div className={`${GLASS_BASE} p-5 flex items-center gap-4`}>
-          <div className="p-2.5 bg-violet-50 rounded-xl"><Calendar size={18} className="text-violet-500" /></div>
+          <div className="p-2.5 bg-violet-500/12 border border-violet-500/30 rounded-xl"><Calendar size={18} className="text-violet-400" /></div>
           <div>
             <p className="text-xs text-zinc-500">Campañas en historial</p>
             <p className="text-xl font-bold text-zinc-100">{campanas.length}</p>
@@ -144,7 +144,7 @@ export function CicloVentaTab({ empresa }: Props) {
 
         <div className="relative">
           {/* Eje X — meses */}
-          <div className="relative h-5 mb-3 border-b border-white/8">
+          <div className="relative h-5 mb-3 border-b border-white/10">
             {meses.map((m) => (
               <span
                 key={m.label}
@@ -166,7 +166,7 @@ export function CicloVentaTab({ empresa }: Props) {
                 <div key={c.id} className="relative h-7 flex items-center">
                   {/* Línea de fondo */}
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full h-px bg-zinc-800/40" />
+                    <div className="w-full h-px bg-white/[0.06]" />
                   </div>
                   {/* Barra de campaña */}
                   <div
@@ -196,9 +196,9 @@ export function CicloVentaTab({ empresa }: Props) {
                 style={{ left: `${x}%` }}
                 title={`Venta ${fmtMonto(Number(v.monto))}\n${v.proyecto}\n${fmtFecha(v.fecha_venta)}`}
               >
-                <div className="flex-1" style={{ borderLeft: "2px dashed #4ade80", opacity: 0.6 }} />
-                <div className={`w-3 h-3 rotate-45 ${s.dot} border-2 border-white/10 shadow-sm`} />
-                <span className="text-[9px] text-green-600 font-semibold mt-0.5 -rotate-45 origin-top-left whitespace-nowrap">
+                <div className="flex-1" style={{ borderLeft: "2px dashed #34d399", opacity: 0.5 }} />
+                <div className={`w-3 h-3 rotate-45 ${s.dot} border-2 border-white/20`} />
+                <span className="text-[9px] text-emerald-300 font-semibold mt-0.5 -rotate-45 origin-top-left whitespace-nowrap">
                   {fmtMonto(Number(v.monto))}
                 </span>
               </div>
@@ -215,11 +215,11 @@ export function CicloVentaTab({ empresa }: Props) {
             </div>
           ))}
           <div className="flex items-center gap-1.5 ml-2">
-            <div className="w-2.5 h-2.5 rotate-45 bg-green-400 border border-white/10" />
+            <div className="w-2.5 h-2.5 rotate-45 bg-emerald-400 border border-white/20" />
             <span className="text-[11px] text-zinc-500">Cierre de venta</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-2 rounded-full bg-zinc-300 opacity-50" />
+            <div className="w-3 h-2 rounded-full bg-zinc-500 opacity-60" />
             <span className="text-[11px] text-zinc-500">Multi-proyecto</span>
           </div>
         </div>
@@ -257,10 +257,10 @@ export function CicloVentaTab({ empresa }: Props) {
                       const maxDias = Math.max(...ciclos.map(x => Number(x.dias_ciclo)), 1);
                       const conf = c.confianza_atribucion;
                       const confCls = conf === "confirmada"
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-emerald-500/15 text-emerald-300"
                         : conf === "probable"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-zinc-100 text-zinc-500";
+                        ? "bg-amber-500/15 text-amber-300"
+                        : "bg-white/[0.06] text-zinc-400";
                       const proy0 = c.proyectos?.[0] ?? "";
                       const sc = PROY_COLOR[proy0] ?? defaultColor;
                       return (
@@ -272,7 +272,7 @@ export function CicloVentaTab({ empresa }: Props) {
                               <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${confCls}`}>{conf}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                              <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                                 <div
                                   className={`h-full ${sc.bar} rounded-full`}
                                   style={{ width: `${(dias / maxDias) * 100}%` }}

@@ -20,9 +20,9 @@ const PLATAFORMAS = ["meta", "google", "tiktok"] as const;
 type Plataforma = typeof PLATAFORMAS[number];
 
 const PLAT_CONFIG: Record<Plataforma, { label: string; color: string; bg: string; border: string; ring: string }> = {
-  meta:   { label: "Meta Ads",   color: "text-blue-700",  bg: "bg-blue-50",   border: "border-blue-200",   ring: "focus:ring-blue-400"   },
-  google: { label: "Google Ads", color: "text-red-700",   bg: "bg-red-50",    border: "border-red-200",    ring: "focus:ring-red-400"    },
-  tiktok: { label: "TikTok Ads", color: "text-pink-700",  bg: "bg-pink-50",   border: "border-pink-200",   ring: "focus:ring-pink-400"   },
+  meta:   { label: "Meta Ads",   color: "text-blue-300",  bg: "bg-blue-500/[0.06]",  border: "border-blue-500/30",  ring: "focus:ring-blue-400/40"   },
+  google: { label: "Google Ads", color: "text-red-300",   bg: "bg-red-500/[0.06]",   border: "border-red-500/30",   ring: "focus:ring-red-400/40"    },
+  tiktok: { label: "TikTok Ads", color: "text-pink-300",  bg: "bg-pink-500/[0.06]",  border: "border-pink-500/30",  ring: "focus:ring-pink-400/40"   },
 };
 
 // CPL de referencia de sector cuando no hay historial (WordStream/SuperAds 2025 inmobiliaria LatAm)
@@ -226,7 +226,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
   if (!empresa && historico.length === 0 && !cargando) {
     return (
       <div className={`${PANEL_BASE} flex flex-col items-center justify-center h-48 gap-2 border-dashed`}>
-        <Zap size={20} className="text-slate-300" />
+        <Zap size={20} className="text-accent" />
         <p className="text-sm text-slate-400">Selecciona una empresa para cargar datos históricos de CPL</p>
       </div>
     );
@@ -281,7 +281,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
         <div className="ml-auto flex gap-2">
           <button
             onClick={aplicarOptimo}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-brand hover:bg-brand-hover text-zinc-100 rounded-xl transition shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold btn-primary rounded-xl transition shadow-sm"
           >
             <Zap size={12} /> Optimizar automáticamente
           </button>
@@ -294,7 +294,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
               if (activas.length > 0) next[activas[0]].pct += 100 - base * activas.length;
               return next;
             })}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium border border-white/10 text-slate-400 hover:bg-slate-800/40 rounded-xl transition"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium btn-ghost text-zinc-300 rounded-xl transition"
           >
             <RotateCcw size={12} /> Distribuir igual
           </button>
@@ -323,7 +323,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
                   <button
                     onClick={() => togglePlataforma(plat)}
                     className={`w-4 h-4 rounded border-2 flex items-center justify-center transition ${
-                      e.activa ? `${cfg.border} bg-white` : "border-zinc-300 bg-zinc-100"
+                      e.activa ? `${cfg.border} bg-white/10` : "border-white/20 bg-transparent"
                     }`}
                   >
                     {e.activa && <div className={`w-2 h-2 rounded-sm ${cfg.color.replace("text-", "bg-")}`} />}
@@ -389,7 +389,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
                   value={e.pct}
                   onChange={(ev) => cambiarPct(plat, Number(ev.target.value))}
                   disabled={!e.activa}
-                  className="w-full h-1.5 rounded-full accent-violet-600 cursor-pointer"
+                  className="w-full h-1.5 rounded-full accent-[var(--accent-hex)] cursor-pointer"
                 />
               </div>
 
@@ -423,7 +423,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
 
       {/* ── Validación ── */}
       {!sumaValida && (
-        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
+        <div className="flex items-center gap-2 p-3 bg-red-500/[0.08] border border-red-500/30 rounded-xl text-xs text-red-300">
           <Info size={13} />
           La suma de asignaciones activas es {sumaActivos}% — debe ser exactamente 100%.
           Ajusta los sliders o usa "Optimizar" o "Distribuir igual".
@@ -434,7 +434,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
       {sumaValida && budgetTotal > 0 && (
         <div className={`${GLASS_BASE} overflow-hidden`}>
           <div className="px-5 py-4 border-b border-white/8 flex items-center gap-2.5">
-            <TrendingUp size={15} className="text-brand" />
+            <TrendingUp size={15} className="text-accent" />
             <span className="text-sm font-bold text-slate-200">Resultado proyectado</span>
           </div>
 
@@ -477,7 +477,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
 
             {/* Comparativa visual actual vs óptima */}
             {gananciaLeads > 0.5 && (
-              <div className="rounded-xl border border-brand/20 bg-brand/5 p-5 space-y-4">
+              <div className="rounded-xl border border-accent-20 bg-accent-10 p-5 space-y-4">
                 <p className="text-xs font-bold text-slate-200 uppercase tracking-widest">
                   Distribución actual vs óptima
                 </p>
@@ -488,7 +488,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
                     {PLATAFORMAS.filter(p => estado[p].activa).map((p) => (
                       <div key={p} className="flex items-center gap-2 text-xs">
                         <span className={`w-14 shrink-0 ${PLAT_CONFIG[p].color} font-semibold`}>{PLAT_CONFIG[p].label.replace(" Ads","")}</span>
-                        <div className="flex-1 bg-slate-800 rounded-full h-1.5">
+                        <div className="flex-1 bg-white/[0.06] rounded-full h-1.5">
                           <div className={`h-full rounded-full ${PLAT_CONFIG[p].color.replace("text-","bg-").replace("700","400")}`}
                             style={{ width: `${estado[p].pct}%` }} />
                         </div>
@@ -498,26 +498,26 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
                     <p className="text-sm font-black text-slate-200 pt-1 tabular-nums">~{Math.round(totalLeadsActual)} leads</p>
                   </div>
                   {/* Óptima */}
-                  <div className={`${GLASS_BASE} p-4 space-y-2.5 border-brand/30`}>
-                    <p className="text-[10px] text-brand font-bold uppercase tracking-widest">Distribución óptima</p>
+                  <div className={`${GLASS_BASE} p-4 space-y-2.5 border-accent-30`}>
+                    <p className="text-[10px] text-accent font-bold uppercase tracking-widest">Distribución óptima</p>
                     {PLATAFORMAS.filter(p => estado[p].activa).map((p) => (
                       <div key={p} className="flex items-center gap-2 text-xs">
                         <span className={`w-14 shrink-0 ${PLAT_CONFIG[p].color} font-semibold`}>{PLAT_CONFIG[p].label.replace(" Ads","")}</span>
-                        <div className="flex-1 bg-brand/15 rounded-full h-1.5">
-                          <div className="h-full rounded-full bg-brand"
+                        <div className="flex-1 bg-accent-15 rounded-full h-1.5">
+                          <div className="h-full rounded-full bg-[rgb(var(--accent))]"
                             style={{ width: `${optimoDistribucion[p]}%` }} />
                         </div>
-                        <span className="text-brand w-8 text-right font-semibold">{optimoDistribucion[p]}%</span>
+                        <span className="text-accent w-8 text-right font-semibold">{optimoDistribucion[p]}%</span>
                       </div>
                     ))}
-                    <p className="text-sm font-black text-brand pt-1 tabular-nums">
+                    <p className="text-sm font-black text-accent pt-1 tabular-nums">
                       ~{Math.round(totalLeadsOptimo)} leads <span className="text-xs font-semibold">(+{Math.round(gananciaLeads)})</span>
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={aplicarOptimo}
-                  className="w-full text-xs font-semibold py-2.5 bg-brand hover:bg-brand-hover text-zinc-100 rounded-xl transition flex items-center justify-center gap-1.5"
+                  className="w-full text-xs font-semibold py-2.5 btn-primary rounded-xl transition flex items-center justify-center gap-1.5"
                 >
                   <Zap size={12} /> Aplicar distribución óptima
                 </button>
@@ -532,7 +532,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
         <div className={`${GLASS_BASE} overflow-hidden`}>
           <button
             onClick={() => setMostrarDatos(!mostrarDatos)}
-            className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/8/5/60 transition"
+            className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/[0.03] transition"
           >
             <span className="text-sm font-bold text-slate-200">Historial por plataforma</span>
             {mostrarDatos ? <ChevronUp size={15} className="text-slate-400" /> : <ChevronDown size={15} className="text-slate-400" />}
@@ -541,7 +541,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
             <div className="border-t border-white/8 overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="bg-slate-800/40 text-zinc-100 uppercase text-[10px]">
+                  <tr className="border-b border-white/[0.08] text-zinc-500 uppercase text-[10px]">
                     <th className="px-3 py-2.5 text-left font-medium">Plataforma</th>
                     <th className="px-3 py-2.5 text-right font-medium">Campañas</th>
                     <th className="px-3 py-2.5 text-right font-medium">Gasto total</th>
@@ -551,9 +551,9 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
                     <th className="px-3 py-2.5 text-right font-medium">Meses</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-white/[0.05]">
                   {historico.map((h) => (
-                    <tr key={h.plataforma} className="hover:bg-white/8/5/60 transition">
+                    <tr key={h.plataforma} className="hover:bg-white/[0.03] transition">
                       <td className="px-3 py-2.5">
                         <span className={`font-semibold ${PLAT_CONFIG[h.plataforma as Plataforma]?.color ?? "text-zinc-300"}`}>
                           {PLAT_CONFIG[h.plataforma as Plataforma]?.label ?? h.plataforma}
@@ -563,7 +563,7 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
                       <td className="px-3 py-2.5 text-right text-zinc-300 font-medium">{FMT_SOL(Number(h.gasto_total))}</td>
                       <td className="px-3 py-2.5 text-right text-zinc-400">{Number(h.leads_total).toLocaleString()}</td>
                       <td className="px-3 py-2.5 text-right">
-                        <span className={`font-bold ${Number(h.cpl_promedio) > 200 ? "text-red-600" : Number(h.cpl_promedio) > 100 ? "text-amber-600" : "text-green-600"}`}>
+                        <span className={`font-bold ${Number(h.cpl_promedio) > 200 ? "text-red-400" : Number(h.cpl_promedio) > 100 ? "text-amber-400" : "text-emerald-400"}`}>
                           {Number(h.cpl_promedio) > 0 ? FMT_SOL(Number(h.cpl_promedio)) : "—"}
                         </span>
                       </td>
@@ -593,8 +593,8 @@ export const BudgetOptimizerTab = ({ empresa }: Props) => {
 // ── Sub-componentes ──────────────────────────────────────────────────────────
 function ResultKpi({ label, value, sub, color }: { label: string; value: string; sub: string; color: string }) {
   const colors: Record<string, string> = {
-    violet: "text-violet-700", emerald: "text-emerald-700",
-    green: "text-green-600", red: "text-red-600", zinc: "text-slate-700",
+    violet: "text-violet-300", emerald: "text-emerald-300",
+    green: "text-emerald-400", red: "text-red-400", zinc: "text-zinc-300",
   };
   return (
     <div className={`${GLASS_BASE} p-4 space-y-1`}>
