@@ -28,12 +28,12 @@ function fmtNum(n: number | string | null) {
 function CrecBadge({ v }: { v: number | null }) {
   const val = Number(v) || 0;
   if (val > 0) return (
-    <span className={`${BADGE_BASE} inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-700 px-1.5 py-0.5`}>
+    <span className={`${BADGE_BASE} inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-300 px-1.5 py-0.5`}>
       <TrendingUp size={10} /> +{fmtNum(val)}
     </span>
   );
   if (val < 0) return (
-    <span className={`${BADGE_BASE} inline-flex items-center gap-0.5 text-[10px] font-semibold text-red-600 px-1.5 py-0.5`}>
+    <span className={`${BADGE_BASE} inline-flex items-center gap-0.5 text-[10px] font-semibold text-red-300 px-1.5 py-0.5`}>
       <TrendingDown size={10} /> {fmtNum(val)}
     </span>
   );
@@ -84,7 +84,7 @@ function ModalAgregar({ empresa, onAgregado, onCerrar }: {
               value={nombre}
               onChange={e => setNombre(e.target.value)}
               placeholder="Ej: Grupo Caral Inmobiliaria"
-              className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-300`}
+              className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40`}
             />
           </div>
 
@@ -95,7 +95,7 @@ function ModalAgregar({ empresa, onAgregado, onCerrar }: {
               value={seguidores}
               onChange={e => setSeguidores(e.target.value)}
               placeholder="Ej: 12500"
-              className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-300`}
+              className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40`}
             />
           </div>
 
@@ -105,7 +105,7 @@ function ModalAgregar({ empresa, onAgregado, onCerrar }: {
               value={url}
               onChange={e => setUrl(e.target.value)}
               placeholder="https://facebook.com/NombrePagina"
-              className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-300`}
+              className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40`}
             />
           </div>
 
@@ -119,7 +119,7 @@ function ModalAgregar({ empresa, onAgregado, onCerrar }: {
           <button
             onClick={handleGuardar}
             disabled={guardando || !nombre.trim() || !seguidores.trim()}
-            className="flex items-center gap-1.5 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-xs rounded-xl transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2 btn-primary text-xs rounded-xl transition disabled:opacity-50"
           >
             {guardando ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
             Agregar
@@ -157,13 +157,13 @@ function EditSeguidores({ id, actual, onGuardado }: {
         value={valor}
         onChange={e => setValor(e.target.value)}
         onKeyDown={e => { if (e.key === "Enter") guardar(); if (e.key === "Escape") onGuardado(actual); }}
-        className={`${INPUT_BASE} w-24 text-xs border-violet-300 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-violet-300`}
+        className={`${INPUT_BASE} w-24 text-xs border-accent-30 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent/40`}
         autoFocus
       />
-      <button onClick={guardar} disabled={guardando} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded transition">
+      <button onClick={guardar} disabled={guardando} className="p-1 text-emerald-400 hover:bg-emerald-500/10 rounded transition">
         {guardando ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
       </button>
-      <button onClick={() => onGuardado(actual)} className="p-1 text-zinc-400 hover:bg-zinc-800 rounded transition">
+      <button onClick={() => onGuardado(actual)} className="p-1 text-zinc-500 hover:bg-white/5 rounded transition">
         <X size={12} />
       </button>
     </div>
@@ -255,7 +255,7 @@ export function CompetidoresTab({ empresa }: Props) {
         </div>
         <button
           onClick={() => setModal(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs btn-primary rounded-lg transition"
         >
           <Plus size={12} /> Agregar competidor
         </button>
@@ -268,7 +268,7 @@ export function CompetidoresTab({ empresa }: Props) {
         </div>
       ) : competidores.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-zinc-800 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center">
             <Users size={28} className="text-zinc-400" />
           </div>
           <div>
@@ -277,7 +277,7 @@ export function CompetidoresTab({ empresa }: Props) {
           </div>
           <button
             onClick={() => setModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl transition mt-1"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs btn-primary rounded-xl transition mt-1"
           >
             <Plus size={12} /> Agregar primer competidor
           </button>
@@ -288,23 +288,23 @@ export function CompetidoresTab({ empresa }: Props) {
           <div className={`${GLASS_BASE} overflow-hidden`}>
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-white/8 bg-zinc-800/40">
-                  <th className="text-left px-4 py-3 font-medium text-zinc-100">Página</th>
-                  <th className="text-right px-4 py-3 font-medium text-zinc-100">Seguidores</th>
-                  <th className="text-right px-4 py-3 font-medium text-zinc-100">+7 días</th>
-                  <th className="text-right px-4 py-3 font-medium text-zinc-100">+30 días</th>
-                  <th className="text-right px-4 py-3 font-medium text-zinc-100"></th>
+                <tr className="border-b border-white/[0.08]">
+                  <th className="text-left px-4 py-3 font-medium text-zinc-500 uppercase text-[10px] tracking-wider">Página</th>
+                  <th className="text-right px-4 py-3 font-medium text-zinc-500 uppercase text-[10px] tracking-wider">Seguidores</th>
+                  <th className="text-right px-4 py-3 font-medium text-zinc-500 uppercase text-[10px] tracking-wider">+7 días</th>
+                  <th className="text-right px-4 py-3 font-medium text-zinc-500 uppercase text-[10px] tracking-wider">+30 días</th>
+                  <th className="text-right px-4 py-3 font-medium text-zinc-500 uppercase text-[10px] tracking-wider"></th>
                 </tr>
               </thead>
               <tbody>
                 {competidores.map((c, i) => (
-                  <tr key={c.id} className="border-b border-white/5 hover:bg-white/8/5/50 transition">
+                  <tr key={c.id} className="border-b border-white/[0.05] hover:bg-white/[0.03] transition">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 rounded-full shrink-0" style={{ background: COLORS[i % COLORS.length], boxShadow: `0 0 6px ${COLORS[i % COLORS.length]}` }} />
                         {c.imagen_url
                           ? <img src={c.imagen_url} alt={c.nombre} className="w-8 h-8 rounded-lg object-cover shrink-0" />
-                          : <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0"><Building2 size={14} className="text-zinc-400" /></div>
+                          : <div className="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center shrink-0"><Building2 size={14} className="text-zinc-400" /></div>
                         }
                         <div>
                           <p className="font-medium text-zinc-200">{c.nombre}</p>
@@ -322,7 +322,7 @@ export function CompetidoresTab({ empresa }: Props) {
                       ) : (
                         <button
                           onClick={() => setEditandoId(c.id)}
-                          className="group inline-flex items-center gap-1 font-semibold text-zinc-200 hover:text-violet-600 transition"
+                          className="group inline-flex items-center gap-1 font-semibold text-zinc-200 hover:text-accent transition"
                         >
                           {fmtNum(c.seguidores)}
                           <Pencil size={10} className="opacity-0 group-hover:opacity-60 transition" />
@@ -339,14 +339,14 @@ export function CompetidoresTab({ empresa }: Props) {
                       <div className="flex items-center justify-end gap-1">
                         {c.url_pagina && (
                           <a href={c.url_pagina} target="_blank" rel="noopener noreferrer"
-                            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-400 hover:bg-zinc-800 transition">
+                            className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-white/5 transition">
                             <ExternalLink size={12} />
                           </a>
                         )}
                         <button
                           onClick={() => handleEliminar(c.id)}
                           disabled={eliminando === c.id}
-                          className="p-1.5 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-50 transition disabled:opacity-50"
+                          className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition disabled:opacity-50"
                         >
                           {eliminando === c.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
                         </button>
@@ -364,7 +364,7 @@ export function CompetidoresTab({ empresa }: Props) {
               <p className="text-sm font-semibold text-zinc-200 mb-4">Evolución de seguidores (últimos 60 días)</p>
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
                   <XAxis
                     dataKey="fecha"
                     tick={{ fontSize: 10, fill: "#a1a1aa" }}
@@ -378,7 +378,7 @@ export function CompetidoresTab({ empresa }: Props) {
                   <Tooltip
                     formatter={(v: any, name: any) => [fmtNum(v), name]}
                     labelFormatter={l => `Fecha: ${l}`}
-                    contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
+                    contentStyle={{ fontSize: 11, borderRadius: 8, background: "rgba(10,16,31,0.97)", border: "1px solid rgba(255,255,255,0.1)", color: "#e4e4e7" }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   {competidores.map((c, i) => (

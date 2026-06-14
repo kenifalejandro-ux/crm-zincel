@@ -32,16 +32,16 @@ const TIPO_ICON: Record<string, React.ReactNode> = {
 };
 
 const TIPO_COLOR: Record<string, string> = {
-  IMAGE:          "bg-sky-100 text-sky-700",
-  VIDEO:          "bg-pink-100 text-pink-700",
-  REELS:          "bg-fuchsia-100 text-fuchsia-700",
-  CAROUSEL_ALBUM: "bg-amber-100 text-amber-700",
+  IMAGE:          "bg-sky-500/15 text-sky-300 border border-sky-500/30",
+  VIDEO:          "bg-pink-500/15 text-pink-300 border border-pink-500/30",
+  REELS:          "bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30",
+  CAROUSEL_ALBUM: "bg-amber-500/15 text-amber-300 border border-amber-500/30",
 };
 
 const PLATAFORMA_COLOR: Record<string, string> = {
-  instagram: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
-  facebook:  "bg-blue-50 text-blue-700 border-blue-200",
-  tiktok:    "bg-zinc-900 text-white border-zinc-700",
+  instagram: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30",
+  facebook:  "bg-blue-500/15 text-blue-300 border-blue-500/30",
+  tiktok:    "bg-white/10 text-zinc-200 border-white/20",
 };
 
 const PLATAFORMA_LABEL: Record<PlataformaOrg, string> = {
@@ -66,7 +66,7 @@ function fmtFecha(iso: string) {
 
 function PostCard({ post }: { post: PostOrganico }) {
   const tipo   = post.tipo_contenido ?? "IMAGE";
-  const color  = TIPO_COLOR[tipo]  ?? "bg-zinc-100 text-zinc-600";
+  const color  = TIPO_COLOR[tipo]  ?? "bg-white/[0.06] text-zinc-400";
   const icon   = TIPO_ICON[tipo]   ?? <Image size={11} />;
   const label  = TIPO_LABEL[tipo]  ?? tipo;
   const esVideo   = tipo === "VIDEO" || tipo === "REELS";
@@ -80,7 +80,7 @@ function PostCard({ post }: { post: PostOrganico }) {
   return (
     <div className={`${GLASS_BASE} hover:shadow-md transition overflow-hidden flex flex-col`}>
       {/* Miniatura */}
-      <div className="relative aspect-square bg-zinc-800/40 overflow-hidden">
+      <div className="relative aspect-square bg-white/[0.04] overflow-hidden">
         {post.url_media ? (
           <img
             src={post.url_media}
@@ -156,7 +156,7 @@ function PostCard({ post }: { post: PostOrganico }) {
 
         {Number(post.tasa_engagement) > 0 && (
           <div className="mt-1">
-            <span className={`${BADGE_BASE} text-[10px] font-semibold px-2 py-0.5 ${ Number(post.tasa_engagement) >= 5 ? "bg-emerald-50 text-emerald-700" : Number(post.tasa_engagement) >= 2 ? "bg-yellow-50 text-yellow-700" : "bg-zinc-800/40 text-zinc-400" }`}>
+            <span className={`${BADGE_BASE} text-[10px] font-semibold px-2 py-0.5 ${ Number(post.tasa_engagement) >= 5 ? "bg-emerald-500/15 text-emerald-300" : Number(post.tasa_engagement) >= 2 ? "bg-amber-500/15 text-amber-300" : "bg-white/[0.06] text-zinc-400" }`}>
               {Number(post.tasa_engagement).toFixed(2)}% engagement
             </span>
           </div>
@@ -351,8 +351,8 @@ export function OrganicoTab({ empresa: empresaProp }: Props) {
             onClick={() => setVistaHoras(v => !v)}
             className={`px-3 py-1.5 text-xs rounded-lg border transition ${
               vistaHoras
-                ? "bg-violet-50 border-violet-200 text-violet-700"
-                : "bg-slate-800/60 border-white/10 text-zinc-400 hover:border-white/15"
+                ? "bg-accent-15 border-accent-30 text-accent"
+                : "bg-white/[0.04] border-white/10 text-zinc-400 hover:border-white/15"
             }`}
           >
             Mejores horas
@@ -372,7 +372,7 @@ export function OrganicoTab({ empresa: empresaProp }: Props) {
                   }
                 </button>
                 {syncIG.msg && (
-                  <span className={`text-[10px] font-medium max-w-[200px] text-right ${syncIG.msg.startsWith("✓") ? "text-emerald-600" : "text-red-500"}`}>
+                  <span className={`text-[10px] font-medium max-w-[200px] text-right ${syncIG.msg.startsWith("✓") ? "text-emerald-400" : "text-red-500"}`}>
                     {syncIG.msg}
                   </span>
                 )}
@@ -397,7 +397,7 @@ export function OrganicoTab({ empresa: empresaProp }: Props) {
                         }
                       </button>
                       {btn.state.msg && (
-                        <span className={`text-[10px] font-medium max-w-[180px] text-right ${btn.state.msg.startsWith("✓") ? "text-emerald-600" : "text-red-500"}`}>
+                        <span className={`text-[10px] font-medium max-w-[180px] text-right ${btn.state.msg.startsWith("✓") ? "text-emerald-400" : "text-red-500"}`}>
                           {btn.state.msg}
                         </span>
                       )}
@@ -435,7 +435,7 @@ export function OrganicoTab({ empresa: empresaProp }: Props) {
                 </button>
               )}
               {syncTT.msg && (
-                <span className={`text-[10px] font-medium max-w-[200px] text-right ${syncTT.msg.startsWith("✓") ? "text-emerald-600" : "text-red-500"}`}>
+                <span className={`text-[10px] font-medium max-w-[200px] text-right ${syncTT.msg.startsWith("✓") ? "text-emerald-400" : "text-red-500"}`}>
                   {syncTT.msg}
                 </span>
               )}
@@ -456,13 +456,13 @@ export function OrganicoTab({ empresa: empresaProp }: Props) {
       {kpis && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "Total posts",       value: kpis.total,           color: "text-zinc-800"   },
-            { label: "Alcance promedio",  value: fmtNum(kpis.alcance), color: "text-sky-700"    },
-            { label: "Engagement prom.",  value: `${kpis.eng}%`,       color: "text-violet-700" },
-            { label: "Guardados prom.",   value: fmtNum(kpis.guardados), color: "text-amber-700" },
+            { label: "Total posts",       value: kpis.total,           color: "text-zinc-100"   },
+            { label: "Alcance promedio",  value: fmtNum(kpis.alcance), color: "text-sky-300"    },
+            { label: "Engagement prom.",  value: `${kpis.eng}%`,       color: "text-violet-300" },
+            { label: "Guardados prom.",   value: fmtNum(kpis.guardados), color: "text-amber-300" },
           ].map(k => (
             <div key={k.label} className={`${GLASS_BASE} px-4 py-3`}>
-              <p className="text-[10px] text-zinc-100 uppercase tracking-wide">{k.label}</p>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-wide">{k.label}</p>
               <p className={`text-xl font-bold mt-0.5 ${k.color}`}>{k.value}</p>
             </div>
           ))}
@@ -473,13 +473,13 @@ export function OrganicoTab({ empresa: empresaProp }: Props) {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex gap-2 flex-wrap">
           {/* Filtro plataforma */}
-          <div className="flex gap-1 bg-zinc-800 rounded-xl p-1">
+          <div className="flex gap-1 bg-white/[0.04] border border-white/10 rounded-xl p-1">
             {(["todas", "instagram", "facebook", "tiktok"] as PlataformaOrg[]).map(p => (
               <button
                 key={p}
                 onClick={() => setPlatFiltro(p)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                  platFiltro === p ? "bg-slate-800/60 shadow-sm text-zinc-200" : "text-zinc-500 hover:text-zinc-300"
+                  platFiltro === p ? "bg-white/[0.08] text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
                 }`}
               >
                 {PLATAFORMA_LABEL[p]}
@@ -489,13 +489,13 @@ export function OrganicoTab({ empresa: empresaProp }: Props) {
 
           {/* Filtro tipo */}
           {tiposDisponibles.length > 1 && (
-            <div className="flex gap-1 bg-zinc-800 rounded-xl p-1">
+            <div className="flex gap-1 bg-white/[0.04] border border-white/10 rounded-xl p-1">
               {(["TODOS", ...tiposDisponibles] as TipoFiltro[]).map(t => (
                 <button
                   key={t}
                   onClick={() => setTipoFiltro(t)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                    tipoFiltro === t ? "bg-slate-800/60 shadow-sm text-zinc-200" : "text-zinc-500 hover:text-zinc-300"
+                    tipoFiltro === t ? "bg-white/[0.08] text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
                   }`}
                 >
                   {t === "TODOS" ? "Todos" : (TIPO_LABEL[t] ?? t)}
@@ -531,7 +531,7 @@ export function OrganicoTab({ empresa: empresaProp }: Props) {
         </div>
       ) : postsFiltrados.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center">
             <Image size={24} className="text-zinc-400" />
           </div>
           <div>
