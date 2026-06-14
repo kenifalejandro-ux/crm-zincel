@@ -67,7 +67,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
       <div className={`${MODAL_BASE} w-full max-w-md`}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08]">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
               <span className="text-white text-xs font-bold">f</span>
@@ -89,7 +89,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
               </p>
 
               {empresaPrefill ? (
-                <div className="bg-zinc-800/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-zinc-400">
+                <div className="bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2 text-xs text-zinc-400">
                   Empresa: <strong>{empresaPrefill}</strong>
                 </div>
               ) : (
@@ -99,7 +99,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
                     value={empresa}
                     onChange={e => setEmpresa(e.target.value)}
                     placeholder="Ej: Zincel Ideas"
-                    className={`${INPUT_BASE} w-full text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50`}
+                    className={`${INPUT_BASE} w-full text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40`}
                   />
                 </div>
               )}
@@ -111,7 +111,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
                     type="date"
                     value={desde}
                     onChange={e => setDesde(e.target.value)}
-                    className={`${INPUT_BASE} w-full text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50`}
+                    className={`${INPUT_BASE} w-full text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40`}
                   />
                 </div>
                 <div>
@@ -120,7 +120,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
                     type="date"
                     value={hasta}
                     onChange={e => setHasta(e.target.value)}
-                    className={`${INPUT_BASE} w-full text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50`}
+                    className={`${INPUT_BASE} w-full text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40`}
                   />
                 </div>
               </div>
@@ -134,7 +134,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
               <button
                 onClick={handlePreview}
                 disabled={cargando}
-                className="w-full py-2.5 bg-brand hover:bg-brand-hover text-white text-xs font-semibold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-2.5 btn-primary text-xs font-semibold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {cargando ? <><RefreshCw size={14} className="animate-spin" /> Consultando Meta...</> : "Ver campañas disponibles"}
               </button>
@@ -153,7 +153,7 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
 
               <div className="max-h-48 overflow-y-auto space-y-1.5">
                 {preview.campanas.map((c: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between px-3 py-2 bg-zinc-800/40 rounded-lg text-xs">
+                  <div key={i} className="flex items-center justify-between px-3 py-2 bg-white/[0.03] rounded-lg text-xs">
                     <span className="text-zinc-300 font-medium truncate flex-1">{c.campaign_name}</span>
                     <span className="text-zinc-400 shrink-0 ml-3">
                       S/ {parseFloat(c.spend || "0").toLocaleString("es-PE", { minimumFractionDigits: 2 })}
@@ -171,14 +171,14 @@ export function ModalSincronizarMeta({ onCerrar, onSincronizado, empresaPrefill 
               <div className="flex gap-2">
                 <button
                   onClick={() => { setPaso("form"); setPreview(null); }}
-                  className="flex-1 py-2.5 border border-white/10 text-zinc-400 text-xs font-medium rounded-lg hover:bg-zinc-800/40 transition"
+                  className="flex-1 py-2.5 border border-white/10 text-zinc-400 text-xs font-medium rounded-lg hover:bg-white/[0.03] transition"
                 >
                   Volver
                 </button>
                 <button
                   onClick={handleSync}
                   disabled={cargando}
-                  className="flex-1 py-2.5 bg-brand hover:bg-brand-hover text-white text-xs font-semibold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 btn-primary text-xs font-semibold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {cargando ? <><RefreshCw size={14} className="animate-spin" /> Importando...</> : "Importar al CRM"}
                 </button>

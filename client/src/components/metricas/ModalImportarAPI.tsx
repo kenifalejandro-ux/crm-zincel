@@ -91,7 +91,7 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
       <div className={`${MODAL_BASE} w-full max-w-md`}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08]">
           <div className="flex items-center gap-2">
             {(paso === "plataforma" || paso === "preview") && (
               <button onClick={() => { setPaso(paso === "preview" ? "plataforma" : "empresa"); setError(null); setPreview(null); }}
@@ -134,23 +134,23 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
                     <button key={emp} onClick={() => seleccionarEmpresa(emp)}
                       className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-white/10 hover:border-blue-400 hover:bg-blue-50 transition text-left group">
                       <span className="text-sm font-medium text-zinc-300 group-hover:text-blue-700">{emp}</span>
-                      <ChevronLeft size={14} className="text-zinc-400 rotate-180 group-hover:text-brand" />
+                      <ChevronLeft size={14} className="text-zinc-400 rotate-180 group-hover:text-accent" />
                     </button>
                   ))}
                 </div>
               )}
 
               {/* Rango de fechas global */}
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/8">
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/[0.08]">
                 <div>
                   <label className="block text-xs font-medium text-zinc-400 mb-1">Desde</label>
                   <input type="date" value={desde} onChange={e => setDesde(e.target.value)}
-                    className={`${INPUT_BASE} w-full text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50`} />
+                    className={`${INPUT_BASE} w-full text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40`} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-400 mb-1">Hasta</label>
                   <input type="date" value={hasta} onChange={e => setHasta(e.target.value)}
-                    className={`${INPUT_BASE} w-full text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50`} />
+                    className={`${INPUT_BASE} w-full text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40`} />
                 </div>
               </div>
             </>
@@ -176,7 +176,7 @@ export function ModalImportarAPI({ onCerrar, onSincronizado }: Props) {
                           ? `border-transparent ring-2 ring-blue-500 bg-blue-50`
                           : disponible && !esGoogle
                             ? "border-white/10 hover:border-white/15 hover:bg-zinc-800/40"
-                            : "border-white/8 opacity-40 cursor-not-allowed"
+                            : "border-white/[0.08] opacity-40 cursor-not-allowed"
                       }`}>
                       <div className={`w-8 h-8 rounded-lg ${cfg.bg} flex items-center justify-center shrink-0`}>
                         <span className="text-white text-xs font-bold">{cfg.icon}</span>

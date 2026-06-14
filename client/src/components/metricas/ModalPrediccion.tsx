@@ -132,7 +132,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
       <div className={`${MODAL_BASE} w-full sm:max-w-xl sm:rounded-2xl flex flex-col max-h-[92vh]`}>
 
         {/* ── Header ── */}
-        <div className="px-5 pt-5 pb-4 border-b border-white/8">
+        <div className="px-5 pt-5 pb-4 border-b border-white/[0.08]">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -149,7 +149,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                 <span className={`${BADGE_BASE} text-zinc-500 px-1.5 py-0.5 text-[10px]`}>×{factor.toFixed(2)}</span>
               </div>
             </div>
-            <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-zinc-800 transition shrink-0">
+            <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-white/5 transition shrink-0">
               <X size={15} className="text-zinc-500" />
             </button>
           </div>
@@ -244,12 +244,12 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                   <label className="space-y-1">
                     <span className="text-[10px] text-zinc-500">Presupuesto (S/)</span>
                     <input type="number" value={budgetSim} onChange={(e) => setBudgetSim(Number(e.target.value))}
-                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand/30`} />
+                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent/30`} />
                   </label>
                   <label className="space-y-1">
                     <span className="text-[10px] text-zinc-500">Tasa de cierre (%)</span>
                     <input type="number" min={0} max={100} value={tasaSim} onChange={(e) => setTasaSim(Number(e.target.value))}
-                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand/30`} />
+                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent/30`} />
                   </label>
                 </div>
                 <div>
@@ -267,7 +267,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                   <label className="space-y-1">
                     <span className="text-[10px] text-zinc-500">CPL objetivo (S/) — benchmark S/ {CPL_BENCHMARK}</span>
                     <input type="number" min={1} value={cplObjetivo} onChange={(e) => setCplObjetivo(Number(e.target.value))}
-                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand/30`} />
+                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent/30`} />
                     {cplReal > 0 && (
                       <p className="text-[10px] text-zinc-400">CPL actual histórico: S/ {cplReal.toFixed(0)} — benchmark: S/ {CPL_BENCHMARK}</p>
                     )}
@@ -277,7 +277,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                   <label className="space-y-1">
                     <span className="text-[10px] text-zinc-500">Costo objetivo por mensaje (S/)</span>
                     <input type="number" min={0.1} step={0.1} value={costoMsgSim} onChange={(e) => setCostoMsgSim(Number(e.target.value))}
-                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand/30`} />
+                      className={`${INPUT_BASE} w-full text-sm px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent/30`} />
                   </label>
                 )}
               </div>
@@ -367,7 +367,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                     <BarChart data={barData} barCategoryGap="30%" margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
                       <XAxis dataKey="name" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                       <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
-                      <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }} formatter={(val) => [Number(val).toLocaleString(), ""]} />
+                      <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, background: "rgba(10,16,31,0.97)", border: "1px solid rgba(255,255,255,0.1)", color: "#e4e4e7" }} formatter={(val) => [Number(val).toLocaleString(), ""]} />
                       <Bar filter="url(#neon-glow)" dataKey="real"       name="Real"       fill={C_REAL} radius={[4,4,0,0]} />
                       <Bar filter="url(#neon-glow)" dataKey="proyectado" name="Proyectado" fill={C_PROY} radius={[4,4,0,0]} opacity={0.85} />
                     </BarChart>
@@ -382,7 +382,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
                     <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10, fill: "#71717a" }} />
                     <Radar filter="url(#neon-glow)" name="Real"       dataKey="real"       fill={C_REAL} fillOpacity={0.3} stroke={C_REAL} strokeWidth={1.5} />
                     <Radar filter="url(#neon-glow)" name="Proyectado" dataKey="proyectado" fill={C_PROY} fillOpacity={0.2} stroke={C_PROY} strokeWidth={2} />
-                    <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }} formatter={(val, name) => [`${Number(val).toFixed(1)}`, name as string]} />
+                    <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, background: "rgba(10,16,31,0.97)", border: "1px solid rgba(255,255,255,0.1)", color: "#e4e4e7" }} formatter={(val, name) => [`${Number(val).toFixed(1)}`, name as string]} />
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
@@ -436,7 +436,7 @@ export function ModalPrediccion({ datos, presupuestoExtra, onCerrar }: Props) {
 
         </div>
 
-        <div className="px-5 pb-5 pt-3 border-t border-white/8">
+        <div className="px-5 pb-5 pt-3 border-t border-white/[0.08]">
           <button onClick={onCerrar} className="w-full py-2.5 text-sm font-medium bg-zinc-900 text-white rounded-xl hover:bg-zinc-700 transition">
             Cerrar
           </button>

@@ -293,7 +293,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
       <div className={`${MODAL_BASE} w-full max-w-lg`}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08]">
           <div>
             <h2 className="text-sm font-semibold text-zinc-200">Importar CSV</h2>
             <p className="text-xs text-zinc-400 mt-0.5">
@@ -314,7 +314,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               <input
                 value={empresa}
                 onChange={(e) => setEmpresa(e.target.value)}
-                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
+                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent/40`}
                 placeholder="Nombre de empresa"
               />
             </div>
@@ -326,7 +326,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
                   setPlataforma(e.target.value as Plataforma);
                   setSubPlat("");
                 }}
-                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
+                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent/40`}
               >
                 <option value="meta">Meta Ads</option>
                 <option value="google">Google Ads</option>
@@ -342,7 +342,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               <select
                 value={subPlat}
                 onChange={(e) => setSubPlat(e.target.value)}
-                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
+                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent/40`}
               >
                 <option value="">Ambas (Facebook + Instagram)</option>
                 <option value="facebook">Facebook</option>
@@ -359,7 +359,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               <input
                 type="date" value={periodoI}
                 onChange={(e) => setPeriodoI(e.target.value)}
-                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
+                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent/40`}
               />
             </div>
             <div>
@@ -367,7 +367,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
               <input
                 type="date" value={periodoF}
                 onChange={(e) => setPeriodoF(e.target.value)}
-                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50`}
+                className={`${INPUT_BASE} w-full px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent/40`}
               />
             </div>
           </div>
@@ -396,7 +396,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           {/* Estado */}
           {estado !== "idle" && (
             <div className={`flex items-center gap-2 text-xs px-3 py-2 rounded-lg ${
-              estado === "ok"      ? "bg-green-50 text-green-700" :
+              estado === "ok"      ? "bg-emerald-500/[0.08] border-emerald-500/30 text-emerald-300" :
               estado === "error"   ? "bg-red-50   text-red-700"   :
               estado === "preview" ? "bg-blue-50  text-blue-700"  :
                                      "bg-zinc-800/40  text-zinc-300"
@@ -410,7 +410,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           {/* Preview campos detectados */}
           {estado === "preview" && filas.length > 0 && (
             <div className="bg-zinc-800/40 rounded-lg p-3 space-y-1 max-h-32 overflow-y-auto">
-              <p className="text-[10px] font-semibold text-zinc-100 uppercase mb-2">
+              <p className="text-[10px] font-semibold text-zinc-400 uppercase mb-2">
                 Campos detectados en el CSV
               </p>
               {Object.keys(filas[0]).map((campo) => (
@@ -425,7 +425,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 px-6 py-4 border-t border-white/8">
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-white/[0.08]">
           <button
             onClick={onCerrar}
             className="px-4 py-2 text-xs text-zinc-400 hover:bg-zinc-800 rounded-lg transition"
@@ -435,7 +435,7 @@ export const ImportarCSVMetrica = ({ onImportado, onCerrar }: Props) => {
           <button
             onClick={handleImportar}
             disabled={estado !== "preview" || !empresa || !periodoI || !periodoF || filas.length === 0}
-            className="px-4 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition disabled:opacity-40"
+            className="px-4 py-2 text-xs btn-primary rounded-lg transition disabled:opacity-40"
           >
             {estado === "cargando"
               ? "Importando..."
