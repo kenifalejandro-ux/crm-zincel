@@ -20,9 +20,9 @@ const FMT_SOL = (v: number) =>
 
 // Badges simples de ROAS y ROI (sin depender del sistema completo de benchmarks)
 const BADGE_STYLE: Record<string, string> = {
-  excelente: "bg-green-100 text-green-700",
-  aceptable: "bg-amber-100 text-amber-700",
-  alto:      "bg-red-100 text-red-700",
+  excelente: "bg-emerald-500/15 text-emerald-300",
+  aceptable: "bg-amber-500/15 text-amber-300",
+  alto:      "bg-red-500/15 text-red-300",
 };
 const BADGE_LABEL: Record<string, string> = {
   excelente: "Excelente", aceptable: "Aceptable", alto: "Bajo",
@@ -240,16 +240,16 @@ export function RentabilidadTab(props: Props) {
     (estadoPct === "alto"      || estadoRoasVenta === "alto") ? "alto" : "aceptable";
 
   const VBADGE: Record<string, string> = {
-    excelente: "bg-green-100 text-green-700 border-green-300",
-    aceptable: "bg-amber-100 text-amber-700 border-amber-300",
-    alto:      "bg-red-100 text-red-700 border-red-300",
+    excelente: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+    aceptable: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+    alto:      "bg-red-500/15 text-red-300 border-red-500/30",
   };
   const VLABEL: Record<string, string> = {
     excelente: "Excelente", aceptable: "Rentable", alto: "Por mejorar",
   };
   const colorMulti = multi !== null
-    ? (estadoRoasVenta === "excelente" ? "text-green-700"
-    : estadoRoasVenta === "aceptable"  ? "text-amber-600" : "text-red-500")
+    ? (estadoRoasVenta === "excelente" ? "text-emerald-300"
+    : estadoRoasVenta === "aceptable"  ? "text-amber-400" : "text-red-500")
     : "text-zinc-400";
 
   const ejInvExc = bv.ejemploS * bv.pctCosto.excelente / 100;
@@ -283,11 +283,11 @@ export function RentabilidadTab(props: Props) {
                 ? "Evaluación del retorno neto sobre ventas atribuibles."
                 : "Evaluación del retorno por cada sol invertido en campañas con ventas atribuidas."}</p>
             </div>
-            <span className={`${BADGE_BASE} text-[10px] text-green-700 px-2 py-0.5 font-medium`}>
+            <span className={`${BADGE_BASE} text-[10px] text-emerald-300 px-2 py-0.5 font-medium`}>
               {retornoAtribuido.totalVentas} {retornoAtribuido.totalVentas === 1 ? "venta" : "ventas"} registradas
             </span>
             {sectorActivo && (
-              <span className={`${BADGE_BASE} text-[10px] text-violet-600 border-violet-200 px-2 py-0.5 font-medium`}>
+              <span className={`${BADGE_BASE} text-[10px] text-violet-400 border-violet-200 px-2 py-0.5 font-medium`}>
                 {sectorLabel(sectorActivo)}
               </span>
             )}
@@ -346,18 +346,18 @@ export function RentabilidadTab(props: Props) {
                   <tr key={i} className="hover:bg-zinc-800/40 transition">
                     <td className="px-4 py-2.5 font-medium text-zinc-200 max-w-[200px] truncate">{c.nombre}</td>
                     <td className="px-4 py-2.5 text-right text-zinc-400">{c.ventas}</td>
-                    <td className="px-4 py-2.5 text-right font-semibold text-green-700">{FMT_SOL(c.ingresos)}</td>
+                    <td className="px-4 py-2.5 text-right font-semibold text-emerald-300">{FMT_SOL(c.ingresos)}</td>
                     <td className="px-4 py-2.5 text-right text-zinc-400">{FMT_SOL(c.gasto)}</td>
                     <td className="px-4 py-2.5 text-right font-bold">
                       {modo === "roi" ? (
                         c.roi !== null ? (
-                          <span className={c.roi >= 100 ? "text-green-600" : c.roi >= 0 ? "text-amber-500" : "text-red-500"}>
+                          <span className={c.roi >= 100 ? "text-emerald-400" : c.roi >= 0 ? "text-amber-500" : "text-red-500"}>
                             {c.roi.toFixed(0)}%
                           </span>
                         ) : "—"
                       ) : (
                         c.roas !== null ? (
-                          <span className={c.roas >= 5 ? "text-green-600" : c.roas >= 2 ? "text-amber-500" : "text-red-500"}>
+                          <span className={c.roas >= 5 ? "text-emerald-400" : c.roas >= 2 ? "text-amber-500" : "text-red-500"}>
                             {c.roas.toFixed(1)}x
                           </span>
                         ) : "—"
@@ -390,18 +390,18 @@ export function RentabilidadTab(props: Props) {
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${VBADGE[veredictoGlobal]}`}>
                 {VLABEL[veredictoGlobal]}
               </span>
-              <span className={`${BADGE_BASE} text-[10px] text-violet-600 border-violet-200 px-2 py-0.5 font-medium`}>
+              <span className={`${BADGE_BASE} text-[10px] text-violet-400 border-violet-200 px-2 py-0.5 font-medium`}>
                 {bv.label}
               </span>
             </div>
             {/* Toggle atribución */}
             <div className="flex flex-col items-end gap-0.5">
-              <div className="flex items-center gap-1 bg-zinc-800 rounded-lg p-0.5">
+              <div className="flex items-center gap-1 bg-white/[0.04] border border-white/10 rounded-lg p-0.5">
                 {(["campana", "portfolio"] as VistaRentabilidad[]).map((v) => (
                   <button key={v} onClick={() => setVistaRentabilidad(v)}
                     className={`px-2.5 py-1 rounded-md text-[10px] font-semibold transition ${
                       vistaRentabilidad === v
-                        ? "bg-slate-800/60 shadow-sm text-zinc-100"
+                        ? "bg-white/[0.08] text-zinc-100"
                         : "text-zinc-500 hover:text-zinc-300"
                     }`}>
                     {v === "campana" ? "Por campaña" : "Portfolio total"}
@@ -426,7 +426,7 @@ export function RentabilidadTab(props: Props) {
                 {retornoAtribuido.totalHonorarios > 0 && ` + hon. ${FMT_SOL(retornoAtribuido.totalHonorarios)}`}
               </p>
               {vistaRentabilidad === "portfolio" && totalGastoTodasCampanas !== retornoAtribuido.totalGasto && (
-                <p className="text-[9px] text-violet-500 font-medium mt-0.5">
+                <p className="text-[9px] text-violet-400 font-medium mt-0.5">
                   incluye {metricas.length} campañas
                 </p>
               )}
@@ -443,8 +443,8 @@ export function RentabilidadTab(props: Props) {
             <div className={`${GLASS_BASE} border-l-4 px-4 py-3 ${ estadoPct === "excelente" ? "border-white/10 border-l-green-400" : estadoPct === "aceptable" ? "border-white/10 border-l-amber-400" : "border-white/10 border-l-red-400" }`}>
               <p className="text-[10px] text-zinc-100 uppercase font-medium">% costo / valor vendido</p>
               <p className={`text-sm font-bold mt-0.5 ${
-                estadoPct === "excelente" ? "text-green-700"
-                : estadoPct === "aceptable" ? "text-amber-600"
+                estadoPct === "excelente" ? "text-emerald-300"
+                : estadoPct === "aceptable" ? "text-amber-400"
                 : "text-red-500"
               }`}>
                 {pct > 0 ? `${pct.toFixed(1)}%` : "—"}
@@ -478,31 +478,31 @@ export function RentabilidadTab(props: Props) {
             <p className="text-xs font-semibold text-zinc-300">¿Qué dice el mercado para {bv.label.toLowerCase()}?</p>
 
             <div className="flex items-start gap-3">
-              <div className="min-w-[4px] self-stretch bg-violet-300 rounded-full" />
+              <div className="min-w-[4px] self-stretch bg-violet-500/60 rounded-full" />
               <p className="text-xs text-zinc-400">
                 <strong>Por cada S/ 1 invertido</strong> (pauta + honorarios), generaste{" "}
                 <strong className={colorMulti}>S/ {multi !== null ? multi.toFixed(2) : "—"}</strong>{" "}
                 en valor vendido.{" "}
-                {estadoRoasVenta === "excelente" && <span className="text-green-700 font-semibold">Supera el benchmark excelente (≥ {bv.roasVenta.excelente}x).</span>}
-                {estadoRoasVenta === "aceptable" && <span className="text-amber-600 font-semibold">Dentro del rango aceptable (≥ {bv.roasVenta.aceptable}x).</span>}
+                {estadoRoasVenta === "excelente" && <span className="text-emerald-300 font-semibold">Supera el benchmark excelente (≥ {bv.roasVenta.excelente}x).</span>}
+                {estadoRoasVenta === "aceptable" && <span className="text-amber-400 font-semibold">Dentro del rango aceptable (≥ {bv.roasVenta.aceptable}x).</span>}
                 {estadoRoasVenta === "alto"      && <span className="text-red-500 font-semibold">Bajo el benchmark mínimo (≥ {bv.roasVenta.aceptable}x). A mayor volumen, mejora.</span>}
               </p>
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="min-w-[4px] self-stretch bg-amber-300 rounded-full" />
+              <div className="min-w-[4px] self-stretch bg-amber-500/60 rounded-full" />
               <p className="text-xs text-zinc-400">
                 El costo comercial fue el{" "}
                 <strong className={
-                  estadoPct === "excelente" ? "text-green-700"
-                  : estadoPct === "aceptable" ? "text-amber-600" : "text-red-500"
+                  estadoPct === "excelente" ? "text-emerald-300"
+                  : estadoPct === "aceptable" ? "text-amber-400" : "text-red-500"
                 }>{pct > 0 ? `${pct.toFixed(1)}%` : "—"}</strong>{" "}
                 del valor vendido — benchmark {bv.label.toLowerCase()}: excelente ≤ {bv.pctCosto.excelente}%, aceptable ≤ {bv.pctCosto.aceptable}%.
               </p>
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="min-w-[4px] self-stretch bg-blue-300 rounded-full" />
+              <div className="min-w-[4px] self-stretch bg-accent/60 rounded-full" />
               <p className="text-xs text-zinc-500">
                 <strong>Referencia práctica</strong> (unidad S/ {bv.ejemploS.toLocaleString("es-PE")}):
                 inversión excelente ≤ {FMT_SOL(ejInvExc)} · aceptable ≤ {FMT_SOL(ejInvAce)}.
@@ -537,11 +537,11 @@ export function RentabilidadTab(props: Props) {
                     ? comision - retornoAtribuido.totalHonorarios : null;
                   const esMayor  = diff !== null && diff > 0;
                   return (
-                    <div key={pct} className={`border rounded-xl px-3 py-3 ${esMayor ? "bg-green-50 border-green-200" : "bg-zinc-800/40 border-white/10"}`}>
+                    <div key={pct} className={`border rounded-xl px-3 py-3 ${esMayor ? "bg-emerald-500/[0.10] border-emerald-500/30" : "bg-white/[0.03] border-white/10"}`}>
                       <p className="text-[10px] text-zinc-100 font-medium uppercase">{pct}% comisión</p>
                       <p className="text-sm font-bold text-zinc-200 mt-1">{FMT_SOL(comision)}</p>
                       {diff !== null && (
-                        <p className={`text-[9px] font-semibold mt-0.5 ${esMayor ? "text-green-600" : "text-red-400"}`}>
+                        <p className={`text-[9px] font-semibold mt-0.5 ${esMayor ? "text-emerald-400" : "text-red-400"}`}>
                           {diff > 0 ? "+" : ""}{FMT_SOL(Math.abs(diff))} {esMayor ? "adicional" : "menos"}
                         </p>
                       )}
@@ -561,7 +561,7 @@ export function RentabilidadTab(props: Props) {
             <p className="text-[10px] font-medium text-zinc-500">Benchmarks {bv.label} — fuentes:</p>
             {bv.fuentes.map((f) => (
               <a key={f.url} href={f.url} target="_blank" rel="noopener noreferrer"
-                className="block text-[10px] text-blue-500 hover:underline truncate">
+                className="block text-[10px] text-accent hover:underline truncate">
                 · {f.label}
               </a>
             ))}

@@ -22,6 +22,7 @@ import { Plus, Upload, Zap, FileDown }  from "lucide-react";
 
 import { useMetricas }            from "../hooks/useMetricas";
 import { useEditar }              from "../hooks/useEditar";
+import { TabsPlataforma }         from "../components/metricas/TabsPlataforma";
 import { FiltrosMetricas }        from "../components/metricas/FiltrosMetricas";
 import { KpisMetricas }           from "../components/metricas/KpisMetricas";
 import { TablaMetricas }          from "../components/metricas/detalle/TablaMetricas";
@@ -328,6 +329,9 @@ export default function MetricasPage() {
           </div>
         )}
       </div>
+
+      {/* ── Navegación de 2 niveles (grupos + sub-tabs) — NEON style ── */}
+      <TabsPlataforma activa={tabPlataforma} onChange={setTabPlataforma} />
 
       {/* ── Filtros empresa + plataforma ── */}
       <FiltrosMetricas

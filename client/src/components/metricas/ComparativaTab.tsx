@@ -520,7 +520,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {mejorCpl && (
           <Highlight
-            icon={<Award size={15} className="text-green-600" />}
+            icon={<Award size={15} className="text-emerald-400" />}
             label="Mejor CPL"
             valor={FMT_SOL(mejorCpl.cpl!)}
             sub={mejorCpl.campana_nombre}
@@ -553,7 +553,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
               <span className="text-sm font-semibold text-zinc-200">Tendencia CPL — campañas con Instant Form</span>
             </div>
             {tendenciaCpl.length >= 2 && (
-              <span className={`${BADGE_BASE} text-[11px] font-medium px-2 py-0.5 ${ tendenciaSlope < -5 ? "bg-green-100 text-green-700" : tendenciaSlope > 5 ? "bg-red-100 text-red-700" : "bg-zinc-800 text-zinc-500" }`}>
+              <span className={`${BADGE_BASE} text-[11px] font-medium px-2 py-0.5 ${ tendenciaSlope < -5 ? "bg-emerald-500/12 text-emerald-300 border border-emerald-500/30" : tendenciaSlope > 5 ? "bg-red-500/12 text-red-300 border border-red-500/30" : "bg-white/[0.05] text-zinc-400 border border-white/10" }`}>
                 {tendenciaSlope < -5 ? "CPL bajando" : tendenciaSlope > 5 ? "CPL subiendo" : "CPL estable"}
                 {" "}({tendenciaSlope > 0 ? "+" : ""}{Math.round(tendenciaSlope)} S/ por campaña)
               </span>
@@ -562,11 +562,11 @@ export function ComparativaTab({ metricas, empresa }: Props) {
           <div style={{ height: 200 }}>
             {chartsMounted && <ResponsiveContainer width="100%" height={192}>
               <LineChart data={tendenciaCpl} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
                 <XAxis dataKey="nombre" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => `S/${v}`} />
                 <Tooltip
-                  contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
+                  contentStyle={{ fontSize: 11, borderRadius: 8, background: "rgba(10,16,31,0.97)", border: "1px solid rgba(255,255,255,0.1)", color: "#e4e4e7" }}
                   formatter={(v, name) => [
                     FMT_SOL(Number(v)),
                     (name as string) === "tendencia" ? "Tendencia (regresión)" : "CPL real",
@@ -584,7 +584,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
 
       {/* ── Alerta declive CTR ── */}
       {alertaDeclive && (
-        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-800">
+        <div className="flex items-start gap-3 bg-amber-500/[0.07] border border-amber-500/25 rounded-xl px-4 py-3 text-xs text-amber-200">
           <TrendingDown size={14} className="shrink-0 mt-0.5 text-amber-600" />
           <div>
             <span className="font-semibold">CTR en declive:</span> bajó <strong>{alertaDeclive.caida}%</strong> entre {alertaDeclive.desde} y {alertaDeclive.hasta}.
@@ -602,7 +602,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
             <BarChart2 size={15} className="text-zinc-500" />
             <span className="text-sm font-semibold text-zinc-200">Análisis comparativo</span>
           </div>
-          <div className="flex gap-1 bg-zinc-800 rounded-xl p-1">
+          <div className="flex gap-1 bg-white/[0.04] border border-white/10 rounded-xl p-1">
             {([
               { v: "campana", label: "Por campaña" },
               { v: "mes",     label: "Por mes"     },
@@ -610,7 +610,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
             ] as { v: Vista; label: string }[]).map(({ v, label }) => (
               <button key={v} onClick={() => setVista(v)}
                 className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
-                  vista === v ? "bg-slate-800/60 shadow-sm text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
+                  vista === v ? "bg-white/[0.08] text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
                 }`}>
                 {label}
               </button>
@@ -621,14 +621,14 @@ export function ComparativaTab({ metricas, empresa }: Props) {
         {/* Selector de métrica */}
         <div className="flex gap-2 flex-wrap">
           {([
-            { k: "gasto",    label: "Gasto",      color: "bg-amber-100 text-amber-700 border-amber-300"   },
-            { k: "cpl",      label: "Costo/Lead",  color: "bg-red-100 text-red-700 border-red-300"         },
-            { k: "ctr",      label: "CTR",         color: "bg-emerald-100 text-emerald-700 border-emerald-300" },
-            { k: "mensajes", label: "Mensajes",    color: "bg-violet-100 text-violet-700 border-violet-300" },
+            { k: "gasto",    label: "Gasto",      color: "bg-amber-500/12 text-amber-300 border-amber-500/40"   },
+            { k: "cpl",      label: "Costo/Lead",  color: "bg-red-500/12 text-red-300 border-red-500/40"         },
+            { k: "ctr",      label: "CTR",         color: "bg-emerald-500/12 text-emerald-300 border-emerald-500/40" },
+            { k: "mensajes", label: "Mensajes",    color: "bg-violet-500/12 text-violet-300 border-violet-500/40" },
           ] as { k: MetricaVista; label: string; color: string }[]).map(({ k, label, color }) => (
             <button key={k} onClick={() => setMetricaActiva(k)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
-                metricaActiva === k ? color + " ring-1 ring-offset-1 ring-current" : "bg-slate-800/60 text-zinc-500 border-white/10 hover:border-white/15"
+                metricaActiva === k ? color : "bg-white/[0.03] text-zinc-500 border-white/10 hover:border-white/15"
               }`}>
               {label}
             </button>
@@ -647,7 +647,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
           {(() => {
             const bCpl = benchmarksActivos.find((b) => b.key === "cpl");
             const est  = resumenTotal.cpl !== null && bCpl ? estadoBenchmark(resumenTotal.cpl, bCpl) : null;
-            const badge: Record<string, string> = { excelente: "bg-green-100 text-green-700", aceptable: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
+            const badge: Record<string, string> = { excelente: "bg-emerald-500/15 text-emerald-300", aceptable: "bg-amber-500/15 text-amber-300", alto: "bg-red-500/15 text-red-300" };
             const label: Record<string, string> = { excelente: "Excelente", aceptable: "Aceptable", alto: "Alto" };
             return (
               <div className={`${PANEL_BASE} border-l-4 border-l-red-400 px-4 py-3 transition ${metricaActiva === "cpl" ? "shadow-sm" : "opacity-60"}`}>
@@ -662,7 +662,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
           {(() => {
             const bCtr = benchmarksActivos.find((b) => b.key === "ctr");
             const est  = bCtr ? estadoBenchmark(resumenTotal.ctr, bCtr) : null;
-            const badge: Record<string, string> = { excelente: "bg-green-100 text-green-700", aceptable: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
+            const badge: Record<string, string> = { excelente: "bg-emerald-500/15 text-emerald-300", aceptable: "bg-amber-500/15 text-amber-300", alto: "bg-red-500/15 text-red-300" };
             const label: Record<string, string> = { excelente: "Excelente", aceptable: "Aceptable", alto: "Alto" };
             return (
               <div className={`${PANEL_BASE} border-l-4 border-l-emerald-400 px-4 py-3 transition ${metricaActiva === "ctr" ? "shadow-sm" : "opacity-60"}`}>
@@ -685,7 +685,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
           <div style={{ height: 280 }}>
             {chartsMounted && <ResponsiveContainer width="100%" height="100%">
               <BarChart data={datosChart} margin={{ top: 5, right: 16, left: 0, bottom: vista === "campana" ? 60 : 5 }} barCategoryGap="28%">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
                 <XAxis
                   dataKey="nombre"
                   tick={{ fontSize: 9 }}
@@ -707,7 +707,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
                   }
                 />
                 <Tooltip
-                  contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
+                  contentStyle={{ fontSize: 11, borderRadius: 8, background: "rgba(10,16,31,0.97)", border: "1px solid rgba(255,255,255,0.1)", color: "#e4e4e7" }}
                   formatter={(v, _name, props) => {
                     const d = props.payload as typeof datosChart[0];
                     const val = Number(v);
@@ -788,7 +788,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
 
         <div className="rounded-xl border border-white/10 overflow-hidden">
           <table className="w-full text-xs">
-            <thead className="bg-zinc-800/40 text-zinc-100 uppercase text-[10px]">
+            <thead className="border-b border-white/[0.08] text-zinc-500 uppercase text-[10px]">
               <tr>
                 <th className="px-4 py-2.5 text-left font-medium">Métrica</th>
                 <th className="px-4 py-2.5 text-right font-medium">Tu promedio</th>
@@ -801,11 +801,11 @@ export function ComparativaTab({ metricas, empresa }: Props) {
               {diagnostico.map((d) => {
                 const desvColor = d.desv
                   ? (d.mayor_es_mejor
-                      ? (d.desv.pct >= 0 ? "text-green-600" : "text-red-500")
-                      : (d.desv.pct >= 0 ? "text-red-500" : "text-green-600"))
+                      ? (d.desv.pct >= 0 ? "text-emerald-400" : "text-red-500")
+                      : (d.desv.pct >= 0 ? "text-red-500" : "text-emerald-400"))
                   : "";
                 return (
-                  <tr key={d.key} className="hover:bg-zinc-800/40 transition">
+                  <tr key={d.key} className="hover:bg-white/[0.03] transition">
                     <td className="px-4 py-3 max-w-[180px]">
                       <p className="font-semibold text-zinc-200">{d.label}</p>
                       <p className="text-zinc-400 text-[10px] leading-tight">{d.descripcion}</p>
@@ -813,8 +813,8 @@ export function ComparativaTab({ metricas, empresa }: Props) {
                     <td className="px-4 py-3 text-right tabular-nums">
                       {d.valorFmt ? (
                         <span className={`font-bold text-sm ${
-                          d.estado === "excelente" ? "text-green-600"
-                          : d.estado === "aceptable" ? "text-amber-500"
+                          d.estado === "excelente" ? "text-emerald-400"
+                          : d.estado === "aceptable" ? "text-amber-400"
                           : "text-red-500"
                         }`}>
                           {d.valorFmt}
@@ -858,7 +858,7 @@ export function ComparativaTab({ metricas, empresa }: Props) {
           <p className="text-[10px] font-medium text-zinc-500">Fuentes:</p>
           {FUENTES_URLS.map((f) => (
             <a key={f.url} href={f.url} target="_blank" rel="noopener noreferrer"
-              className="block text-[10px] text-blue-500 hover:underline truncate">
+              className="block text-[10px] text-accent hover:underline truncate">
               · {f.label}
             </a>
           ))}
@@ -894,9 +894,9 @@ function benchmarkRef(b: BenchmarkDef): string {
 function EstadoBadge({ estado }: { estado: "excelente" | "aceptable" | "alto" | "sin_datos" }) {
   if (estado === "sin_datos") return <span className="text-zinc-300 text-[10px]">Sin datos</span>;
   const map = {
-    excelente: { bg: "bg-green-100 text-green-700",  label: "Excelente" },
-    aceptable: { bg: "bg-amber-100 text-amber-700",  label: "Aceptable" },
-    alto:      { bg: "bg-red-100 text-red-700",      label: "Alto" },
+    excelente: { bg: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",  label: "Excelente" },
+    aceptable: { bg: "bg-amber-500/15 text-amber-300 border border-amber-500/30",  label: "Aceptable" },
+    alto:      { bg: "bg-red-500/15 text-red-300 border border-red-500/30",      label: "Alto" },
   };
   const { bg, label } = map[estado];
   return <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${bg}`}>{label}</span>;
