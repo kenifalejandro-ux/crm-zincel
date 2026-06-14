@@ -24,8 +24,8 @@ export function WebResumenChart({ metricas }: Props) {
   const alertas = (p.web_por_actualizar ?? 0) + (p.web_vencida ?? 0) + (p.web_en_mantenimiento ?? 0);
 
   const cobertura = [
-    { label: "Con web", valor: conWeb, pct: Math.round((conWeb / total) * 100), color: "#18181b" },
-    { label: "Sin web", valor: sinWeb, pct: Math.round((sinWeb / total) * 100), color: "#d4a017" },
+    { label: "Con web", valor: conWeb, pct: Math.round((conWeb / total) * 100), color: "#22d3ee" },
+    { label: "Sin web", valor: sinWeb, pct: Math.round((sinWeb / total) * 100), color: "#52525b" },
   ];
 
   return (
@@ -34,14 +34,14 @@ export function WebResumenChart({ metricas }: Props) {
         <Globe size={14} className="mr-2.5 text-cyan-500" strokeWidth={2} />
         Webs de prospectos
         {alertas > 0 && (
-          <span className={`${BADGE_BASE} ml-auto px-2 py-0.5 text-[10px] font-semibold text-red-600 normal-case tracking-normal`}>
+          <span className={`${BADGE_BASE} ml-auto px-2 py-0.5 text-[10px] font-semibold text-red-400 normal-case tracking-normal`}>
             {alertas} requieren atención
           </span>
         )}
       </h2>
 
       {/* Cobertura */}
-      <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-2">Cobertura</p>
+      <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Cobertura</p>
       <div className="space-y-2.5 mb-4">
         {cobertura.map(item => (
           <div key={item.label}>
@@ -55,7 +55,7 @@ export function WebResumenChart({ metricas }: Props) {
                 <span className="text-[10px] text-zinc-400 w-7 text-right">{item.pct}%</span>
               </div>
             </div>
-            <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{ width: `${item.pct}%`, backgroundColor: item.color }}
@@ -67,7 +67,7 @@ export function WebResumenChart({ metricas }: Props) {
 
       {/* Estado de webs activas */}
       <div className="border-t border-white/5 pt-3">
-        <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-2">
+        <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
           Estado de webs activas ({conWeb})
         </p>
         <div className="space-y-2">
@@ -86,7 +86,7 @@ export function WebResumenChart({ metricas }: Props) {
                     <span className="text-[10px] text-zinc-400 w-7 text-right">{pct}%</span>
                   </div>
                 </div>
-                <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{ width: `${Math.max(pct, valor > 0 ? 2 : 0)}%`, backgroundColor: color }}

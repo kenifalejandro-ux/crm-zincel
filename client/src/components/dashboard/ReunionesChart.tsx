@@ -62,7 +62,7 @@ export function ReunionesChart({ metricas }: Props) {
             >
               <PolarAngleAxis type="number" domain={[0, maxVal]} angleAxisId={0} tick={false} />
               <RadialBar filter="url(#neon-glow)"
-                background={{ fill: "#f4f4f5" }}
+                background={{ fill: c.grid }}
                 dataKey="value"
                 cornerRadius={4}
               />
@@ -75,7 +75,7 @@ export function ReunionesChart({ metricas }: Props) {
         <div className="flex-1 space-y-3">
           <div className="text-center mb-2">
             <p className="text-2xl font-bold text-zinc-100 leading-none">{total}</p>
-            <p className="text-[9px] text-zinc-100 uppercase tracking-widest mt-0.5">total</p>
+            <p className="text-[9px] text-zinc-500 uppercase tracking-widest mt-0.5">total</p>
           </div>
           {[...REUNIONES_ITEMS].reverse().map((item, i) => {
             const valor = (metricas.reuniones as any)[item.key] as number;

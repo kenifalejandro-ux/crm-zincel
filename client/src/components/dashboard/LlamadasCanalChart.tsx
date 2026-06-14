@@ -49,15 +49,15 @@ export function LlamadasCanalChart({ metricas }: Props) {
           margin={{ top: 16, right: 8, bottom: 0, left: -16 }}
           barCategoryGap="35%"
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
           <XAxis
             dataKey="name"
-            tick={{ fontSize: 11, fill: "#71717a", fontWeight: 500 }}
+            tick={{ fontSize: 11, fill: "#a1a1aa", fontWeight: 500 }}
             tickLine={false} axisLine={false}
             tickFormatter={v => v.charAt(0).toUpperCase() + v.slice(1)}
           />
           <YAxis tick={{ fontSize: 10, fill: c.axis }} tickLine={false} axisLine={false} />
-          <Tooltip content={<TooltipCanal />} cursor={{ fill: "#f9f9f8" }} />
+          <Tooltip content={<TooltipCanal />} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
           <Bar filter="url(#neon-glow)" dataKey="value" radius={[6, 6, 0, 0]}>
             {datosGrafico.map((entry, i) => (
               <Cell key={i} fill={entry.color} />
@@ -72,7 +72,7 @@ export function LlamadasCanalChart({ metricas }: Props) {
       </ResponsiveContainer>
 
       {/* Leyenda con % */}
-      <div className="flex justify-around mt-3 pt-3 border-t border-white/8">
+      <div className="flex justify-around mt-3 pt-3 border-t border-white/[0.08]">
         {datos.map((item, i) => (
           <div key={i} className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />

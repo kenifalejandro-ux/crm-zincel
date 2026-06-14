@@ -48,7 +48,7 @@ export function ActividadHoy({ metricas }: Props) {
             >
               <PolarAngleAxis type="number" domain={[0, maxVal]} angleAxisId={0} tick={false} />
               <RadialBar filter="url(#neon-glow)"
-                background={{ fill: "#f4f4f5" }}
+                background={{ fill: c.grid }}
                 dataKey="value"
                 cornerRadius={5}
               />

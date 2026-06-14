@@ -44,12 +44,12 @@ function SubChart({
         <ResponsiveContainer width="100%" height={height}>
           <BarChart data={data} layout="vertical"
             margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" horizontal={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" horizontal={false} />
             <XAxis type="number" tick={{ fontSize: 10, fill: "#a1a1aa" }} allowDecimals={false} />
-            <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: "#3f3f46" }} width={120} />
+            <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: "#a1a1aa" }} width={120} />
             <Tooltip
-              contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e4e4e7" }}
-              cursor={{ fill: "rgba(0,0,0,0.02)" }}
+              contentStyle={{ fontSize: 11, borderRadius: 8, background: "rgba(10,16,31,0.97)", border: "1px solid rgba(255,255,255,0.1)", color: "#e4e4e7" }}
+              cursor={{ fill: "rgba(255,255,255,0.04)" }}
             />
             <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 10, paddingTop: 6 }} />
             <Bar filter="url(#neon-glow)" dataKey="Ganadas"  fill="#22c55e" radius={[0, 3, 3, 0]} barSize={10} />
@@ -77,7 +77,7 @@ export function VentasGanadasCharts() {
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {[0,1,2].map(i => (
         <div key={i} className={`${CARD_CLASS} flex items-center justify-center`} style={{ minHeight: 180 }}>
-          <div className="w-5 h-5 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+          <div className="w-5 h-5 rounded-full border-2 border-t-transparent" style={{ borderColor: "rgb(var(--accent))", borderTopColor: "transparent" }} animate-spin" />
         </div>
       ))}
     </div>
@@ -122,7 +122,7 @@ export function VentasGanadasCharts() {
         emptyMsg="Sin cierres registrados"
       />
       <SubChart
-        icon={<Briefcase size={14} className="text-brand shrink-0" />}
+        icon={<Briefcase size={14} className="text-accent shrink-0" />}
         titulo="Ganadas vs Perdidas · Servicio"
         data={servicioData}
         emptyMsg="Sin cierres registrados"

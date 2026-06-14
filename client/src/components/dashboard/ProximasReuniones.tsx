@@ -19,13 +19,13 @@ export function ProximasReuniones({ reuniones }: Props) {
       ) : (
         <div className="space-y-1">
           {reuniones.map((r, i) => (
-            <div key={r.id || i} className="flex items-center justify-between py-3 border-b border-white/8/50 last:border-0">
+            <div key={r.id || i} className="flex items-center justify-between py-3 border-b border-white/[0.06] last:border-0">
               <div>
                 <p className="text-[13px] font-semibold text-zinc-100 mb-0.5">{r.titulo}</p>
-                <p className="text-[11px] text-zinc-100 uppercase tracking-wide">{r.empresa} <span className="mx-1">·</span> {r.modalidad}</p>
+                <p className="text-[11px] text-zinc-500 uppercase tracking-wide">{r.empresa} <span className="mx-1">·</span> {r.modalidad}</p>
               </div>
               <div className="text-right">
-                <p className="text-[12px] font-medium text-zinc-100">
+                <p className="text-[12px] font-medium text-zinc-300">
                   {new Date(r.fecha_hora).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
                 </p>
                 <p className="text-[11px] text-zinc-400">

@@ -51,18 +51,18 @@ export function LlamadasChart({ metricas }: Props) {
         </ResponsiveContainer>
         <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center">
           <span className="text-3xl font-bold text-zinc-100 leading-none">{tasaContacto}%</span>
-          <span className="text-[9px] text-zinc-100 uppercase tracking-widest mt-0.5">tasa de contacto</span>
+          <span className="text-[9px] text-zinc-500 uppercase tracking-widest mt-0.5">tasa de contacto</span>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 mt-4">
         {[
-          { label: "Total",          valor: total_llamadas,          color: "text-zinc-900" },
-          { label: "Contestadas",    valor: llamadas_contestadas,    color: "text-zinc-900" },
-          { label: "No contest.",    valor: llamadas_no_contestadas, color: "text-brand"    },
+          { label: "Total",          valor: total_llamadas,          color: "text-zinc-100" },
+          { label: "Contestadas",    valor: llamadas_contestadas,    color: "text-emerald-300" },
+          { label: "No contest.",    valor: llamadas_no_contestadas, color: "text-accent"    },
         ].map((item, i) => (
-          <div key={i} className="text-center bg-zinc-800/40 rounded-xl py-2.5 px-1">
+          <div key={i} className="text-center bg-white/[0.04] border border-white/[0.06] rounded-xl py-2.5 px-1">
             <p className={`text-xl font-bold leading-none ${item.color}`}>{item.valor}</p>
             <p className="text-[9px] text-zinc-500 mt-1 leading-tight">{item.label}</p>
           </div>

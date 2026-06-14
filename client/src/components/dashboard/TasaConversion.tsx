@@ -57,13 +57,13 @@ export function TasaConversion({ metricas }: Props) {
           <span className="text-3xl font-light tracking-tighter text-zinc-100 leading-none">
             {tasa}%
           </span>
-          <span className="text-[11px] font-semibold text-zinc-100 mt-2 uppercase tracking-wide">
+          <span className="text-[11px] font-semibold text-zinc-400 mt-2 uppercase tracking-wide">
             {label}
           </span>
         </div>
       </div>
 
-      <div className="space-y-3 mt-6 pt-5 border-t border-white/8/60">
+      <div className="space-y-3 mt-6 pt-5 border-t border-white/[0.08]/60">
         <div className="flex justify-between items-center">
           <span className="text-[12px] font-medium text-zinc-300">Interesados</span>
           <span className="text-[13px] font-semibold text-zinc-100">{interesados}</span>

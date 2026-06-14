@@ -80,8 +80,8 @@ export function VentasChart({ metricas }: Props) {
             ))}
           </div>
 
-          <div className="flex justify-between items-center pt-1 border-t border-white/8">
-            <span className="text-[10px] text-zinc-100 uppercase tracking-widest">Tasa de cierre</span>
+          <div className="flex justify-between items-center pt-1 border-t border-white/[0.08]">
+            <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Tasa de cierre</span>
             <span className="text-sm font-bold text-zinc-100">{tasaCierre}%</span>
           </div>
         </>
@@ -89,8 +89,8 @@ export function VentasChart({ metricas }: Props) {
 
       {/* Por servicio */}
       {porServicio.length > 0 && (
-        <div className="border-t border-white/8 pt-4">
-          <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-widest mb-3">
+        <div className="border-t border-white/[0.08] pt-4">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">
             Por servicio (cerradas)
           </p>
           <div className="space-y-3">
@@ -110,7 +110,7 @@ export function VentasChart({ metricas }: Props) {
                       </span>
                     </div>
                   </div>
-                  <div className="h-1 rounded-full bg-zinc-800">
+                  <div className="h-1 rounded-full bg-white/[0.06]">
                     <div
                       className="h-1 rounded-full transition-all duration-500"
                       style={{ width: `${pct}%`, backgroundColor: c.palette[i % c.palette.length] }}
