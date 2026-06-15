@@ -1,4 +1,8 @@
-/** client/src/components/inteligencia/PaquetesWebChart.tsx */
+/** client/src/components/inteligencia/PaquetesWebChart.tsx — NEON
+ * Antes: PAQUETE_CFG en bg-slate-100/amber-100/red-100/blue-100/violet-100 (tema claro),
+ * barras track bg-zinc-800, skeleton bg-zinc-800, leyenda bg-zinc-300, text-emerald-600.
+ * Ahora: chips translúcidos por color, barras con glow, leyenda neon. Lógica/drill-down INTACTO.
+ */
 import { useEffect, useState } from "react";
 import { Package } from "lucide-react";
 import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
@@ -7,13 +11,17 @@ import { DrilldownModal } from "./DrilldownModal";
 import type { LeadDrilldown } from "./DrilldownModal";
 import { getLeadsPorPaqueteWeb } from "../../services/inteligencia.api";
 
-const PAQUETE_CFG: Record<string, { color: string; bg: string; text: string }> = {
-  "Base — Web Express": { color: "#94a3b8", bg: "bg-slate-100",  text: "text-slate-600"  },
-  "Gold — Web Pro":     { color: "#f59e0b", bg: "bg-amber-100",  text: "text-amber-700"  },
-  "Red — Web Advanced": { color: "#ef4444", bg: "bg-red-100",    text: "text-red-600"    },
-  "Blue — Web Expert":  { color: "#3b82f6", bg: "bg-blue-100",   text: "text-blue-700"   },
-  "Platinum — Elite":   { color: "#8b5cf6", bg: "bg-violet-100", text: "text-violet-700" },
+const PAQUETE_HEX: Record<string, string> = {
+  "Base — Web Express": "#94a3b8",
+  "Gold — Web Pro":     "#f59e0b",
+  "Red — Web Advanced": "#ef4444",
+  "Blue — Web Expert":  "#3b82f6",
+  "Platinum — Elite":   "#8b5cf6",
 };
+
+function chipStyle(hex: string): React.CSSProperties {
+  return { color: hex, background: `${hex}1a`, border: `1px solid ${hex}38` };
+}
 
 const ORDEN = [
   "Base — Web Express",
@@ -60,7 +68,7 @@ export function PaquetesWebChart() {
   if (cargando) {
     return (
       <div className={CARD_CLASS}>
-        <div className="animate-pulse h-40 bg-zinc-800 rounded-xl" />
+        <div className="animate-pulse h-40 bg-white/[0.05] rounded-xl" />
       </div>
     );
   }
@@ -69,7 +77,6 @@ export function PaquetesWebChart() {
   const totalVendidos  = datos.reduce((s, d) => s + d.vendidos,  0);
   const maxCotizados   = Math.max(...datos.map(d => d.cotizados), 1);
 
-  // Ordenar según el orden natural de los planes
   const ordenados = [...datos].sort(
     (a, b) => ORDEN.indexOf(a.paquete) - ORDEN.indexOf(b.paquete)
   );
@@ -78,63 +85,54 @@ export function PaquetesWebChart() {
     <div className={`${CARD_CLASS} space-y-4`}>
       <div className="flex items-center justify-between">
         <h2 className={HEADER_CLASS}>
-          <Package size={14} className="mr-2.5 text-violet-500" strokeWidth={2} />
+          <Package size={14} className="mr-2.5 text-violet-400" strokeWidth={2} />
           Paquetes Web cotizados
         </h2>
         {totalCotizados > 0 && (
           <div className="flex gap-3 text-[11px] text-zinc-500">
             <span><span className="font-bold text-zinc-300">{totalCotizados}</span> cotizados</span>
-            <span><span className="font-bold text-emerald-600">{totalVendidos}</span> vendidos</span>
+            <span><span className="font-bold text-emerald-400">{totalVendidos}</span> vendidos</span>
           </div>
         )}
       </div>
 
       {totalCotizados === 0 ? (
-        <p className="text-xs text-zinc-400 text-center py-8">
+        <p className="text-xs text-zinc-500 text-center py-8">
           Aún no hay propuestas de Desarrollo Web registradas.
         </p>
       ) : (
         <div className="space-y-3">
           {ordenados.map(d => {
-            const cfg        = PAQUETE_CFG[d.paquete] ?? { color: "#9ca3af", bg: "bg-zinc-100", text: "text-zinc-500" };
+            const hex        = PAQUETE_HEX[d.paquete] ?? "#9ca3af";
             const pct        = Math.round((d.cotizados / maxCotizados) * 100);
             const tasaCierre = d.cotizados > 0 ? Math.round((d.vendidos / d.cotizados) * 100) : 0;
 
             return (
               <div key={d.paquete} className="cursor-pointer group" onClick={() => abrirDrilldown(d.paquete)}>
-                {/* Header fila */}
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={chipStyle(hex)}>
                     {d.paquete}
                   </span>
                   <div className="flex items-center gap-3 text-[11px]">
-                    <span className="text-zinc-500">
-                      <span className="font-bold text-zinc-200">{d.cotizados}</span> cotiz.
-                    </span>
-                    <span className="text-zinc-500">
-                      <span className="font-bold text-emerald-600">{d.vendidos}</span> vend.
-                    </span>
+                    <span className="text-zinc-500"><span className="font-bold text-zinc-200">{d.cotizados}</span> cotiz.</span>
+                    <span className="text-zinc-500"><span className="font-bold text-emerald-400">{d.vendidos}</span> vend.</span>
                     {d.precio_promedio > 0 && (
-                      <span className="text-zinc-400">
-                        S/ {d.precio_promedio.toLocaleString()}
-                      </span>
+                      <span className="text-zinc-400">S/ {d.precio_promedio.toLocaleString()}</span>
                     )}
-                    <span className={`font-semibold ${tasaCierre >= 50 ? "text-emerald-600" : tasaCierre >= 25 ? "text-amber-600" : "text-zinc-400"}`}>
+                    <span className={`font-semibold ${tasaCierre >= 50 ? "text-emerald-400" : tasaCierre >= 25 ? "text-amber-400" : "text-zinc-500"}`}>
                       {tasaCierre}%
                     </span>
                   </div>
                 </div>
-                {/* Barra cotizados */}
-                <div className="relative w-full bg-zinc-800 rounded-full h-2">
+                <div className="relative w-full bg-white/[0.06] rounded-full h-2">
                   <div
                     className="h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${pct}%`, backgroundColor: cfg.color }}
+                    style={{ width: `${pct}%`, backgroundColor: hex, boxShadow: `0 0 6px ${hex}88` }}
                   />
-                  {/* Barra vendidos superpuesta */}
                   {d.vendidos > 0 && (
                     <div
-                      className="absolute top-0 left-0 h-2 rounded-full opacity-40"
-                      style={{ width: `${Math.round((d.vendidos / maxCotizados) * 100)}%`, backgroundColor: "#10b981" }}
+                      className="absolute top-0 left-0 h-2 rounded-full"
+                      style={{ width: `${Math.round((d.vendidos / maxCotizados) * 100)}%`, backgroundColor: "#34d399", boxShadow: "0 0 6px #34d399" }}
                     />
                   )}
                 </div>
@@ -142,10 +140,9 @@ export function PaquetesWebChart() {
             );
           })}
 
-          {/* Leyenda */}
-          <div className="flex items-center gap-4 pt-1 text-[10px] text-zinc-400">
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2 rounded-full bg-zinc-300 inline-block" /> Cotizados</span>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2 rounded-full bg-emerald-400 opacity-60 inline-block" /> Vendidos</span>
+          <div className="flex items-center gap-4 pt-1 text-[10px] text-zinc-500">
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2 rounded-full bg-zinc-500 inline-block" /> Cotizados</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2 rounded-full inline-block" style={{ background: "#34d399" }} /> Vendidos</span>
             <span className="ml-auto">% = tasa de cierre</span>
           </div>
         </div>

@@ -121,17 +121,17 @@ function generarInsights(rows: ServicioAnalisis[]): Insight[] {
 // ─── Estilos por tipo de insight ──────────────────────────────────────────────
 
 const INSIGHT_ICON: Record<Insight["tipo"], React.ReactNode> = {
-  estrella:    <Trophy       size={13} className="text-amber-500 shrink-0 mt-0.5" />,
-  ok:          <CheckCircle2 size={13} className="text-green-600 shrink-0 mt-0.5" />,
-  alerta:      <AlertTriangle size={13} className="text-red-500 shrink-0 mt-0.5" />,
-  oportunidad: <Lightbulb    size={13} className="text-brand shrink-0 mt-0.5" />,
+  estrella:    <Trophy       size={13} className="text-amber-400 shrink-0 mt-0.5" />,
+  ok:          <CheckCircle2 size={13} className="text-emerald-400 shrink-0 mt-0.5" />,
+  alerta:      <AlertTriangle size={13} className="text-red-400 shrink-0 mt-0.5" />,
+  oportunidad: <Lightbulb    size={13} className="text-cyan-400 shrink-0 mt-0.5" />,
 };
 
 const INSIGHT_BG: Record<Insight["tipo"], string> = {
-  estrella:    "bg-amber-50 border border-amber-200",
-  ok:          "bg-green-50 border border-green-100",
-  alerta:      "bg-red-50 border border-red-100",
-  oportunidad: "bg-brand/5 border border-brand/20",
+  estrella:    "border border-amber-500/30 bg-amber-500/12",
+  ok:          "border border-emerald-500/30 bg-emerald-500/12",
+  alerta:      "border border-red-500/30 bg-red-500/12",
+  oportunidad: "border border-cyan-500/30 bg-cyan-500/12",
 };
 
 // ─── Componente principal ─────────────────────────────────────────────────────
@@ -174,9 +174,9 @@ export function InsightServicios() {
 
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Zap size={14} className="text-brand shrink-0" />
+        <Zap size={14} className="text-cyan-400 shrink-0" />
         <div>
-          <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Inteligencia por servicio</p>
+          <p className="text-[11px] font-semibold text-zinc-300 uppercase tracking-wider">Inteligencia por servicio</p>
           <p className="text-[10px] text-zinc-400 mt-0.5">Qué servicios venden más, cuáles se pierden y dónde está el dinero</p>
         </div>
       </div>
@@ -185,7 +185,7 @@ export function InsightServicios() {
       <div style={{ height: 200 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
             <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#71717a" }} />
             <YAxis tick={{ fontSize: 10, fill: "#71717a" }} allowDecimals={false} />
             <Tooltip
@@ -203,20 +203,20 @@ export function InsightServicios() {
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-white/8">
-              <th className="text-left py-2 px-3 text-zinc-100 font-medium">Servicio</th>
-              <th className="text-center py-2 pr-2 text-zinc-100 font-medium">Activas</th>
-              <th className="text-center py-2 pr-2 text-green-600 font-medium">Ganadas</th>
-              <th className="text-center py-2 pr-2 text-red-500 font-medium">Perdidas</th>
-              <th className="text-right py-2 pr-2 text-zinc-100 font-medium">Ingresos</th>
-              <th className="text-center py-2 pr-3 text-zinc-100 font-medium">Cierre %</th>
+            <tr className="border-b border-white/[0.08]">
+              <th className="text-left py-2 px-3 text-zinc-500 font-medium">Servicio</th>
+              <th className="text-center py-2 pr-2 text-zinc-500 font-medium">Activas</th>
+              <th className="text-center py-2 pr-2 text-emerald-400 font-medium">Ganadas</th>
+              <th className="text-center py-2 pr-2 text-red-400 font-medium">Perdidas</th>
+              <th className="text-right py-2 pr-2 text-zinc-500 font-medium">Ingresos</th>
+              <th className="text-center py-2 pr-3 text-zinc-500 font-medium">Cierre %</th>
             </tr>
           </thead>
           <tbody>
             {datos.map(r => {
               const c = convRate(r.ganadas, r.perdidas);
               return (
-                <tr key={r.servicio} className="border-b border-white/5 hover:bg-zinc-800/40 transition">
+                <tr key={r.servicio} className="border-b border-white/[0.05] hover:bg-zinc-800/40 transition">
                   <td className="py-2.5 px-3 font-medium text-zinc-200">{lbl(r.servicio)}</td>
                   <td className="py-2.5 pr-2 text-center text-zinc-400">{r.enviadas + r.en_negociacion}</td>
                   <td className="py-2.5 pr-2 text-center font-semibold text-green-700">{r.ganadas}</td>
@@ -224,7 +224,7 @@ export function InsightServicios() {
                   <td className="py-2.5 pr-2 text-right text-zinc-300">{r.monto_ganado > 0 ? fmt(r.monto_ganado) : "—"}</td>
                   <td className="py-2.5 pr-3 text-center">
                     {c !== null
-                      ? <span className={`${BADGE_BASE} text-[10px] font-bold px-1.5 py-0.5 ${ c >= 60 ? "bg-green-100 text-green-700" : c >= 30 ? "bg-yellow-50 text-yellow-700" : "bg-red-50 text-red-500" }`}>{c}%</span>
+                      ? <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${ c >= 60 ? "bg-emerald-500/15 text-emerald-300" : c >= 30 ? "bg-amber-500/15 text-amber-300" : "bg-red-500/15 text-red-300" }`}>{c}%</span>
                       : <span className="text-[10px] text-zinc-300">—</span>
                     }
                   </td>
@@ -238,7 +238,7 @@ export function InsightServicios() {
       {/* Insights automáticos */}
       {insights.length > 0 && (
         <div className="space-y-2">
-          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-wider pt-1">Análisis automático</p>
+          <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider pt-1">Análisis automático</p>
           {insights.map((ins, i) => (
             <div key={i} className={`flex items-start gap-3 rounded-xl p-3 ${INSIGHT_BG[ins.tipo]}`}>
               {INSIGHT_ICON[ins.tipo]}

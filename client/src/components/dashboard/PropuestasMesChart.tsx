@@ -73,22 +73,22 @@ export function PropuestasMesChart({ anio }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <ClipboardList size={14} className="text-brand" />
-          <p className="text-xs font-bold text-zinc-100 uppercase tracking-wider">
+          <ClipboardList size={14} className="text-cyan-400" />
+          <p className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
             Propuestas por mes {anio ? `· ${anio}` : ""}
           </p>
         </div>
         {/* Resumen */}
         <div className="flex items-center gap-4">
           {[
-            { label: "Total",       value: totales.total,  cls: "text-zinc-800" },
-            { label: "Ganadas",     value: totales.ganadas,  cls: "text-emerald-600" },
-            { label: "Perdidas",    value: totales.perdidas, cls: "text-red-500" },
-            { label: "Activas",     value: activas,          cls: "text-amber-500" },
+            { label: "Total",       value: totales.total,  cls: "text-zinc-200" },
+            { label: "Ganadas",     value: totales.ganadas,  cls: "text-emerald-400" },
+            { label: "Perdidas",    value: totales.perdidas, cls: "text-red-400" },
+            { label: "Activas",     value: activas,          cls: "text-amber-400" },
           ].map(s => (
             <div key={s.label} className="text-center">
               <p className={`text-base font-bold leading-none ${s.cls}`}>{s.value}</p>
-              <p className="text-[9px] text-zinc-100 uppercase tracking-wide mt-0.5">{s.label}</p>
+              <p className="text-[9px] text-zinc-400 uppercase tracking-wide mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>
@@ -98,12 +98,12 @@ export function PropuestasMesChart({ anio }: Props) {
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={chartData} barSize={14} barGap={2}
           margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
           <XAxis dataKey="mes" tick={{ fontSize: 10, fill: "#a1a1aa" }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fontSize: 10, fill: "#a1a1aa" }} axisLine={false} tickLine={false} allowDecimals={false} />
           <Tooltip
-            contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 11 }}
-            cursor={{ fill: "#f4f4f500" }}
+            contentStyle={{ fontSize: 11, borderRadius: 8, background: "rgba(10,16,31,0.97)", border: "1px solid rgba(255,255,255,0.1)", color: "#e4e4e7" }}
+            cursor={{ fill: "rgba(255,255,255,0.04)" }}
           />
           <Legend
             iconType="circle" iconSize={8}
@@ -118,12 +118,12 @@ export function PropuestasMesChart({ anio }: Props) {
 
       {/* Detalle mes a mes */}
       {totales.total > 0 && (
-        <div className="mt-3 border-t border-white/5 pt-3">
+        <div className="mt-3 border-t border-white/[0.05] pt-3">
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {chartData.filter(d => d.total > 0).map(d => (
               <span key={d.mes} className="text-[11px] text-zinc-500">
                 <span className="font-semibold text-zinc-300">{d.mes}</span>: {d.total}
-                {d.Ganadas > 0 && <span className="text-emerald-500 ml-1">({d.Ganadas}✓)</span>}
+                {d.Ganadas > 0 && <span className="text-emerald-400 ml-1">({d.Ganadas}✓)</span>}
                 {d.Perdidas > 0 && <span className="text-red-400 ml-1">({d.Perdidas}✗)</span>}
               </span>
             ))}

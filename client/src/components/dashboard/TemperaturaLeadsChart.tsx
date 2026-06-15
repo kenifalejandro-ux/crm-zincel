@@ -1,4 +1,8 @@
-/** client/src/components/dashboard/TemperaturaLeadsChart.tsx */
+/** client/src/components/dashboard/TemperaturaLeadsChart.tsx — NEON
+ * Antes: hover de fila hover:bg-red-50/yellow-50/zinc-50 (tema claro), barras track bg-zinc-800,
+ * botón "Ver prospectos" text-brand, flecha text-zinc-300. Ahora: hover neon uniforme,
+ * barras con glow, botón acento. Lógica/drill-down INTACTO.
+ */
 import { useState } from "react";
 import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import { useChartColors } from "../../hooks/useChartColors";
@@ -16,10 +20,10 @@ interface Props {
 }
 
 const GRUPOS = [
-  { key: "caliente", label: "Calientes", score: "Score 75+",   tono: "danger", hover: "hover:bg-red-50"    },
-  { key: "activo",   label: "Activos",   score: "Score 50–74", tono: "accent", hover: "hover:bg-yellow-50" },
-  { key: "tibio",    label: "Tibios",    score: "Score 25–49", tono: "muted",  hover: "hover:bg-zinc-50"   },
-  { key: "frio",     label: "Fríos",     score: "Score 0–24",  tono: "p3",     hover: "hover:bg-zinc-50"   },
+  { key: "caliente", label: "Calientes", score: "Score 75+",   tono: "danger" },
+  { key: "activo",   label: "Activos",   score: "Score 50–74", tono: "accent" },
+  { key: "tibio",    label: "Tibios",    score: "Score 25–49", tono: "muted"  },
+  { key: "frio",     label: "Fríos",     score: "Score 0–24",  tono: "p3"     },
 ] as const;
 
 export function TemperaturaLeadsChart({ caliente, activo, tibio, frio, onClick }: Props) {
@@ -61,7 +65,7 @@ export function TemperaturaLeadsChart({ caliente, activo, tibio, frio, onClick }
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className={HEADER_CLASS}>
-            <Thermometer size={14} className="mr-2.5 text-amber-500" strokeWidth={2} />
+            <Thermometer size={14} className="mr-2.5 text-amber-400" strokeWidth={2} />
             Temperatura de Leads
           </h2>
           <p className="text-[11px] text-zinc-500 mt-0.5">
@@ -69,14 +73,14 @@ export function TemperaturaLeadsChart({ caliente, activo, tibio, frio, onClick }
           </p>
         </div>
         {onClick && (
-          <button onClick={onClick} className="text-xs text-brand hover:underline">
+          <button onClick={onClick} className="text-xs text-accent hover:underline">
             Ver prospectos →
           </button>
         )}
       </div>
 
       {totalReal === 0 && (
-        <p className="text-xs text-zinc-400 text-center py-6">Sin actividad en el período seleccionado</p>
+        <p className="text-xs text-zinc-500 text-center py-6">Sin actividad en el período seleccionado</p>
       )}
 
       {/* Barras clickeables */}
@@ -85,12 +89,13 @@ export function TemperaturaLeadsChart({ caliente, activo, tibio, frio, onClick }
           const valor  = valores[g.key];
           const pct    = Math.round((valor / total) * 100);
           const barPct = valor > 0 ? Math.max(Math.round((valor / maxValor) * 100), 3) : 0;
+          const col    = tono[g.tono];
 
           return (
             <button
               key={g.key}
               onClick={() => abrirDrilldown([g.key], g.label)}
-              className={`w-full flex items-center gap-3 rounded-xl px-3 py-2 transition ${g.hover} group`}
+              className="w-full flex items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-white/[0.04] group"
             >
               {/* Label */}
               <span className="text-[12px] font-semibold text-zinc-300 w-20 shrink-0 text-left">
@@ -98,21 +103,21 @@ export function TemperaturaLeadsChart({ caliente, activo, tibio, frio, onClick }
               </span>
 
               {/* Barra */}
-              <div className="flex-1 h-5 bg-zinc-800 rounded-lg overflow-hidden">
+              <div className="flex-1 h-5 bg-white/[0.06] rounded-lg overflow-hidden">
                 <div
                   className="h-full rounded-lg transition-all duration-500"
-                  style={{ width: `${barPct}%`, backgroundColor: tono[g.tono] }}
+                  style={{ width: `${barPct}%`, backgroundColor: col, boxShadow: `0 0 8px ${col}88` }}
                 />
               </div>
 
               {/* Valor + % */}
               <div className="w-20 shrink-0 text-right">
                 <span className="text-[12px] font-bold text-zinc-200">{valor}</span>
-                <span className="text-[10px] text-zinc-400 ml-1">· {pct}%</span>
+                <span className="text-[10px] text-zinc-500 ml-1">· {pct}%</span>
               </div>
 
               {/* Flecha hover */}
-              <span className="text-[10px] text-zinc-300 group-hover:text-zinc-500 transition shrink-0">→</span>
+              <span className="text-[10px] text-zinc-600 group-hover:text-accent transition shrink-0">→</span>
             </button>
           );
         })}

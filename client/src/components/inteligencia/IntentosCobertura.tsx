@@ -1,4 +1,8 @@
-/** client/src/components/inteligencia/IntentosCobertura.tsx */
+/** client/src/components/inteligencia/IntentosCobertura.tsx — NEON
+ * Antes: KPI labels text-zinc-100 lavado, barras track bg-zinc-800, banner recomendación
+ * bg-amber-50, spinner border-brand. Ahora: barras con glow, labels muted, banner neon.
+ * Lógica (generarLectura, recomendaciones) INTACTA.
+ */
 
 import { useEffect, useState } from "react";
 import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
@@ -77,7 +81,7 @@ export function IntentosCobertura() {
 
   if (cargando) return (
     <div className="flex justify-center py-10">
-      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-brand" />
+      <div className="animate-spin rounded-full h-5 w-5 border-2 border-t-transparent" style={{ borderColor: "rgb(var(--accent))", borderTopColor: "transparent" }} />
     </div>
   );
   if (!datos) return null;
@@ -95,27 +99,27 @@ export function IntentosCobertura() {
       <div className="grid grid-cols-3 gap-3">
         <div className={`${CARD_CLASS} text-center`}>
           <Phone size={16} className="mx-auto mb-2 text-zinc-400" />
-          <p className="text-2xl font-bold text-zinc-100">{datos.total_llamadas}</p>
-          <p className="text-[10px] text-zinc-100 uppercase tracking-widest mt-1">Llamadas totales</p>
+          <p className="font-display text-2xl font-bold text-zinc-100 tabular-nums">{datos.total_llamadas}</p>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Llamadas totales</p>
         </div>
         <div className={`${CARD_CLASS} text-center`}>
           <Users size={16} className="mx-auto mb-2 text-zinc-400" />
-          <p className="text-2xl font-bold text-zinc-100">{datos.empresas_unicas}</p>
-          <p className="text-[10px] text-zinc-100 uppercase tracking-widest mt-1">Empresas únicas</p>
+          <p className="font-display text-2xl font-bold text-zinc-100 tabular-nums">{datos.empresas_unicas}</p>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Empresas únicas</p>
         </div>
         <div className={`${CARD_CLASS} text-center`}>
           <RefreshCw size={16} className="mx-auto mb-2 text-zinc-400" />
-          <p className="text-2xl font-bold" style={{ color: prom < 1.5 ? c.success : prom < 2.5 ? c.accent : c.danger }}>
+          <p className="font-display text-2xl font-bold tabular-nums" style={{ color: prom < 1.5 ? c.success : prom < 2.5 ? c.accent : c.danger, textShadow: `0 0 12px ${(prom < 1.5 ? c.success : prom < 2.5 ? c.accent : c.danger)}55` }}>
             {prom.toFixed(1)}x
           </p>
-          <p className="text-[10px] text-zinc-100 uppercase tracking-widest mt-1">Intentos / empresa</p>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Intentos / empresa</p>
         </div>
       </div>
 
       {/* Distribución */}
       <div className={CARD_CLASS}>
         <h2 className={HEADER_CLASS}>
-          <span className="mr-2 text-violet-500">◼</span>
+          <span className="mr-2 text-violet-400">◼</span>
           Distribución de intentos por empresa
         </h2>
 
@@ -128,19 +132,19 @@ export function IntentosCobertura() {
             <div key={row.label} className="space-y-1">
               <div className="flex justify-between text-xs">
                 <span className="text-zinc-300 font-medium">{row.label}</span>
-                <span className="font-bold text-zinc-200">{row.count} empresas <span className="text-zinc-400 font-normal">· {row.pct}%</span></span>
+                <span className="font-bold text-zinc-200">{row.count} empresas <span className="text-zinc-500 font-normal">· {row.pct}%</span></span>
               </div>
-              <div className="h-2.5 bg-zinc-800 rounded-full overflow-hidden">
+              <div className="h-2.5 bg-white/[0.06] rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700"
-                  style={{ width: `${row.pct}%`, backgroundColor: row.color }}
+                  style={{ width: `${row.pct}%`, backgroundColor: row.color, boxShadow: `0 0 8px ${row.color}88` }}
                 />
               </div>
             </div>
           ))}
         </div>
 
-        <p className="text-[10px] text-zinc-400 mt-3">
+        <p className="text-[10px] text-zinc-500 mt-3">
           {datos.total_llamadas} llamadas totales → {datos.empresas_unicas} empresas únicas · promedio {prom.toFixed(2)} intentos/empresa
         </p>
       </div>
@@ -148,7 +152,7 @@ export function IntentosCobertura() {
       {/* Lectura de análisis */}
       <div className={CARD_CLASS}>
         <h2 className={HEADER_CLASS}>
-          <Lightbulb size={14} className="mr-2 text-amber-500" strokeWidth={2} />
+          <Lightbulb size={14} className="mr-2 text-amber-400" strokeWidth={2} />
           Lectura del análisis
         </h2>
 
@@ -160,8 +164,8 @@ export function IntentosCobertura() {
         </div>
 
         {alerta && (
-          <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3">
-            <p className="text-[11px] text-amber-800 leading-relaxed">
+          <div className="mt-4 rounded-xl p-3" style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.25)" }}>
+            <p className="text-[11px] text-amber-300 leading-relaxed">
               <span className="font-bold">Recomendación: </span>{alerta}
             </p>
           </div>
