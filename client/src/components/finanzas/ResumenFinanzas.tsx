@@ -1,4 +1,11 @@
-/** client/src/components/finanzas/ResumenFinanzas.tsx */
+/** client/src/components/finanzas/ResumenFinanzas.tsx — REDISEÑO NEON
+ * Antes: KpiCard con cajas de icono bg-green-50/red-50/brand-5/orange-50/rose-50, labels
+ * text-zinc-100 lavados; tipo de cambio botón bg-brand; alerta utilidad bg-red-50; detalle
+ * con text-brand/text-orange-500/text-green-600. Ahora: KPIs neon con chip de icono + glow,
+ * botón btn-primary, alerta y detalle neon. Lógica (tipo cambio API/manual) INTACTA.
+ *
+ * Los 3 charts (FlujoCaja, IngresosPorServicio, EgresosPorCategoria) ya usan useChartColors.
+ */
 
 import { useState }                    from "react";
 import { DollarSign, TrendingDown, TrendingUp, AlertCircle, RefreshCw, Landmark } from "lucide-react";
@@ -10,18 +17,23 @@ import type { ResumenFinanciero }      from "../../types/finanzas.types";
 import { actualizarTipoCambioDesdeAPI, guardarTipoCambio } from "../../services/configuracion.api";
 
 function KpiCard({
-  label, valor, sub, icon, color, bg,
+  label, valor, sub, icon, hex,
 }: {
   label: string; valor: string; sub?: string;
-  icon: React.ReactNode; color: string; bg: string;
+  icon: React.ReactNode; hex: string; // "accent" o HEX
 }) {
+  const accent = hex === "accent";
+  const col = accent ? "rgb(var(--accent))" : hex;
   return (
     <div className={`${CARD_CLASS} !p-4 flex items-center gap-4`}>
-      <div className={`${bg} p-2.5 rounded-lg ${color}`}>{icon}</div>
-      <div>
-        <p className="text-[11px] text-zinc-100 font-medium uppercase">{label}</p>
-        <p className="text-lg font-bold text-zinc-200 leading-tight">{valor}</p>
-        {sub && <p className="text-[11px] text-zinc-400 mt-0.5">{sub}</p>}
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+        style={{ background: accent ? "rgb(var(--accent) / 0.12)" : `${hex}1a`, border: `1px solid ${accent ? "rgb(var(--accent) / 0.3)" : hex + "40"}`, color: col }}>
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-widest">{label}</p>
+        <p className="font-display text-lg font-bold tabular-nums leading-tight" style={{ color: col, textShadow: `0 0 14px ${accent ? "rgb(var(--accent) / calc(0.4*var(--glow)))" : hex + "55"}` }}>{valor}</p>
+        {sub && <p className="text-[11px] text-zinc-500 mt-0.5">{sub}</p>}
       </div>
     </div>
   );
@@ -89,20 +101,20 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
             step={0.01}
             value={tipoCambio}
             onChange={(e) => handleGuardarManual(Number(e.target.value))}
-            className={`${INPUT_BASE} w-20 px-2 py-1 text-xs text-center focus:outline-none focus:ring-2 focus:ring-zinc-400`}
+            className={`${INPUT_BASE} w-20 px-2 py-1 text-xs text-center focus:outline-none focus:ring-2 focus:ring-accent/30`}
           />
           <span className="text-zinc-400">/ USD</span>
         </div>
         <button
           onClick={handleActualizarAPI}
           disabled={actualizando}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-brand hover:bg-brand-hover disabled:opacity-60 text-white rounded-lg transition text-xs"
+          className="btn-primary flex items-center gap-1.5 px-3 py-1.5 disabled:opacity-60 text-xs"
         >
           <RefreshCw size={12} className={actualizando ? "animate-spin" : ""} />
           {actualizando ? "Obteniendo..." : "Actualizar desde API"}
         </button>
-        <div className="ml-auto text-[11px] text-zinc-400">
-          {tcError && <span className="text-red-500">{tcError}</span>}
+        <div className="ml-auto text-[11px] text-zinc-500">
+          {tcError && <span className="text-red-400">{tcError}</span>}
           {!tcError && tcActualizadoEn && <span>Actualizado: {fmtFecha(tcActualizadoEn)}</span>}
           {!tcError && !tcActualizadoEn && <span>Todos los montos en PEN</span>}
         </div>
@@ -115,29 +127,28 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
           valor={fmt(ingresos.total_cobrado)}
           sub={`${ingresos.cantidad} registro(s)`}
           icon={<TrendingUp size={18} />}
-          color="text-green-600" bg="bg-green-50"
+          hex="#34d399"
         />
         <KpiCard
           label="Egresos del período"
           valor={fmt(egresos.total_egresos)}
           sub={`${egresos.cantidad} registro(s)`}
           icon={<TrendingDown size={18} />}
-          color="text-red-500" bg="bg-red-50"
+          hex="#f87171"
         />
         <KpiCard
           label="Utilidad neta"
           valor={fmt(utilidad)}
           sub={utilidadNegativa ? "Pérdida este período" : "Ganancia este período"}
           icon={<DollarSign size={18} />}
-          color={utilidadNegativa ? "text-red-600" : "text-brand"}
-          bg={utilidadNegativa ? "bg-red-50" : "bg-brand/5"}
+          hex={utilidadNegativa ? "#f87171" : "accent"}
         />
         <KpiCard
           label="Por cobrar (total)"
           valor={fmt(por_cobrar.por_cobrar_total)}
           sub="Saldo pendiente acumulado"
           icon={<AlertCircle size={18} />}
-          color="text-orange-500" bg="bg-orange-50"
+          hex="#fb923c"
         />
       </div>
 
@@ -148,8 +159,7 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
           valor={fmt(pasivos.total_por_pagar)}
           sub={`${pasivos.cantidad_pendientes} préstamo(s) pendiente(s)${pasivos.cantidad_vencidos > 0 ? ` · ${pasivos.cantidad_vencidos} vencido(s)` : ""}`}
           icon={<Landmark size={18} />}
-          color={pasivos.total_por_pagar > 0 ? "text-rose-600" : "text-zinc-600"}
-          bg={pasivos.total_por_pagar > 0 ? "bg-rose-50" : "bg-gray-50"}
+          hex={pasivos.total_por_pagar > 0 ? "#fb7185" : "#a1a1aa"}
         />
         {pasivos.total_vencido > 0 && (
           <KpiCard
@@ -157,7 +167,7 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
             valor={fmt(pasivos.total_vencido)}
             sub="Préstamos fuera de plazo"
             icon={<AlertCircle size={18} />}
-            color="text-red-700" bg="bg-red-100"
+            hex="#f87171"
           />
         )}
         <KpiCard
@@ -165,14 +175,13 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
           valor={fmt(pasivos.posicion_real)}
           sub="Utilidad neta − Préstamos por pagar"
           icon={<DollarSign size={18} />}
-          color={pasivos.posicion_real >= 0 ? "text-brand" : "text-red-600"}
-          bg={pasivos.posicion_real >= 0 ? "bg-brand/5" : "bg-red-50"}
+          hex={pasivos.posicion_real >= 0 ? "accent" : "#f87171"}
         />
       </div>
 
       {/* Alerta si hay utilidad negativa */}
       {utilidadNegativa && (
-        <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+        <div className="flex items-center gap-2 px-4 py-3 rounded-lg text-xs text-red-300" style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.3)" }}>
           <AlertCircle size={14} />
           Los egresos superan los ingresos cobrados este período. Revisa tus gastos.
         </div>
@@ -189,23 +198,23 @@ export function ResumenFinanzas({ resumen, tipoCambio, onTipoCambioChange }: Pro
 
       {/* Detalle ingresos acordados */}
       <div className={`${CARD_CLASS} !p-4`}>
-        <h3 className={HEADER_CLASS}><Landmark size={14} className="mr-2.5 text-slate-500" strokeWidth={2} />Detalle del período</h3>
+        <h3 className={HEADER_CLASS}><Landmark size={14} className="mr-2.5 text-zinc-400" strokeWidth={2} />Detalle del período</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
           <div className="space-y-0.5">
-            <p className="text-zinc-400">Total acordado</p>
-            <p className="font-semibold text-zinc-200">{fmt(ingresos.total_acordado)}</p>
+            <p className="text-zinc-500">Total acordado</p>
+            <p className="font-display font-bold text-zinc-200 tabular-nums">{fmt(ingresos.total_acordado)}</p>
           </div>
           <div className="space-y-0.5">
-            <p className="text-zinc-400">Adelantos cobrados</p>
-            <p className="font-semibold text-brand">{fmt(ingresos.total_cobrado)}</p>
+            <p className="text-zinc-500">Adelantos cobrados</p>
+            <p className="font-display font-bold text-accent tabular-nums">{fmt(ingresos.total_cobrado)}</p>
           </div>
           <div className="space-y-0.5">
-            <p className="text-zinc-400">Saldo pendiente (período)</p>
-            <p className="font-semibold text-orange-500">{fmt(ingresos.total_por_cobrar)}</p>
+            <p className="text-zinc-500">Saldo pendiente (período)</p>
+            <p className="font-display font-bold tabular-nums" style={{ color: "#fb923c" }}>{fmt(ingresos.total_por_cobrar)}</p>
           </div>
           <div className="space-y-0.5">
-            <p className="text-zinc-400">Cobrado completo</p>
-            <p className="font-semibold text-green-600">{fmt(ingresos.cobrado_completo)}</p>
+            <p className="text-zinc-500">Cobrado completo</p>
+            <p className="font-display font-bold text-emerald-400 tabular-nums">{fmt(ingresos.cobrado_completo)}</p>
           </div>
         </div>
       </div>

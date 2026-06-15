@@ -25,18 +25,18 @@ import type { EmpresaAnalisis, PeriodoFinanciero, AnalisisEmpresa, IndicadorConG
 // ── Estado → estilo ─────────────────────────────────────────────
 
 const ESTADO_CFG: Record<EstadoIndicador, { label: string; color: string; hex: string; bg: string; dot: string }> = {
-  optimo:      { label: "Óptimo",       color: "text-emerald-600", hex: "#059669", bg: "bg-emerald-50",  dot: "bg-emerald-500" },
-  excelente:   { label: "Excelente",    color: "text-emerald-600", hex: "#059669", bg: "bg-emerald-50",  dot: "bg-emerald-500" },
-  bueno:       { label: "Bueno",        color: "text-emerald-600", hex: "#059669", bg: "bg-emerald-50",  dot: "bg-emerald-500" },
-  riesgo_bajo: { label: "Bajo",         color: "text-emerald-600", hex: "#059669", bg: "bg-emerald-50",  dot: "bg-emerald-500" },
-  aceptable:   { label: "Aceptable",    color: "text-amber-600",   hex: "#d97706", bg: "bg-amber-50",    dot: "bg-amber-500"   },
-  moderado:    { label: "Moderado",     color: "text-amber-600",   hex: "#d97706", bg: "bg-amber-50",    dot: "bg-amber-500"   },
-  atencion:    { label: "Atención",     color: "text-amber-600",   hex: "#d97706", bg: "bg-amber-50",    dot: "bg-amber-500"   },
-  por_mejorar: { label: "Por Mejorar",  color: "text-red-500",     hex: "#dc2626", bg: "bg-red-50",      dot: "bg-red-500"     },
-  critico:     { label: "Crítico",      color: "text-red-500",     hex: "#dc2626", bg: "bg-red-50",      dot: "bg-red-500"     },
-  riesgo_alto: { label: "Riesgo Alto",  color: "text-red-500",     hex: "#dc2626", bg: "bg-red-50",      dot: "bg-red-500"     },
-  alto_riesgo: { label: "Alto Riesgo",  color: "text-red-500",     hex: "#dc2626", bg: "bg-red-50",      dot: "bg-red-500"     },
-  sin_datos:   { label: "Sin datos",    color: "text-zinc-400",    hex: "#a1a1aa", bg: "bg-zinc-50",     dot: "bg-zinc-300"    },
+  optimo:      { label: "Óptimo",       color: "text-emerald-300", hex: "#34d399", bg: "bg-emerald-500/12 border border-emerald-500/30",  dot: "bg-emerald-400" },
+  excelente:   { label: "Excelente",    color: "text-emerald-300", hex: "#34d399", bg: "bg-emerald-500/12 border border-emerald-500/30",  dot: "bg-emerald-400" },
+  bueno:       { label: "Bueno",        color: "text-emerald-300", hex: "#34d399", bg: "bg-emerald-500/12 border border-emerald-500/30",  dot: "bg-emerald-400" },
+  riesgo_bajo: { label: "Bajo",         color: "text-emerald-300", hex: "#34d399", bg: "bg-emerald-500/12 border border-emerald-500/30",  dot: "bg-emerald-400" },
+  aceptable:   { label: "Aceptable",    color: "text-amber-300",   hex: "#fbbf24", bg: "bg-amber-500/12 border border-amber-500/30",    dot: "bg-amber-400"   },
+  moderado:    { label: "Moderado",     color: "text-amber-300",   hex: "#fbbf24", bg: "bg-amber-500/12 border border-amber-500/30",    dot: "bg-amber-400"   },
+  atencion:    { label: "Atención",     color: "text-amber-300",   hex: "#fbbf24", bg: "bg-amber-500/12 border border-amber-500/30",    dot: "bg-amber-400"   },
+  por_mejorar: { label: "Por Mejorar",  color: "text-red-300",     hex: "#f87171", bg: "bg-red-500/12 border border-red-500/30",      dot: "bg-red-400"     },
+  critico:     { label: "Crítico",      color: "text-red-300",     hex: "#f87171", bg: "bg-red-500/12 border border-red-500/30",      dot: "bg-red-400"     },
+  riesgo_alto: { label: "Riesgo Alto",  color: "text-red-300",     hex: "#f87171", bg: "bg-red-500/12 border border-red-500/30",      dot: "bg-red-400"     },
+  alto_riesgo: { label: "Alto Riesgo",  color: "text-red-300",     hex: "#f87171", bg: "bg-red-500/12 border border-red-500/30",      dot: "bg-red-400"     },
+  sin_datos:   { label: "Sin datos",    color: "text-zinc-400",    hex: "#a1a1aa", bg: "bg-white/[0.05] border border-white/10",     dot: "bg-zinc-500"    },
 };
 
 // ── Gauge velocímetro con zonas rojo/naranja/verde ───────────────
@@ -51,12 +51,12 @@ function GaugeChart({ pct, colorHex }: { pct: number; colorHex: string }) {
         startAngle={180} endAngle={0}
         cx={65} cy={70}
         innerRadius={42} outerRadius={58}
-        dataKey="v" strokeWidth={2} stroke="white"
+        dataKey="v" strokeWidth={2} stroke="#0a1120"
         isAnimationActive={false}
       >
-        <Cell fill="#fca5a5" />
-        <Cell fill="#fde68a" />
-        <Cell fill="#6ee7b7" />
+        <Cell fill="#7f1d1d" />
+        <Cell fill="#78540f" />
+        <Cell fill="#14532d" />
       </Pie>
       {/* Indicador de posición */}
       <Pie filter="url(#neon-glow)"
@@ -94,7 +94,7 @@ function GaugeCard({ numero, titulo, indicador, formatear, descripcion, Icon }: 
   return (
     <div className={`${CARD_CLASS} flex flex-col gap-2`}>
       <div className="flex items-start justify-between">
-        <span className="text-[10px] font-bold text-zinc-100 uppercase tracking-widest leading-tight">
+        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-tight">
           {numero}. {titulo}
         </span>
         <Icon size={14} className={`${cfg.color} flex-shrink-0`} />
@@ -331,13 +331,13 @@ function TablaInterpretacion({ indicadores, formatearPorClave }: TablaInterpreta
       <div className="overflow-x-auto">
         <table className="w-full text-[10px]">
           <thead>
-            <tr className="border-b border-white/8">
-              <th className="text-left py-2 pr-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest w-32">Indicador</th>
-              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest w-20">Valor</th>
-              <th className="text-left py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest w-24 hidden sm:table-cell">Rango Óptimo</th>
-              <th className="text-center py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest w-20">Estado</th>
-              <th className="text-left py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Diagnóstico</th>
-              <th className="text-left py-2 pl-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest hidden lg:table-cell">Acción Recomendada</th>
+            <tr className="border-b border-white/[0.08]">
+              <th className="text-left py-2 pr-3 text-[9px] font-bold text-zinc-500 uppercase tracking-widest w-32">Indicador</th>
+              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-500 uppercase tracking-widest w-20">Valor</th>
+              <th className="text-left py-2 px-3 text-[9px] font-bold text-zinc-500 uppercase tracking-widest w-24 hidden sm:table-cell">Rango Óptimo</th>
+              <th className="text-center py-2 px-3 text-[9px] font-bold text-zinc-500 uppercase tracking-widest w-20">Estado</th>
+              <th className="text-left py-2 px-3 text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Diagnóstico</th>
+              <th className="text-left py-2 pl-3 text-[9px] font-bold text-zinc-500 uppercase tracking-widest hidden lg:table-cell">Acción Recomendada</th>
             </tr>
           </thead>
           <tbody>
@@ -348,7 +348,7 @@ function TablaInterpretacion({ indicadores, formatearPorClave }: TablaInterpreta
               const ecfg = ESTADO_CFG[ind.estado] ?? ESTADO_CFG.sin_datos;
               const fmt  = formatearPorClave[key] ?? ((v: number) => v.toString());
               return (
-                <tr key={key} className={`border-b border-white/5 ${idx % 2 === 0 ? "" : "bg-zinc-50/40"}`}>
+                <tr key={key} className={`border-b border-white/[0.05] ${idx % 2 === 0 ? "" : "bg-white/[0.02]"}`}>
                   <td className="py-2.5 pr-3 font-semibold text-zinc-300 leading-tight">{cfg.nombre}</td>
                   <td className={`py-2.5 px-3 text-right font-bold tabular-nums ${ecfg.color}`}>
                     {ind.valor !== null ? fmt(ind.valor) : "N/D"}
@@ -429,19 +429,19 @@ function BenchmarksSection({ sector, indicadores }: BenchmarksProps) {
       <div className="flex items-center justify-between mb-1">
         <h3 className={HEADER_CLASS}>
           <BarChart2 size={14} className="mr-2.5 text-violet-500" />
-          Comparación vs. sector: <span className="text-violet-600 ml-1">{sectorLabel}</span>
+          Comparación vs. sector: <span className="text-violet-300 ml-1">{sectorLabel}</span>
         </h3>
         <span className={`${BADGE_BASE} text-[9px] text-zinc-400 px-2 py-0.5`}>Valores de referencia sectorial</span>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-[10px]">
           <thead>
-            <tr className="border-b border-white/8">
-              <th className="text-left py-2 pr-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Indicador</th>
-              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Empresa</th>
-              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Ref. Sector</th>
-              <th className="text-center py-2 px-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest">Brecha</th>
-              <th className="text-center py-2 pl-3 text-[9px] font-bold text-zinc-100 uppercase tracking-widest hidden sm:table-cell">Vs. Sector</th>
+            <tr className="border-b border-white/[0.08]">
+              <th className="text-left py-2 pr-3 text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Indicador</th>
+              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Empresa</th>
+              <th className="text-right py-2 px-3 text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Ref. Sector</th>
+              <th className="text-center py-2 px-3 text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Brecha</th>
+              <th className="text-center py-2 pl-3 text-[9px] font-bold text-zinc-500 uppercase tracking-widest hidden sm:table-cell">Vs. Sector</th>
             </tr>
           </thead>
           <tbody>
@@ -457,7 +457,7 @@ function BenchmarksSection({ sector, indicadores }: BenchmarksProps) {
                 ? `${diferencia > 0 ? "+" : ""}${fmtFn(diferencia)}`
                 : "—";
               return (
-                <tr key={key} className="border-b border-white/5">
+                <tr key={key} className="border-b border-white/[0.05]">
                   <td className="py-2.5 pr-3 font-semibold text-zinc-300">{nombre}</td>
                   <td className={`py-2.5 px-3 text-right font-bold tabular-nums ${empresa === null ? "text-zinc-300" : "text-zinc-200"}`}>
                     {empresa !== null ? fmtFn(empresa) : "N/D"}
@@ -465,14 +465,14 @@ function BenchmarksSection({ sector, indicadores }: BenchmarksProps) {
                   <td className="py-2.5 px-3 text-right text-zinc-500 tabular-nums">{fmtFn(referencia)}</td>
                   <td className={`py-2.5 px-3 text-center font-semibold tabular-nums ${
                     diferencia === null ? "text-zinc-300" :
-                    esMejor ? "text-emerald-600" :
+                    esMejor ? "text-emerald-400" :
                     esPeor ? "text-red-500" : "text-zinc-500"
                   }`}>
                     {brechaLabel}
                   </td>
                   <td className="py-2.5 pl-3 text-center hidden sm:table-cell">
                     {diferencia === null ? null : (
-                      <span className={`${BADGE_BASE} inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-semibold ${ esMejor ? "bg-emerald-50 text-emerald-700" : esPeor ? "bg-red-50 text-red-600" : "bg-zinc-800 text-zinc-500" }`}>
+                      <span className={`${BADGE_BASE} inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-semibold ${ esMejor ? "bg-emerald-500/15 text-emerald-300" : esPeor ? "bg-red-500/15 text-red-300" : "bg-white/[0.06] text-zinc-400" }`}>
                         {esMejor ? "↑ Sobre ref." : esPeor ? "↓ Bajo ref." : "= En línea"}
                       </span>
                     )}
@@ -602,7 +602,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
 
       {/* Info empresa + período + acciones */}
       <div className={`${CARD_CLASS} flex flex-col sm:flex-row sm:items-center gap-4`}>
-        <div className="w-10 h-10 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0" style={{ background: "rgb(var(--accent) / 0.12)", border: "1px solid rgb(var(--accent) / 0.3)", color: "rgb(var(--accent))" }}>
           {empresa.nombre.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1">
@@ -616,7 +616,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
           <SemaforoGeneral semaforo={semaforo} />
           <button
             onClick={() => exportarPDF(empresa.nombre, periodo.periodo)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition print:hidden"
+            className="btn-ghost flex items-center gap-1.5 px-3 py-2 text-xs text-zinc-300 rounded-lg transition print:hidden"
           >
             <Printer size={12} /> Exportar PDF
           </button>
@@ -636,8 +636,8 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
           { label: "Cuentas x Cobrar",   valor: Number(periodo.cuentas_por_cobrar),  ok: true },
         ].map(({ label, valor, ok }) => (
           <div key={label} className={CARD_CLASS}>
-            <p className="text-[10px] text-zinc-100 uppercase tracking-wider font-semibold mb-1.5">{label}</p>
-            <p className={`text-base font-extrabold tracking-tight ${ok ? "text-zinc-100" : "text-red-500"}`}>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5">{label}</p>
+            <p className={`font-display text-base font-extrabold tracking-tight ${ok ? "text-zinc-100" : "text-red-400"}`}>
               {fmtM(valor)}
             </p>
           </div>
@@ -646,7 +646,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
 
       {/* 8 Gauges velocímetro */}
       <div>
-        <h2 className="text-xs font-semibold text-zinc-100 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <h2 className="text-xs font-semibold text-zinc-300 uppercase tracking-widest mb-4 flex items-center gap-2">
           Dashboard de 8 indicadores clave
           <span className="flex gap-1.5 items-center text-[9px] normal-case font-normal text-zinc-400">
             <span className="w-2 h-2 rounded-full bg-red-300 inline-block" /> Crítico
@@ -681,7 +681,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
           </h3>
           <ResponsiveContainer width="100%" height={260}>
             <RadarChart data={radarData}>
-              <PolarGrid stroke="#f4f4f5" />
+              <PolarGrid stroke="rgba(255,255,255,0.06)" />
               <PolarAngleAxis dataKey="indicador" tick={{ fontSize: 10, fill: "#71717a" }} />
               <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9, fill: "#a1a1aa" }} tickCount={3} />
               <Radar filter="url(#neon-glow)" name="Score" dataKey="valor" stroke={c.accent} fill={c.accent} fillOpacity={0.25} strokeWidth={2} />
@@ -706,7 +706,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
           </h3>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={balanceData} margin={{ top: 4, right: 8, bottom: 0, left: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#71717a" }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: "#71717a" }} axisLine={false} tickLine={false}
                 tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
@@ -789,7 +789,7 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
           </h3>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={evolucion} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis dataKey="periodo" tick={{ fontSize: 10, fill: "#71717a" }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: "#71717a" }} axisLine={false} tickLine={false}
                 tickFormatter={v => `${v?.toFixed(0) ?? 0}`} />
@@ -824,11 +824,11 @@ function PanelEmpresa({ empresaId, periodoId }: { empresaId: string; periodoId: 
           <ol className="space-y-3">
             {recomendaciones.map((r, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="w-5 h-5 rounded-full bg-zinc-900 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "rgb(var(--accent) / 0.15)", color: "rgb(var(--accent))", border: "1px solid rgb(var(--accent) / 0.3)" }}>
                   {i + 1}
                 </span>
                 <p className="text-[11px] text-zinc-400 leading-relaxed flex-1">{r}</p>
-                <ChevronRight size={11} className="text-zinc-300 mt-0.5 flex-shrink-0" />
+                <ChevronRight size={11} className="text-zinc-600 mt-0.5 flex-shrink-0" />
               </li>
             ))}
           </ol>
@@ -900,7 +900,7 @@ function PanelInterno() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-[11px] text-zinc-500">Al {fecha} · Calculado desde ingresos, egresos y préstamos registrados</p>
-        <button onClick={cargar} className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition">
+        <button onClick={cargar} className="btn-ghost flex items-center gap-1 px-2.5 py-1.5 text-xs text-zinc-300 rounded-lg transition">
           <RefreshCw size={12} /> Actualizar
         </button>
       </div>
@@ -915,15 +915,15 @@ function PanelInterno() {
           { label: "Caja y Bancos",    valor: resumen.caja_bancos,        ok: resumen.caja_bancos >= 0 },
         ].map(({ label, valor, ok }) => (
           <div key={label} className={CARD_CLASS}>
-            <p className="text-[10px] text-zinc-100 uppercase tracking-wider font-semibold mb-1.5">{label}</p>
-            <p className={`text-base font-extrabold tracking-tight ${ok ? "text-zinc-100" : "text-red-500"}`}>{fmt(valor)}</p>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5">{label}</p>
+            <p className={`font-display text-base font-extrabold tracking-tight ${ok ? "text-zinc-100" : "text-red-400"}`}>{fmt(valor)}</p>
           </div>
         ))}
       </div>
 
       {/* 8 Gauges */}
       <div>
-        <h2 className="text-xs font-semibold text-zinc-100 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <h2 className="text-xs font-semibold text-zinc-300 uppercase tracking-widest mb-4 flex items-center gap-2">
           Dashboard de 8 indicadores clave
           <span className="flex gap-1.5 items-center text-[9px] normal-case font-normal text-zinc-400">
             <span className="w-2 h-2 rounded-full bg-red-300 inline-block" /> Crítico
@@ -952,7 +952,7 @@ function PanelInterno() {
           <h3 className={HEADER_CLASS}><Activity size={14} className="mr-2.5 text-zinc-500" />Visión global (0–100 normalizado)</h3>
           <ResponsiveContainer width="100%" height={250}>
             <RadarChart data={radarData}>
-              <PolarGrid stroke="#f4f4f5" />
+              <PolarGrid stroke="rgba(255,255,255,0.06)" />
               <PolarAngleAxis dataKey="indicador" tick={{ fontSize: 10, fill: "#71717a" }} />
               <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9, fill: "#a1a1aa" }} tickCount={3} />
               <Radar filter="url(#neon-glow)" name="Score" dataKey="valor" stroke={c.accent} fill={c.accent} fillOpacity={0.25} strokeWidth={2} />
@@ -1010,7 +1010,7 @@ function PanelInterno() {
           <ol className="space-y-3">
             {recomendaciones.map((r, i) => (
               <li key={i} className="flex items-start gap-2">
-                <span className="w-5 h-5 rounded-full bg-zinc-900 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                <span className="w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center flex-shrink-0" style={{ background: "rgb(var(--accent) / 0.15)", color: "rgb(var(--accent))", border: "1px solid rgb(var(--accent) / 0.3)" }}>{i + 1}</span>
                 <p className="text-[11px] text-zinc-400 leading-relaxed">{r}</p>
               </li>
             ))}

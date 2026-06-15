@@ -1,4 +1,18 @@
-/** client/src/pages/FinanzasPage.tsx */
+/** client/src/pages/FinanzasPage.tsx — REDISEÑO NEON (página contenedora)
+ * Cambios SOLO de presentación. Toda la lógica (carga, filtros de período/categoría,
+ * CRUD ingresos/egresos/préstamos, export Excel, KPIs, tabs) INTACTA.
+ *
+ * Migrado:
+ *  - Header: text-slate-100 → text-zinc-50 + kicker.
+ *  - Botón exportar: bg-zinc-800 → btn-ghost + tooltip neon.
+ *  - Botón "nuevo": bg-brand → btn-primary.
+ *  - KPIs: colores ajustados a los que mapea KpisCards neon (text-brand NO se mapea →
+ *    usar text-emerald-500/text-red-500/text-amber-500/text-zinc-600).
+ *
+ * Los sub-componentes (TablaIngresos/Egresos/Prestamos, Modal*, TabsFinanzas,
+ * ResumenFinanzas, AlertasVencimiento, FiltrosFinanzas, TablaEmpresasAnalisis) tienen
+ * sus propios archivos — si alguno conserva tema claro, se migra aparte.
+ */
 
 import { useEffect, useState, useMemo } from "react";
 import { DollarSign, TrendingDown, TrendingUp, AlertCircle, Plus, FileDown } from "lucide-react";
@@ -77,7 +91,6 @@ export default function FinanzasPage() {
 
   const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>("anio");
   const [filtroFecha,   setFiltroFecha]   = useState(() => String(new Date().getFullYear()));
-  // rango de fechas derivado del período para filtrado cliente
   const [rangoFiltro,   setRangoFiltro]   = useState<{ ini?: Date; fin?: Date }>({});
 
   const editarIngreso  = useEditar<any>();
@@ -98,13 +111,11 @@ export default function FinanzasPage() {
     cargarResumen({ tipo_cambio: tipoCambio });
   }, [tipoCambio]);
 
-  // ── Limpiar selección y categoría al cambiar tab ──────────
   useEffect(() => {
     setSeleccionados([]);
     setFiltroCategoria("");
   }, [tab]);
 
-  // ── Handler del filtro de período ─────────────────────────
   const handleFiltroPeriodo = (periodo: FiltroPeriodo, fecha: string) => {
     setFiltroPeriodo(periodo);
     setFiltroFecha(fecha);
@@ -115,7 +126,6 @@ export default function FinanzasPage() {
     });
   };
 
-  // ── Datos filtrados ────────────────────────────────────────
   const dentroDeRango = (fechaStr: string) => {
     if (!rangoFiltro.ini && !rangoFiltro.fin) return true;
     const f = new Date(fechaStr.split("T")[0] + "T12:00:00");
@@ -136,7 +146,6 @@ export default function FinanzasPage() {
     return true;
   }), [prestamos, rangoFiltro, filtroCategoria]);
 
-  // ── Selección dinámica según tab ───────────────────────────
   const listaActual =
     tab === "ingresos"  ? ingresos          :
     tab === "egresos"   ? egresosFiltrados  :
@@ -155,7 +164,6 @@ export default function FinanzasPage() {
   const todosSeleccionados =
     seleccionados.length === listaActual.length && listaActual.length > 0;
 
-  // ── Eliminación masiva ─────────────────────────────────────
   const eliminarSeleccionados = async () => {
     const tipo =
       tab === "ingresos"  ? "ingreso"  :
@@ -174,7 +182,6 @@ export default function FinanzasPage() {
     setSeleccionados([]);
   };
 
-  // ── Guardar ingreso ────────────────────────────────────────
   const handleGuardarIngreso = async () => {
     if (!formIngreso.empresa || !formIngreso.descripcion || !formIngreso.monto_total) return;
     setCargando(true);
@@ -193,7 +200,6 @@ export default function FinanzasPage() {
     finally { setCargando(false); }
   };
 
-  // ── Guardar egreso ─────────────────────────────────────────
   const handleGuardarEgreso = async () => {
     if (!formEgreso.descripcion || !formEgreso.monto) return;
     setCargando(true);
@@ -211,7 +217,6 @@ export default function FinanzasPage() {
     finally { setCargando(false); }
   };
 
-  // ── Guardar préstamo ───────────────────────────────────────
   const handleGuardarPrestamo = async () => {
     if (!formPrestamo.descripcion || !formPrestamo.monto) return;
     setCargando(true);
@@ -228,7 +233,6 @@ export default function FinanzasPage() {
     finally { setCargando(false); }
   };
 
-  // ── Editar ingreso ─────────────────────────────────────────
   const handleGuardarEdicionIngreso = async (form: any) => {
     await editarIngreso.guardar(async () => {
       await actualizarIngreso(editarIngreso.editando!.id, {
@@ -242,7 +246,6 @@ export default function FinanzasPage() {
     });
   };
 
-  // ── Editar egreso ──────────────────────────────────────────
   const handleGuardarEdicionEgreso = async (form: any) => {
     await editarEgreso.guardar(async () => {
       await actualizarEgreso(editarEgreso.editando!.id, {
@@ -255,7 +258,6 @@ export default function FinanzasPage() {
     });
   };
 
-  // ── Editar préstamo ────────────────────────────────────────
   const handleGuardarEdicionPrestamo = async (form: any) => {
     await editarPrestamo.guardar(async () => {
       await actualizarPrestamo(editarPrestamo.editando!.id, {
@@ -268,7 +270,6 @@ export default function FinanzasPage() {
     });
   };
 
-  // ── Exportar Excel ────────────────────────────────────────
   const exportarExcel = () => {
     const wb = XLSX.utils.book_new();
 
@@ -325,7 +326,6 @@ export default function FinanzasPage() {
     XLSX.writeFile(wb, `finanzas_${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
-  // ── Botón header dinámico ──────────────────────────────────
   const handleNuevo = () => {
     if (tab === "ingresos")  setModalIngreso(true);
     if (tab === "egresos")   setModalEgreso(true);
@@ -336,7 +336,7 @@ export default function FinanzasPage() {
     tab === "ingresos"  ? "Agregar ingreso"    :
     tab === "egresos"   ? "Registrar egreso"   : "Registrar préstamo";
 
-  // ── KPIs del header ────────────────────────────────────────
+  // ── KPIs del header (colores que SÍ mapea KpisCards neon) ──
   const totalPorPagarPrestamos = prestamos
     .filter((p: any) => p.estado === "por_pagar")
     .reduce((sum: number, p: any) => sum + Number(p.monto), 0);
@@ -346,7 +346,7 @@ export default function FinanzasPage() {
       label: "Ingresos cobrados",
       valor: `S/ ${Number(resumen.ingresos.total_cobrado).toLocaleString("es-PE")}`,
       icon:  <TrendingUp size={18} />,
-      color: "text-green-600", bg: "bg-green-50",
+      color: "text-emerald-500", bg: "bg-emerald-50",
     },
     {
       label: "Egresos del mes",
@@ -358,15 +358,15 @@ export default function FinanzasPage() {
       label: "Utilidad neta",
       valor: `S/ ${Number(resumen.ingresos.utilidad_neta).toLocaleString("es-PE")}`,
       icon:  <DollarSign size={18} />,
-      color: resumen.ingresos.utilidad_neta >= 0 ? "text-brand" : "text-red-600",
-      bg:    resumen.ingresos.utilidad_neta >= 0 ? "bg-brand/5" : "bg-red-50",
+      color: resumen.ingresos.utilidad_neta >= 0 ? "text-emerald-500" : "text-red-500",
+      bg:    "bg-emerald-50",
     },
     {
       label: "Préstamos por pagar",
       valor: `S/ ${totalPorPagarPrestamos.toLocaleString("es-PE")}`,
       icon:  <AlertCircle size={18} />,
-      color: totalPorPagarPrestamos > 0 ? "text-orange-500" : "text-zinc-600",
-      bg:    totalPorPagarPrestamos > 0 ? "bg-orange-50"    : "bg-gray-50",
+      color: totalPorPagarPrestamos > 0 ? "text-amber-500" : "text-zinc-600",
+      bg:    "bg-amber-50",
     },
   ] : [];
 
@@ -379,18 +379,19 @@ export default function FinanzasPage() {
           <div className="flex items-center gap-3">
             <div className="crm-section-accent h-8" />
             <div>
-              <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Finanzas</h1>
-              <p className="text-xs text-slate-500 mt-0.5">Sistema contable digital personal</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-accent">Finanzas</p>
+              <h1 className="font-display text-2xl font-bold text-zinc-50 tracking-tight">Finanzas</h1>
+              <p className="text-xs text-zinc-500 mt-0.5">Sistema contable digital personal</p>
             </div>
           </div>
           <div className="flex gap-2">
             {(ingresos.length > 0 || egresos.length > 0 || prestamos.length > 0) && (
               <button
                 onClick={exportarExcel}
-                className="relative group p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white transition"
+                className="relative group p-2.5 btn-ghost text-zinc-300"
               >
                 <FileDown size={17} />
-                <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-zinc-900 text-white px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+                <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] bg-[#0a101f] text-zinc-200 px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50" style={{ border: "1px solid rgb(var(--accent) / 0.3)" }}>
                   Exportar Excel
                 </span>
               </button>
@@ -400,7 +401,7 @@ export default function FinanzasPage() {
                 <TableBulkActions count={seleccionados.length} onDelete={eliminarSeleccionados} />
                 <button
                   onClick={handleNuevo}
-                  className="flex items-center gap-1.5 px-3 py-2 text-xs bg-brand hover:bg-brand-hover text-white rounded-lg transition"
+                  className="btn-primary flex items-center gap-1.5 px-4 py-2.5 text-[13px]"
                 >
                   <Plus size={15} />
                   {labelNuevo}
@@ -410,7 +411,7 @@ export default function FinanzasPage() {
           </div>
         </div>
 
-        {/* Filtro de período — parte superior */}
+        {/* Filtro de período */}
         <FiltroPeriodoBotones
           periodo={filtroPeriodo}
           filtroFecha={filtroFecha}
@@ -419,7 +420,7 @@ export default function FinanzasPage() {
       </div>
 
       {/* KPIs */}
-      {resumen && <KpiCards items={kpis} />}
+      {resumen && <KpiCards items={kpis} cols={4} />}
 
       {/* Alertas de vencimiento */}
       <AlertasVencimiento egresos={egresos} prestamos={prestamos} />
@@ -427,7 +428,7 @@ export default function FinanzasPage() {
       {/* Tabs */}
       <TabsFinanzas tab={tab} onChange={setTab} />
 
-      {/* Filtro categoría (solo en egresos/préstamos, no en empresas) */}
+      {/* Filtro categoría */}
       {tab !== "empresas" && (
         <FiltrosFinanzas
           tab={tab}
@@ -484,7 +485,7 @@ export default function FinanzasPage() {
         />
       )}
       {tab === "resumen" && !resumen && (
-        <div className="text-center py-12 text-xs text-zinc-400">Cargando resumen…</div>
+        <div className="text-center py-12 text-xs text-zinc-500">Cargando resumen…</div>
       )}
 
       {tab === "empresas" && <TablaEmpresasAnalisis />}

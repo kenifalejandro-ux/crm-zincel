@@ -1,4 +1,7 @@
-/** client/src/pages/ObjetivosPage.tsx */
+/** client/src/pages/ObjetivosPage.tsx — REDISEÑO NEON (header)
+ * El peso visual está en ObjetivoDiarioGauge (archivo aparte). Aquí solo el header:
+ * kicker + título. Lógica INTACTA.
+ */
 
 import { useEffect, useState } from "react";
 import { ObjetivoDiarioGauge }   from "../components/dashboard/ObjetivoDiarioGauge";
@@ -43,8 +46,9 @@ export default function ObjetivosPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-zinc-100 tracking-tight">Objetivos</h1>
-          <p className="text-xs text-zinc-400 mt-1">Metas operativas diarias — llamadas, reuniones, brochures y propuestas</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-accent">Análisis</p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-zinc-50 tracking-tight mt-1">Objetivos</h1>
+          <p className="text-xs text-zinc-500 mt-1">Metas operativas diarias — llamadas, reuniones, brochures y propuestas</p>
         </div>
         <FiltroPeriodoBotones
           periodo={periodo}

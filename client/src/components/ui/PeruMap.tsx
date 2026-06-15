@@ -1,4 +1,10 @@
-/** client/src/components/ui/PeruMap.tsx — Mapa coroplético reutilizable del Perú */
+/** client/src/components/ui/PeruMap.tsx — Mapa coroplético reutilizable del Perú · NEON
+ * Antes se veía PLANO: stroke="white" en cada departamento, marcadores BLANCOS con
+ * texto negro, fondo claro por defecto, tooltip gris. Ahora: bordes cian translúcidos,
+ * marcadores oscuros con borde de color + glow (halo) dimensionados por volumen,
+ * seleccionado con drop-shadow de acento, tooltip neon. MISMA API (props) → no rompe
+ * a quien lo usa (DashboardMapRegion).
+ */
 
 import { useState, useRef } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
@@ -11,7 +17,7 @@ export function normalizeRegion(s: string): string {
     .toLowerCase()
     .replace(/_/g, " ")
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -71,21 +77,24 @@ export function PeruMap({
   getColor,
   markers,
   selected,
-  selectColor = "#1d4ed8",
+  selectColor = "#06b6d4",
   onSelect,
   height = "clamp(280px, 45vw, 500px)",
-  bgColor = "#f0f9ff",
+  bgColor = "#0a1120",
 }: PeruMapProps) {
   const [tooltip, setTooltip] = useState<{ name: string; x: number; y: number } | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
 
   const markerMap = new Map(markers.map(m => [m.zona, m]));
+  const maxValue  = Math.max(...markers.map(m => m.value), 1);
 
   return (
     <div
       ref={mapRef}
       className="relative w-full h-full rounded-xl overflow-hidden"
-      style={{ backgroundColor: bgColor }}
+      style={{
+        background: `radial-gradient(circle at 50% 30%, rgba(6,182,212,0.06), transparent 70%), ${bgColor}`,
+      }}
       onMouseMove={e => {
         if (!mapRef.current) return;
         const rect = mapRef.current.getBoundingClientRect();
@@ -94,8 +103,13 @@ export function PeruMap({
     >
       {tooltip && (
         <div
-          className="pointer-events-none absolute z-20 bg-zinc-900 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap capitalize"
-          style={{ left: tooltip.x + 12, top: tooltip.y - 32 }}
+          className="pointer-events-none absolute z-20 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap capitalize"
+          style={{
+            left: tooltip.x + 12, top: tooltip.y - 32,
+            background: "rgba(10,16,31,0.95)",
+            border: `1px solid ${selectColor}59`,
+            color: "#e4e4e7",
+          }}
         >
           {tooltip.name}
         </div>
@@ -106,6 +120,21 @@ export function PeruMap({
         projectionConfig={{ scale: 1850, center: [-75, -9.5] }}
         style={{ width: "100%", height }}
       >
+        {/* Filtros de glow */}
+        <defs>
+          <filter id="peru-glow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="3" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <radialGradient id="peru-halo" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stopColor={selectColor} stopOpacity="0.5" />
+            <stop offset="100%" stopColor={selectColor} stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
         <Geographies geography={GEO_URL}>
           {({ geographies }: { geographies: any[] }) =>
             geographies.map(geo => {
@@ -119,25 +148,20 @@ export function PeruMap({
                   key={geo.rsmKey ?? name}
                   geography={geo}
                   fill={isSelected ? selectColor : getColor(norm)}
-                  stroke="white"
-                  strokeWidth={isSelected ? 2.5 : 0.8}
+                  stroke={isSelected ? selectColor : "rgba(120,200,230,0.18)"}
+                  strokeWidth={isSelected ? 1.6 : 0.6}
                   style={{
                     default: {
                       outline: "none",
                       cursor: hasData ? "pointer" : "default",
-                      transform: isSelected ? "scale(1.06)" : "scale(1)",
-                      transformOrigin: "center",
-                      transformBox: "fill-box",
-                      transition: "transform 0.25s ease, fill 0.2s ease",
-                      filter: isSelected ? "drop-shadow(0 3px 6px rgba(0,0,0,0.2))" : "none",
+                      transition: "filter 0.2s ease, fill 0.2s ease, opacity 0.2s ease",
+                      filter: isSelected ? `drop-shadow(0 0 8px ${selectColor})` : "none",
                     },
                     hover: {
                       outline: "none",
-                      opacity: 0.85,
+                      opacity: hasData && !isSelected ? 0.9 : 1,
                       cursor: hasData ? "pointer" : "default",
-                      transform: isSelected ? "scale(1.06)" : (hasData ? "scale(1.03)" : "scale(1)"),
-                      transformOrigin: "center",
-                      transformBox: "fill-box",
+                      filter: hasData && !isSelected ? "brightness(1.3)" : (isSelected ? `drop-shadow(0 0 8px ${selectColor})` : "none"),
                     },
                     pressed: { outline: "none" },
                   }}
@@ -154,31 +178,35 @@ export function PeruMap({
           }
         </Geographies>
 
-        {/* Marcadores numerados */}
+        {/* Marcadores numerados (oscuros con borde + glow, tamaño por volumen) */}
         {markers.map(m => {
-          const coords     = CENTROIDS_PERU[m.zona];
+          const coords = CENTROIDS_PERU[m.zona];
           if (!coords) return null;
           const isSelected = selected === m.zona;
+          const baseColor  = getColor(m.zona);
+          const r          = 7 + (m.value / maxValue) * 11;
           return (
             <Marker
               key={m.zona}
               coordinates={coords}
               onClick={() => onSelect?.(m.zona)}
             >
+              {/* Halo */}
+              <circle r={r + 6} fill="url(#peru-halo)" opacity={isSelected ? 1 : 0.6} style={{ pointerEvents: "none" }} />
+              {/* Punto */}
               <circle
-                r={isSelected ? 17 : 13}
-                fill={isSelected ? selectColor : "white"}
-                fillOpacity={0.95}
-                stroke={isSelected ? selectColor : "#d4d4d8"}
-                strokeWidth={isSelected ? 2.5 : 1}
-                style={{ cursor: "pointer" }}
+                r={isSelected ? r + 2 : r}
+                fill={isSelected ? selectColor : "#0a1322"}
+                stroke={isSelected ? "#ffffff" : baseColor}
+                strokeWidth={isSelected ? 2 : 1.5}
+                style={{ cursor: "pointer", filter: `drop-shadow(0 0 ${isSelected ? 8 : 5}px ${isSelected ? selectColor : baseColor})` }}
               />
               <text
                 textAnchor="middle"
                 dy="0.35em"
-                fontSize={isSelected ? 9 : 8}
+                fontSize={r > 12 ? 10 : 8}
                 fontWeight={700}
-                fill={isSelected ? "white" : "#18181b"}
+                fill={isSelected ? "#04101a" : "#e4f7ff"}
                 style={{ pointerEvents: "none" }}
               >
                 {m.value > 999 ? "999+" : m.value}

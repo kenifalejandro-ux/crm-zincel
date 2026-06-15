@@ -1,4 +1,8 @@
-/** client/src/components/okr/OkrList.tsx */
+/** client/src/components/okr/OkrList.tsx — REDISEÑO NEON
+ * Antes: botones bg-brand, año activo bg-zinc-900, filtros bg-slate-800/60, Q activo
+ * bg-amber-50, badges text-emerald-700/amber-700/red-700, empty Target text-zinc-200.
+ * Ahora: todo neon (filtros con acento, badges translúcidos). Lógica INTACTA.
+ */
 
 import { useEffect, useState } from "react";
 import { Plus, Target, RefreshCw } from "lucide-react";
@@ -6,7 +10,7 @@ import type { Okr } from "../../types/okr.types";
 import { getOkrs, createOkr } from "../../services/okr.api";
 import { OkrCard } from "./OkrCard";
 import { OkrModal } from "./OkrModal";
-import { CARD_CLASS, BADGE_BASE } from "../../lib/tokens";
+import { CARD_CLASS } from "../../lib/tokens";
 
 const anioActual = new Date().getFullYear();
 const mesActual  = new Date().getMonth(); // 0-indexed
@@ -19,6 +23,9 @@ const TRIMESTRES = [
   { q: 3, label: "Q3" },
   { q: 4, label: "Q4" },
 ];
+
+const BTN_ON  = "bg-accent-15 text-accent border border-accent-30";
+const BTN_OFF = "bg-white/[0.04] border border-white/10 text-zinc-500 hover:border-white/20";
 
 export function OkrList() {
   const [okrs,         setOkrs]         = useState<Okr[]>([]);
@@ -60,22 +67,22 @@ export function OkrList() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Target size={14} className="text-brand" />
-          <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">
+          <Target size={14} className="text-accent" />
+          <p className="text-[11px] font-semibold text-zinc-300 uppercase tracking-wider">
             OKRs Corporativos
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={cargar}
-            className="p-1.5 text-zinc-400 hover:text-brand transition rounded-lg hover:bg-zinc-800"
+            className="p-1.5 text-zinc-500 hover:text-accent transition rounded-lg hover:bg-white/[0.05]"
             title="Actualizar"
           >
             <RefreshCw size={13} className={cargando ? "animate-spin" : ""} />
           </button>
           <button
             onClick={() => setNuevoOkr(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand text-white text-xs font-semibold hover:bg-brand/90 transition"
+            className="btn-primary flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold"
           >
             <Plus size={13} />
             Nuevo objetivo
@@ -91,18 +98,14 @@ export function OkrList() {
             <button
               key={a}
               onClick={() => setAnioFiltro(a)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-                anioFiltro === a
-                  ? "bg-zinc-900 text-white"
-                  : "bg-slate-800/60 border border-white/10 text-zinc-500 hover:border-white/15"
-              }`}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${anioFiltro === a ? BTN_ON : BTN_OFF}`}
             >
               {a}
             </button>
           ))}
         </div>
 
-        <div className="w-px h-4 bg-zinc-700" />
+        <div className="w-px h-4 bg-white/10" />
 
         {/* Trimestre */}
         <div className="flex gap-1">
@@ -110,11 +113,7 @@ export function OkrList() {
             <button
               key={t.q}
               onClick={() => setQFiltro(t.q)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-                qFiltro === t.q
-                  ? "bg-amber-50 text-brand border border-brand/30"
-                  : "bg-slate-800/60 border border-white/10 text-zinc-500 hover:border-white/15"
-              }`}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${qFiltro === t.q ? BTN_ON : BTN_OFF}`}
             >
               {t.label}
             </button>
@@ -127,19 +126,19 @@ export function OkrList() {
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-xs text-zinc-400">{resumen.total} objetivo{resumen.total !== 1 ? "s" : ""}</span>
           {resumen.encamino > 0 && (
-            <span className={`${BADGE_BASE} flex items-center gap-1 text-[11px] font-semibold text-emerald-700 px-2 py-0.5`}>
+            <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-300 px-2 py-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               {resumen.encamino} en camino
             </span>
           )}
           {resumen.riesgo > 0 && (
-            <span className={`${BADGE_BASE} flex items-center gap-1 text-[11px] font-semibold text-amber-700 px-2 py-0.5`}>
+            <span className="flex items-center gap-1 text-[11px] font-semibold text-amber-300 px-2 py-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
               {resumen.riesgo} en riesgo
             </span>
           )}
           {resumen.critico > 0 && (
-            <span className={`${BADGE_BASE} flex items-center gap-1 text-[11px] font-semibold text-red-700 px-2 py-0.5`}>
+            <span className="flex items-center gap-1 text-[11px] font-semibold text-red-300 px-2 py-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
               {resumen.critico} crítico{resumen.critico > 1 ? "s" : ""}
             </span>
@@ -150,18 +149,18 @@ export function OkrList() {
       {/* OKR cards */}
       {cargando ? (
         <div className={`${CARD_CLASS} flex items-center justify-center py-8`}>
-          <RefreshCw size={18} className="animate-spin text-zinc-300" />
+          <RefreshCw size={18} className="animate-spin text-zinc-500" />
         </div>
       ) : okrsFiltrados.length === 0 ? (
         <div className={`${CARD_CLASS} text-center py-10`}>
-          <Target size={28} className="mx-auto text-zinc-200 mb-3" />
+          <Target size={28} className="mx-auto text-accent mb-3" />
           <p className="text-sm font-medium text-zinc-400">No hay objetivos para este período</p>
-          <p className="text-xs text-zinc-300 mt-1">
+          <p className="text-xs text-zinc-500 mt-1">
             Crea tu primer OKR para comenzar a medir el progreso corporativo
           </p>
           <button
             onClick={() => setNuevoOkr(true)}
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand/90 transition"
+            className="btn-primary mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold"
           >
             <Plus size={14} />
             Crear primer objetivo

@@ -1,13 +1,26 @@
-/** client/src/components/dashboard/ObjetivoDiarioGauge.tsx */
+/** client/src/components/dashboard/ObjetivoDiarioGauge.tsx — PREMIUM NEON
+ * Antes: react-d3-speedometer con textColor "#18181b" / needleColor "#18181b" (negro =
+ * invisible sobre fondo oscuro) → se veía plano/apagado. Ahora: gauges SVG custom con
+ * arco de progreso + glow, aguja de color y valor central legible. Sin react-d3-speedometer.
+ * Lógica (carga de objetivos, meta editable en localStorage) INTACTA.
+ */
 
 import { GLASS_BASE, INPUT_BASE } from "../../lib/tokens";
 import { useEffect, useState } from "react";
-import ReactSpeedometer, { Transition } from "react-d3-speedometer";
 import { Phone, CalendarDays, FileText, Target, ClipboardList, Pencil, Check, X } from "lucide-react";
 import { getObjetivos } from "../../services/inteligencia.api";
 import type { ObjetivosDiarios } from "../../services/inteligencia.api";
 
 const META_PROPUESTAS_KEY = "dashboard_meta_propuestas";
+
+/** Color por progreso (rojo → verde) */
+function progColor(ratio: number): string {
+  if (ratio >= 1)    return "#34d399";
+  if (ratio >= 0.66) return "#84cc16";
+  if (ratio >= 0.4)  return "#fbbf24";
+  if (ratio >= 0.2)  return "#fb923c";
+  return "#f87171";
+}
 
 function Gauge({ real, meta, label, icon }: {
   real:  number;
@@ -15,43 +28,43 @@ function Gauge({ real, meta, label, icon }: {
   label: string;
   icon:  React.ReactNode;
 }) {
-  const value    = Math.min(real, meta);
+  const ratio    = meta > 0 ? real / meta : 0;
+  const pct      = Math.min(ratio, 1);
   const cumplido = real >= meta;
-  const pct      = meta > 0 ? real / meta : 0;
+  const col      = progColor(ratio);
+
+  const R = 52, cx = 70, cy = 70;
+  const C = Math.PI * R;            // longitud del semicírculo
+  const dash = pct * C;
+  const ang  = Math.PI - pct * Math.PI;   // 180°(izq) → 0°(der)
+  const nx = cx + (R - 6) * Math.cos(ang);
+  const ny = cy - (R - 6) * Math.sin(ang);
 
   return (
     <div className="flex flex-col items-center">
-      <ReactSpeedometer
-        width={200}
-        height={130}
-        minValue={0}
-        maxValue={meta}
-        value={value}
-        needleColor="#18181b"
-        startColor="#ef4444"
-        endColor="#22c55e"
-        segments={5}
-        segmentColors={["#ef4444", "#f97316", "#f59e0b", "#84cc16", "#22c55e"]}
-        needleTransitionDuration={800}
-        needleTransition={Transition.easeBounceOut}
-        currentValueText={`${real} / ${meta}`}
-        textColor="#18181b"
-        valueTextFontSize="13px"
-        labelFontSize="10px"
-        ringWidth={20}
-        paddingHorizontal={6}
-        paddingVertical={6}
-      />
-      <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 -mt-2">
-        <span className={cumplido ? "text-emerald-500" : "text-zinc-400"}>{icon}</span>
-        {label}
+      <div className="relative" style={{ width: 140, height: 92 }}>
+        <svg viewBox="0 0 140 84" className="w-full">
+          {/* track */}
+          <path d={`M ${cx - R} ${cy} A ${R} ${R} 0 0 1 ${cx + R} ${cy}`} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="11" strokeLinecap="round" />
+          {/* progress */}
+          <path d={`M ${cx - R} ${cy} A ${R} ${R} 0 0 1 ${cx + R} ${cy}`}
+            fill="none" stroke={col} strokeWidth="11" strokeLinecap="round"
+            strokeDasharray={`${dash} ${C}`}
+            style={{ filter: `drop-shadow(0 0 5px ${col})`, transition: "stroke-dasharray 0.8s ease" }} />
+          {/* needle */}
+          <line x1={cx} y1={cy} x2={nx} y2={ny} stroke={col} strokeWidth="2.5" strokeLinecap="round" style={{ filter: `drop-shadow(0 0 3px ${col})` }} />
+          <circle cx={cx} cy={cy} r="4" fill="#0a1120" stroke={col} strokeWidth="1.5" />
+        </svg>
+        <div className="absolute inset-x-0 flex flex-col items-center" style={{ bottom: 8 }}>
+          <span className="font-display text-lg font-bold tabular-nums leading-none" style={{ color: col, textShadow: `0 0 10px ${col}66` }}>
+            {real}<span className="text-zinc-600 text-sm">/{meta}</span>
+          </span>
+        </div>
       </div>
-      <p className={`text-xs font-bold mt-1 ${
-        cumplido       ? "text-emerald-500"
-        : pct >= 0.55  ? "text-emerald-400"
-        : pct >= 0.35  ? "text-amber-500"
-        : "text-red-500"
-      }`}>
+      <div className="flex items-center gap-1.5 text-xs font-semibold mt-1" style={{ color: cumplido ? "#34d399" : "#a1a1aa" }}>
+        {icon} {label}
+      </div>
+      <p className="text-[11px] font-bold mt-1" style={{ color: cumplido ? "#34d399" : col }}>
         {cumplido ? "✓ Meta alcanzada" : `Restante: ${meta - real}`}
       </p>
     </div>
@@ -66,7 +79,6 @@ const LABEL_PERIODO: Record<string, string> = {
   dia:    "Objetivos del día",
 };
 
-// ─── Componente principal ─────────────────────────────────────────────────────
 interface ObjetivoDiarioGaugeProps {
   filtroPeriodo?:    string;
   mesSeleccionado?:  { mes: number; anio: number };
@@ -116,35 +128,35 @@ export function ObjetivoDiarioGauge({
   const label = LABEL_PERIODO[filtroPeriodo ?? "mes"] ?? "Objetivos del mes";
 
   return (
-    <div className={`${GLASS_BASE} p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06),_0_4px_16px_rgba(0,0,0,0.04)]`}>
-      <div className="flex items-center gap-2 mb-1">
-        <Target size={14} className="text-brand" />
-        <p className="text-xs font-bold text-zinc-100 uppercase tracking-wider">{label}</p>
+    <div className={`${GLASS_BASE} p-5`}>
+      <div className="flex items-center gap-2 mb-4">
+        <Target size={14} className="text-accent" />
+        <p className="text-xs font-bold text-zinc-300 uppercase tracking-wider">{label}</p>
       </div>
-      <div className="grid grid-cols-4 gap-2 justify-items-center">
-        <Gauge real={obj.llamadas_hoy}  meta={obj.llamadas_meta}  label="Llamadas"  icon={<Phone size={12}/>} />
-        <Gauge real={obj.reuniones_hoy} meta={obj.reuniones_meta} label="Reuniones" icon={<CalendarDays size={12}/>} />
-        <Gauge real={obj.brochures_hoy} meta={obj.brochures_meta} label="Brochures" icon={<FileText size={12}/>} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center">
+        <Gauge real={obj.llamadas_hoy}  meta={obj.llamadas_meta}  label="Llamadas"  icon={<Phone size={12} />} />
+        <Gauge real={obj.reuniones_hoy} meta={obj.reuniones_meta} label="Reuniones" icon={<CalendarDays size={12} />} />
+        <Gauge real={obj.brochures_hoy} meta={obj.brochures_meta} label="Brochures" icon={<FileText size={12} />} />
         <div className="flex flex-col items-center">
-          <Gauge real={propuestasHoy} meta={metaPropuestas} label="Propuestas" icon={<ClipboardList size={12}/>} />
+          <Gauge real={propuestasHoy} meta={metaPropuestas} label="Propuestas" icon={<ClipboardList size={12} />} />
           {!editando ? (
             <button
               onClick={() => { setInput(String(metaPropuestas)); setEditando(true); }}
-              className="flex items-center gap-1 text-[10px] text-zinc-400 hover:text-brand transition mt-0.5"
+              className="flex items-center gap-1 text-[10px] text-zinc-500 hover:text-accent transition mt-1"
             >
               <Pencil size={9} /> Meta: {metaPropuestas}/mes
             </button>
           ) : (
-            <div className="flex items-center gap-1 mt-0.5">
+            <div className="flex items-center gap-1 mt-1">
               <input
                 type="number" min={1} value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") guardarMeta(); if (e.key === "Escape") setEditando(false); }}
-                className={`${INPUT_BASE} w-12 text-[11px] px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-brand/40 text-center`}
+                className={`${INPUT_BASE} w-12 text-[11px] px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-accent/40 text-center`}
                 autoFocus
               />
               <button onClick={() => setEditando(false)}><X size={11} className="text-zinc-400" /></button>
-              <button onClick={guardarMeta}><Check size={11} className="text-brand" /></button>
+              <button onClick={guardarMeta}><Check size={11} className="text-accent" /></button>
             </div>
           )}
         </div>

@@ -1,4 +1,8 @@
-/** client/src/components/inteligencia/LeadScatterChart.tsx */
+/** client/src/components/inteligencia/LeadScatterChart.tsx — NEON
+ * Antes: spinner border-brand, ReferenceLine de cuadrantes stroke="#f4f4f5" (líneas claras
+ * invisibles/feas sobre dark), border-white/8. Ahora: neon. El scatter ya usaba useChartColors
+ * (grid/axis/colores de nivel). Lógica/datos INTACTOS.
+ */
 
 import { useEffect, useState } from "react";
 import { CARD_CLASS, HEADER_CLASS, TOOLTIP_BASE } from "../../lib/tokens";
@@ -12,7 +16,6 @@ import { Target } from "lucide-react";
 import { getScoresLeads } from "../../services/prospectos.api";
 import type { ScoreLead } from "../../services/prospectos.api";
 
-/** Colores vivos: leen las variables CSS en cada acceso (responden al Tweaks). */
 const NIVEL_COLOR: Record<string, string> = {
   get caliente() { return accentRgb(); },
   get activo()   { return readCssVar("--chart-2", "#a855f7"); },
@@ -20,21 +23,12 @@ const NIVEL_COLOR: Record<string, string> = {
   get frio()     { return readCssVar("--chart-danger", "#f87171"); },
 };
 
-const NIVEL_LABEL: Record<string, string> = {
-  caliente: "Caliente",
-  activo:   "Activo",
-  tibio:    "Tibio",
-  frio:     "Frío",
-};
+const NIVEL_LABEL: Record<string, string> = { caliente: "Caliente", activo: "Activo", tibio: "Tibio", frio: "Frío" };
 
 const ETAPA_LABEL: Record<string, string> = {
-  nuevo:             "Nuevo",
-  contactado:        "Contactado",
-  interesado:        "Interesado",
-  propuesta_enviada: "Propuesta",
-  negociacion:       "Negociación",
-  cerrado_ganado:    "Cerrado",
-  perdido:           "Perdido",
+  nuevo: "Nuevo", contactado: "Contactado", interesado: "Interesado",
+  propuesta_enviada: "Propuesta", negociacion: "Negociación",
+  cerrado_ganado: "Cerrado", perdido: "Perdido",
 };
 
 const TooltipScatter = ({ active, payload }: any) => {
@@ -48,12 +42,7 @@ const TooltipScatter = ({ active, payload }: any) => {
         <p>Score: <span className="font-bold text-zinc-100">{d.score}</span></p>
         <p>Días en pipeline: <span className="font-bold text-zinc-100">{d.dias_en_pipeline}</span></p>
         <p>Etapa: <span className="font-medium">{ETAPA_LABEL[d.etapa_pipeline] ?? d.etapa_pipeline}</span></p>
-        <p>
-          Nivel:{" "}
-          <span className="font-bold" style={{ color: NIVEL_COLOR[d.nivel] }}>
-            {NIVEL_LABEL[d.nivel] ?? d.nivel}
-          </span>
-        </p>
+        <p>Nivel: <span className="font-bold" style={{ color: NIVEL_COLOR[d.nivel] }}>{NIVEL_LABEL[d.nivel] ?? d.nivel}</span></p>
       </div>
     </div>
   );
@@ -63,20 +52,17 @@ const NIVELES = ["caliente", "activo", "tibio", "frio"] as const;
 
 export function LeadScatterChart() {
   const c = useChartColors();
-  const [leads, setLeads]       = useState<ScoreLead[]>([]);
+  const [leads, setLeads] = useState<ScoreLead[]>([]);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    getScoresLeads()
-      .then(setLeads)
-      .catch(console.error)
-      .finally(() => setCargando(false));
+    getScoresLeads().then(setLeads).catch(console.error).finally(() => setCargando(false));
   }, []);
 
   if (cargando) {
     return (
       <div className={`${CARD_CLASS} flex items-center justify-center h-48`}>
-        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-brand" />
+        <div className="animate-spin rounded-full h-5 w-5 border-2 border-t-transparent" style={{ borderColor: "rgb(var(--accent))", borderTopColor: "transparent" }} />
       </div>
     );
   }
@@ -93,7 +79,7 @@ export function LeadScatterChart() {
   return (
     <div className={CARD_CLASS}>
       <h3 className={HEADER_CLASS}>
-        <Target size={14} className="mr-2.5 text-rose-500" strokeWidth={2} />
+        <Target size={14} className="mr-2.5 text-rose-400" strokeWidth={2} />
         Score de leads vs. tiempo en pipeline
       </h3>
       <p className="text-[11px] text-zinc-500 mb-4 -mt-3">
@@ -103,56 +89,30 @@ export function LeadScatterChart() {
       <ResponsiveContainer width="100%" height={280}>
         <ScatterChart margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
-          <XAxis
-            type="number"
-            dataKey="score"
-            name="Score"
-            domain={[0, 100]}
-            tick={{ fontSize: 11, fill: c.axis }}
-            tickLine={false}
-            axisLine={false}
-            label={{ value: "Score", position: "insideBottom", offset: -2, fontSize: 10, fill: c.axis }}
-          />
-          <YAxis
-            type="number"
-            dataKey="dias_en_pipeline"
-            name="Días"
-            domain={[0, maxDias + 5]}
-            tick={{ fontSize: 11, fill: c.axis }}
-            tickLine={false}
-            axisLine={false}
-            label={{ value: "Días", angle: -90, position: "insideLeft", offset: 10, fontSize: 10, fill: c.axis }}
-          />
+          <XAxis type="number" dataKey="score" name="Score" domain={[0, 100]}
+            tick={{ fontSize: 11, fill: c.axis }} tickLine={false} axisLine={false}
+            label={{ value: "Score", position: "insideBottom", offset: -2, fontSize: 10, fill: c.axis }} />
+          <YAxis type="number" dataKey="dias_en_pipeline" name="Días" domain={[0, maxDias + 5]}
+            tick={{ fontSize: 11, fill: c.axis }} tickLine={false} axisLine={false}
+            label={{ value: "Días", angle: -90, position: "insideLeft", offset: 10, fontSize: 10, fill: c.axis }} />
           <ZAxis range={[40, 40]} />
-          {/* Cuadrantes: score 50, días = mediana */}
-          <ReferenceLine x={50} stroke="#f4f4f5" strokeDasharray="4 3" strokeWidth={1} />
-          <ReferenceLine y={Math.round(maxDias / 2)} stroke="#f4f4f5" strokeDasharray="4 3" strokeWidth={1} />
+          <ReferenceLine x={50} stroke="rgba(255,255,255,0.12)" strokeDasharray="4 3" strokeWidth={1} />
+          <ReferenceLine y={Math.round(maxDias / 2)} stroke="rgba(255,255,255,0.12)" strokeDasharray="4 3" strokeWidth={1} />
           <Tooltip content={<TooltipScatter />} cursor={{ strokeDasharray: "3 3" }} />
-          <Legend
-            wrapperStyle={{ fontSize: 11, paddingTop: 12 }}
-            formatter={(value) => NIVEL_LABEL[value] ?? value}
-          />
+          <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} formatter={(value) => NIVEL_LABEL[value] ?? value} />
           {NIVELES.map(nivel => (
             byNivel[nivel].length > 0 && (
-              <Scatter filter="url(#neon-glow)"
-                key={nivel}
-                name={nivel}
-                data={byNivel[nivel]}
-                fill={NIVEL_COLOR[nivel]}
-                fillOpacity={0.8}
-              />
+              <Scatter filter="url(#neon-glow)" key={nivel} name={nivel} data={byNivel[nivel]} fill={NIVEL_COLOR[nivel]} fillOpacity={0.8} />
             )
           ))}
         </ScatterChart>
       </ResponsiveContainer>
 
       {/* Mini resumen por nivel */}
-      <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/8">
+      <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/[0.08]">
         {NIVELES.map(n => (
           <div key={n} className="text-center">
-            <p className="text-lg font-bold" style={{ color: NIVEL_COLOR[n] }}>
-              {byNivel[n].length}
-            </p>
+            <p className="font-display text-lg font-bold tabular-nums" style={{ color: NIVEL_COLOR[n], textShadow: `0 0 10px ${NIVEL_COLOR[n]}55` }}>{byNivel[n].length}</p>
             <p className="text-[10px] text-zinc-500">{NIVEL_LABEL[n]}</p>
           </div>
         ))}

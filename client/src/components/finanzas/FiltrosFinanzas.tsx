@@ -1,13 +1,9 @@
-/** client/src/components/finanzas/FiltrosFinanzas.tsx */
+/** client/src/components/finanzas/FiltrosFinanzas.tsx — NEON
+ * Antes: select INPUT_BASE con focus:ring-brand. Ahora: neon-input + acento. Lógica INTACTA.
+ */
 
-import { INPUT_BASE } from "../../lib/tokens";
 import type { TabFinanzas } from "./TabsFinanzas";
 import type { CategoriaEgreso, CategoriaPrestamo } from "../../types/finanzas.types";
-
-const MESES = [
-  "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
-];
 
 const CATEGORIAS_EGRESO: { value: CategoriaEgreso; label: string }[] = [
   { value: "publicidad_digital",      label: "Publicidad digital"      },
@@ -27,22 +23,6 @@ const CATEGORIAS_PRESTAMO: { value: CategoriaPrestamo; label: string }[] = [
   { value: "otro",                    label: "Otro"                    },
 ];
 
-function generarMeses(cuantos = 18) {
-  const opciones: { mes: number; anio: number; label: string }[] = [];
-  const hoy = new Date();
-  for (let i = 0; i < cuantos; i++) {
-    const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
-    opciones.push({
-      mes:   d.getMonth() + 1,
-      anio:  d.getFullYear(),
-      label: `${MESES[d.getMonth()]} ${d.getFullYear()}`,
-    });
-  }
-  return opciones;
-}
-
-const OPCIONES_MES = generarMeses();
-
 interface Props {
   tab:                TabFinanzas;
   filtroMes:          number;
@@ -61,11 +41,10 @@ export function FiltrosFinanzas({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {/* Filtro por categoría */}
       <select
         value={filtroCategoria}
         onChange={e => onCategoriaChange(e.target.value)}
-        className={`${INPUT_BASE} text-xs px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/50 text-zinc-400`}
+        className="neon-input text-xs px-3 py-2"
       >
         <option value="">Todas las categorías</option>
         {categorias.map(c => (
@@ -76,7 +55,7 @@ export function FiltrosFinanzas({
       {filtroCategoria && (
         <button
           onClick={() => onCategoriaChange("")}
-          className="text-xs text-zinc-400 hover:text-zinc-400 underline transition"
+          className="text-xs text-zinc-500 hover:text-accent underline transition"
         >
           Limpiar
         </button>

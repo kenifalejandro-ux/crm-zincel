@@ -1,14 +1,19 @@
-/** client/src/components/inteligencia/ForecastIngresos.tsx */
+/** client/src/components/inteligencia/ForecastIngresos.tsx — PREMIUM NEON
+ * Antes: STAGE_CONFIG en tema claro (bg-zinc-50/bg-amber-50/bg-zinc-900), KPI "Pipeline total"
+ * bg-zinc-900 + text-zinc-100 lavado, "Ingreso esperado" bg-amber-50, icono bg-amber-50.
+ * Ahora: tiles y KPIs neon con glow. Lógica/datos INTACTOS.
+ */
 
 import { CARD_CLASS, HEADER_CLASS } from "../../lib/tokens";
 import { useEffect, useState } from "react";
 import { TrendingUp } from "lucide-react";
 import { getForecastIngresos, type ForecastIngresos } from "../../services/inteligencia.api";
 
-const STAGE_CONFIG: Record<string, { bg: string; num: string; badge: string; badgeText: string }> = {
-  enviada:        { bg: "bg-zinc-50",    num: "text-zinc-800",   badge: "bg-zinc-200",   badgeText: "text-zinc-600"   },
-  en_negociacion: { bg: "bg-amber-50",   num: "text-amber-700",  badge: "bg-amber-200",  badgeText: "text-amber-700"  },
-  cerrada_ganada: { bg: "bg-zinc-900",   num: "text-white",      badge: "bg-zinc-700",   badgeText: "text-zinc-100"   },
+// hex por etapa
+const STAGE_HEX: Record<string, string> = {
+  enviada:        "#94a3b8",
+  en_negociacion: "#fbbf24",
+  cerrada_ganada: "#34d399",
 };
 
 function fmt(n: number) {
@@ -30,27 +35,27 @@ export function ForecastIngresosChart() {
     <div className={CARD_CLASS}>
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-amber-50">
-            <TrendingUp size={14} className="text-amber-500" />
+          <div className="p-1.5 rounded-lg" style={{ background: "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.3)" }}>
+            <TrendingUp size={14} className="text-amber-400" />
           </div>
           <div>
             <h3 className={HEADER_CLASS}>Forecast de ingresos ponderado</h3>
-            <p className="text-[11px] text-zinc-400">Pipeline × probabilidad de cierre</p>
+            <p className="text-[11px] text-zinc-500">Pipeline × probabilidad de cierre</p>
           </div>
         </div>
       </div>
 
       {/* Total KPI */}
       <div className="grid grid-cols-2 gap-3 mb-5">
-        <div className="text-center bg-zinc-900 rounded-2xl py-4">
-          <p className="text-[10px] text-zinc-100 uppercase tracking-widest font-semibold">Pipeline total</p>
-          <p className="text-3xl font-bold text-white mt-1">{fmt(data.total_sin_ponderar)}</p>
+        <div className="text-center rounded-2xl py-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold">Pipeline total</p>
+          <p className="font-display text-3xl font-bold text-zinc-50 mt-1 tabular-nums">{fmt(data.total_sin_ponderar)}</p>
           <p className="text-[10px] text-zinc-500 mt-0.5">Monto real en juego</p>
         </div>
-        <div className="text-center bg-amber-50 border border-amber-100 rounded-2xl py-4">
-          <p className="text-[10px] text-amber-600 uppercase tracking-widest font-semibold">Ingreso esperado</p>
-          <p className="text-3xl font-bold text-amber-700 mt-1">{fmt(data.total_ponderado)}</p>
-          <p className="text-[10px] text-amber-500 mt-0.5">
+        <div className="text-center rounded-2xl py-4" style={{ background: "rgb(var(--accent) / 0.07)", border: "1px solid rgb(var(--accent) / 0.25)" }}>
+          <p className="text-[10px] text-accent uppercase tracking-widest font-semibold">Ingreso esperado</p>
+          <p className="font-display text-3xl font-bold text-accent mt-1 tabular-nums" style={{ textShadow: "0 0 18px rgb(var(--accent) / calc(0.5*var(--glow)))" }}>{fmt(data.total_ponderado)}</p>
+          <p className="text-[10px] text-zinc-500 mt-0.5">
             {data.tasa_cierre_real != null
               ? `Tu tasa real de cierre: ${data.tasa_cierre_real}%`
               : "Sin historial de cierre aún"}
@@ -61,18 +66,15 @@ export function ForecastIngresosChart() {
       {/* Tiles por etapa */}
       <div className="grid grid-cols-3 gap-3">
         {data.desglose.map((d) => {
-          const cfg = STAGE_CONFIG[d.estado] ?? { bg: "bg-zinc-50", num: "text-zinc-800", badge: "bg-zinc-200", badgeText: "text-zinc-600" };
-          const isWhite = d.estado === "cerrada_ganada";
+          const hex = STAGE_HEX[d.estado] ?? "#94a3b8";
           return (
-            <div key={d.estado} className={`${cfg.bg} rounded-2xl p-3 flex flex-col items-center gap-1.5 text-center`}>
-              <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${cfg.badge} ${cfg.badgeText}`}>
+            <div key={d.estado} className="rounded-2xl p-3 flex flex-col items-center gap-1.5 text-center" style={{ background: `${hex}10`, border: `1px solid ${hex}2e` }}>
+              <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ color: hex, background: `${hex}1f`, border: `1px solid ${hex}40` }}>
                 {d.prob}%
               </span>
-              <p className={`text-xl font-bold leading-none ${cfg.num}`}>{fmt(d.monto_total)}</p>
-              <p className={`text-[11px] font-medium ${isWhite ? "text-zinc-300" : "text-zinc-400"}`}>{d.label}</p>
-              <p className={`text-[10px] ${isWhite ? "text-zinc-500" : "text-zinc-400"}`}>
-                {d.cantidad} prop.
-              </p>
+              <p className="font-display text-xl font-bold leading-none tabular-nums" style={{ color: hex, textShadow: `0 0 10px ${hex}55` }}>{fmt(d.monto_total)}</p>
+              <p className="text-[11px] font-medium text-zinc-300">{d.label}</p>
+              <p className="text-[10px] text-zinc-500">{d.cantidad} prop.</p>
             </div>
           );
         })}

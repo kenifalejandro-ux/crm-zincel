@@ -1,14 +1,13 @@
-/** client/src/components/finanzas/BadgeEstado.tsx */
-
+/** client/src/components/finanzas/BadgeEstado.tsx — NEON
+ * Antes: chips tema claro (bg-green-50/yellow-50/red-50/red-100). Ahora: translúcidos neon.
+ */
 import type { EstadoIngreso, EstadoEgreso } from "../../types/finanzas.types";
 
-// ── Ingresos ──────────────────────────────────────────────────
-
 const INGRESO_CONFIG: Record<EstadoIngreso, { label: string; class: string; dot: string }> = {
-  cobrado:         { label: "Cobrado",         class: "bg-green-50 text-green-700 border-green-200",    dot: "bg-green-500" },
-  cobrado_parcial: { label: "Cobrado parcial", class: "bg-yellow-50 text-yellow-700 border-yellow-200", dot: "bg-yellow-500" },
-  por_cobrar:      { label: "Por cobrar",      class: "bg-red-50 text-red-600 border-red-200",          dot: "bg-red-500" },
-  vencido:         { label: "Vencido",         class: "bg-red-100 text-red-800 border-red-300",         dot: "bg-red-700 animate-pulse" },
+  cobrado:         { label: "Cobrado",         class: "bg-emerald-500/12 text-emerald-300 border-emerald-500/30", dot: "bg-emerald-400" },
+  cobrado_parcial: { label: "Cobrado parcial", class: "bg-amber-500/12 text-amber-300 border-amber-500/30",       dot: "bg-amber-400" },
+  por_cobrar:      { label: "Por cobrar",      class: "bg-red-500/12 text-red-300 border-red-500/30",             dot: "bg-red-400" },
+  vencido:         { label: "Vencido",         class: "bg-red-500/18 text-red-200 border-red-500/40",             dot: "bg-red-500 animate-pulse" },
 };
 
 export function BadgeEstadoIngreso({ estado }: { estado: EstadoIngreso }) {
@@ -21,11 +20,9 @@ export function BadgeEstadoIngreso({ estado }: { estado: EstadoIngreso }) {
   );
 }
 
-// ── Egresos ───────────────────────────────────────────────────
-
 const EGRESO_CONFIG: Record<EstadoEgreso, { label: string; class: string; dot: string }> = {
-  pagado:   { label: "Pagado",   class: "bg-green-50 text-green-700 border-green-200", dot: "bg-green-500" },
-  pendiente: { label: "Pendiente", class: "bg-red-50 text-red-600 border-red-200",      dot: "bg-red-500" },
+  pagado:    { label: "Pagado",    class: "bg-emerald-500/12 text-emerald-300 border-emerald-500/30", dot: "bg-emerald-400" },
+  pendiente: { label: "Pendiente", class: "bg-red-500/12 text-red-300 border-red-500/30",             dot: "bg-red-400" },
 };
 
 export function BadgeEstadoEgreso({ estado }: { estado: EstadoEgreso }) {

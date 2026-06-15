@@ -1,4 +1,14 @@
-/** client/src/pages/ResultadosPage.tsx */
+/** client/src/pages/ResultadosPage.tsx — REDISEÑO NEON
+ * Cambios SOLO de presentación. Lógica (carga, filtros, alta/edición/borrado,
+ * atribución multi-campaña, KPIs) INTACTA.
+ *
+ * Migrado de tema claro → neon:
+ *  - KPIs: ahora con chip de icono + número con glow (antes labels text-zinc-100 lavados).
+ *  - CONFIANZA_CFG: bg-emerald-50/amber-50/zinc-50 → chips translúcidos neon.
+ *  - Tablas "por empresa" y principal: thead/divide/hover de tema claro → neon.
+ *  - Modal: error bg-red-50, lista de campañas bg-violet-50, botones bg-brand → neon.
+ *  - Fix typo del build: hover:bg-white/8/5/60 → hover:bg-white/[0.03].
+ */
 
 import { useEffect, useState } from "react";
 import { Trophy, Plus, Trash2, Pencil, TrendingUp, DollarSign, ShoppingBag, Check, HelpCircle } from "lucide-react";
@@ -26,20 +36,20 @@ const S = (v: number) => `S/ ${v.toLocaleString("es-PE", { minimumFractionDigits
 const CONFIANZA_CFG: Record<ConfianzaAtribucion, { label: string; color: string; bg: string; desc: string }> = {
   confirmada: {
     label: "Confirmada",
-    color: "text-emerald-700",
-    bg:    "bg-emerald-50 border-emerald-200",
+    color: "text-emerald-300",
+    bg:    "bg-emerald-500/12 border-emerald-500/30",
     desc:  "Sabes exactamente qué campaña cerró la venta",
   },
   probable: {
     label: "Probable",
-    color: "text-amber-700",
-    bg:    "bg-amber-50 border-amber-200",
+    color: "text-amber-300",
+    bg:    "bg-amber-500/12 border-amber-500/30",
     desc:  "La campaña es la más probable pero no es seguro",
   },
   sin_datos: {
     label: "Sin datos",
-    color: "text-zinc-500",
-    bg:    "bg-zinc-50 border-zinc-200",
+    color: "text-zinc-400",
+    bg:    "bg-white/[0.05] border-white/10",
     desc:  "No se puede identificar la campaña de origen",
   },
 };
@@ -127,7 +137,6 @@ export default function ResultadosPage() {
   // ── Guardar ──────────────────────────────────────────────────────────────
   const guardar = async () => {
     if (!form.empresa || form.monto <= 0 || !form.fecha_venta) return;
-    // Si sin_datos, nombre de campaña por defecto
     const payload: ResultadoInput = {
       ...form,
       campana_nombre: form.metrica_ids.length > 0
@@ -173,6 +182,14 @@ export default function ResultadosPage() {
     return acc;
   }, {});
 
+  const KPIS = [
+    { label: "Total ingresos atribuidos", value: S(totalIngresos), Icon: DollarSign, hex: "#34d399" },
+    { label: "Total ventas registradas",  value: String(totalVentas), Icon: ShoppingBag, hex: "accent" },
+    { label: "Ticket promedio",           value: S(ticketPromedio), Icon: TrendingUp, hex: "#a855f7" },
+  ];
+  const solid = (h: string) => h === "accent" ? "rgb(var(--accent))" : h;
+  const glow  = (h: string) => h === "accent" ? "rgb(var(--accent) / calc(0.45*var(--glow)))" : `${h}55`;
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
 
@@ -181,42 +198,40 @@ export default function ResultadosPage() {
         <div className="flex items-center gap-3">
           <div className="crm-section-accent h-8" />
           <div>
-            <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Resultados de campaña</h1>
-            <p className="text-xs text-slate-400 mt-0.5">Ventas atribuidas a campañas publicitarias</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-accent">Comercial</p>
+            <h1 className="font-display text-2xl font-bold text-zinc-50 tracking-tight">Resultados de campaña</h1>
+            <p className="text-xs text-zinc-500 mt-0.5">Ventas atribuidas a campañas publicitarias</p>
           </div>
         </div>
-        <button
-          onClick={abrirNuevo}
-          className="flex items-center gap-2 px-4 py-2 bg-brand text-white text-sm font-medium rounded-xl hover:bg-brand-hover transition"
-        >
+        <button onClick={abrirNuevo} className="btn-primary flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl">
           <Plus size={15} /> Registrar venta
         </button>
       </div>
 
       {/* ── KPIs ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className={`${GLASS_BASE} px-5 py-5 space-y-1.5`}>
-          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-widest flex items-center gap-1.5"><DollarSign size={11}/> Total ingresos atribuidos</p>
-          <p className="text-3xl font-black text-green-600 tabular-nums leading-tight">{S(totalIngresos)}</p>
-        </div>
-        <div className={`${GLASS_BASE} px-5 py-5 space-y-1.5`}>
-          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-widest flex items-center gap-1.5"><ShoppingBag size={11}/> Total ventas registradas</p>
-          <p className="text-3xl font-black text-blue-600 tabular-nums leading-tight">{totalVentas}</p>
-        </div>
-        <div className={`${GLASS_BASE} px-5 py-5 space-y-1.5`}>
-          <p className="text-[10px] font-semibold text-zinc-100 uppercase tracking-widest flex items-center gap-1.5"><TrendingUp size={11}/> Ticket promedio</p>
-          <p className="text-3xl font-black text-violet-600 tabular-nums leading-tight">{S(ticketPromedio)}</p>
-        </div>
+        {KPIS.map((k) => (
+          <div key={k.label} className={`${GLASS_BASE} px-5 py-5`}>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                   style={{ background: k.hex === "accent" ? "rgb(var(--accent) / 0.12)" : `${k.hex}1a`, border: `1px solid ${k.hex === "accent" ? "rgb(var(--accent) / 0.3)" : k.hex + "40"}`, color: solid(k.hex) }}>
+                <k.Icon size={16} />
+              </div>
+              <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest leading-tight">{k.label}</p>
+            </div>
+            <p className="font-display text-3xl font-bold tabular-nums leading-tight" style={{ color: solid(k.hex), textShadow: `0 0 16px ${glow(k.hex)}` }}>{k.value}</p>
+          </div>
+        ))}
       </div>
 
       {/* ── Resumen por empresa ── */}
       {Object.keys(porEmpresa).length > 0 && (
         <div className={`${GLASS_BASE} overflow-hidden`}>
-          <div className="px-5 py-4 border-b border-white/8">
-            <p className="text-sm font-bold text-slate-200">Por empresa</p>
+          <div className="px-5 py-4 border-b border-white/[0.08]">
+            <p className="text-sm font-bold text-zinc-200">Por empresa</p>
           </div>
           <table className="w-full text-xs">
-            <thead className="bg-slate-800/40 text-zinc-100 uppercase text-[10px]">
+            <thead className="border-b border-white/[0.08] text-zinc-500 uppercase text-[10px]">
               <tr>
                 <th className="px-5 py-2.5 text-left font-semibold">Empresa</th>
                 <th className="px-4 py-2.5 text-right font-semibold">Ventas</th>
@@ -224,13 +239,13 @@ export default function ResultadosPage() {
                 <th className="px-4 py-2.5 text-right font-semibold">Ticket promedio</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y divide-white/[0.05]">
               {Object.entries(porEmpresa).map(([emp, d]) => (
-                <tr key={emp} className="hover:bg-white/8/5/60 transition">
-                  <td className="px-5 py-3 font-semibold text-slate-200">{emp}</td>
-                  <td className="px-4 py-3 text-right text-blue-600 font-medium">{d.ventas}</td>
-                  <td className="px-4 py-3 text-right text-green-600 font-bold">{S(d.ingresos)}</td>
-                  <td className="px-4 py-3 text-right text-slate-400">{S(d.ingresos / d.ventas)}</td>
+                <tr key={emp} className="hover:bg-white/[0.03] transition">
+                  <td className="px-5 py-3 font-semibold text-zinc-200">{emp}</td>
+                  <td className="px-4 py-3 text-right text-accent font-medium">{d.ventas}</td>
+                  <td className="px-4 py-3 text-right text-emerald-400 font-bold">{S(d.ingresos)}</td>
+                  <td className="px-4 py-3 text-right text-zinc-400">{S(d.ingresos / d.ventas)}</td>
                 </tr>
               ))}
             </tbody>
@@ -245,7 +260,7 @@ export default function ResultadosPage() {
           <select
             value={filtroEmp}
             onChange={(e) => setFiltroEmp(e.target.value)}
-            className={`${INPUT_BASE} text-xs px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand/30`}
+            className={`${INPUT_BASE} text-xs px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent/30`}
           >
             <option value="">Todas las empresas</option>
             {empresas.map((e) => <option key={e} value={e}>{e}</option>)}
@@ -254,18 +269,18 @@ export default function ResultadosPage() {
 
         <div className={`${GLASS_BASE} overflow-hidden`}>
           {loading ? (
-            <div className="p-10 text-center text-zinc-400 text-sm">Cargando...</div>
+            <div className="p-10 text-center text-zinc-500 text-sm">Cargando...</div>
           ) : errorCarga ? (
-            <div className="p-6 text-center text-red-500 text-xs font-mono bg-red-50">{errorCarga}</div>
+            <div className="p-6 text-center text-red-300 text-xs font-mono bg-red-500/[0.08]">{errorCarga}</div>
           ) : resultados.length === 0 ? (
             <div className="p-10 text-center space-y-2">
-              <Trophy size={32} className="text-zinc-200 mx-auto" />
+              <Trophy size={32} className="text-accent mx-auto" />
               <p className="text-sm text-zinc-400">Sin ventas registradas aún</p>
-              <button onClick={abrirNuevo} className="text-xs text-brand hover:underline">Registrar primera venta</button>
+              <button onClick={abrirNuevo} className="text-xs text-accent hover:underline">Registrar primera venta</button>
             </div>
           ) : (
             <table className="w-full text-xs">
-              <thead className="bg-zinc-800/40 text-zinc-100 uppercase text-[10px]">
+              <thead className="border-b border-white/[0.08] text-zinc-500 uppercase text-[10px]">
                 <tr>
                   <th className="px-5 py-2.5 text-left font-medium">Empresa</th>
                   <th className="px-4 py-2.5 text-left font-medium">Campaña(s)</th>
@@ -278,7 +293,7 @@ export default function ResultadosPage() {
                   <th className="px-4 py-2.5"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-white/[0.05]">
                 {resultados.map((r) => {
                   const monto    = Number(r.monto);
                   const costo    = Number(r.costo_venta ?? 0);
@@ -287,18 +302,18 @@ export default function ResultadosPage() {
                   const confCfg  = CONFIANZA_CFG[conf];
                   const numCamps = r.metrica_ids?.length ?? (r.metrica_id ? 1 : 0);
                   return (
-                    <tr key={r.id} className="hover:bg-zinc-800/40 transition">
+                    <tr key={r.id} className="hover:bg-white/[0.03] transition">
                       <td className="px-5 py-3 font-medium text-zinc-200">{r.empresa}</td>
                       <td className="px-4 py-3 text-zinc-400 max-w-[180px]">
                         {r.metrica_id || numCamps > 0 ? (
                           <>
                             <span className="truncate block">{r.campana_nombre}</span>
                             {numCamps > 1 && (
-                              <span className="text-[10px] text-violet-500">+{numCamps - 1} adicional{numCamps - 1 > 1 ? "es" : ""}</span>
+                              <span className="text-[10px] text-violet-400">+{numCamps - 1} adicional{numCamps - 1 > 1 ? "es" : ""}</span>
                             )}
                           </>
                         ) : (
-                          <span className="text-zinc-400 italic flex items-center gap-1">
+                          <span className="text-zinc-500 italic flex items-center gap-1">
                             <HelpCircle size={10} /> Sin identificar
                           </span>
                         )}
@@ -309,22 +324,22 @@ export default function ResultadosPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-zinc-500">{r.proyecto ?? "—"}</td>
-                      <td className="px-4 py-3 text-right font-bold text-green-600">{S(monto)}</td>
-                      <td className="px-4 py-3 text-right text-red-500">
+                      <td className="px-4 py-3 text-right font-bold text-emerald-400">{S(monto)}</td>
+                      <td className="px-4 py-3 text-right text-red-400">
                         {costo > 0 ? S(costo) : "—"}
                       </td>
                       <td className="px-4 py-3 text-right">
                         {costo > 0
-                          ? <span className={margen >= 50 ? "text-green-600 font-medium" : "text-amber-600 font-medium"}>{margen.toFixed(1)}%</span>
-                          : <span className="text-zinc-300">—</span>}
+                          ? <span className={margen >= 50 ? "text-emerald-400 font-medium" : "text-amber-400 font-medium"}>{margen.toFixed(1)}%</span>
+                          : <span className="text-zinc-600">—</span>}
                       </td>
                       <td className="px-4 py-3 text-center text-zinc-500">
                         {new Date(r.fecha_venta).toLocaleDateString("es-PE")}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2 justify-end">
-                          <button onClick={() => abrirEditar(r)} className="text-zinc-400 hover:text-brand transition"><Pencil size={13} /></button>
-                          <button onClick={() => eliminar(r.id)} className="text-zinc-400 hover:text-red-500 transition"><Trash2 size={13} /></button>
+                          <button onClick={() => abrirEditar(r)} className="text-zinc-500 hover:text-accent transition"><Pencil size={13} /></button>
+                          <button onClick={() => eliminar(r.id)} className="text-zinc-500 hover:text-red-400 transition"><Trash2 size={13} /></button>
                         </div>
                       </td>
                     </tr>
@@ -345,7 +360,7 @@ export default function ResultadosPage() {
             </h2>
 
             {errorGuardar && (
-              <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-600">
+              <div className="rounded-lg bg-red-500/[0.08] border border-red-500/30 px-3 py-2 text-xs text-red-300">
                 {errorGuardar}
               </div>
             )}
@@ -357,7 +372,7 @@ export default function ResultadosPage() {
                 <select
                   value={form.empresa}
                   onChange={(e) => setForm((f) => ({ ...f, empresa: e.target.value, metrica_ids: [], campana_nombre: "" }))}
-                  className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`}
+                  className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/30`}
                 >
                   <option value="">Selecciona empresa</option>
                   {empresas.map((e) => <option key={e} value={e}>{e}</option>)}
@@ -370,15 +385,16 @@ export default function ResultadosPage() {
                 <div className="grid grid-cols-3 gap-2">
                   {(["confirmada", "probable", "sin_datos"] as ConfianzaAtribucion[]).map((c) => {
                     const cfg = CONFIANZA_CFG[c];
+                    const sel = form.confianza_atribucion === c;
                     return (
                       <button
                         key={c}
                         type="button"
                         onClick={() => setForm((f) => ({ ...f, confianza_atribucion: c, metrica_ids: c === "sin_datos" ? [] : f.metrica_ids }))}
                         className={`py-2 px-2 rounded-xl text-[11px] font-medium border transition text-center ${
-                          form.confianza_atribucion === c
+                          sel
                             ? `${cfg.bg} ${cfg.color} border-current`
-                            : "bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300"
+                            : "bg-white/[0.03] border-white/10 text-zinc-400 hover:border-white/20"
                         }`}
                       >
                         {cfg.label}
@@ -395,13 +411,13 @@ export default function ResultadosPage() {
                   <span className="text-xs text-zinc-500">
                     Campaña(s) que generaron la venta
                     {form.metrica_ids.length > 0 && (
-                      <span className="ml-1.5 text-violet-600 font-medium">
+                      <span className="ml-1.5 text-violet-300 font-medium">
                         · {form.metrica_ids.length} seleccionada{form.metrica_ids.length > 1 ? "s" : ""}
                       </span>
                     )}
                   </span>
                   {!form.empresa ? (
-                    <p className="text-xs text-zinc-400 italic">Selecciona primero la empresa</p>
+                    <p className="text-xs text-zinc-500 italic">Selecciona primero la empresa</p>
                   ) : (
                     <div className="border border-white/10 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
                       {campanasDeLaEmpresa.map((m) => {
@@ -410,23 +426,23 @@ export default function ResultadosPage() {
                         return (
                           <label
                             key={m.id}
-                            className={`flex items-start gap-3 px-3 py-2.5 cursor-pointer transition border-b border-white/5 last:border-b-0 ${
-                              sel ? "bg-violet-50" : "hover:bg-zinc-800/40"
+                            className={`flex items-start gap-3 px-3 py-2.5 cursor-pointer transition border-b border-white/[0.06] last:border-b-0 ${
+                              sel ? "bg-violet-500/12" : "hover:bg-white/[0.04]"
                             }`}
                           >
                             <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5 transition ${
-                              sel ? "bg-violet-600" : "border-2 border-white/15"
+                              sel ? "bg-violet-500" : "border-2 border-white/15"
                             }`}>
                               {sel && <Check size={10} className="text-white" strokeWidth={3} />}
                             </div>
                             <input type="checkbox" className="sr-only" checked={sel} onChange={() => toggleCampana(m.id)} />
                             <div className="flex-1 min-w-0">
-                              <p className={`text-xs font-medium truncate ${sel ? "text-violet-800" : "text-zinc-300"}`}>
+                              <p className={`text-xs font-medium truncate ${sel ? "text-violet-200" : "text-zinc-300"}`}>
                                 {m.campana_nombre}
                               </p>
-                              <p className="text-[10px] text-zinc-400">
+                              <p className="text-[10px] text-zinc-500">
                                 {m.plataforma.toUpperCase()} · {m.periodo_inicio?.slice(0, 7)}
-                                {esPrimaria && sel && <span className="ml-1.5 text-violet-500 font-medium">· principal</span>}
+                                {esPrimaria && sel && <span className="ml-1.5 text-violet-400 font-medium">· principal</span>}
                               </p>
                             </div>
                           </label>
@@ -435,7 +451,7 @@ export default function ResultadosPage() {
                     </div>
                   )}
                   {form.confianza_atribucion === "probable" && form.metrica_ids.length === 0 && (
-                    <p className="text-[10px] text-amber-600">Selecciona la campaña más probable aunque no sea segura</p>
+                    <p className="text-[10px] text-amber-400">Selecciona la campaña más probable aunque no sea segura</p>
                   )}
                 </div>
               )}
@@ -449,7 +465,7 @@ export default function ResultadosPage() {
                     value={form.monto || ""}
                     onChange={(e) => setForm((f) => ({ ...f, monto: Number(e.target.value) }))}
                     placeholder="ej. 300000"
-                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`}
+                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/30`}
                   />
                 </label>
                 <label className="block space-y-1">
@@ -459,7 +475,7 @@ export default function ResultadosPage() {
                     value={form.costo_venta || ""}
                     onChange={(e) => setForm((f) => ({ ...f, costo_venta: Number(e.target.value) }))}
                     placeholder="ej. 2500"
-                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`}
+                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/30`}
                   />
                 </label>
               </div>
@@ -473,7 +489,7 @@ export default function ResultadosPage() {
                     value={form.proyecto ?? ""}
                     onChange={(e) => setForm((f) => ({ ...f, proyecto: e.target.value }))}
                     placeholder="ej. Casa Villa del Sol"
-                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`}
+                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/30`}
                   />
                 </label>
                 <label className="block space-y-1">
@@ -482,7 +498,7 @@ export default function ResultadosPage() {
                     type="date"
                     value={form.fecha_venta}
                     onChange={(e) => setForm((f) => ({ ...f, fecha_venta: e.target.value }))}
-                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30`}
+                    className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/30`}
                   />
                 </label>
               </div>
@@ -495,7 +511,7 @@ export default function ResultadosPage() {
                   onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))}
                   rows={2}
                   placeholder="Ej: Lead de campaña anterior que cerró tras ver nueva campaña..."
-                  className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/30 resize-none`}
+                  className={`${INPUT_BASE} w-full text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/30 resize-none`}
                 />
               </label>
             </div>
@@ -503,14 +519,14 @@ export default function ResultadosPage() {
             <div className="flex gap-2 pt-1">
               <button
                 onClick={() => setModal(false)}
-                className="flex-1 py-2 text-sm border border-white/10 rounded-xl text-zinc-400 hover:bg-zinc-800/40 transition"
+                className="flex-1 py-2 text-sm border border-white/10 rounded-xl text-zinc-300 hover:bg-white/5 transition"
               >
                 Cancelar
               </button>
               <button
                 onClick={guardar}
                 disabled={guardando || !form.empresa || form.monto <= 0}
-                className="flex-1 py-2 text-sm bg-brand text-white rounded-xl hover:bg-brand-hover disabled:opacity-40 transition font-medium"
+                className="btn-primary flex-1 py-2 text-sm rounded-xl disabled:opacity-40 font-medium"
               >
                 {guardando ? "Guardando..." : editando ? "Guardar cambios" : "Registrar venta"}
               </button>

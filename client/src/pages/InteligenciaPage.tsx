@@ -4,7 +4,7 @@ import { CARD_CLASS, HEADER_CLASS, GLASS_BASE, MODAL_BASE, BADGE_BASE, INPUT_BAS
 import { useChartColors } from "../hooks/useChartColors";
 import { accentRgb, readCssVar } from "../lib/chartTheme";
 import { useEffect, useState, Component, type ReactNode, type ErrorInfo } from "react";
-import { TrendingUp, Phone, CalendarDays, FileText, Package, AlertTriangle, CheckCircle, Info, Lightbulb, ChevronDown, Pencil, X, Check, Clock, Target, Zap } from "lucide-react";
+import { TrendingUp, Phone, CalendarDays, FileText, Package, AlertTriangle, CheckCircle, Info, Lightbulb, ChevronDown, Pencil, X, Check, Clock, Target, Zap, Briefcase, RefreshCw, BarChart2, Globe } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { getFunnelPipeline, getAnalisisRegion, getMotivosPerdida, getProspecto, getScoresLeads } from "../services/prospectos.api";
 import { getHeatmapLlamadas }  from "../services/llamadas.api";
@@ -81,10 +81,10 @@ const ETAPA_LABEL: Record<string, string> = {
 };
 
 const INSIGHT_STYLES: Record<string, { icon: React.ReactNode; chartColor: string; countColor: string }> = {
-  positivo:    { icon: <CheckCircle   size={13} className="text-zinc-500 shrink-0" />, get chartColor() { return accentRgb(); }, countColor: "text-brand"    },
+  positivo:    { icon: <CheckCircle   size={13} className="text-zinc-500 shrink-0" />, get chartColor() { return accentRgb(); }, countColor: "text-accent"    },
   alerta:      { icon: <AlertTriangle size={13} className="text-red-500 shrink-0"  />, get chartColor() { return readCssVar("--chart-danger", "#f87171"); },  countColor: "text-red-500"  },
-  info:        { icon: <Info          size={13} className="text-zinc-500 shrink-0" />, get chartColor() { return readCssVar("--chart-2", "#a855f7"); },    countColor: "text-zinc-800" },
-  oportunidad: { icon: <Lightbulb     size={13} className="text-brand shrink-0"    />, get chartColor() { return accentRgb(); }, countColor: "text-brand"    },
+  info:        { icon: <Info          size={13} className="text-zinc-500 shrink-0" />, get chartColor() { return readCssVar("--chart-2", "#a855f7"); },    countColor: "text-zinc-200" },
+  oportunidad: { icon: <Lightbulb     size={13} className="text-brand shrink-0"    />, get chartColor() { return accentRgb(); }, countColor: "text-accent"    },
 };
 
 // ─── Mini gauge para insights con porcentaje ──────────────────────────────────
@@ -119,7 +119,7 @@ function MiniCount({ valor, color, label = "total" }: { valor: number; color: st
   return (
     <div className={`${PANEL_BASE} shrink-0 flex flex-col items-center justify-center px-4 py-3 min-w-[64px]`}>
       <span className={`text-2xl font-bold leading-none ${color}`}>{valor}</span>
-      <span className="text-[9px] text-zinc-100 uppercase tracking-widest mt-1">{label}</span>
+      <span className="text-[9px] text-zinc-500 uppercase tracking-widest mt-1">{label}</span>
     </div>
   );
 }
@@ -127,10 +127,10 @@ function MiniCount({ valor, color, label = "total" }: { valor: number; color: st
 // ─── Componente leads estancados acordeón ────────────────────────────────────
 
 function gravedadDias(dias: number | null): { label: string; cls: string } {
-  if (dias === null || dias < 7)  return { label: "Bajo",    cls: "bg-zinc-100 text-zinc-700"       };
-  if (dias < 14)                  return { label: "Medio",   cls: "bg-zinc-200 text-zinc-600"       };
-  if (dias < 30)                  return { label: "Alto",    cls: "bg-brand/10 text-zinc-700"       };
-  return                                 { label: "Crítico", cls: "bg-red-100 text-red-700 font-bold" };
+  if (dias === null || dias < 7)  return { label: "Bajo",    cls: "bg-white/[0.06] text-zinc-300"       };
+  if (dias < 14)                  return { label: "Medio",   cls: "bg-amber-500/12 text-amber-300"      };
+  if (dias < 30)                  return { label: "Alto",    cls: "bg-orange-500/12 text-orange-300"    };
+  return                                 { label: "Crítico", cls: "bg-red-500/15 text-red-300 font-bold" };
 }
 
 function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
@@ -158,7 +158,7 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
       <div className={`${GLASS_BASE} overflow-hidden`}>
         <button
           onClick={() => setAbierto(v => !v)}
-          className="w-full flex items-center justify-between px-5 py-4 hover:bg-zinc-800/40 transition text-left"
+          className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/[0.03] transition text-left"
         >
           <div className="flex items-center gap-3">
             <AlertTriangle size={14} className="text-zinc-400 shrink-0" />
@@ -183,15 +183,15 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
         </button>
 
         {abierto && (
-          <div className="border-t border-white/8 overflow-x-auto max-h-72 overflow-y-auto">
+          <div className="border-t border-white/[0.08] overflow-x-auto max-h-72 overflow-y-auto">
             <table className="w-full text-xs">
               <thead className={`${STICKY_BASE} sticky top-0 z-10`}>
-                <tr className="border-b border-white/8">
-                  <th className="text-left py-2 px-5 text-zinc-100 font-medium">Empresa</th>
-                  <th className="text-left py-2 pr-4 text-zinc-100 font-medium">Etapa</th>
-                  <th className="text-left py-2 pr-4 text-zinc-100 font-medium">Riesgo</th>
-                  <th className="text-left py-2 pr-5 text-zinc-100 font-medium">Sin actividad</th>
-                  <th className="py-2 pr-3 text-zinc-100 font-medium" />
+                <tr className="border-b border-white/[0.08]">
+                  <th className="text-left py-2 px-5 text-zinc-500 font-medium">Empresa</th>
+                  <th className="text-left py-2 pr-4 text-zinc-500 font-medium">Etapa</th>
+                  <th className="text-left py-2 pr-4 text-zinc-500 font-medium">Riesgo</th>
+                  <th className="text-left py-2 pr-5 text-zinc-500 font-medium">Sin actividad</th>
+                  <th className="py-2 pr-3 text-zinc-500 font-medium" />
                 </tr>
               </thead>
               <tbody>
@@ -205,10 +205,10 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
                     <tr
                       key={lead.id}
                       onClick={() => abrirDetalle(lead.id)}
-                      className="border-b border-white/5 hover:bg-brand/5 hover:cursor-pointer transition group"
+                      className="border-b border-white/[0.08] hover:bg-white/[0.03] hover:cursor-pointer transition group"
                     >
                       <td className="py-2 px-5">
-                        <p className="font-medium text-zinc-200 truncate max-w-[160px] group-hover:text-brand">{lead.empresa}</p>
+                        <p className="font-medium text-zinc-200 truncate max-w-[160px] group-hover:text-accent">{lead.empresa}</p>
                         <p className="text-zinc-400 truncate max-w-[160px]">{lead.nombre_contacto}</p>
                       </td>
                       <td className="py-2 pr-4">
@@ -226,7 +226,7 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
                             : <span className="text-[10px] text-zinc-300">Sin actividad</span>
                           }
                           {cargando && (
-                            <div className="w-3 h-3 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+                            <div className="w-3 h-3 rounded-full border-2 border-t-transparent animate-spin [border-color:rgb(var(--accent))] [border-top-color:transparent]" />
                           )}
                         </div>
                       </td>
@@ -234,7 +234,7 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
                         {lead.telefono && (
                           <a
                             href={`tel:${lead.telefono}`}
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-zinc-900 text-white text-[10px] font-semibold hover:bg-zinc-700 transition whitespace-nowrap"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-semibold transition whitespace-nowrap text-accent bg-accent-10 border border-accent-20 hover:bg-accent-15"
                           >
                             <Phone size={10} /> {lead.telefono}
                           </a>
@@ -264,17 +264,17 @@ function LeadsEstancadosPanel({ leads }: { leads: LeadEstancado[] }) {
 // ─── Forecast panel ──────────────────────────────────────────────────────────
 
 const TENDENCIA_STYLE = {
-  subiendo: { text: "text-zinc-700", label: "↑ Subiendo", bg: "bg-zinc-100" },
-  estable:  { text: "text-brand",   label: "→ Estable",  bg: "bg-brand/10" },
-  bajando:  { text: "text-red-500", label: "↓ Bajando",  bg: "bg-red-50"   },
+  subiendo: { text: "text-emerald-300", label: "↑ Subiendo", bg: "bg-emerald-500/12" },
+  estable:  { text: "text-accent",      label: "→ Estable",  bg: "bg-accent-10" },
+  bajando:  { text: "text-red-300",     label: "↓ Bajando",  bg: "bg-red-500/12" },
 };
 
 type Salud = "buena" | "atencion" | "critica";
 
 const SALUD_STYLE: Record<Salud, { badge: string; valor: string; dot: string; label: string }> = {
-  buena:    { badge: "bg-green-50 text-green-700",  valor: "text-zinc-900", dot: "bg-green-500",  label: "Saludable" },
-  atencion: { badge: "bg-amber-50 text-amber-700",  valor: "text-amber-600", dot: "bg-amber-500", label: "Atención"  },
-  critica:  { badge: "bg-red-50 text-red-600",      valor: "text-red-500",  dot: "bg-red-500",    label: "Crítico"   },
+  buena:    { badge: "bg-emerald-500/15 text-emerald-300",  valor: "text-zinc-100", dot: "bg-emerald-400",  label: "Saludable" },
+  atencion: { badge: "bg-amber-500/15 text-amber-300",  valor: "text-amber-300", dot: "bg-amber-400", label: "Atención"  },
+  critica:  { badge: "bg-red-500/15 text-red-300",      valor: "text-red-300",  dot: "bg-red-400",    label: "Crítico"   },
 };
 
 function saludLlamadas(prom: number): Salud {
@@ -318,9 +318,9 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
   }
 
   const ESCENARIOS = [
-    { label: "Pesimista",  value: f.escenario_pesimista, bg: "bg-zinc-50",    num: "text-zinc-700",  border: "" },
-    { label: "Realista",   value: f.escenario_realista,  bg: "bg-brand/5",    num: "text-zinc-900",  border: "border border-brand/20" },
-    { label: "Optimista",  value: f.escenario_optimista, bg: "bg-amber-50",   num: "text-amber-700", border: "" },
+    { label: "Pesimista",  value: f.escenario_pesimista, bg: "bg-white/[0.04]",    num: "text-zinc-200",  border: "border border-white/[0.08]" },
+    { label: "Realista",   value: f.escenario_realista,  bg: "bg-accent-10",    num: "text-accent",  border: "border border-accent-30" },
+    { label: "Optimista",  value: f.escenario_optimista, bg: "bg-amber-500/10",   num: "text-amber-300", border: "border border-amber-500/30" },
   ];
 
   return (
@@ -331,7 +331,7 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
         <div className="flex items-center gap-2">
           <TrendingUp size={14} className="text-zinc-500 shrink-0" strokeWidth={2} />
           <div>
-            <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Pronóstico comercial</p>
+            <p className="text-[11px] font-semibold text-zinc-300 uppercase tracking-wider">Pronóstico comercial</p>
             <p className="text-[10px] text-zinc-400 mt-0.5">Proyección basada en ritmo actual</p>
           </div>
         </div>
@@ -342,20 +342,20 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
 
       {/* Velocidad comercial */}
       {f.velocidad_comercial > 0 && (
-        <div className="mb-4 px-4 py-3 bg-zinc-900 rounded-2xl flex items-center justify-between">
+        <div className="mb-4 px-4 py-3 neon-panel rounded-2xl flex items-center justify-between">
           <div>
             <div className="flex items-center gap-1.5 mb-1">
               <Zap size={11} className="text-zinc-400" />
-              <p className="text-[9px] text-zinc-100 uppercase tracking-widest font-semibold">Velocidad comercial</p>
+              <p className="text-[9px] text-zinc-500 uppercase tracking-widest">Velocidad comercial</p>
             </div>
-            <p className="text-2xl font-bold text-white leading-none">
+            <p className="font-display text-2xl font-bold text-zinc-50 leading-none">
               {fmtSol(f.velocidad_comercial)}
               <span className="text-sm font-normal text-zinc-400"> / día</span>
             </p>
             <p className="text-[10px] text-zinc-500 mt-1">pipeline activo generando por día</p>
           </div>
           <div className="text-right">
-            <p className="text-[9px] text-zinc-100 uppercase tracking-widest mb-0.5">Tasa cierre</p>
+            <p className="text-[9px] text-zinc-500 uppercase tracking-widest mb-0.5">Tasa cierre</p>
             <p className={`text-lg font-bold ${SALUD_STYLE[saludTasa(f.tasa_conversion_pct)].valor.replace("text-zinc-100","text-zinc-300")}`}>
               {f.tasa_conversion_pct}%
             </p>
@@ -371,7 +371,7 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
       <div className="grid grid-cols-3 gap-2 mb-4">
         {ESCENARIOS.map(s => (
           <div key={s.label} className={`rounded-xl p-3 text-center ${s.bg} ${s.border}`}>
-            <p className="text-[9px] font-semibold text-zinc-100 uppercase tracking-wider mb-1">{s.label}</p>
+            <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-wider mb-1">{s.label}</p>
             <p className={`text-base font-bold leading-none ${s.num}`}>
               {s.value > 0 ? fmtSol(s.value) : "S/ —"}
             </p>
@@ -385,7 +385,7 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
           <span className="text-[11px] font-semibold text-zinc-300">Cierres este mes</span>
           <span className="text-[11px] text-zinc-500">{progPct}% del objetivo</span>
         </div>
-        <div className="relative h-7 bg-zinc-800 rounded-xl overflow-hidden">
+        <div className="relative h-7 bg-white/[0.06] rounded-xl overflow-hidden">
           <div
             className="h-full rounded-xl transition-all duration-700 flex items-center justify-end pr-3"
             style={{ width: `${Math.max(progPct, f.cierres_mes_actual > 0 ? 6 : 0)}%`, backgroundColor: c.accent }}
@@ -399,7 +399,7 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
           {onVerLeads ? (
             <button
               onClick={() => onVerLeads("cierres", "Cierres del mes")}
-              className="flex items-center gap-1 text-[11px] font-semibold text-brand hover:underline transition"
+              className="flex items-center gap-1 text-[11px] font-semibold text-accent hover:underline transition"
             >
               {f.cierres_mes_actual} cerrados este mes
               <ChevronDown size={11} className="-rotate-90" />
@@ -419,7 +419,7 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
           const s = saludLlamadas(f.llamadas_semana_prom);
           const st = SALUD_STYLE[s];
           return (
-            <div className="border border-white/8 rounded-xl p-3">
+            <div className="border border-white/[0.08] rounded-xl p-3">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <Phone size={10} className="text-zinc-400" />
@@ -447,19 +447,19 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
                   {f.leads_calientes > 0 ? `${f.leads_calientes} abiertas` : "Sin pipeline"}
                 </span>
               </div>
-              <p className="text-xl font-bold leading-none text-zinc-100">{f.leads_calientes}</p>
+              <p className="font-display text-xl font-bold leading-none text-zinc-100">{f.leads_calientes}</p>
               <p className="text-[9px] text-zinc-400 mt-1.5">Enviadas + en negociación</p>
             </>
           );
           return clickable ? (
             <button
               onClick={() => onVerLeads!("calientes", "Propuestas activas")}
-              className="border border-white/8 rounded-xl p-3 hover:border-brand/40 hover:bg-brand/5 transition group text-left"
+              className="border border-white/[0.08] rounded-xl p-3 hover:border-accent-30 hover:bg-accent-10 transition group text-left"
             >
               {inner}
             </button>
           ) : (
-            <div className="border border-white/8 rounded-xl p-3">{inner}</div>
+            <div className="border border-white/[0.08] rounded-xl p-3">{inner}</div>
           );
         })()}
 
@@ -470,13 +470,13 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
           const st  = SALUD_STYLE[s];
           const sinHistoria = val === 0;
           return (
-            <div className="border border-white/8 rounded-xl p-3">
+            <div className="border border-white/[0.08] rounded-xl p-3">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <Target size={10} className="text-zinc-400" />
                   <span className="text-[9px] text-zinc-500 font-medium">Cobertura pipeline</span>
                 </div>
-                <span className={`${BADGE_BASE} text-[9px] font-bold px-1.5 py-0.5 ${sinHistoria ? "bg-zinc-800 text-zinc-400" : st.badge}`}>
+                <span className={`${BADGE_BASE} text-[9px] font-bold px-1.5 py-0.5 ${sinHistoria ? "bg-white/[0.06] text-zinc-400" : st.badge}`}>
                   {sinHistoria ? "Sin historia" : st.label}
                 </span>
               </div>
@@ -494,13 +494,13 @@ function ForecastPanel({ f, onVerLeads, onEditarMeta }: {
           const s    = saludAging(dias);
           const st   = SALUD_STYLE[s];
           return (
-            <div className="border border-white/8 rounded-xl p-3">
+            <div className="border border-white/[0.08] rounded-xl p-3">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <Clock size={10} className="text-zinc-400" />
                   <span className="text-[9px] text-zinc-500 font-medium">Aging propuestas</span>
                 </div>
-                <span className={`${BADGE_BASE} text-[9px] font-bold px-1.5 py-0.5 ${dias === 0 ? "bg-zinc-800 text-zinc-400" : st.badge}`}>
+                <span className={`${BADGE_BASE} text-[9px] font-bold px-1.5 py-0.5 ${dias === 0 ? "bg-white/[0.06] text-zinc-400" : st.badge}`}>
                   {dias === 0 ? "Sin datos" : st.label}
                 </span>
               </div>
@@ -558,19 +558,19 @@ function QuotaSection({
   };
 
   return (
-    <div className="mt-4 pt-4 border-t border-white/8 space-y-3">
+    <div className="mt-4 pt-4 border-t border-white/[0.08] space-y-3">
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[11px] font-bold text-zinc-100 uppercase tracking-wider">
+          <p className="text-[11px] font-bold text-zinc-300 uppercase tracking-wider">
             Meta de ingresos — {MESES[hoy.getMonth()]}
           </p>
         </div>
         {!editando ? (
           <button
             onClick={() => { setMetaInput(String(meta)); setEditando(true); }}
-            className="flex items-center gap-1 text-[10px] text-zinc-400 hover:text-brand transition"
+            className="flex items-center gap-1 text-[10px] text-zinc-400 hover:text-accent transition"
           >
             <Pencil size={10} /> Editar meta
           </button>
@@ -587,7 +587,7 @@ function QuotaSection({
             <button onClick={() => setEditando(false)} className="p-1 text-zinc-400 hover:text-zinc-400 transition">
               <X size={12} />
             </button>
-            <button onClick={handleGuardar} className="flex items-center gap-1 text-[11px] text-white bg-brand px-2 py-1 rounded-lg hover:bg-brand-hover transition">
+            <button onClick={handleGuardar} className="btn-primary flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg">
               <Check size={11} /> Guardar
             </button>
           </div>
@@ -597,14 +597,13 @@ function QuotaSection({
       {/* 4 KPIs estilo Zoho */}
       <div className="grid grid-cols-4 gap-2">
         {[
-          { label: "Logrado",   value: fmt(logrado),   sub: "cerrado este mes",      cls: logrado >= meta ? "text-green-600" : "text-zinc-900" },
-          { label: "Meta",      value: fmt(meta),       sub: "objetivo mensual",       cls: "text-zinc-900" },
-          { label: "Gap",       value: gap > 0 ? fmt(gap) : "✓ Meta cumplida", sub: gap > 0 ? "aún te falta" : "objetivo alcanzado", cls: gap > 0 ? "text-red-500" : "text-green-600" },
-          { label: "Predicho",  value: fmt(predicted),  sub: "logrado + pipeline",    cls: predicted >= meta ? "text-green-600" : "text-amber-600" },
+          { label: "Logrado",   value: fmt(logrado),   sub: "cerrado este mes",      cls: logrado >= meta ? "text-emerald-400" : "text-zinc-100" },
+          { label: "Meta",      value: fmt(meta),       sub: "objetivo mensual",       cls: "text-zinc-100" },
+          { label: "Gap",       value: gap > 0 ? fmt(gap) : "✓ Meta cumplida", sub: gap > 0 ? "aún te falta" : "objetivo alcanzado", cls: gap > 0 ? "text-red-300" : "text-emerald-400" },
+          { label: "Predicho",  value: fmt(predicted),  sub: "logrado + pipeline",    cls: predicted >= meta ? "text-emerald-400" : "text-amber-300" },
         ].map(k => (
-          <div key={k.label} className="bg-zinc-800/40 rounded-xl p-2.5 text-center">
-            <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-1">{k.label}</p>
-            <p className={`text-sm font-bold leading-none ${k.cls}`}>{k.value}</p>
+          <div key={k.label} className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-2.5 text-center">
+            <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-1">{k.label}</p>
             <p className="text-[9px] text-zinc-400 mt-1 leading-tight">{k.sub}</p>
           </div>
         ))}
@@ -616,7 +615,7 @@ function QuotaSection({
           <span className="text-[10px] text-zinc-500">Progreso vs meta</span>
           <span className="text-[10px] font-semibold text-zinc-300">{pctLogrado}% logrado · {pctPredicted}% predicho</span>
         </div>
-        <div className="relative h-4 bg-zinc-800 rounded-full overflow-hidden">
+        <div className="relative h-4 bg-white/[0.06] rounded-full overflow-hidden">
           {/* Barra predicho (fondo, más ancha) */}
           <div
             className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
@@ -652,7 +651,7 @@ function QuotaSection({
         </p>
       )}
       {gap === 0 && (
-        <p className="text-[11px] text-green-700 text-center bg-green-50 rounded-xl py-2 px-3 font-semibold">
+        <p className="text-[11px] text-emerald-300 text-center bg-emerald-500/12 border border-emerald-500/25 rounded-xl py-2 px-3 font-semibold">
           ✓ Meta de ingresos alcanzada este mes
         </p>
       )}
@@ -727,7 +726,7 @@ function ObjetivosPanel({
     setEditando(false);
   };
 
-  const inputCls = "w-16 text-center px-2 py-1 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/50";
+  const inputCls = "neon-input w-16 text-center px-2 py-1 text-xs";
 
   return (
     <div className={CARD_CLASS}>
@@ -741,7 +740,7 @@ function ObjetivosPanel({
         {!editando ? (
           <button
             onClick={() => setEditando(true)}
-            className="flex items-center gap-1.5 text-xs text-zinc-300 hover:text-brand transition"
+            className="flex items-center gap-1.5 text-xs text-zinc-300 hover:text-accent transition"
           >
             <Pencil size={12} /> Editar metas
           </button>
@@ -756,7 +755,7 @@ function ObjetivosPanel({
             <button
               onClick={handleGuardar}
               disabled={guardando}
-              className="flex items-center gap-1 text-xs text-white bg-brand hover:bg-brand-hover px-2.5 py-1 rounded-lg transition disabled:opacity-60"
+              className="btn-primary flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg disabled:opacity-60"
             >
               <Check size={12} /> {guardando ? "Guardando..." : "Guardar"}
             </button>
@@ -793,27 +792,27 @@ function ObjetivosPanel({
             real={obj.llamadas_hoy}
             meta={obj.llamadas_meta}
             icon={<Phone size={13} />}
-            textCls="text-brand"
-            fillCls="bg-brand"
-            trackCls="bg-brand/15"
+            textCls="text-accent"
+            fillCls="bg-[rgb(var(--accent))]"
+            trackCls="bg-accent-15"
           />
           <ObjetivoBar
             label="Reuniones"
             real={obj.reuniones_hoy}
             meta={obj.reuniones_meta}
             icon={<CalendarDays size={13} />}
-            textCls="text-zinc-700"
-            fillCls="bg-zinc-400"
-            trackCls="bg-zinc-100"
+            textCls="text-zinc-300"
+            fillCls="bg-zinc-500"
+            trackCls="bg-white/[0.06]"
           />
           <ObjetivoBar
             label="Brochures"
             real={obj.brochures_hoy}
             meta={obj.brochures_meta}
             icon={<Package size={13} />}
-            textCls="text-zinc-700"
-            fillCls="bg-zinc-400"
-            trackCls="bg-zinc-100"
+            textCls="text-zinc-300"
+            fillCls="bg-zinc-500"
+            trackCls="bg-white/[0.06]"
           />
         </div>
       )}
@@ -825,8 +824,8 @@ function ObjetivosPanel({
 function Divider({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-3 pt-1">
-      <span className="text-[9px] font-bold text-zinc-100 uppercase tracking-widest shrink-0">{label}</span>
-      <div className="flex-1 border-t border-white/8" />
+      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest shrink-0">{label}</span>
+      <div className="flex-1 border-t border-white/[0.08]" />
     </div>
   );
 }
@@ -898,15 +897,91 @@ const MODULO_META: Record<ModuloId, {
 };
 
 const ESTADO_BADGE = {
-  critico: 'bg-red-50 text-red-700 border-red-200',
-  urgente: 'bg-amber-50 text-amber-700 border-amber-200',
-  ok:      'bg-zinc-50 text-zinc-500 border-zinc-200',
+  critico: 'bg-red-500/12 text-red-300 border-red-500/30',
+  urgente: 'bg-amber-500/12 text-amber-300 border-amber-500/30',
+  ok:      'bg-white/[0.05] text-zinc-400 border-white/[0.08]',
 };
 const ESTADO_LABEL = {
   critico: 'Requiere atención',
   urgente: 'Revisar',
   ok:      'Al día',
 };
+
+// ── Neon grid de módulos ──────────────────────────────────────────
+
+const MODULOS_META_NEON: Record<string, { Icon: any; hex: string }> = {
+  forecasting: { Icon: TrendingUp,   hex: "#34d399" },
+  pipeline:    { Icon: Briefcase,    hex: "#3b82f6" },
+  cicloventa:  { Icon: RefreshCw,    hex: "#f59e0b" },
+  scoring:     { Icon: Target,       hex: "#a855f7" },
+  churn:       { Icon: AlertTriangle,hex: "#f87171" },
+  acciones:    { Icon: Zap,          hex: "#fbbf24" },
+  realtime:    { Icon: BarChart2,    hex: "#22d3ee" },
+  web:         { Icon: Globe,        hex: "#0ea5e9" },
+  intentos:    { Icon: Phone,        hex: "#06b6d4" },
+};
+
+const ESTADO_HEX: Record<string, { label: string; hex: string } | null> = {
+  critico: { label: "Crítico", hex: "#f87171" },
+  urgente: { label: "Revisar", hex: "#fbbf24" },
+  ok:      null,
+};
+
+function ModuloCardNeon({
+  moduloKey, m, estado, onClick,
+}: {
+  moduloKey: string;
+  m: { emoji: string; titulo: string; subtitulo: string; descripcion: string };
+  estado: "critico" | "urgente" | "ok";
+  onClick: () => void;
+}) {
+  const meta  = MODULOS_META_NEON[moduloKey] ?? { Icon: Target, hex: "#06b6d4" };
+  const Icon  = meta.Icon;
+  const hex   = meta.hex;
+  const badge = ESTADO_HEX[estado];
+
+  return (
+    <button
+      onClick={onClick}
+      className="group relative text-left rounded-2xl p-5 overflow-hidden transition-all"
+      style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.08)" }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${hex}55`; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)"; }}
+    >
+      {/* halo de color en hover */}
+      <div
+        className="absolute -top-12 -right-12 w-28 h-28 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{ background: `radial-gradient(circle, ${hex}33, transparent 70%)` }}
+      />
+
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div
+          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110"
+          style={{ background: `${hex}1a`, border: `1px solid ${hex}40`, color: hex, boxShadow: `0 0 14px ${hex}30` }}
+        >
+          <Icon size={19} />
+        </div>
+        {badge && (
+          <span
+            className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+            style={{ color: badge.hex, background: `${badge.hex}1a`, border: `1px solid ${badge.hex}38` }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: badge.hex, boxShadow: `0 0 5px ${badge.hex}` }} />
+            {badge.label}
+          </span>
+        )}
+      </div>
+
+      <h3 className="text-sm font-bold text-zinc-100 group-hover:text-accent transition-colors leading-snug">{m.titulo}</h3>
+      <p className="text-[10px] font-semibold uppercase tracking-wider mt-1" style={{ color: hex }}>{m.subtitulo}</p>
+      <p className="text-xs text-zinc-500 mt-2 leading-relaxed">{m.descripcion}</p>
+
+      <div className="flex items-center gap-1 mt-3 text-[11px] font-semibold text-zinc-600 group-hover:text-accent transition-colors">
+        Abrir módulo <ChevronDown size={12} className="group-hover:translate-x-0.5 transition-transform" />
+      </div>
+    </button>
+  );
+}
 
 class ModuloErrorBoundary extends Component<{ children: ReactNode }, { error: boolean }> {
   state = { error: false };
@@ -917,7 +992,7 @@ class ModuloErrorBoundary extends Component<{ children: ReactNode }, { error: bo
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <AlertTriangle size={28} className="text-amber-400 mb-2" />
         <p className="text-sm text-zinc-300 font-medium">Ocurrió un error al cargar este módulo</p>
-        <button onClick={() => this.setState({ error: false })} className="mt-3 text-xs text-brand hover:underline">
+        <button onClick={() => this.setState({ error: false })} className="mt-3 text-xs text-accent hover:underline">
           Reintentar
         </button>
       </div>
@@ -1184,9 +1259,9 @@ export default function InteligenciaPage() {
       {kpiTilesData.map(tile => (
         <div key={tile.label} className={CARD_CLASS}>
           <div className="flex items-start justify-between mb-3">
-            <div className="p-1.5 rounded-lg bg-zinc-800 shrink-0">{tile.icon}</div>
+            <div className="p-1.5 rounded-lg bg-white/[0.05] shrink-0">{tile.icon}</div>
             {tile.delta !== null && (
-              <span className={`${BADGE_BASE} text-[9px] font-bold px-1.5 py-0.5 shrink-0 ${ tile.delta > 0 ? "bg-zinc-800 text-white" : tile.delta < 0 ? "bg-red-100 text-red-600" : "bg-zinc-800 text-zinc-500" }`}>
+              <span className={`${BADGE_BASE} text-[9px] font-bold px-1.5 py-0.5 shrink-0 ${ tile.delta > 0 ? "bg-white/[0.08] text-white" : tile.delta < 0 ? "bg-red-500/12 text-red-300" : "bg-white/[0.08] text-zinc-500" }`}>
                 {tile.delta > 0 ? `▲${tile.delta}%` : tile.delta < 0 ? `▼${Math.abs(tile.delta)}%` : "="}
               </span>
             )}
@@ -1210,14 +1285,14 @@ export default function InteligenciaPage() {
   // Selector de año para ciclo de venta
   const aniosCV = Array.from({ length: 3 }, (_, i) => hoy.getFullYear() - 1 + i); // año pasado, actual, próximo
   const selectorAnioCV = (
-    <div className="flex items-center gap-1.5 bg-zinc-800 rounded-xl p-1">
+    <div className="flex items-center gap-1.5 bg-white/[0.03] rounded-xl p-1">
       {aniosCV.map(a => (
         <button
           key={a}
           onClick={() => setAnioCV(a === anioCV ? undefined : a)}
           className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all ${
             anioCV === a
-              ? "bg-slate-800/60 text-zinc-100 shadow-sm"
+              ? "bg-white/[0.08] text-zinc-100 shadow-sm"
               : "text-zinc-500 hover:text-zinc-300"
           }`}
         >
@@ -1228,7 +1303,7 @@ export default function InteligenciaPage() {
         onClick={() => setAnioCV(undefined)}
         className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all ${
           anioCV === undefined
-            ? "bg-slate-800/60 text-zinc-100 shadow-sm"
+            ? "bg-white/[0.08] text-zinc-100 shadow-sm"
             : "text-zinc-500 hover:text-zinc-300"
         }`}
       >
@@ -1254,47 +1329,13 @@ export default function InteligenciaPage() {
     const m    = modulosCards.find(c => c.id === id)!;
     const meta = MODULO_META[id];
     return (
-      <button
+      <ModuloCardNeon
         key={id}
+        moduloKey={id}
+        m={meta}
+        estado={m.estado}
         onClick={() => setModuloActivo(id)}
-        className={`text-left ${GLASS_BASE} p-5 hover:border-brand/40 hover:shadow-sm transition-all duration-200 group flex flex-col`}
-      >
-        {/* Cabecera */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2.5">
-            <span className="text-lg leading-none">{meta.emoji}</span>
-            <div>
-              <p className="text-sm font-semibold text-zinc-100 group-hover:text-brand transition-colors leading-tight">{meta.titulo}</p>
-              <p className="text-[10px] text-zinc-400 mt-0.5">{meta.subtitulo}</p>
-            </div>
-          </div>
-          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border shrink-0 ml-2 ${ESTADO_BADGE[m.estado]}`}>
-            {ESTADO_LABEL[m.estado]}
-          </span>
-        </div>
-
-        {/* Descripción — 1 línea */}
-        <p className="text-xs text-zinc-500 leading-relaxed mb-4">{meta.descripcion}</p>
-
-        {/* Stats en vivo */}
-        {m.stats.length > 0 && (
-          <div className="flex gap-2 mt-auto">
-            {m.stats.map(s => (
-              <div key={s.label} className="flex-1 bg-zinc-800/40 rounded-xl px-2 py-2 text-center">
-                <p className="text-sm font-bold text-zinc-200 leading-none">{s.value}</p>
-                <p className="text-[9px] text-zinc-100 mt-0.5 uppercase tracking-wide leading-tight">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* CTA */}
-        <div className="flex items-center justify-end mt-3">
-          <span className="text-xs font-semibold text-brand inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-            Analizar <ChevronDown size={12} className="-rotate-90" />
-          </span>
-        </div>
-      </button>
+      />
     );
   };
 
@@ -1366,11 +1407,11 @@ export default function InteligenciaPage() {
 
           {/* Selector de módulo — dropdown inline */}
           <div className="relative group">
-            <button className="flex items-center gap-1.5 text-sm font-semibold text-zinc-200 hover:text-brand transition-colors">
+            <button className="flex items-center gap-1.5 text-sm font-semibold text-zinc-200 hover:text-accent transition-colors">
               {meta.emoji} {meta.titulo}
               <ChevronDown size={13} className="text-zinc-400" />
             </button>
-            <div className="absolute left-0 top-[calc(100%+6px)] z-50 bg-slate-800/60 border border-white/8 rounded-xl shadow-xl w-52 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
+            <div className="absolute left-0 top-[calc(100%+6px)] z-50 bg-white/[0.03] border border-white/[0.08] rounded-xl shadow-xl w-52 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
               {([
                 { id: "forecasting", emoji: "📈", label: "Forecast comercial" },
                 { id: "pipeline",    emoji: "💼", label: "Pipeline y propuestas" },
@@ -1387,8 +1428,8 @@ export default function InteligenciaPage() {
                   onClick={() => setModuloActivo(m.id)}
                   className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 transition
                     ${moduloActivo === m.id
-                      ? "bg-brand/5 text-brand font-semibold"
-                      : "text-zinc-300 hover:bg-zinc-800/40 hover:text-brand"
+                      ? "bg-accent-10 text-accent font-semibold"
+                      : "text-zinc-300 hover:bg-white/[0.03] hover:text-accent"
                     }`}
                 >
                   <span>{m.emoji}</span> {m.label}
@@ -1445,7 +1486,7 @@ export default function InteligenciaPage() {
             <div className="flex items-center gap-2 mb-4">
               <CalendarDays size={14} className="text-zinc-500" strokeWidth={2} />
               <div>
-                <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider">Ciclo de venta</p>
+                <p className="text-[11px] font-semibold text-zinc-300 uppercase tracking-wider">Ciclo de venta</p>
                 <p className="text-[10px] text-zinc-400 mt-0.5">Tiempo promedio desde primer contacto hasta cierre</p>
               </div>
             </div>
@@ -1504,7 +1545,7 @@ export default function InteligenciaPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-2">
                         {style.icon}
-                        <p className="text-[11px] font-semibold text-zinc-100 uppercase tracking-wider leading-none">
+                        <p className="text-[11px] font-semibold text-zinc-300 uppercase tracking-wider leading-none">
                           {ins.titulo}
                         </p>
                       </div>
@@ -1591,14 +1632,14 @@ export default function InteligenciaPage() {
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setForecastModal(null)} />
         <div className={`${MODAL_BASE} relative w-full max-w-lg max-h-[80vh] flex flex-col`}>
-          <div className="flex items-center justify-between p-5 border-b border-white/8">
+          <div className="flex items-center justify-between p-5 border-b border-white/[0.08]">
             <div>
               <p className="text-sm font-semibold text-zinc-100">{forecastModal.label}</p>
               <p className="text-xs text-zinc-500 mt-0.5">
                 {cargandoForecastLeads ? "Cargando..." : `${forecastLeads.length} leads · clic para llamar`}
               </p>
             </div>
-            <button onClick={() => setForecastModal(null)} className="p-1.5 rounded-lg hover:bg-zinc-800 transition">
+            <button onClick={() => setForecastModal(null)} className="p-1.5 rounded-lg hover:bg-white/[0.05] transition">
               <X size={16} className="text-zinc-400" />
             </button>
           </div>
@@ -1610,7 +1651,7 @@ export default function InteligenciaPage() {
             ) : forecastLeads.length === 0 ? (
               <p className="text-xs text-zinc-500 text-center py-8">Sin leads en esta categoría</p>
             ) : forecastLeads.map(lead => (
-              <div key={lead.id} className="p-3 rounded-xl border border-white/8 hover:border-brand/20 hover:bg-zinc-800/40 transition">
+              <div key={lead.id} className="p-3 rounded-xl border border-white/[0.08] hover:border-accent-20 hover:bg-white/[0.03] transition">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-zinc-100 truncate">{lead.empresa}</p>

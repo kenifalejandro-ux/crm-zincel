@@ -1,6 +1,8 @@
-/** client/src/components/finanzas/AlertasVencimiento.tsx */
+/** client/src/components/finanzas/AlertasVencimiento.tsx — NEON
+ * Antes: banner bg-red-50/orange-50/yellow-50, badges bg-red-100/purple-100, días
+ * text-red-700/orange-600/yellow-700, select focus:ring-brand. Ahora: neon. Lógica INTACTA.
+ */
 
-import { INPUT_BASE } from "../../lib/tokens";
 import { useState, useMemo } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import type { Egreso, Prestamo } from "../../types/finanzas.types";
@@ -81,20 +83,15 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
   const tieneVencidos = alertas.some(a => a.diasRestantes <= 0);
   const tieneUrgentes = alertas.some(a => a.diasRestantes > 0 && a.diasRestantes <= 3);
 
-  const colorBanner = tieneVencidos ? "bg-red-50 border-red-200"
-    : tieneUrgentes ? "bg-orange-50 border-orange-200"
-    : "bg-yellow-50 border-yellow-200";
-
-  const colorIcono = tieneVencidos ? "text-red-500"
-    : tieneUrgentes ? "text-orange-500"
-    : "text-yellow-500";
+  // Color del banner por severidad (neon translúcido)
+  const sev = tieneVencidos ? "#f87171" : tieneUrgentes ? "#fb923c" : "#fbbf24";
 
   return (
-    <div className={`border rounded-xl p-4 ${colorBanner}`}>
+    <div className="rounded-xl p-4" style={{ background: `${sev}0d`, border: `1px solid ${sev}33` }}>
       <div className="flex items-start justify-between gap-3">
 
         <div className="flex items-start gap-3 flex-1 min-w-0">
-          <AlertTriangle size={18} className={`shrink-0 mt-0.5 ${colorIcono}`} />
+          <AlertTriangle size={18} className="shrink-0 mt-0.5" style={{ color: sev }} />
 
           <div className="flex-1 min-w-0">
             {/* Título + selector de días */}
@@ -103,12 +100,12 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
                 {alertas.length} vencimiento{alertas.length !== 1 ? "s" : ""} próximo{alertas.length !== 1 ? "s" : ""}
               </p>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-zinc-300">Alertar con</span>
+                <span className="text-xs text-zinc-400">Alertar con</span>
                 <select
                   value={diasAnticipacion}
                   onChange={e => setDiasAnticipacion(Number(e.target.value))}
                   onClick={e => e.stopPropagation()}
-                  className={`${INPUT_BASE} text-xs px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-brand/50`}
+                  className="neon-input text-xs px-2 py-0.5"
                 >
                   {[3, 7, 15, 30].map(d => (
                     <option key={d} value={d}>{d} días de anticipación</option>
@@ -121,9 +118,9 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
             <div className="space-y-2">
               {alertas.map(a => {
                 const diasColor =
-                  a.diasRestantes <= 0  ? "text-red-700 font-bold"      :
-                  a.diasRestantes <= 3  ? "text-orange-600 font-semibold" :
-                  "text-yellow-700";
+                  a.diasRestantes <= 0  ? "#f87171" :
+                  a.diasRestantes <= 3  ? "#fb923c" :
+                  "#fbbf24";
 
                 const etiquetaDias =
                   a.diasRestantes <= 0
@@ -132,20 +129,19 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
                     ? "Vence mañana"
                     : `Vence en ${a.diasRestantes} días`;
 
+                const tipoHex = a.tipo === "egreso" ? "#f87171" : "#a855f7";
+
                 return (
                   <div key={a.id} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-                    <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                      a.tipo === "egreso"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-purple-100 text-purple-700"
-                    }`}>
+                    <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold"
+                      style={{ color: tipoHex, background: `${tipoHex}1a`, border: `1px solid ${tipoHex}38` }}>
                       {a.tipo === "egreso" ? "Egreso" : "Préstamo"}
                     </span>
                     <span className="text-zinc-200 font-medium">{a.descripcion}</span>
-                    <span className="text-zinc-400">{fmtMonto(a.monto, a.moneda)}</span>
-                    <span className={`${diasColor} flex items-center gap-1`}>
+                    <span className="text-zinc-500">{fmtMonto(a.monto, a.moneda)}</span>
+                    <span className="flex items-center gap-1 font-semibold" style={{ color: diasColor }}>
                       {etiquetaDias}
-                      <span className="text-zinc-400 font-normal">
+                      <span className="text-zinc-500 font-normal">
                         ({fmtFechaCorta(a.fecha_vencimiento)})
                       </span>
                     </span>
@@ -158,7 +154,7 @@ export function AlertasVencimiento({ egresos, prestamos }: Props) {
 
         <button
           onClick={() => setCerrado(true)}
-          className="shrink-0 text-zinc-400 hover:text-zinc-400 transition"
+          className="shrink-0 text-zinc-500 hover:text-zinc-300 transition"
           title="Cerrar"
         >
           <X size={16} />

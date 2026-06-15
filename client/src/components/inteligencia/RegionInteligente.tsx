@@ -26,13 +26,13 @@ function fmtVal(n: number): string {
 }
 
 function colorVolumen(total: number, maxTotal: number): string {
-  if (total === 0) return "#f4f4f5";
+  if (total === 0) return "#141d2e";
   const r = total / maxTotal;
-  if (r >= 0.6)  return readCssVar("--chart-2", "#a855f7");
-  if (r >= 0.3)  return "#64748b";
-  if (r >= 0.1)  return "#71717a";
-  if (r >= 0.02) return "#a1a1aa";
-  return "#d4d4d8";
+  if (r >= 0.6)  return "#22d3ee";
+  if (r >= 0.3)  return "#0891b2";
+  if (r >= 0.1)  return "#0e7490";
+  if (r >= 0.02) return "#155e75";
+  return "#1c4257";
 }
 
 function colorConversion(tasa: number, hasData: boolean): string {
@@ -125,19 +125,15 @@ function EmbудоConversion({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[
   ];
 
   return (
-    <div className="mt-5 pt-5 border-t border-white/8">
+    <div className="mt-5 pt-4 border-t border-white/[0.08]">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-wider">
-          Embudo de conversión — <span className="capitalize text-zinc-300">{d.zona.replace(/_/g," ")}</span>
+        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+          Actividad en <span className="capitalize text-zinc-300">{d.zona.replace(/_/g," ")}</span>
         </p>
-        <div className="flex items-center gap-3 text-[9px] text-zinc-400">
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-yellow-500 inline-block"/>Región</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-zinc-700 inline-block"/>Promedio</span>
-        </div>
       </div>
       <ResponsiveContainer width="100%" height={180}>
         <BarChart data={etapas} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
           <XAxis dataKey="label" tick={{ fontSize: 9, fill: "#71717a" }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fontSize: 9, fill: "#71717a" }} axisLine={false} tickLine={false} allowDecimals={false} />
           <Tooltip
@@ -169,13 +165,13 @@ function RadarEficiencia({ d, todos }: { d: RegionEtapa; todos: RegionEtapa[] })
   ];
 
   return (
-    <div className="mt-4 pt-4 border-t border-white/8">
-      <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-wider mb-2">
+    <div className="mt-4 pt-4 border-t border-white/[0.08]">
+      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">
         Radar de eficiencia vs promedio
       </p>
       <ResponsiveContainer width="100%" height={220}>
         <RadarChart data={radarData}>
-          <PolarGrid stroke="#f4f4f5" />
+          <PolarGrid stroke="rgba(255,255,255,0.06)" />
           <PolarAngleAxis dataKey="metrica" tick={{ fontSize: 9, fill: "#71797a" }} />
           <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
           <Radar filter="url(#neon-glow)" name="Promedio" dataKey="avg" stroke={c.grid} fill={c.palette[1]} fillOpacity={0.5} />
@@ -218,13 +214,16 @@ function InsightRegion({ d }: { d: RegionEtapa }) {
   if (!insights.length) return null;
 
   return (
-    <div className="mt-4 pt-4 border-t border-white/8 space-y-2">
-      <p className="text-[10px] font-bold text-zinc-100 uppercase tracking-wider">Diagnóstico</p>
+    <div className="mt-4 pt-4 border-t border-white/[0.08] space-y-2">
+      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Diagnóstico</p>
       {insights.map((ins, i) => (
-        <div key={i} className={`flex items-start gap-2 rounded-lg px-3 py-2 ${ins.tipo === "ok" ? "bg-green-50" : "bg-amber-50"}`}>
+        <div key={i} className="flex items-start gap-2 rounded-lg px-3 py-2" style={{
+          background: ins.tipo === "ok" ? "rgba(52, 211, 153, 0.08)" : "rgba(251, 191, 36, 0.08)",
+          border: `1px solid ${ins.tipo === "ok" ? "rgba(52, 211, 153, 0.25)" : "rgba(251, 191, 36, 0.25)"}`
+        }}>
           {ins.tipo === "ok"
-            ? <CheckCircle size={12} className="text-green-500 mt-0.5 shrink-0" />
-            : <AlertCircle size={12} className="text-amber-500 mt-0.5 shrink-0" />
+            ? <CheckCircle size={12} className="text-emerald-400 mt-0.5 shrink-0" />
+            : <AlertCircle size={12} className="text-amber-400 mt-0.5 shrink-0" />
           }
           <p className="text-[10px] text-zinc-400 leading-relaxed">{ins.texto}</p>
         </div>
@@ -335,25 +334,25 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
 
       {/* ── Regiones recomendadas ── */}
       {(recomendadas.length > 0 || oportunidades.length > 0) && (
-        <div className="mb-5 p-3 rounded-xl bg-amber-50 border border-amber-200">
+        <div className="mb-5 p-3 rounded-xl" style={{ background: "rgba(251, 191, 36, 0.08)", border: "1px solid rgba(251, 191, 36, 0.3)" }}>
           <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
-            <Flame size={12} className="text-amber-500" />
-            <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Regiones prioritarias para atacar</p>
-            <div className="ml-auto flex rounded-lg border border-amber-200 overflow-hidden text-[9px] font-semibold">
+            <Flame size={12} className="text-amber-400" />
+            <p className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">Regiones prioritarias para atacar</p>
+            <div className="ml-auto flex rounded-lg border border-amber-400/30 overflow-hidden text-[9px] font-semibold">
               <button
                 onClick={() => setVistaRec("activas")}
-                className={`px-2.5 py-1 transition-colors ${vistaRec === "activas" ? "bg-amber-500 text-white" : "bg-slate-800/60 text-amber-600 hover:bg-amber-50"}`}
+                className={`px-2.5 py-1 transition-colors ${vistaRec === "activas" ? "bg-amber-500 text-white" : "text-amber-300 hover:bg-amber-500/20"}`}
               >
                 Más activas
               </button>
               <button
                 onClick={() => setVistaRec("oportunidad")}
-                className={`px-2.5 py-1 transition-colors ${vistaRec === "oportunidad" ? "bg-amber-500 text-white" : "bg-slate-800/60 text-amber-600 hover:bg-amber-50"}`}
+                className={`px-2.5 py-1 transition-colors ${vistaRec === "oportunidad" ? "bg-amber-500 text-white" : "text-amber-300 hover:bg-amber-500/20"}`}
               >
                 Sin explotar
               </button>
             </div>
-            <TrendingUp size={11} className="text-amber-500" />
+            <TrendingUp size={11} className="text-amber-400" />
           </div>
 
           {recsActivas.length > 0 ? (
@@ -362,28 +361,29 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
                 {recsActivas.map((s, i) => (
                   <button key={s.region.zona}
                     onClick={() => handleSelectRegion(normalize(s.region.zona))}
-                    className="text-left p-2.5 rounded-lg bg-slate-800/60 border border-amber-100 hover:border-amber-300 transition-colors">
+                    className="text-left p-2.5 rounded-lg transition-colors"
+                    style={{ background: "rgba(251, 191, 36, 0.04)", border: "1px solid rgba(251, 191, 36, 0.25)" }}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[11px] font-bold text-zinc-200 capitalize">
                         {MEDAL[i]} {s.region.zona.replace(/_/g," ")}
                       </span>
-                      <span className={`${BADGE_BASE} text-[10px] font-bold text-amber-600 px-1.5 py-0.5`}>{s.score}pts</span>
+                      <span className="text-[10px] font-bold text-amber-300 px-1.5 py-0.5" style={{ background: "rgba(251, 191, 36, 0.15)", border: "1px solid rgba(251, 191, 36, 0.3)", borderRadius: "0.375rem" }}>{s.score}pts</span>
                     </div>
                     {s.motivos.map(m => <p key={m} className="text-[9px] text-zinc-500">· {m}</p>)}
-                    <div className="mt-2 w-full bg-amber-100 rounded-full h-1">
-                      <div className="h-1 rounded-full bg-amber-500" style={{ width: `${s.score}%` }} />
+                    <div className="mt-2 w-full bg-amber-500/12 rounded-full h-1 overflow-hidden">
+                      <div className="h-1 rounded-full" style={{ width: `${s.score}%`, background: "#fbbf24", boxShadow: "0 0 5px rgba(251, 191, 36, 0.6)" }} />
                     </div>
                   </button>
                 ))}
               </div>
-              <p className="text-[9px] text-amber-600 mt-2">
+              <p className="text-[9px] text-amber-300 mt-2">
                 {vistaRec === "activas"
                   ? "Score = contacto 35% + reuniones 25% + propuestas 20% + brochures 10% + volumen 10%"
                   : "Score = tasa de contacto 55% + baja penetración 45% · regiones con pocos leads pero buena receptividad"}
               </p>
             </>
           ) : (
-            <p className="text-[10px] text-amber-600 text-center py-2">
+            <p className="text-[10px] text-amber-300 text-center py-2">
               No hay suficientes datos para identificar oportunidades sin explotar
             </p>
           )}
@@ -391,9 +391,9 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
       )}
 
       {/* ── Mapa + Panel ── */}
-      <div className="flex flex-col lg:flex-row gap-5">
+      <div className="flex flex-col lg:flex-row gap-4 mt-3">
 
-        <div className="flex-1 min-w-0 h-[420px] sm:h-[520px] lg:h-[640px]">
+        <div className="flex-1 min-w-0 h-[360px] sm:h-[440px] lg:h-[500px] overflow-hidden rounded-xl" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
           <PeruMap
             getColor={getFill}
             markers={Array.from(dataMap.entries())
@@ -403,39 +403,49 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
             selectColor={c.accent}
             onSelect={handleSelectRegion}
             height="100%"
+            bgColor="#0a1120"
           />
         </div>
 
         {/* Panel lateral */}
-        <div className="w-full lg:w-64 shrink-0 flex flex-col gap-3 pt-1">
+        <div className="w-full lg:w-52 shrink-0 flex flex-col gap-3">
 
           {selected ? (
-            <div className="border border-white/10 rounded-xl p-3 space-y-3 overflow-y-auto max-h-[640px]">
+            <div className="rounded-xl p-3 space-y-3 overflow-y-auto max-h-[640px]" style={{ border: "1px solid rgb(var(--accent) / 0.3)", background: "rgb(var(--accent) / 0.04)" }}>
               <div className="flex items-center justify-between">
-                <p className="text-[13px] font-bold text-zinc-200 capitalize">{selected.zona.replace(/_/g," ")}</p>
+                <p className="text-[13px] font-bold text-zinc-100 capitalize">{selected.zona.replace(/_/g," ")}</p>
                 <button onClick={() => setSelected(null)}>
-                  <X size={13} className="text-zinc-400 hover:text-zinc-300" />
+                  <X size={13} className="text-zinc-500 hover:text-zinc-300" />
                 </button>
               </div>
 
               {/* KPIs */}
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { label: "Total leads",   value: selected.total,                   color: "text-zinc-800" },
-                  { label: "Activos",       value: selected.activos,                 color: "text-blue-600" },
-                  { label: "Cerrados",      value: selected.cerrados,                color: "text-green-600" },
-                  { label: "Tasa cierre",   value: `${pct(selected.cerrados,selected.total)}%`, color: "text-brand" },
+                  { label: "Total leads",   value: selected.total },
+                  { label: "Activos",       value: selected.activos },
+                  { label: "Cerrados",      value: selected.cerrados },
+                  { label: "Tasa cierre",   value: `${pct(selected.cerrados,selected.total)}%` },
                 ].map(k => (
-                  <div key={k.label} className="bg-zinc-800/40 rounded-lg px-2.5 py-2">
-                    <p className="text-[9px] text-zinc-100 uppercase">{k.label}</p>
-                    <p className={`text-[16px] font-bold ${k.color}`}>{k.value}</p>
+                  <div key={k.label} className="rounded-lg px-2.5 py-2" style={{ background: "rgb(var(--accent) / 0.06)", border: "1px solid rgb(var(--accent) / 0.2)" }}>
+                    <p className="text-[9px] text-zinc-500 uppercase tracking-wide">{k.label}</p>
+                    <p className="font-display text-[20px] font-bold text-zinc-100">{k.value}</p>
                   </div>
                 ))}
               </div>
 
+              {/* Barra vs mayor región */}
+              <div className="border-t border-white/[0.08] pt-2">
+                <p className="text-[9px] text-zinc-500 mb-1">Vs mayor región</p>
+                <div className="w-full bg-white/[0.05] rounded-full h-1.5 overflow-hidden">
+                  <div className="h-1.5 rounded-full transition-all duration-500"
+                    style={{ width: `${Math.round((selected.total / (Math.max(...data.map(d => d.total), 1))) * 100)}%`, background: "rgb(var(--accent))", boxShadow: "0 0 8px rgb(var(--accent))" }} />
+                </div>
+              </div>
+
               {/* Tasas de conversión por etapa */}
-              <div className="border-t border-white/8 pt-2.5">
-                <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-2">Tasas por etapa</p>
+              <div className="border-t border-white/[0.08] pt-2.5">
+                <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Tasas por etapa</p>
                 {[
                   { label: "Contacto (llam. contest.)", val: pct(selected.llamadas_contestadas, selected.llamadas),    den: selected.llamadas },
                   { label: "Brochures / contactados",   val: pct(selected.brochures ?? 0, selected.llamadas_contestadas), den: selected.llamadas_contestadas },
@@ -459,22 +469,22 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
               </div>
 
               {/* Valor pipeline */}
-              <div className="flex justify-between items-center border-t border-white/8 pt-2">
+              <div className="flex justify-between items-center border-t border-white/[0.08] pt-2">
                 <span className="text-[10px] text-zinc-500">Valor pipeline</span>
-                <span className="text-[12px] font-bold text-brand">{fmtVal(selected.valor)}</span>
+                <span className="text-[12px] font-bold text-accent" style={{ textShadow: "0 0 12px rgb(var(--accent) / calc(0.5*var(--glow)))" }}>{fmtVal(selected.valor)}</span>
               </div>
             </div>
           ) : (
-            <div className="border border-dashed border-white/10 rounded-xl flex items-center justify-center h-[200px]">
-              <p className="text-[10px] text-zinc-400 text-center px-4 leading-relaxed">
-                Clic en un<br />departamento<br />para el análisis completo
+            <div className="border border-dashed border-white/10 rounded-xl flex items-center justify-center h-36">
+              <p className="text-[10px] text-zinc-500 text-center px-3 leading-relaxed">
+                Clic en un<br />departamento<br />para ver la actividad
               </p>
             </div>
           )}
 
           {/* Leyenda */}
-          <div className="border border-white/8 rounded-xl p-3">
-            <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-2.5">
+          <div className="rounded-xl p-3" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+            <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-2.5">
               {modo === "volumen" ? "Cantidad de leads" : "Tasa de cierre"}
             </p>
             {(modo === "volumen" ? LEYENDA_VOLUMEN() : LEYENDA_CONV()).map(({ color, label }) => (
@@ -486,21 +496,30 @@ export function RegionInteligente({ data }: { data: RegionEtapa[] }) {
           </div>
 
           {/* Top regiones */}
-          <div className="border border-white/8 rounded-xl p-3">
-            <p className="text-[9px] font-bold text-zinc-100 uppercase tracking-wider mb-2">Top regiones</p>
+          <div className="rounded-xl p-3" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+            <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Top regiones</p>
             <div className="space-y-0.5">
-              {data.slice(0, 7).map((d, i) => (
-                <div key={d.zona}
-                  className={`flex items-center gap-2 px-1.5 py-1 rounded-lg cursor-pointer transition-colors ${
-                    selected?.zona === d.zona ? "bg-zinc-800" : "hover:bg-zinc-800/40"
-                  }`}
-                  onClick={() => handleSelectRegion(normalize(d.zona))}
-                >
-                  <span className="text-[9px] text-zinc-400 w-3 shrink-0">{i + 1}</span>
-                  <span className="text-[10px] text-zinc-300 flex-1 truncate capitalize">{d.zona.replace(/_/g," ")}</span>
-                  <span className="text-[10px] font-bold text-zinc-200 shrink-0">{d.total}</span>
-                </div>
-              ))}
+              {data.slice(0, 6).map((d, i) => {
+                const maxT = Math.max(...data.map(x => x.total), 1);
+                const col = colorVolumen(d.total, maxT);
+                return (
+                  <div key={d.zona}
+                    className={`flex items-center gap-2 px-1.5 py-1.5 rounded-lg cursor-pointer transition-colors ${
+                      selected?.zona === d.zona ? "bg-accent-10" : "hover:bg-white/[0.04]"
+                    }`}
+                    onClick={() => handleSelectRegion(normalize(d.zona))}
+                  >
+                    <span className="text-[9px] font-bold w-3 shrink-0" style={{ color: selected?.zona === d.zona ? "rgb(var(--accent))" : "#52525b" }}>{i + 1}</span>
+                    <span className="text-[10px] text-zinc-300 flex-1 truncate capitalize">
+                      {d.zona.replace(/_/g," ")}
+                    </span>
+                    <div className="w-10 h-1 rounded-full bg-white/[0.06] overflow-hidden shrink-0">
+                      <div className="h-full rounded-full" style={{ width: `${(d.total / maxT) * 100}%`, background: col, boxShadow: `0 0 5px ${col}` }} />
+                    </div>
+                    <span className="text-[10px] font-bold text-zinc-200 w-6 text-right">{d.total}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
